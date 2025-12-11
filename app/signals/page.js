@@ -76,17 +76,54 @@ export default function SignalsPage() {
     if (!mounted) return null;
 
     return (
-        <div
-            style={{
-                minHeight: '100vh',
-                background: 'linear-gradient(180deg, #080810 0%, #0f0f18 100%)',
-                padding: '2rem'
-            }}
-        >
-            <div className="container">
+        <div style={{
+            minHeight: '100vh',
+            background: '#080810',
+            position: 'relative',
+            overflow: 'hidden'
+        }}>
+            {/* Ambient Background Effects */}
+            <div style={{
+                position: 'absolute',
+                top: '-10%',
+                left: '-10%',
+                width: '50%',
+                height: '50%',
+                background: 'radial-gradient(circle, rgba(184, 134, 11, 0.12) 0%, transparent 70%)',
+                filter: 'blur(60px)',
+                zIndex: 0,
+                animation: 'pulse 8s ease-in-out infinite'
+            }}></div>
+            <div style={{
+                position: 'absolute',
+                bottom: '-10%',
+                right: '-10%',
+                width: '60%',
+                height: '60%',
+                background: 'radial-gradient(circle, rgba(218, 165, 32, 0.08) 0%, transparent 70%)',
+                filter: 'blur(80px)',
+                zIndex: 0,
+                animation: 'pulse 10s ease-in-out infinite reverse'
+            }}></div>
+
+            <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: '2rem', paddingBottom: '4rem' }}>
                 {/* Header */}
-                <div style={{ marginBottom: '3rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div style={{
+                    marginBottom: '4rem',
+                    textAlign: 'center',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '3rem 2rem',
+                    borderRadius: '30px',
+                    border: '1px solid rgba(184, 134, 11, 0.1)'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '2rem',
+                        width: '100%'
+                    }}>
                         <a
                             href="/"
                             style={{
@@ -95,7 +132,11 @@ export default function SignalsPage() {
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '0.5rem',
-                                fontSize: '0.95rem'
+                                fontSize: '0.95rem',
+                                padding: '0.5rem 1rem',
+                                background: 'rgba(218, 165, 32, 0.1)',
+                                borderRadius: '20px',
+                                transition: 'all 0.3s ease'
                             }}
                         >
                             {t.backToHome}
@@ -103,14 +144,22 @@ export default function SignalsPage() {
                         <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
                     </div>
 
+                    <div style={{ fontSize: '4rem', marginBottom: '1rem', animation: 'float 6s ease-in-out infinite' }}>💎</div>
                     <h1 className="text-gradient" style={{
-                        fontSize: '2.5rem',
-                        fontWeight: '700',
-                        marginBottom: '0.5rem'
+                        fontSize: '3rem',
+                        fontWeight: '800',
+                        marginBottom: '1rem',
+                        letterSpacing: '-1px'
                     }}>
-                        💎 {t.signalsTitle}
+                        {t.signalsTitle}
                     </h1>
-                    <p style={{ color: '#9a9ab0', fontSize: '1.1rem' }}>{t.signalsSubtitle}</p>
+                    <p style={{
+                        color: '#9a9ab0',
+                        fontSize: '1.2rem',
+                        maxWidth: '600px',
+                        margin: '0 auto',
+                        lineHeight: '1.6'
+                    }}>{t.signalsSubtitle}</p>
                 </div>
 
                 {/* Content */}
@@ -119,7 +168,7 @@ export default function SignalsPage() {
                         <div style={{
                             fontSize: '3rem',
                             marginBottom: '1rem',
-                            animation: 'pulse 2s ease-in-out infinite'
+                            animation: 'pulse 1.5s ease-in-out infinite'
                         }}>💎</div>
                         <p style={{ color: '#9a9ab0' }}>{t.loading}</p>
                     </div>
@@ -127,7 +176,9 @@ export default function SignalsPage() {
                     <div className="card" style={{
                         textAlign: 'center',
                         padding: '4rem',
-                        border: '1px solid rgba(184, 134, 11, 0.2)'
+                        border: '1px solid rgba(184, 134, 11, 0.2)',
+                        background: 'rgba(15, 15, 24, 0.6)',
+                        backdropFilter: 'blur(10px)'
                     }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
                         <p style={{ color: '#9a9ab0' }}>{t.noSignals}</p>
@@ -136,17 +187,29 @@ export default function SignalsPage() {
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-                        gap: '2rem'
+                        gap: '2.5rem'
                     }}>
                         {signals.map((signal, index) => (
                             <div
                                 key={signal._id || index}
                                 style={{
                                     background: '#0f0f18',
-                                    borderRadius: '20px',
+                                    borderRadius: '24px',
                                     overflow: 'hidden',
                                     border: '1px solid rgba(184, 134, 11, 0.15)',
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.4s ease',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                                    transform: 'translateY(0)'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-10px)';
+                                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(184, 134, 11, 0.1)';
+                                    e.currentTarget.style.borderColor = 'rgba(184, 134, 11, 0.4)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+                                    e.currentTarget.style.borderColor = 'rgba(184, 134, 11, 0.15)';
                                 }}
                             >
                                 {/* Signal Image */}
@@ -156,7 +219,7 @@ export default function SignalsPage() {
                                         alt="Trading Signal"
                                         style={{
                                             width: '100%',
-                                            height: '280px',
+                                            height: '300px',
                                             objectFit: 'cover',
                                             filter: isVip ? 'none' : 'blur(15px)',
                                             transition: 'filter 0.3s ease'
@@ -188,16 +251,18 @@ export default function SignalsPage() {
                                             }}>{t.unlockTitle}</h3>
                                             <p style={{
                                                 color: '#9a9ab0',
-                                                fontSize: '0.9rem',
+                                                fontSize: '0.95rem',
                                                 lineHeight: '1.6',
-                                                marginBottom: '1.5rem'
+                                                marginBottom: '1.5rem',
+                                                maxWidth: '280px'
                                             }}>{t.unlockDesc}</p>
                                             <a
                                                 href="/#pricing"
                                                 className="btn-primary"
                                                 style={{
-                                                    fontSize: '0.9rem',
-                                                    padding: '0.75rem 1.5rem'
+                                                    fontSize: '0.95rem',
+                                                    padding: '0.8rem 2rem',
+                                                    boxShadow: '0 4px 20px rgba(184, 134, 11, 0.3)'
                                                 }}
                                             >
                                                 {t.viewPlans}
@@ -207,7 +272,7 @@ export default function SignalsPage() {
                                 </div>
 
                                 {/* Signal Info */}
-                                <div style={{ padding: '1.25rem' }}>
+                                <div style={{ padding: '1.5rem' }}>
                                     <div style={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -215,21 +280,26 @@ export default function SignalsPage() {
                                     }}>
                                         <span style={{
                                             color: '#9a9ab0',
-                                            fontSize: '0.85rem'
+                                            fontSize: '0.9rem',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
                                         }}>
-                                            {t.posted}: {new Date(signal.createdAt).toLocaleDateString(
+                                            ⏰ {new Date(signal.createdAt).toLocaleDateString(
                                                 lang === 'ar' ? 'ar-EG' : 'en-US',
                                                 { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
                                             )}
                                         </span>
                                         {isVip && (
                                             <span style={{
-                                                background: 'rgba(76, 175, 80, 0.1)',
+                                                background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.2) 100%)',
+                                                border: '1px solid rgba(76, 175, 80, 0.3)',
                                                 color: '#4caf50',
-                                                padding: '0.25rem 0.75rem',
-                                                borderRadius: '20px',
-                                                fontSize: '0.8rem',
-                                                fontWeight: '600'
+                                                padding: '0.4rem 1rem',
+                                                borderRadius: '30px',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '600',
+                                                letterSpacing: '0.5px'
                                             }}>
                                                 ✓ VIP
                                             </span>
@@ -243,12 +313,12 @@ export default function SignalsPage() {
             </div>
             <style jsx>{`
                 @keyframes pulse {
-                    0%, 100% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.1); opacity: 0.8; }
+                    0%, 100% { transform: scale(1); opacity: 0.5; }
+                    50% { transform: scale(1.05); opacity: 0.8; }
                 }
                 @keyframes float {
                     0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-5px); }
+                    50% { transform: translateY(-10px); }
                 }
             `}</style>
         </div>
