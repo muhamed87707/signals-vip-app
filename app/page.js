@@ -43,7 +43,7 @@ const translations = {
         perYear: '/year',
         popular: 'Most Popular',
         bestValue: 'Best Value',
-        save: 'Save',
+        youSave: 'You Save',
         subscribe: 'Subscribe Now',
         feature_signals: 'Unlimited trading signals',
         feature_support: 'Priority support',
@@ -98,7 +98,7 @@ const translations = {
         perYear: '/سنة',
         popular: 'الأكثر شعبية',
         bestValue: 'أفضل قيمة',
-        save: 'وفّر',
+        youSave: 'توفر',
         subscribe: 'اشترك الآن',
         feature_signals: 'توصيات تداول غير محدودة',
         feature_support: 'دعم ذو أولوية',
@@ -116,34 +116,83 @@ const translations = {
     }
 };
 
-// ===== Testimonials Data =====
-const testimonials = [
+// ===== Arabic Testimonials =====
+const arabicTestimonials = [
     {
-        name: { ar: 'أحمد الشمري', en: 'Ahmed Al-Shammari' },
-        title: { ar: 'متداول منذ سنتين', en: 'Trader for 2 years' },
-        text: {
-            ar: 'توصيات دقيقة جداً ونتائج ممتازة. حققت أرباحاً ممتازة خلال شهرين فقط. أنصح الجميع بالاشتراك.',
-            en: 'Very accurate signals and excellent results. I made great profits in just two months. I recommend everyone to subscribe.'
-        },
+        name: 'أحمد الشمري',
+        title: 'متداول منذ سنتين',
+        text: 'توصيات دقيقة جداً ونتائج ممتازة. حققت أرباحاً ممتازة خلال شهرين فقط. أنصح الجميع بالاشتراك.',
         initial: 'أ'
     },
     {
-        name: { ar: 'محمد العتيبي', en: 'Mohammed Al-Otaibi' },
-        title: { ar: 'مستثمر في الذهب', en: 'Gold Investor' },
-        text: {
-            ar: 'أفضل خدمة توصيات جربتها على الإطلاق. الدعم الفني سريع والتحليلات مفصلة ومفيدة جداً.',
-            en: 'Best signal service I have ever tried. Technical support is fast and the analysis is detailed and very useful.'
-        },
+        name: 'محمد العتيبي',
+        title: 'مستثمر في الذهب',
+        text: 'أفضل خدمة توصيات جربتها على الإطلاق. الدعم الفني سريع والتحليلات مفصلة ومفيدة جداً.',
         initial: 'م'
     },
     {
-        name: { ar: 'خالد السيد', en: 'Khaled El-Sayed' },
-        title: { ar: 'متداول فوركس', en: 'Forex Trader' },
-        text: {
-            ar: 'التوصيات تصلني في الوقت المناسب دائماً. نسبة النجاح عالية جداً وأنا سعيد بالنتائج.',
-            en: 'Signals always reach me at the right time. Success rate is very high and I am happy with the results.'
-        },
+        name: 'خالد السيد',
+        title: 'متداول فوركس',
+        text: 'التوصيات تصلني في الوقت المناسب دائماً. نسبة النجاح عالية جداً وأنا سعيد بالنتائج.',
         initial: 'خ'
+    },
+    {
+        name: 'عبدالله الحربي',
+        title: 'متداول محترف',
+        text: 'بعد تجربة عدة خدمات، هذه هي الأفضل بلا منازع. التحليلات عميقة والنتائج مبهرة.',
+        initial: 'ع'
+    },
+    {
+        name: 'سعود المالكي',
+        title: 'مستثمر مبتدئ',
+        text: 'كنت مبتدئاً ولكن مع التوصيات المفصلة أصبحت أفهم السوق بشكل أفضل. شكراً جزيلاً!',
+        initial: 'س'
+    },
+    {
+        name: 'فهد القحطاني',
+        title: 'متداول ذهب',
+        text: 'دقة التوصيات مذهلة! أحقق أرباح ثابتة شهرياً والدعم متاح على مدار الساعة.',
+        initial: 'ف'
+    }
+];
+
+// ===== English Testimonials =====
+const englishTestimonials = [
+    {
+        name: 'James Mitchell',
+        title: 'Professional Trader',
+        text: 'Incredibly accurate signals with detailed analysis. My portfolio has grown significantly since joining. Highly recommended!',
+        initial: 'J'
+    },
+    {
+        name: 'Michael Thompson',
+        title: 'Gold Investor',
+        text: 'The best signal service I have ever used. The team provides exceptional support and the analysis is top-notch.',
+        initial: 'M'
+    },
+    {
+        name: 'David Anderson',
+        title: 'Forex Trader',
+        text: 'Signals are always on time and the success rate is impressive. I have been a member for a year and could not be happier.',
+        initial: 'D'
+    },
+    {
+        name: 'Robert Williams',
+        title: 'Part-time Trader',
+        text: 'Perfect for someone with a busy schedule. I just follow the signals and the results speak for themselves.',
+        initial: 'R'
+    },
+    {
+        name: 'Chris Johnson',
+        title: 'Beginner Trader',
+        text: 'Started with zero experience. The educational resources and detailed signals helped me understand the market quickly.',
+        initial: 'C'
+    },
+    {
+        name: 'Daniel Brown',
+        title: 'Investment Analyst',
+        text: 'As a professional, I appreciate the depth of analysis. The signals are well-researched and consistently profitable.',
+        initial: 'D'
     }
 ];
 
@@ -163,6 +212,9 @@ export default function LandingPage() {
     const isRTL = lang === 'ar';
     const currentYear = new Date().getFullYear();
 
+    // Get testimonials based on language
+    const testimonials = lang === 'ar' ? arabicTestimonials : englishTestimonials;
+
     // Pricing calculations
     const monthlyPrice = 79;
     const quarterlyPrice = 179;
@@ -171,8 +223,6 @@ export default function LandingPage() {
     const yearlyOriginal = monthlyPrice * 12; // $948
     const quarterlySavings = quarterlyOriginal - quarterlyPrice; // $58
     const yearlySavings = yearlyOriginal - yearlyPrice; // $469
-    const quarterlyDiscount = Math.round((quarterlySavings / quarterlyOriginal) * 100); // 24%
-    const yearlyDiscount = Math.round((yearlySavings / yearlyOriginal) * 100); // 49%
 
     // Detect browser language on mount
     useEffect(() => {
@@ -296,12 +346,12 @@ export default function LandingPage() {
                         {testimonials.map((testimonial, index) => (
                             <div key={index} className="testimonial-card">
                                 <div className="testimonial-stars">★★★★★</div>
-                                <p className="testimonial-text">"{testimonial.text[lang]}"</p>
+                                <p className="testimonial-text">"{testimonial.text}"</p>
                                 <div className="testimonial-author">
                                     <div className="testimonial-avatar">{testimonial.initial}</div>
                                     <div>
-                                        <div className="testimonial-name">{testimonial.name[lang]}</div>
-                                        <div className="testimonial-title">{testimonial.title[lang]}</div>
+                                        <div className="testimonial-name">{testimonial.name}</div>
+                                        <div className="testimonial-title">{testimonial.title}</div>
                                     </div>
                                 </div>
                             </div>
@@ -342,12 +392,12 @@ export default function LandingPage() {
                             <span className="pricing-badge">{t.bestValue}</span>
                             <p className="pricing-duration">{t.quarterly}</p>
                             <h3 className="pricing-title">{t.quarterly}</h3>
-                            <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
                             <div className="pricing-price">
                                 ${quarterlyPrice}<span>{t.perQuarter}</span>
                             </div>
-                            <div className="pricing-discount">
-                                {t.save} {quarterlyDiscount}% (${quarterlySavings})
+                            <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
+                            <div className="pricing-savings">
+                                ✓ {t.youSave} ${quarterlySavings}
                             </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
@@ -365,12 +415,12 @@ export default function LandingPage() {
                             <span className="pricing-badge">{t.popular}</span>
                             <p className="pricing-duration">{t.yearly}</p>
                             <h3 className="pricing-title">{t.yearly}</h3>
-                            <p className="pricing-original">{t.originalPrice} ${yearlyOriginal}</p>
                             <div className="pricing-price">
                                 ${yearlyPrice}<span>{t.perYear}</span>
                             </div>
-                            <div className="pricing-discount">
-                                {t.save} {yearlyDiscount}% (${yearlySavings})
+                            <p className="pricing-original">{t.originalPrice} ${yearlyOriginal}</p>
+                            <div className="pricing-savings">
+                                ✓ {t.youSave} ${yearlySavings}
                             </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
