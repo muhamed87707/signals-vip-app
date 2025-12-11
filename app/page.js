@@ -1,219 +1,303 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useLanguage } from './context/LanguageContext';
 
-export default function Home() {
-    const [signals, setSignals] = useState([]);
-    const [isVip, setIsVip] = useState(false);
-    const [telegramId, setTelegramId] = useState(null);
-    const { t, language, toggleLanguage, dir } = useLanguage();
+import { useState, useEffect } from 'react';
 
+// ===== Translation Dictionary =====
+const translations = {
+    en: {
+        // Header
+        brand: 'Abu Al-Dahab',
+        langSwitch: 'العربية',
+
+        // Hero
+        badge: '✨ Premium Trading Signals',
+        heroTitle: 'Master the Markets with',
+        heroTitleHighlight: 'Golden Precision',
+        heroSubtitle: 'Join an elite community of traders receiving accurate Gold & Forex signals. Make informed decisions, maximize profits, and trade with confidence.',
+        ctaButton: 'Start Trading Now',
+
+        // Features
+        featuresTitle: 'Why Choose Us?',
+        featuresSubtitle: 'We deliver precision, speed, and results that speak for themselves',
+        feature1Title: 'High Accuracy Signals',
+        feature1Desc: 'Our signals are carefully analyzed by expert traders with years of experience in the Gold and Forex markets.',
+        feature2Title: 'Real-Time Alerts',
+        feature2Desc: 'Receive instant notifications directly to your Telegram. Never miss a profitable opportunity again.',
+        feature3Title: 'Expert Analysis',
+        feature3Desc: 'Each signal comes with detailed technical analysis explaining entry points, stop loss, and take profit levels.',
+        feature4Title: '24/7 Support',
+        feature4Desc: 'Our dedicated team is here round the clock to answer your questions and guide your trading journey.',
+
+        // Pricing
+        pricingTitle: 'Choose Your Plan',
+        pricingSubtitle: 'Simple, transparent pricing with no hidden fees',
+        monthly: 'Monthly',
+        quarterly: '3 Months',
+        yearly: 'Yearly',
+        perMonth: '/month',
+        perQuarter: '/3 months',
+        perYear: '/year',
+        popular: 'Most Popular',
+        bestValue: 'Best Value',
+        subscribe: 'Subscribe Now',
+        feature_signals: 'Unlimited trading signals',
+        feature_support: 'Priority support',
+        feature_analysis: 'Detailed market analysis',
+        feature_community: 'VIP community access',
+        feature_education: 'Educational resources',
+
+        // Footer
+        footerText: 'All Rights Reserved',
+    },
+    ar: {
+        // Header
+        brand: 'أبو الذهب',
+        langSwitch: 'English',
+
+        // Hero
+        badge: '✨ توصيات تداول حصرية',
+        heroTitle: 'أتقن الأسواق مع',
+        heroTitleHighlight: 'دقة ذهبية',
+        heroSubtitle: 'انضم إلى مجتمع نخبة من المتداولين الذين يتلقون توصيات دقيقة للذهب والفوركس. اتخذ قرارات واعية، ضاعف أرباحك، وتداول بثقة.',
+        ctaButton: 'ابدأ التداول الآن',
+
+        // Features
+        featuresTitle: 'لماذا تختارنا؟',
+        featuresSubtitle: 'نقدم الدقة والسرعة ونتائج تتحدث عن نفسها',
+        feature1Title: 'توصيات عالية الدقة',
+        feature1Desc: 'يتم تحليل توصياتنا بعناية من قبل متداولين خبراء لديهم سنوات من الخبرة في أسواق الذهب والفوركس.',
+        feature2Title: 'تنبيهات فورية',
+        feature2Desc: 'استلم إشعارات فورية مباشرة على تليجرام. لا تفوت أي فرصة مربحة بعد الآن.',
+        feature3Title: 'تحليل الخبراء',
+        feature3Desc: 'كل توصية تأتي مع تحليل فني مفصل يشرح نقاط الدخول ووقف الخسارة وجني الأرباح.',
+        feature4Title: 'دعم على مدار الساعة',
+        feature4Desc: 'فريقنا المتخصص موجود على مدار الساعة للإجابة على أسئلتك وتوجيه رحلتك في التداول.',
+
+        // Pricing
+        pricingTitle: 'اختر خطتك',
+        pricingSubtitle: 'أسعار بسيطة وشفافة بدون رسوم مخفية',
+        monthly: 'شهري',
+        quarterly: '3 أشهر',
+        yearly: 'سنوي',
+        perMonth: '/شهر',
+        perQuarter: '/3 أشهر',
+        perYear: '/سنة',
+        popular: 'الأكثر شعبية',
+        bestValue: 'أفضل قيمة',
+        subscribe: 'اشترك الآن',
+        feature_signals: 'توصيات تداول غير محدودة',
+        feature_support: 'دعم ذو أولوية',
+        feature_analysis: 'تحليل مفصل للسوق',
+        feature_community: 'وصول لمجتمع VIP',
+        feature_education: 'موارد تعليمية',
+
+        // Footer
+        footerText: 'جميع الحقوق محفوظة',
+    }
+};
+
+// ===== Check Icon Component =====
+const CheckIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill="currentColor" />
+    </svg>
+);
+
+// ===== Main Page Component =====
+export default function LandingPage() {
+    const [lang, setLang] = useState('en');
+    const [mounted, setMounted] = useState(false);
+
+    const t = translations[lang];
+    const isRTL = lang === 'ar';
+    const currentYear = new Date().getFullYear();
+
+    // Detect browser language on mount
     useEffect(() => {
-        // Basic Telegram Web App Initialization
-        if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
+        setMounted(true);
 
-            const user = tg.initDataUnsafe?.user;
-            if (user) {
-                setTelegramId(user.id);
-                fetchData(user.id);
-            } else {
-                fetchData(null);
-            }
-        } else {
-            fetchData(null);
+        // Check localStorage first
+        const savedLang = localStorage.getItem('preferred-language');
+        if (savedLang && (savedLang === 'ar' || savedLang === 'en')) {
+            setLang(savedLang);
+            return;
+        }
+
+        // Detect from browser
+        const browserLang = navigator.language || navigator.userLanguage;
+        if (browserLang.startsWith('ar')) {
+            setLang('ar');
         }
     }, []);
 
-    const fetchData = async (id) => {
-        try {
-            const res = await fetch(`/api/signals?telegramId=${id || ''}`);
-            const data = await res.json();
-            if (data.signals) setSignals(data.signals);
-            if (data.isUserVip) setIsVip(data.isUserVip);
-        } catch (error) {
-            console.error("Failed to fetch data", error);
-        }
+    // Toggle language
+    const toggleLang = () => {
+        const newLang = lang === 'en' ? 'ar' : 'en';
+        setLang(newLang);
+        localStorage.setItem('preferred-language', newLang);
     };
 
-    const currentYear = new Date().getFullYear();
+    // Update document direction
+    useEffect(() => {
+        if (mounted) {
+            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
+        }
+    }, [lang, isRTL, mounted]);
+
+    // Prevent hydration mismatch
+    if (!mounted) {
+        return null;
+    }
 
     return (
-        <div className="min-h-screen pb-20">
-            {/* Navbar with Language Toggle */}
-            <nav className="flex justify-between items-center p-5 max-w-7xl mx-auto">
-                <div className="text-2xl font-bold tracking-tighter">
-                    <span className="text-white">ABOU</span>
-                    <span className="text-gradient-gold"> AL-DAHAB</span>
-                </div>
-                <button
-                    onClick={toggleLanguage}
-                    className="glass-card px-4 py-2 rounded-full text-sm font-medium hover:bg-white/10 transition-colors flex items-center gap-2"
-                >
-                    <span>🌐</span>
-                    {language === 'en' ? 'EN' : 'AR'}
-                </button>
-            </nav>
-
-            {/* Hero Section */}
-            <header className="relative py-16 px-4 text-center overflow-hidden">
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-full bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none"></div>
-                <div className="relative z-10 max-w-3xl mx-auto">
-                    <div className="inline-block px-3 py-1 mb-4 rounded-full glass-card text-xs font-semibold text-gold-secondary uppercase tracking-wider animate-fadeInUp">
-                        {isVip ? t.vipTag : '#1 Trading Community'}
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-                        <span className="block text-white">{t.heroTitle.split(' ')[0]}</span>
-                        <span className="text-gradient-gold">{t.heroTitle.split(' ').slice(1).join(' ')}</span>
-                    </h1>
-                    <p className="text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
-                        {t.heroSubtitle}
-                    </p>
-
-                    {!isVip && (
-                        <a
-                            href="https://t.me/Abou_AlDahab"
-                            className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black transition-all duration-200 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full hover:from-yellow-300 hover:to-yellow-500 hover:scale-105 shadow-lg shadow-yellow-500/20 animate-float"
-                        >
-                            {t.subscribe}
-                        </a>
-                    )}
+        <div dir={isRTL ? 'rtl' : 'ltr'}>
+            {/* ===== Header ===== */}
+            <header className="header">
+                <div className="container header-content">
+                    <a href="/" className="logo">
+                        <span className="logo-icon">💎</span>
+                        <span>{t.brand}</span>
+                    </a>
+                    <button onClick={toggleLang} className="lang-toggle">
+                        🌐 {t.langSwitch}
+                    </button>
                 </div>
             </header>
 
-            <div className="max-w-4xl mx-auto px-4 space-y-20">
-
-                {/* Live Signals Section */}
-                <section>
-                    <h3 className="text-2xl font-bold mb-8 flex items-center gap-2">
-                        <span className="w-2 h-8 bg-gradient-to-b from-yellow-400 to-transparent rounded-full"></span>
-                        {t.premiumAccess}
-                    </h3>
-
-                    <div className="space-y-6">
-                        {signals.length > 0 ? signals.map((signal) => (
-                            <div key={signal._id} className="glass-card rounded-3xl overflow-hidden group hover:border-yellow-500/30 transition-all duration-300">
-                                {/* Card Header */}
-                                <div className="p-5 flex justify-between items-center glass-panel">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${signal.type === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                            {signal.type === 'BUY' ? 'B' : 'S'}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-xl text-white">{signal.pair}</h4>
-                                            <span className={`text-xs font-bold uppercase tracking-wider ${signal.type === 'BUY' ? 'text-green-400' : 'text-red-400'}`}>
-                                                {signal.type === 'BUY' ? t.buy : t.sell}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="text-xs text-gray-500 font-mono">
-                                        {new Date(signal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </div>
-                                </div>
-
-                                {/* Signal Visual */}
-                                <div className="relative h-64 md:h-80 bg-black/50 overflow-hidden">
-                                    <img
-                                        src={signal.imageUrl}
-                                        alt="Chart"
-                                        className={`w-full h-full object-cover transition-all duration-700 ${isVip ? 'hover:scale-110' : 'blur-xl opacity-60 scale-105'}`}
-                                    />
-
-                                    {!isVip && (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
-                                            <div className="w-16 h-16 mb-4 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-2xl">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                </svg>
-                                            </div>
-                                            <h4 className="text-xl font-bold text-white mb-2">{t.lockedContent}</h4>
-                                            <p className="text-sm text-gray-300 mb-6 max-w-xs">{t.unlockNow}</p>
-                                            <a href="https://t.me/Abou_AlDahab" className="px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-sm font-bold text-white transition-all">
-                                                {t.subscribe}
-                                            </a>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Card Footer */}
-                                {isVip && (
-                                    <div className="p-4 grid grid-cols-3 gap-0 divide-x divide-gray-800/50 bg-black/20 text-center text-sm">
-                                        <div className="py-2">
-                                            <div className="text-gray-500 text-xs mb-1">Status</div>
-                                            <div className="text-green-400 font-bold">{t.available}</div>
-                                        </div>
-                                        <div className="py-2">
-                                            <div className="text-gray-500 text-xs mb-1">{t.target}</div>
-                                            <div className="text-white font-mono">----</div>
-                                        </div>
-                                        <div className="py-2">
-                                            <div className="text-gray-500 text-xs mb-1">{t.stop}</div>
-                                            <div className="text-white font-mono">----</div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )) : (
-                            <div className="text-center py-20 text-gray-500 glass-card rounded-2xl">
-                                <p>No active signals at the moment</p>
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                {/* Pricing Section - Only for Non-VIP */}
-                {!isVip && (
-                    <section className="py-10">
-                        <h3 className="text-center text-3xl font-bold mb-12 text-white">{t.pricingTitle}</h3>
-
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {/* Plan 1 */}
-                            <div className="glass-card p-8 rounded-3xl relative hover:transform hover:-translate-y-2 transition-all duration-300">
-                                <div className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">{t.monthly}</div>
-                                <div className="flex items-baseline mb-6">
-                                    <span className="text-4xl font-bold text-white">$79</span>
-                                </div>
-                                <a href="https://t.me/Abou_AlDahab" className="block w-full py-3 rounded-xl border border-white/20 text-center font-bold hover:bg-white hover:text-black transition-all">
-                                    {t.subscribe}
-                                </a>
-                            </div>
-
-                            {/* Plan 2 - Popular */}
-                            <div className="glass-card p-8 rounded-3xl relative transform md:-translate-y-4 border-yellow-500/30 shadow-yellow-500/10 shadow-2xl">
-                                <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">POPULAR</div>
-                                <div className="text-yellow-400 text-sm font-bold uppercase tracking-widest mb-4">{t.threeMonths}</div>
-                                <div className="flex items-baseline mb-6">
-                                    <span className="text-5xl font-bold text-white">$179</span>
-                                </div>
-                                <a href="https://t.me/Abou_AlDahab" className="block w-full py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-center font-bold hover:shadow-lg transition-all">
-                                    {t.subscribe}
-                                </a>
-                            </div>
-
-                            {/* Plan 3 */}
-                            <div className="glass-card p-8 rounded-3xl relative hover:transform hover:-translate-y-2 transition-all duration-300">
-                                <div className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">{t.yearly}</div>
-                                <div className="flex items-baseline mb-6">
-                                    <span className="text-4xl font-bold text-white">$479</span>
-                                </div>
-                                <a href="https://t.me/Abou_AlDahab" className="block w-full py-3 rounded-xl border border-white/20 text-center font-bold hover:bg-white hover:text-black transition-all">
-                                    {t.subscribe}
-                                </a>
-                            </div>
+            {/* ===== Hero Section ===== */}
+            <section className="hero">
+                <div className="container">
+                    <div className="hero-content">
+                        <div className="hero-badge animate-fade-in-up">
+                            {t.badge}
                         </div>
-                    </section>
-                )}
+                        <h1 className="hero-title animate-fade-in-up delay-100">
+                            {t.heroTitle}
+                            <br />
+                            <span className="text-gradient">{t.heroTitleHighlight}</span>
+                        </h1>
+                        <p className="hero-subtitle animate-fade-in-up delay-200">
+                            {t.heroSubtitle}
+                        </p>
+                        <a href="#pricing" className="btn-primary animate-fade-in-up delay-300">
+                            {t.ctaButton} →
+                        </a>
+                    </div>
+                </div>
+            </section>
 
-            </div>
+            {/* ===== Features Section ===== */}
+            <section className="features">
+                <div className="container">
+                    <h2 className="section-title">
+                        {t.featuresTitle.split(' ')[0]}{' '}
+                        <span className="text-gradient">{t.featuresTitle.split(' ').slice(1).join(' ')}</span>
+                    </h2>
+                    <p className="section-subtitle">{t.featuresSubtitle}</p>
 
-            {/* Footer */}
-            <footer className="mt-20 py-8 text-center text-gray-600 text-sm font-medium border-t border-white/5">
-                <p>&copy; {currentYear} Abou Al-Dahab. {t.footerRights}.</p>
+                    <div className="features-grid">
+                        <div className="card">
+                            <div className="feature-icon">📊</div>
+                            <h3 className="feature-title">{t.feature1Title}</h3>
+                            <p className="feature-desc">{t.feature1Desc}</p>
+                        </div>
+                        <div className="card">
+                            <div className="feature-icon">⚡</div>
+                            <h3 className="feature-title">{t.feature2Title}</h3>
+                            <p className="feature-desc">{t.feature2Desc}</p>
+                        </div>
+                        <div className="card">
+                            <div className="feature-icon">🎯</div>
+                            <h3 className="feature-title">{t.feature3Title}</h3>
+                            <p className="feature-desc">{t.feature3Desc}</p>
+                        </div>
+                        <div className="card">
+                            <div className="feature-icon">💬</div>
+                            <h3 className="feature-title">{t.feature4Title}</h3>
+                            <p className="feature-desc">{t.feature4Desc}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== Pricing Section ===== */}
+            <section id="pricing" className="pricing">
+                <div className="container">
+                    <h2 className="section-title">
+                        {t.pricingTitle.split(' ')[0]}{' '}
+                        <span className="text-gradient">{t.pricingTitle.split(' ').slice(1).join(' ')}</span>
+                    </h2>
+                    <p className="section-subtitle">{t.pricingSubtitle}</p>
+
+                    <div className="pricing-grid">
+                        {/* Monthly Plan */}
+                        <div className="pricing-card">
+                            <p className="pricing-duration">{t.monthly}</p>
+                            <h3 className="pricing-title">{t.monthly}</h3>
+                            <div className="pricing-price">
+                                $79<span>{t.perMonth}</span>
+                            </div>
+                            <ul className="pricing-features">
+                                <li><CheckIcon /> {t.feature_signals}</li>
+                                <li><CheckIcon /> {t.feature_analysis}</li>
+                                <li><CheckIcon /> {t.feature_support}</li>
+                            </ul>
+                            <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>
+                                {t.subscribe}
+                            </a>
+                        </div>
+
+                        {/* Quarterly Plan */}
+                        <div className="pricing-card featured">
+                            <span className="pricing-badge">{t.popular}</span>
+                            <p className="pricing-duration">{t.quarterly}</p>
+                            <h3 className="pricing-title">{t.quarterly}</h3>
+                            <div className="pricing-price">
+                                $179<span>{t.perQuarter}</span>
+                            </div>
+                            <ul className="pricing-features">
+                                <li><CheckIcon /> {t.feature_signals}</li>
+                                <li><CheckIcon /> {t.feature_analysis}</li>
+                                <li><CheckIcon /> {t.feature_support}</li>
+                                <li><CheckIcon /> {t.feature_community}</li>
+                            </ul>
+                            <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>
+                                {t.subscribe}
+                            </a>
+                        </div>
+
+                        {/* Yearly Plan */}
+                        <div className="pricing-card">
+                            <span className="pricing-badge">{t.bestValue}</span>
+                            <p className="pricing-duration">{t.yearly}</p>
+                            <h3 className="pricing-title">{t.yearly}</h3>
+                            <div className="pricing-price">
+                                $479<span>{t.perYear}</span>
+                            </div>
+                            <ul className="pricing-features">
+                                <li><CheckIcon /> {t.feature_signals}</li>
+                                <li><CheckIcon /> {t.feature_analysis}</li>
+                                <li><CheckIcon /> {t.feature_support}</li>
+                                <li><CheckIcon /> {t.feature_community}</li>
+                                <li><CheckIcon /> {t.feature_education}</li>
+                            </ul>
+                            <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>
+                                {t.subscribe}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== Footer ===== */}
+            <footer className="footer">
+                <div className="container footer-content">
+                    <p>
+                        © {currentYear} <span className="footer-brand">{t.brand}</span>. {t.footerText}
+                    </p>
+                </div>
             </footer>
-
-            <script src="https://telegram.org/js/telegram-web-app.js" async></script>
         </div>
     );
 }
