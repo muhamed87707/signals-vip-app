@@ -1,132 +1,115 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-const ADMIN_PASSWORD = '@Mainpassword87707';
-
-export default function AdminPanel() {
-    const [authenticated, setAuthenticated] = useState(false);
+export default function Admin() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [signals, setSignals] = useState([]);
-    const [uploading, setUploading] = useState(false);
-    const [message, setMessage] = useState('');
-
-    // Form
-    const [pair, setPair] = useState('XAUUSD');
+    const [pastedImage, setPastedImage] = useState(null);
+    const [pair, setPair] = useState('');
     const [type, setType] = useState('BUY');
-    const [imageUrl, setImageUrl] = useState('');
-    const [preview, setPreview] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [signals, setSignals] = useState([]);
+
+    const CORRECT_PASSWORD = '@Mainpassword87707';
 
     useEffect(() => {
-        const auth = sessionStorage.getItem('adminAuth');
-        if (auth === 'true') {
-            setAuthenticated(true);
-            loadSignals();
+        // Check local storage for session
+        if (localStorage.getItem('admin_session') === 'true') {
+            setIsAuthenticated(true);
+            fetchSignals();
         }
     }, []);
 
     const handleLogin = (e) => {
         e.preventDefault();
-        if (password === ADMIN_PASSWORD) {
-            setAuthenticated(true);
-            sessionStorage.setItem('adminAuth', 'true');
-            loadSignals();
+        if (password === CORRECT_PASSWORD) {
+            setIsAuthenticated(true);
+            localStorage.setItem('admin_session', 'true');
+            fetchSignals();
         } else {
-            setError('كلمة مرور خاطئة');
+            alert('Incorrect Password');
         }
     };
 
-    const loadSignals = async () => {
-        const res = await fetch('/api/signals');
-        const data = await res.json();
-        setSignals(data.signals || []);
-    };
-
     const handlePaste = (e) => {
-        const items = e.clipboardData?.items;
-        if (!items) return;
-
+        const items = e.clipboardData.items;
         for (let i = 0; i < items.length; i++) {
             if (items[i].type.indexOf('image') !== -1) {
                 const blob = items[i].getAsFile();
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    setImageUrl(event.target.result);
-                    setPreview(event.target.result);
+                    setPastedImage(event.target.result);
                 };
                 reader.readAsDataURL(blob);
-                break;
             }
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!imageUrl) {
-            setMessage('❌ الرجاء لصق صورة أولاً');
+    const fetchSignals = async () => {
+        try {
+            const res = await fetch('/api/signals');
+            const data = await res.json();
+            if (data.signals) setSignals(data.signals);
+        } catch (error) {
+            console.error("Error fetching signals", error);
+        }
+    };
+
+    const publishSignal = async () => {
+        if (!pastedImage || !pair) {
+            alert('Please provide a pair name and paste an image');
             return;
         }
 
-        setUploading(true);
-        setMessage('');
-
+        setIsLoading(true);
         try {
             const res = await fetch('/api/signals', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pair, type, imageUrl }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pair: pair.toUpperCase(),
+                    type,
+                    imageUrl: pastedImage,
+                }),
             });
 
-            const data = await res.json();
-            if (data.success) {
-                setMessage('✅ تم نشر التوصية بنجاح');
-                setImageUrl('');
-                setPreview('');
-                setPair('XAUUSD');
-                setType('BUY');
-                loadSignals();
+            if (res.ok) {
+                alert('Signal Published Successfully! 🚀');
+                setPastedImage(null);
+                setPair('');
+                fetchSignals();
             } else {
-                setMessage('❌ حدث خطأ');
+                alert('Failed to publish signal');
             }
-        } catch (err) {
-            setMessage('❌ خطأ في الاتصال');
+        } catch (error) {
+            console.error(error);
+            alert('Error publishing signal');
         } finally {
-            setUploading(false);
+            setIsLoading(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('هل تريد حذف هذه التوصية؟')) return;
-
-        await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
-        loadSignals();
-    };
-
-    // LOGIN SCREEN
-    if (!authenticated) {
+    if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #151520 100%)' }}>
-                <div className="glass-strong rounded-3xl p-8 w-full max-w-md">
-                    <div className="text-center mb-8">
-                        <div className="text-6xl mb-4">🔐</div>
-                        <h1 className="text-2xl font-bold text-white mb-2">Admin Panel</h1>
-                        <p className="text-gray-400 text-sm">Enter password to continue</p>
-                    </div>
-
+            <div className="min-h-screen bg-black flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-gray-900 p-8 rounded-2xl border border-gray-800">
+                    <h1 className="text-2xl font-bold text-white mb-6 text-center">Admin Access</h1>
                     <form onSubmit={handleLogin} className="space-y-4">
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-gold"
-                            autoFocus
+                            placeholder="Enter Access Key"
+                            className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500"
                         />
-
-                        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-
-                        <button type="submit" className="btn-premium w-full">
-                            Login
+                        <button
+                            type="submit"
+                            className="w-full bg-yellow-500 text-black font-bold py-3 rounded-xl hover:bg-yellow-400 transition"
+                        >
+                            Unlock Panel
                         </button>
                     </form>
                 </div>
@@ -134,107 +117,109 @@ export default function AdminPanel() {
         );
     }
 
-    // ADMIN DASHBOARD
     return (
-        <div className="min-h-screen p-4" style={{ background: 'linear-gradient(135deg, #0a0a0f 0%, #151520 100)' }} dir="rtl">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen bg-black p-6 pb-20" onPaste={handlePaste}>
+            <div className="max-w-3xl mx-auto space-y-8">
+
                 {/* Header */}
-                <div className="glass-strong rounded-2xl p-4 mb-8 flex justify-between items-center">
-                    <h1 className="text-xl font-bold text-gold flex items-center gap-2">
-                        <span>👑</span> لوحة تحكم الأدمن
-                    </h1>
-                    <button onClick={() => {
-                        setAuthenticated(false);
-                        sessionStorage.removeItem('adminAuth');
-                    }} className="text-red-400 hover:text-red-300 text-sm">
-                        خروج
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-white">Signal Master ⚡</h1>
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('admin_session');
+                            setIsAuthenticated(false);
+                        }}
+                        className="text-gray-400 hover:text-white"
+                    >
+                        Logout
                     </button>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8">
-                    {/* Upload Form */}
-                    <div className="glass p-6 rounded-3xl">
-                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                            <span>📤</span> نشر توصية جديدة
-                        </h2>
+                {/* Publisher Card */}
+                <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-2xl">
+                    <h2 className="text-lg font-medium text-gray-300 mb-4">Create New Signal</h2>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-2">الزوج</label>
-                                <select value={pair} onChange={(e) => setPair(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white">
-                                    <option value="XAUUSD">XAUUSD (الذهب)</option>
-                                    <option value="EURUSD">EURUSD</option>
-                                    <option value="GBPUSD">GBPUSD</option>
-                                    <option value="BTCUSD">BTCUSD</option>
-                                </select>
+                    <div className="grid md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label className="block text-xs uppercase text-gray-500 mb-2">Pair Name</label>
+                            <input
+                                type="text"
+                                value={pair}
+                                onChange={(e) => setPair(e.target.value)}
+                                placeholder="e.g. XAUUSD"
+                                className="w-full bg-black border border-gray-700 text-white rounded-xl px-4 py-3 focus:border-yellow-500 focus:outline-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs uppercase text-gray-500 mb-2">Signal Type</label>
+                            <div className="flex bg-black rounded-xl p-1 border border-gray-700">
+                                <button
+                                    onClick={() => setType('BUY')}
+                                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${type === 'BUY' ? 'bg-green-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    BUY 🟢
+                                </button>
+                                <button
+                                    onClick={() => setType('SELL')}
+                                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${type === 'SELL' ? 'bg-red-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    SELL 🔴
+                                </button>
                             </div>
-
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-2">النوع</label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button type="button" onClick={() => setType('BUY')} className={`py-3 rounded-xl font-bold ${type === 'BUY' ? 'bg-green-500/20 text-green-400 border-2 border-green-500' : 'bg-white/5 text-gray-400'}`}>
-                                        🟢 BUY
-                                    </button>
-                                    <button type="button" onClick={() => setType('SELL')} className={`py-3 rounded-xl font-bold ${type === 'SELL' ? 'bg-red-500/20 text-red-400 border-2 border-red-500' : 'bg-white/5 text-gray-400'}`}>
-                                        🔴 SELL
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-2">الصورة (الصق هنا Ctrl+V)</label>
-                                <div onPaste={handlePaste} tabIndex={0} className="w-full h-64 border-2 border-dashed border-white/20 rounded-xl flex items-center justify-center cursor-pointer bg-white/5 overflow-hidden">
-                                    {preview ? (
-                                        <img src={preview} alt="Preview" className="max-w-full max-h-full" />
-                                    ) : (
-                                        <div className="text-center text-gray-500">
-                                            <div className="text-5xl mb-2">📋</div>
-                                            <p>اضغط هنا ثم الصق (Ctrl+V)</p>
-                                        </div>
-                                    )}
-                                </div>
-                                {preview && (
-                                    <button type="button" onClick={() => { setPreview(''); setImageUrl(''); }} className="text-red-400 text-sm mt-2">
-                                        إزالة
-                                    </button>
-                                )}
-                            </div>
-
-                            {message && <p className={`text-center text-sm ${message.includes('✅') ? 'text-green-400' : 'text-red-400'}`}>{message}</p>}
-
-                            <button type="submit" disabled={uploading} className="btn-premium w-full">
-                                {uploading ? 'جاري النشر...' : '🚀 نشر التوصية'}
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Signals List */}
-                    <div className="glass p-6 rounded-3xl">
-                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                            <span>📊</span> التوصيات ({signals.length})
-                        </h2>
-
-                        <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                            {signals.map((s) => (
-                                <div key={s._id} className="bg-white/5 rounded-xl p-4">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold">{s.pair}</span>
-                                            <span className={`text-xs px-2 py-1 rounded ${s.type === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                                {s.type}
-                                            </span>
-                                        </div>
-                                        <button onClick={() => handleDelete(s._id)} className="text-red-400 text-sm">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                    {s.imageUrl && <img src={s.imageUrl} alt="" className="w-full h-32 object-cover rounded-lg" />}
-                                    <p className="text-xs text-gray-500 mt-2">{new Date(s.createdAt).toLocaleString('ar')}</p>
-                                </div>
-                            ))}
                         </div>
                     </div>
+
+                    {/* Image Area */}
+                    <div
+                        className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${pastedImage ? 'border-yellow-500 bg-yellow-500/5' : 'border-gray-700 hover:border-gray-500'}`}
+                    >
+                        {pastedImage ? (
+                            <div className="relative">
+                                <img src={pastedImage} alt="Preview" className="max-h-64 mx-auto rounded-lg shadow-lg" />
+                                <button
+                                    onClick={() => setPastedImage(null)}
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="py-8">
+                                <p className="text-gray-400 mb-2">Click here and press <span className="text-white font-mono bg-gray-800 px-2 py-1 rounded">Ctrl + V</span> to paste chart</p>
+                                <p className="text-xs text-gray-600">Supports direct clipboard pasting</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={publishSignal}
+                        disabled={isLoading || !pastedImage || !pair}
+                        className={`w-full mt-6 py-4 rounded-xl font-bold text-lg transition ${isLoading ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-black hover:scale-[1.02]'}`}
+                    >
+                        {isLoading ? 'Publishing...' : '🚀 Publish Signal'}
+                    </button>
                 </div>
+
+                {/* Recent History */}
+                <div className="space-y-4">
+                    <h3 className="text-gray-400 font-medium pl-2">Recent Signals</h3>
+                    {signals.map((signal) => (
+                        <div key={signal._id} className="bg-gray-900 border border-gray-800 p-4 rounded-2xl flex items-center justify-between opacity-75 hover:opacity-100 transition">
+                            <div className="flex items-center gap-4">
+                                <img src={signal.imageUrl} className="w-16 h-16 rounded-lg object-cover bg-gray-800" />
+                                <div>
+                                    <h4 className="font-bold text-white">{signal.pair}</h4>
+                                    <span className={`text-xs ${signal.type === 'BUY' ? 'text-green-400' : 'text-red-400'}`}>{signal.type}</span>
+                                </div>
+                            </div>
+                            <div className="text-gray-500 text-xs">
+                                {new Date(signal.createdAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
             </div>
         </div>
     );

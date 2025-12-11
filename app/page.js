@@ -1,32 +1,28 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from './context/LanguageContext';
 
 export default function Home() {
-    const { lang, toggleLanguage, t, dir, isLoaded } = useLanguage();
     const [signals, setSignals] = useState([]);
     const [isVip, setIsVip] = useState(false);
     const [telegramId, setTelegramId] = useState(null);
-    const [isInTelegram, setIsInTelegram] = useState(false);
+    const { t, language, toggleLanguage, dir } = useLanguage();
 
     useEffect(() => {
-        // Telegram Web App initialization
+        // Basic Telegram Web App Initialization
         if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
             tg.expand();
 
-            if (tg.initDataUnsafe?.user) {
-                setIsInTelegram(true);
-                const user = tg.initDataUnsafe.user;
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
                 setTelegramId(user.id);
                 fetchData(user.id);
             } else {
-                setIsInTelegram(false);
                 fetchData(null);
             }
         } else {
-            setIsInTelegram(false);
             fetchData(null);
         }
     }, []);
@@ -38,337 +34,184 @@ export default function Home() {
             if (data.signals) setSignals(data.signals);
             if (data.isUserVip) setIsVip(data.isUserVip);
         } catch (error) {
-            console.error("Error fetching data", error);
+            console.error("Failed to fetch data", error);
         }
     };
 
-    if (!isLoaded) {
-        return <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] to-[#151520]"></div>;
-    }
+    const currentYear = new Date().getFullYear();
 
-    // Landing Page for Browser Visitors
-    if (!isInTelegram) {
-        return (
-            <div dir={dir} className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#151520] to-[#0a0a0f] text-white font-sans overflow-hidden">
-                {/* Animated Background */}
-                <div className="fixed inset-0 opacity-30">
-                    <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-500/20 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-                </div>
-
-                {/* Navbar */}
-                <nav className="relative z-10 p-6 glass-strong">
-                    <div className="max-w-7xl mx-auto flex justify-between items-center">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gold">{t('site_title')}</h1>
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={toggleLanguage}
-                                className="px-4 py-2 glass rounded-full text-sm font-semibold hover:glass-strong transition"
-                            >
-                                {lang === 'en' ? '🇸🇦 عربي' : '🇬🇧 English'}
-                            </button>
-                            <a
-                                href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                                className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full font-bold text-black hover:shadow-lg hover:shadow-yellow-500/50 transition transform hover:scale-105"
-                            >
-                                {t('login_members')}
-                            </a>
-                        </div>
-                    </div>
-                </nav>
-
-                {/* Hero Section */}
-                <section className="relative z-10 text-center py-20 md:py-32 px-4">
-                    <div className="max-w-5xl mx-auto animate-fade-in">
-                        <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                            {t('hero_title')} <br />
-                            {t('hero_subtitle')} <span className="text-gold">{t('hero_highlight')}</span>
-                        </h2>
-                        <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
-                            {t('hero_description')}
-                        </p>
-                        <a
-                            href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                            className="inline-block btn-premium text-lg md:text-xl px-12 py-5 animate-scale-in"
-                        >
-                            {t('hero_cta')}
-                        </a>
-                    </div>
-                </section>
-
-                {/* Features Section */}
-                <section className="relative z-10 py-20 px-4">
-                    <div className="max-w-7xl mx-auto">
-                        <h3 className="text-3xl md:text-4xl font-bold text-center mb-16">{t('features_title')}</h3>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {[
-                                { title: t('feature1_title'), desc: t('feature1_desc') },
-                                { title: t('feature2_title'), desc: t('feature2_desc') },
-                                { title: t('feature3_title'), desc: t('feature3_desc') },
-                                { title: t('feature4_title'), desc: t('feature4_desc') },
-                            ].map((feature, idx) => (
-                                <div
-                                    key={idx}
-                                    className="glass p-6 rounded-2xl hover:glass-strong transition transform hover:scale-105 animate-slide-up"
-                                    style={{ animationDelay: `${idx * 0.1}s` }}
-                                >
-                                    <h4 className="text-xl font-bold mb-3">{feature.title}</h4>
-                                    <p className="text-gray-400 text-sm">{feature.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Live Signals Preview */}
-                <section className="relative z-10 py-20 px-4">
-                    <div className="max-w-6xl mx-auto">
-                        <h3 className="text-3xl md:text-4xl font-bold text-center mb-12">{t('signals_title')}</h3>
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {signals.slice(0, 3).map((signal) => (
-                                <div key={signal._id} className="glass rounded-2xl overflow-hidden border border-white/10">
-                                    <div className="p-4 flex justify-between items-center bg-white/5">
-                                        <span className="font-bold text-lg">{signal.pair}</span>
-                                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${signal.type === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                            {signal.type}
-                                        </span>
-                                    </div>
-                                    <div className="relative h-64 bg-gray-900/50">
-                                        <img src={signal.imageUrl} alt="Signal" className="w-full h-full object-cover opacity-30 blur-md" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="glass-strong p-6 rounded-xl text-center max-w-xs">
-                                                <p className="font-bold text-lg mb-2">{t('signal_locked')}</p>
-                                                <p className="text-xs text-gray-400">{t('signal_locked_desc')}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Pricing Section */}
-                <section className="relative z-10 py-20 px-4">
-                    <div className="max-w-7xl mx-auto">
-                        <h3 className="text-3xl md:text-5xl font-bold text-center mb-4">{t('pricing_title')}</h3>
-                        <p className="text-gray-400 text-center mb-16 text-lg">{t('pricing_subtitle')}</p>
-
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {/* Monthly Plan */}
-                            <div className="glass p-8 rounded-3xl hover:glass-gold transition transform hover:scale-105">
-                                <h4 className="text-2xl font-bold mb-2">{t('plan_monthly')}</h4>
-                                <div className="mb-6">
-                                    <span className="text-5xl font-black text-gold">{t('plan_monthly_price')}</span>
-                                    <span className="text-gray-400">{t('plan_monthly_period')}</span>
-                                </div>
-                                <ul className="space-y-3 mb-8 text-sm">
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature1')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature2')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature3')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature4')}
-                                    </li>
-                                </ul>
-                                <a
-                                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                                    className="block text-center py-3 bg-white/10 hover:bg-white/20 rounded-full font-bold transition"
-                                >
-                                    {t('subscribe_now')}
-                                </a>
-                            </div>
-
-                            {/* Quarterly Plan - Popular */}
-                            <div className="glass-gold p-8 rounded-3xl transform scale-105 relative border-2 border-yellow-500/50 shadow-2xl shadow-yellow-500/20">
-                                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 text-black px-4 py-1 rounded-full text-sm font-bold">
-                                    {t('plan_popular')}
-                                </div>
-                                <h4 className="text-2xl font-bold mb-2">{t('plan_quarterly')}</h4>
-                                <div className="mb-6">
-                                    <span className="text-5xl font-black text-gold">{t('plan_quarterly_price')}</span>
-                                    <span className="text-gray-400">{t('plan_quarterly_period')}</span>
-                                </div>
-                                <div className="text-green-400 font-bold mb-4 text-sm">{t('plan_save')} $58</div>
-                                <ul className="space-y-3 mb-8 text-sm">
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature1')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature2')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature3')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature4')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature5')}
-                                    </li>
-                                </ul>
-                                <a
-                                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                                    className="block text-center py-3 btn-premium rounded-full"
-                                >
-                                    {t('subscribe_now')}
-                                </a>
-                            </div>
-
-                            {/* Yearly Plan - Best Value */}
-                            <div className="glass p-8 rounded-3xl hover:glass-gold transition transform hover:scale-105">
-                                <div className="text-blue-400 font-bold mb-2 text-sm">{t('plan_best_value')}</div>
-                                <h4 className="text-2xl font-bold mb-2">{t('plan_yearly')}</h4>
-                                <div className="mb-6">
-                                    <span className="text-5xl font-black text-gold">{t('plan_yearly_price')}</span>
-                                    <span className="text-gray-400">{t('plan_yearly_period')}</span>
-                                </div>
-                                <div className="text-green-400 font-bold mb-4 text-sm">{t('plan_save')} $469</div>
-                                <ul className="space-y-3 mb-8 text-sm">
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature1')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature2')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature3')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature4')}
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <span className="text-green-400">✓</span> {t('plan_feature5')}
-                                    </li>
-                                </ul>
-                                <a
-                                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                                    className="block text-center py-3 bg-white/10 hover:bg-white/20 rounded-full font-bold transition"
-                                >
-                                    {t('subscribe_now')}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Final CTA */}
-                <section className="relative z-10 py-20 px-4">
-                    <div className="max-w-4xl mx-auto glass-strong p-12 rounded-3xl text-center">
-                        <h3 className="text-4xl font-bold mb-4">{t('cta_title')}</h3>
-                        <p className="text-gray-400 mb-8 text-lg">{t('cta_description')}</p>
-                        <a
-                            href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                            className="inline-block btn-premium text-xl px-12 py-5"
-                        >
-                            {t('cta_button')}
-                        </a>
-                    </div>
-                </section>
-
-                {/* Footer */}
-                <footer className="relative z-10 border-t border-white/10 py-10 mt-20">
-                    <div className="max-w-7xl mx-auto px-4 text-center">
-                        <p className="text-gray-500">
-                            © {new Date().getFullYear()} Sniper Signals. {t('footer_copyright')}
-                        </p>
-                    </div>
-                </footer>
-
-                {/* Telegram Script */}
-                <script src="https://telegram.org/js/telegram-web-app.js" async></script>
-            </div>
-        );
-    }
-
-    // Telegram App View for VIP/Free Users
     return (
-        <div dir={dir} className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 pb-20">
-            <header className="flex justify-between items-center mb-6 glass-strong p-4 rounded-2xl">
-                <h1 className="text-xl font-bold text-gray-800">{t('site_title')}</h1>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={toggleLanguage}
-                        className="px-3 py-1 bg-gray-200 rounded-full text-xs font-semibold"
-                    >
-                        {lang === 'en' ? 'AR' : 'EN'}
-                    </button>
-                    {isVip ? (
-                        <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-2 rounded-full text-xs font-bold shadow-lg">
-                            {t('vip_badge')}
-                        </span>
-                    ) : (
-                        <span className="bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-xs font-bold">
-                            {t('free_badge')}
-                        </span>
+        <div className="min-h-screen pb-20">
+            {/* Navbar with Language Toggle */}
+            <nav className="flex justify-between items-center p-5 max-w-7xl mx-auto">
+                <div className="text-2xl font-bold tracking-tighter">
+                    <span className="text-white">ABOU</span>
+                    <span className="text-gradient-gold"> AL-DAHAB</span>
+                </div>
+                <button
+                    onClick={toggleLanguage}
+                    className="glass-card px-4 py-2 rounded-full text-sm font-medium hover:bg-white/10 transition-colors flex items-center gap-2"
+                >
+                    <span>🌐</span>
+                    {language === 'en' ? 'EN' : 'AR'}
+                </button>
+            </nav>
+
+            {/* Hero Section */}
+            <header className="relative py-16 px-4 text-center overflow-hidden">
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-full bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none"></div>
+                <div className="relative z-10 max-w-3xl mx-auto">
+                    <div className="inline-block px-3 py-1 mb-4 rounded-full glass-card text-xs font-semibold text-gold-secondary uppercase tracking-wider animate-fadeInUp">
+                        {isVip ? t.vipTag : '#1 Trading Community'}
+                    </div>
+                    <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+                        <span className="block text-white">{t.heroTitle.split(' ')[0]}</span>
+                        <span className="text-gradient-gold">{t.heroTitle.split(' ').slice(1).join(' ')}</span>
+                    </h1>
+                    <p className="text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+                        {t.heroSubtitle}
+                    </p>
+
+                    {!isVip && (
+                        <a
+                            href="https://t.me/Abou_AlDahab"
+                            className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black transition-all duration-200 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full hover:from-yellow-300 hover:to-yellow-500 hover:scale-105 shadow-lg shadow-yellow-500/20 animate-float"
+                        >
+                            {t.subscribe}
+                        </a>
                     )}
                 </div>
             </header>
 
-            <div className="space-y-4">
-                {signals.map((signal) => (
-                    <div key={signal._id} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
-                        <div className="p-4 flex justify-between items-center bg-gray-50 border-b">
-                            <span className="font-bold text-lg text-gray-800">{signal.pair}</span>
-                            <span className={`px-4 py-2 rounded-xl text-sm font-bold shadow-sm ${signal.type === 'BUY' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
-                                {t(signal.type.toLowerCase())}
-                            </span>
-                        </div>
+            <div className="max-w-4xl mx-auto px-4 space-y-20">
 
-                        <div className="relative">
-                            <img
-                                src={signal.imageUrl}
-                                alt="Signal Chart"
-                                className={`w-full h-80 object-cover transition-all duration-300 ${isVip ? '' : 'blur-lg filter'}`}
-                            />
+                {/* Live Signals Section */}
+                <section>
+                    <h3 className="text-2xl font-bold mb-8 flex items-center gap-2">
+                        <span className="w-2 h-8 bg-gradient-to-b from-yellow-400 to-transparent rounded-full"></span>
+                        {t.premiumAccess}
+                    </h3>
 
-                            {!isVip && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                                    <div className="bg-white/95 p-6 rounded-2xl text-center shadow-2xl max-w-[85%]">
-                                        <p className="font-bold text-gray-800 mb-2 text-lg">{t('signal_locked')}</p>
-                                        <p className="text-xs text-gray-500 mb-3">{t('signal_locked_desc')}</p>
-                                        <div className="h-1 w-12 bg-gradient-to-r from-yellow-500 to-orange-500 mx-auto rounded-full"></div>
+                    <div className="space-y-6">
+                        {signals.length > 0 ? signals.map((signal) => (
+                            <div key={signal._id} className="glass-card rounded-3xl overflow-hidden group hover:border-yellow-500/30 transition-all duration-300">
+                                {/* Card Header */}
+                                <div className="p-5 flex justify-between items-center glass-panel">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${signal.type === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                            {signal.type === 'BUY' ? 'B' : 'S'}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-xl text-white">{signal.pair}</h4>
+                                            <span className={`text-xs font-bold uppercase tracking-wider ${signal.type === 'BUY' ? 'text-green-400' : 'text-red-400'}`}>
+                                                {signal.type === 'BUY' ? t.buy : t.sell}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 font-mono">
+                                        {new Date(signal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                 </div>
-                            )}
-                        </div>
 
-                        <div className="p-4">
-                            {isVip ? (
-                                <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold text-gray-700">
-                                    <div className="bg-gray-100 p-3 rounded-lg border">
-                                        {t('entry')}: {t('available')}
-                                    </div>
-                                    <div className="bg-green-50 p-3 rounded-lg text-green-700 border border-green-200">
-                                        {t('target')}: {t('available')}
-                                    </div>
-                                    <div className="bg-red-50 p-3 rounded-lg text-red-700 border border-red-200">
-                                        {t('stop')}: {t('available')}
-                                    </div>
+                                {/* Signal Visual */}
+                                <div className="relative h-64 md:h-80 bg-black/50 overflow-hidden">
+                                    <img
+                                        src={signal.imageUrl}
+                                        alt="Chart"
+                                        className={`w-full h-full object-cover transition-all duration-700 ${isVip ? 'hover:scale-110' : 'blur-xl opacity-60 scale-105'}`}
+                                    />
+
+                                    {!isVip && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
+                                            <div className="w-16 h-16 mb-4 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-2xl">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </div>
+                                            <h4 className="text-xl font-bold text-white mb-2">{t.lockedContent}</h4>
+                                            <p className="text-sm text-gray-300 mb-6 max-w-xs">{t.unlockNow}</p>
+                                            <a href="https://t.me/Abou_AlDahab" className="px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-sm font-bold text-white transition-all">
+                                                {t.subscribe}
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <a
-                                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT || 'VIPSignals0_Bot'}`}
-                                    className="block w-full text-center bg-gradient-to-r from-yellow-500 to-orange-500 text-black py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition transform active:scale-95"
-                                >
-                                    {t('upgrade_vip')} ($79)
+
+                                {/* Card Footer */}
+                                {isVip && (
+                                    <div className="p-4 grid grid-cols-3 gap-0 divide-x divide-gray-800/50 bg-black/20 text-center text-sm">
+                                        <div className="py-2">
+                                            <div className="text-gray-500 text-xs mb-1">Status</div>
+                                            <div className="text-green-400 font-bold">{t.available}</div>
+                                        </div>
+                                        <div className="py-2">
+                                            <div className="text-gray-500 text-xs mb-1">{t.target}</div>
+                                            <div className="text-white font-mono">----</div>
+                                        </div>
+                                        <div className="py-2">
+                                            <div className="text-gray-500 text-xs mb-1">{t.stop}</div>
+                                            <div className="text-white font-mono">----</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )) : (
+                            <div className="text-center py-20 text-gray-500 glass-card rounded-2xl">
+                                <p>No active signals at the moment</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* Pricing Section - Only for Non-VIP */}
+                {!isVip && (
+                    <section className="py-10">
+                        <h3 className="text-center text-3xl font-bold mb-12 text-white">{t.pricingTitle}</h3>
+
+                        <div className="grid md:grid-cols-3 gap-6">
+                            {/* Plan 1 */}
+                            <div className="glass-card p-8 rounded-3xl relative hover:transform hover:-translate-y-2 transition-all duration-300">
+                                <div className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">{t.monthly}</div>
+                                <div className="flex items-baseline mb-6">
+                                    <span className="text-4xl font-bold text-white">$79</span>
+                                </div>
+                                <a href="https://t.me/Abou_AlDahab" className="block w-full py-3 rounded-xl border border-white/20 text-center font-bold hover:bg-white hover:text-black transition-all">
+                                    {t.subscribe}
                                 </a>
-                            )}
-                        </div>
-                    </div>
-                ))}
+                            </div>
 
-                {signals.length === 0 && (
-                    <div className="text-center py-10">
-                        <p className="text-gray-400 text-sm">{t('signals_empty')}</p>
-                    </div>
+                            {/* Plan 2 - Popular */}
+                            <div className="glass-card p-8 rounded-3xl relative transform md:-translate-y-4 border-yellow-500/30 shadow-yellow-500/10 shadow-2xl">
+                                <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">POPULAR</div>
+                                <div className="text-yellow-400 text-sm font-bold uppercase tracking-widest mb-4">{t.threeMonths}</div>
+                                <div className="flex items-baseline mb-6">
+                                    <span className="text-5xl font-bold text-white">$179</span>
+                                </div>
+                                <a href="https://t.me/Abou_AlDahab" className="block w-full py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-center font-bold hover:shadow-lg transition-all">
+                                    {t.subscribe}
+                                </a>
+                            </div>
+
+                            {/* Plan 3 */}
+                            <div className="glass-card p-8 rounded-3xl relative hover:transform hover:-translate-y-2 transition-all duration-300">
+                                <div className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">{t.yearly}</div>
+                                <div className="flex items-baseline mb-6">
+                                    <span className="text-4xl font-bold text-white">$479</span>
+                                </div>
+                                <a href="https://t.me/Abou_AlDahab" className="block w-full py-3 rounded-xl border border-white/20 text-center font-bold hover:bg-white hover:text-black transition-all">
+                                    {t.subscribe}
+                                </a>
+                            </div>
+                        </div>
+                    </section>
                 )}
+
             </div>
+
+            {/* Footer */}
+            <footer className="mt-20 py-8 text-center text-gray-600 text-sm font-medium border-t border-white/5">
+                <p>&copy; {currentYear} Abou Al-Dahab. {t.footerRights}.</p>
+            </footer>
 
             <script src="https://telegram.org/js/telegram-web-app.js" async></script>
         </div>
