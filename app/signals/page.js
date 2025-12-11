@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-// Modern Lock Icon Component
+// Modern Lock Icon Component (Animated)
 const ModernLockIcon = () => (
     <div style={{
         position: 'relative',
@@ -13,25 +13,48 @@ const ModernLockIcon = () => (
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: '1.5rem',
-        animation: 'float 3s ease-in-out infinite'
+        animation: 'float 3s ease-in-out infinite' // Floating animation
     }}>
+        {/* Glow behind the lock */}
         <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%)',
-            filter: 'blur(5px)'
+            background: 'radial-gradient(circle, rgba(184, 134, 11, 0.25) 0%, transparent 70%)',
+            filter: 'blur(8px)',
+            animation: 'pulse 2s ease-in-out infinite'
         }}></div>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-                <linearGradient id="goldLock" x1="0" y1="0" x2="1" y2="1">
+                {/* Animated Gold Gradient */}
+                <linearGradient id="goldLock" x1="0%" y1="0%" x2="200%" y2="0%">
+                    <stop offset="0%" stopColor="#aa771c">
+                        <animate attributeName="offset" values="-1; 1" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="50%" stopColor="#fffacd">
+                        <animate attributeName="offset" values="-0.5; 1.5" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                    <stop offset="100%" stopColor="#aa771c">
+                        <animate attributeName="offset" values="0; 2" dur="2s" repeatCount="indefinite" />
+                    </stop>
+                </linearGradient>
+                {/* Static Gold Gradient for base */}
+                <linearGradient id="staticGold" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stopColor="#FFE566" />
-                    <stop offset="50%" stopColor="#B8860B" />
-                    <stop offset="100%" stopColor="#705C0B" />
+                    <stop offset="100%" stopColor="#B8860B" />
                 </linearGradient>
             </defs>
-            <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#goldLock)" strokeWidth="2" fill="rgba(0,0,0,0.3)" />
-            <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#goldLock)" strokeWidth="2" strokeLinecap="round" />
-            <circle cx="12" cy="16" r="1.5" fill="url(#goldLock)" />
+
+            {/* Lock Body */}
+            <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#staticGold)" strokeWidth="2" fill="rgba(0,0,0,0.5)" />
+            <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#staticGold)" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="12" cy="16" r="1.5" fill="url(#staticGold)">
+                <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite" />
+            </circle>
+
+            {/* Shiny Overlay Paths (using animated gradient) */}
+            <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#goldLock)" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+            <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#goldLock)" strokeWidth="2" fill="none" opacity="0.8" />
         </svg>
     </div>
 );
@@ -221,8 +244,9 @@ export default function SignalsPage() {
                                             width: '100%',
                                             height: '300px',
                                             objectFit: 'cover',
-                                            filter: isVip ? 'none' : 'blur(15px)',
-                                            transition: 'filter 0.3s ease'
+                                            filter: isVip ? 'none' : 'blur(6px)', // Reduced blur per feedback
+                                            transition: 'filter 0.3s ease',
+                                            opacity: isVip ? 1 : 0.8
                                         }}
                                     />
 
@@ -231,9 +255,9 @@ export default function SignalsPage() {
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,
-                                            background: 'rgba(8, 8, 16, 0.4)',
-                                            backdropFilter: 'blur(12px)',
-                                            WebkitBackdropFilter: 'blur(12px)',
+                                            background: 'rgba(8, 8, 16, 0.3)', // Higher transparency
+                                            backdropFilter: 'blur(8px)', // Reduced blur on glass
+                                            WebkitBackdropFilter: 'blur(8px)',
                                             display: 'flex',
                                             flexDirection: 'column',
                                             alignItems: 'center',
@@ -243,19 +267,25 @@ export default function SignalsPage() {
                                             border: '1px solid rgba(255, 255, 255, 0.05)'
                                         }}>
                                             <ModernLockIcon />
-                                            <h3 style={{
-                                                color: '#DAA520',
-                                                fontSize: '1.25rem',
-                                                fontWeight: '700',
-                                                marginBottom: '0.5rem'
+                                            {/* Gold Text with Gradient Animation */}
+                                            <h3 className="text-gradient" style={{
+                                                fontSize: '1.5rem',
+                                                fontWeight: '800',
+                                                marginBottom: '0.75rem',
+                                                textShadow: '0 2px 10px rgba(0,0,0,0.5)'
                                             }}>{t.unlockTitle}</h3>
+
+                                            {/* Subtitle with better visibility */}
                                             <p style={{
-                                                color: '#9a9ab0',
-                                                fontSize: '0.95rem',
+                                                color: '#f0f0f0', // Brighter white
+                                                fontSize: '1rem',
                                                 lineHeight: '1.6',
                                                 marginBottom: '1.5rem',
-                                                maxWidth: '280px'
+                                                maxWidth: '280px',
+                                                fontWeight: '500',
+                                                textShadow: '0 1px 4px rgba(0,0,0,0.8)' // Adding shadow for contrast
                                             }}>{t.unlockDesc}</p>
+
                                             <a
                                                 href="/#pricing"
                                                 className="btn-primary"
