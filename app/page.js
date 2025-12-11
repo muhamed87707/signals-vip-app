@@ -1,410 +1,349 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const translations = {
+const content = {
     en: {
         dir: 'ltr',
-        nav: {
-            brand: 'Abu Al-Dahab',
-            joinNow: 'Join Now',
-        },
+        brand: 'Abu Al-Dahab',
+        nav: { join: 'Join VIP', lang: 'العربية' },
         hero: {
-            badge: '🏆 Premium Trading Signals',
-            title1: 'Trade Gold Like',
-            title2: 'A Professional',
-            description: 'Get accurate trading signals for Gold & Forex delivered directly to your Telegram. Join our VIP community and start your journey to financial freedom.',
-            cta: 'Join Telegram Channel',
-            ctaSecondary: 'View Pricing',
+            badge: '✨ Elite Trading Signals',
+            title: 'Master Gold & Forex',
+            subtitle: 'High-precision trading signals delivered instantly to your Telegram',
+            cta: 'Start Trading Now',
+            ctaSec: 'View Plans',
         },
-        features: {
-            title: 'Why Choose Us?',
-            subtitle: 'Professional signals with proven results',
-            items: [
-                { icon: '🎯', title: 'High Accuracy', desc: 'Carefully analyzed signals with high win rate' },
-                { icon: '⚡', title: 'Instant Alerts', desc: 'Real-time notifications via Telegram' },
-                { icon: '📊', title: 'Technical Analysis', desc: 'Daily market analysis and insights' },
-                { icon: '🛡️', title: 'Risk Management', desc: 'Clear entry, SL, and TP levels' },
-                { icon: '💎', title: 'VIP Support', desc: '24/7 personal support for members' },
-                { icon: '📈', title: 'Proven Results', desc: 'Verified track record of success' },
-            ],
+        signals: {
+            title: 'Live Signals',
+            subtitle: 'Real-time market opportunities',
+            unlock: 'Unlock This Signal',
+            vipOnly: 'VIP Members Only',
+            seeDetails: 'Subscribe to see full details',
+            buy: 'BUY',
+            sell: 'SELL',
         },
         pricing: {
-            title: 'Membership Plans',
-            subtitle: 'Choose the plan that works for you',
+            title: 'Choose Your Plan',
+            subtitle: 'Join thousands of successful traders',
             monthly: 'Monthly',
             quarterly: '3 Months',
-            yearly: 'Yearly',
+            yearly: 'Annual',
             perMonth: '/month',
-            perQuarter: '/3 months',
+            per3Months: '/3 months',
             perYear: '/year',
-            savings: 'Save',
-            features: ['Daily VIP Signals', 'Entry, SL & TP Levels', 'Market Analysis', '24/7 Support'],
-            popular: 'Most Popular',
-            subscribe: 'Subscribe Now',
+            bestValue: 'BEST VALUE',
+            save: 'Save',
+            features: ['Premium Signals Daily', 'Entry & Exit Levels', 'Risk Management', '24/7 Priority Support'],
+            cta: 'Subscribe Now',
         },
-        testimonials: {
-            title: 'What Our Members Say',
+        why: {
+            title: 'Why Abu Al-Dahab?',
             items: [
-                { name: 'Ahmed K.', role: 'VIP Member', text: 'The accuracy of signals is incredible. Made consistent profits since joining.' },
-                { name: 'Sarah M.', role: 'VIP Member', text: 'Best investment I made. The support team is always there to help.' },
-                { name: 'Mohammed R.', role: 'VIP Member', text: 'Professional signals with clear instructions. Highly recommended!' },
+                { icon: '🎯', title: 'Precision', desc: 'High accuracy signals' },
+                { icon: '⚡', title: 'Speed', desc: 'Instant Telegram alerts' },
+                { icon: '🛡️', title: 'Safety', desc: 'Risk management included' },
+                { icon: '💎', title: 'Support', desc: '24/7 VIP assistance' },
             ],
         },
-        cta: {
-            title: 'Ready to Start Trading?',
-            subtitle: 'Join thousands of successful traders today',
-            button: 'Join Telegram Channel',
-        },
         footer: {
-            rights: 'All rights reserved.',
-            disclaimer: '⚠️ Trading involves significant risk. Past performance does not guarantee future results. Trade responsibly.',
+            copy: 'All Rights Reserved',
+            disclaimer: '⚠️ Trading involves risk. Trade responsibly.',
         },
     },
     ar: {
         dir: 'rtl',
-        nav: {
-            brand: 'مؤسسة ابو الذهب',
-            joinNow: 'انضم الآن',
-        },
+        brand: 'مؤسسة ابو الذهب',
+        nav: { join: 'انضم VIP', lang: 'English' },
         hero: {
-            badge: '🏆 توصيات تداول احترافية',
-            title1: 'تداول الذهب',
-            title2: 'كالمحترفين',
-            description: 'احصل على توصيات تداول دقيقة للذهب والفوركس مباشرة على تليجرام. انضم لمجتمع VIP وابدأ رحلتك نحو الحرية المالية.',
-            cta: 'انضم لقناة التليجرام',
-            ctaSecondary: 'عرض الأسعار',
+            badge: '✨ توصيات تداول النخبة',
+            title: 'أتقن تداول الذهب والفوركس',
+            subtitle: 'توصيات عالية الدقة تصلك فوراً على تليجرام',
+            cta: 'ابدأ التداول الآن',
+            ctaSec: 'عرض الخطط',
         },
-        features: {
-            title: 'لماذا نحن؟',
-            subtitle: 'توصيات احترافية بنتائج مثبتة',
-            items: [
-                { icon: '🎯', title: 'دقة عالية', desc: 'توصيات مدروسة بنسبة نجاح عالية' },
-                { icon: '⚡', title: 'تنبيهات فورية', desc: 'إشعارات لحظية عبر تليجرام' },
-                { icon: '📊', title: 'تحليل فني', desc: 'تحليلات يومية شاملة للسوق' },
-                { icon: '🛡️', title: 'إدارة مخاطر', desc: 'نقاط دخول وخروج واضحة' },
-                { icon: '💎', title: 'دعم VIP', desc: 'دعم شخصي على مدار الساعة' },
-                { icon: '📈', title: 'نتائج موثقة', desc: 'سجل مثبت من النجاحات' },
-            ],
+        signals: {
+            title: 'التوصيات الحية',
+            subtitle: 'فرص السوق لحظة بلحظة',
+            unlock: 'افتح هذه التوصية',
+            vipOnly: 'حصرياً لأعضاء VIP',
+            seeDetails: 'اشترك لرؤية التفاصيل كاملة',
+            buy: 'شراء',
+            sell: 'بيع',
         },
         pricing: {
-            title: 'خطط العضوية',
-            subtitle: 'اختر الخطة المناسبة لك',
+            title: 'اختر خطتك',
+            subtitle: 'انضم لآلاف المتداولين الناجحين',
             monthly: 'شهري',
             quarterly: '3 أشهر',
             yearly: 'سنوي',
             perMonth: '/شهر',
-            perQuarter: '/3 أشهر',
+            per3Months: '/3 أشهر',
             perYear: '/سنة',
-            savings: 'وفر',
-            features: ['توصيات VIP يومية', 'نقاط الدخول والخروج', 'تحليل السوق', 'دعم 24/7'],
-            popular: 'الأكثر طلباً',
-            subscribe: 'اشترك الآن',
+            bestValue: 'الأفضل قيمة',
+            save: 'وفر',
+            features: ['توصيات مميزة يومية', 'نقاط الدخول والخروج', 'إدارة المخاطر', 'دعم أولوية 24/7'],
+            cta: 'اشترك الآن',
         },
-        testimonials: {
-            title: 'ماذا يقول أعضاؤنا',
+        why: {
+            title: 'لماذا مؤسسة ابو الذهب؟',
             items: [
-                { name: 'أحمد ك.', role: 'عضو VIP', text: 'دقة التوصيات مذهلة. حققت أرباحاً مستمرة منذ انضمامي.' },
-                { name: 'سارة م.', role: 'عضو VIP', text: 'أفضل استثمار قمت به. فريق الدعم دائماً موجود للمساعدة.' },
-                { name: 'محمد ر.', role: 'عضو VIP', text: 'توصيات احترافية بتعليمات واضحة. أنصح بها بشدة!' },
+                { icon: '🎯', title: 'دقة', desc: 'توصيات عالية الدقة' },
+                { icon: '⚡', title: 'سرعة', desc: 'تنبيهات فورية على تليجرام' },
+                { icon: '🛡️', title: 'أمان', desc: 'إدارة مخاطر متضمنة' },
+                { icon: '💎', title: 'دعم', desc: 'مساعدة VIP على مدار الساعة' },
             ],
         },
-        cta: {
-            title: 'مستعد لبدء التداول؟',
-            subtitle: 'انضم لآلاف المتداولين الناجحين اليوم',
-            button: 'انضم لقناة التليجرام',
-        },
         footer: {
-            rights: 'جميع الحقوق محفوظة.',
-            disclaimer: '⚠️ التداول ينطوي على مخاطر كبيرة. الأداء السابق لا يضمن النتائج المستقبلية. تداول بمسؤولية.',
+            copy: 'جميع الحقوق محفوظة',
+            disclaimer: '⚠️ التداول ينطوي على مخاطر. تداول بمسؤولية.',
         },
     },
 };
 
 export default function Home() {
     const [lang, setLang] = useState('en');
-    const [isVisible, setIsVisible] = useState(false);
-    const [currentTestimonial, setCurrentTestimonial] = useState(0);
+    const [signals, setSignals] = useState([]);
+    const [isVip, setIsVip] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const t = translations[lang];
-    const telegramLink = "https://t.me/Abou_AlDahab";
-    const currentYear = new Date().getFullYear();
+    const t = content[lang];
+    const year = new Date().getFullYear();
+    const tgLink = "https://t.me/Abou_AlDahab";
 
     useEffect(() => {
-        // Detect browser language
+        // Detect language
         const browserLang = navigator.language || navigator.userLanguage;
-        if (browserLang.startsWith('ar')) {
-            setLang('ar');
-        } else {
-            setLang('en');
-        }
-        setIsVisible(true);
+        setLang(browserLang.startsWith('ar') ? 'ar' : 'en');
 
-        // Auto-rotate testimonials
-        const interval = setInterval(() => {
-            setCurrentTestimonial((prev) => (prev + 1) % 3);
-        }, 5000);
-        return () => clearInterval(interval);
+        // Fetch signals
+        fetch('/api/signals')
+            .then(res => res.json())
+            .then(data => {
+                setSignals(data.signals || []);
+                setIsVip(data.isUserVip || false);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
     }, []);
 
-    const toggleLang = () => {
-        setLang(lang === 'ar' ? 'en' : 'ar');
-    };
-
-    const plans = [
-        { name: t.pricing.monthly, price: 79, period: t.pricing.perMonth, duration: 'monthly', popular: false },
-        { name: t.pricing.quarterly, price: 179, period: t.pricing.perQuarter, duration: 'quarterly', popular: true, save: 58 },
-        { name: t.pricing.yearly, price: 479, period: t.pricing.perYear, duration: 'yearly', popular: false, save: 469 },
-    ];
-
     return (
-        <div dir={t.dir} className={`min-h-screen bg-[#050510] text-white overflow-x-hidden ${t.dir === 'rtl' ? 'font-arabic' : ''}`}>
-            {/* Background Effects */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="orb orb-gold w-[600px] h-[600px] -top-40 -right-40 animate-float"></div>
-                <div className="orb orb-purple w-[500px] h-[500px] top-1/2 -left-60 animate-float" style={{ animationDelay: '2s' }}></div>
-                <div className="orb orb-gold w-[400px] h-[400px] bottom-20 right-1/4 animate-float" style={{ animationDelay: '4s' }}></div>
-            </div>
+        <div dir={t.dir} className="min-h-screen relative">
 
-            {/* Navbar */}
-            <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            {/* NAVBAR */}
+            <nav className="fixed top-0 w-full z-50 glass-strong">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <span className="text-3xl">🏆</span>
-                        <h1 className="text-xl md:text-2xl font-bold gold-text">{t.nav.brand}</h1>
+                        <span className="text-3xl">👑</span>
+                        <h1 className="text-xl font-bold text-gold">{t.brand}</h1>
                     </div>
-                    <div className="flex items-center gap-3">
-                        {/* Language Toggle */}
-                        <button
-                            onClick={toggleLang}
-                            className="lang-toggle px-3 py-2 rounded-lg border border-white/10 text-sm font-medium hover:border-[#D4AF37]/50"
-                        >
-                            {lang === 'ar' ? 'EN' : 'عربي'}
+
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setLang(lang === 'en' ? 'ar' : 'en')} className="text-sm text-gray-400 hover:text-white transition">
+                            {t.nav.lang}
                         </button>
-                        <a
-                            href={telegramLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="gold-button px-4 py-2 md:px-6 md:py-2.5 rounded-full text-sm md:text-base"
-                        >
-                            {t.nav.joinNow}
+                        <a href={tgLink} target="_blank" className="hidden sm:block btn-premium text-sm px-6 py-2">
+                            {t.nav.join}
                         </a>
                     </div>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-4">
-                <div className={`relative z-10 text-center max-w-5xl mx-auto ${isVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
-                    {/* Badge */}
-                    <div className="inline-block mb-8 px-5 py-2.5 glass-gold rounded-full">
-                        <span className="text-[#FFD700] text-sm md:text-base font-medium">{t.hero.badge}</span>
+            {/* HERO */}
+            <section className="pt-32 pb-24 px-4 text-center relative overflow-hidden">
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-yellow-500/10 rounded-full blur-[150px] animate-pulse"></div>
+
+                <div className="max-w-4xl mx-auto relative z-10 animate-fadeInUp">
+                    <div className="inline-block mb-6 px-4 py-2 glass-gold rounded-full">
+                        <span className="text-sm font-semibold text-gold">{t.hero.badge}</span>
                     </div>
 
-                    {/* Title */}
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight">
-                        {t.hero.title1}
-                        <br />
-                        <span className="gold-text">{t.hero.title2}</span>
+                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 leading-tight">
+                        <span className="text-gold">{t.hero.title}</span>
                     </h1>
 
-                    {/* Description */}
-                    <p className="text-gray-400 text-lg md:text-xl mb-12 max-w-3xl mx-auto leading-relaxed">
-                        {t.hero.description}
+                    <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                        {t.hero.subtitle}
                     </p>
 
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <a
-                            href={telegramLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="gold-button animate-pulse-glow px-8 py-4 rounded-full text-lg font-bold flex items-center gap-3"
-                        >
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18.717-.962 4.152-1.359 5.51-.168.574-.336.766-.551.785-.466.042-.82-.308-1.27-.603-.705-.462-1.103-.75-1.787-1.2-.792-.522-.279-.808.173-1.276.118-.123 2.18-1.998 2.22-2.169.005-.021.01-.1-.037-.142-.047-.042-.116-.027-.166-.016-.07.016-1.19.756-3.359 2.22-.318.218-.606.324-.863.318-.284-.006-.831-.16-1.238-.292-.499-.163-.896-.249-.861-.526.018-.144.216-.292.593-.443 2.325-.964 3.876-1.6 4.653-1.906 2.216-.872 2.676-.823 2.975-.78.066.01.213.022.308.138.08.097.102.225.113.315.012.09.026.295-.015.455z" />
-                            </svg>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#pricing" className="btn-premium">
                             {t.hero.cta}
                         </a>
-                        <a
-                            href="#pricing"
-                            className="px-8 py-4 rounded-full text-lg font-bold glass border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all"
-                        >
-                            {t.hero.ctaSecondary}
+                        <a href="#signals" className="glass px-8 py-4 rounded-full font-semibold hover:glass-strong transition">
+                            {t.hero.ctaSec}
                         </a>
                     </div>
                 </div>
-
-                {/* Scroll Indicator */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
-                    <div className="w-6 h-10 border-2 border-[#D4AF37]/40 rounded-full flex justify-center p-2">
-                        <div className="w-1 h-2 bg-[#D4AF37] rounded-full"></div>
-                    </div>
-                </div>
             </section>
 
-            {/* Features Section */}
-            <section className="py-24 px-4 relative">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                            <span className="gold-text">{t.features.title}</span>
-                        </h2>
-                        <p className="text-gray-400 text-lg">{t.features.subtitle}</p>
+            {/* SIGNALS */}
+            <section id="signals" className="py-20 px-4 bg-gradient-to-b from-transparent to-black/20">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-bold mb-3">{t.signals.title}</h2>
+                        <p className="text-gray-400">{t.signals.subtitle}</p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {t.features.items.map((feature, index) => (
-                            <div
-                                key={index}
-                                className="glass p-6 rounded-2xl hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group"
-                            >
-                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
-                                <h3 className="text-xl font-bold mb-2 text-[#FFD700]">{feature.title}</h3>
-                                <p className="text-gray-400">{feature.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Pricing Section */}
-            <section id="pricing" className="py-24 px-4 relative">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                            <span className="gold-text">{t.pricing.title}</span>
-                        </h2>
-                        <p className="text-gray-400 text-lg">{t.pricing.subtitle}</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-                        {plans.map((plan, index) => (
-                            <div
-                                key={index}
-                                className={`pricing-card glass rounded-3xl p-8 relative ${plan.popular ? 'popular md:scale-105' : ''}`}
-                            >
-                                {plan.popular && (
-                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap">
-                                        ⭐ {t.pricing.popular}
+                    {loading ? (
+                        <div className="text-center py-20">
+                            <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        </div>
+                    ) : signals.length === 0 ? (
+                        <div className="text-center py-20 glass rounded-3xl">
+                            <p className="text-gray-400">No active signals</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {signals.slice(0, 6).map((signal) => (
+                                <div key={signal._id} className="glass rounded-3xl overflow-hidden hover:glass-strong transition group">
+                                    {/* Header */}
+                                    <div className="p-4 flex justify-between items-center border-b border-white/5">
+                                        <span className="font-bold text-lg">{signal.pair}</span>
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${signal.type === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                            }`}>
+                                            {signal.type === 'BUY' ? t.signals.buy : t.signals.sell}
+                                        </span>
                                     </div>
-                                )}
 
-                                <div className="text-center mb-8">
-                                    <h3 className="text-xl font-bold mb-4 text-white">{plan.name}</h3>
-                                    <div className="flex items-baseline justify-center gap-1">
-                                        <span className="text-5xl font-bold gold-text">${plan.price}</span>
-                                        <span className="text-gray-500">{plan.period}</span>
+                                    {/* Image */}
+                                    <div className="relative h-64 bg-gray-900 overflow-hidden">
+                                        <img
+                                            src={signal.imageUrl}
+                                            alt="Chart"
+                                            className={`w-full h-full object-cover transition-all duration-500 ${!isVip ? 'blur-lg scale-110 opacity-40' : 'group-hover:scale-105'
+                                                }`}
+                                        />
+
+                                        {!isVip && (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 backdrop-blur-sm bg-black/50">
+                                                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                                                    <span className="text-3xl">🔒</span>
+                                                </div>
+                                                <p className="text-white font-bold mb-2">{t.signals.vipOnly}</p>
+                                                <p className="text-gray-300 text-sm mb-4 text-center">{t.signals.seeDetails}</p>
+                                                <a href="#pricing" className="bg-gold text-black font-bold px-6 py-2 rounded-full text-sm hover:bg-yellow-400 transition">
+                                                    {t.signals.unlock}
+                                                </a>
+                                            </div>
+                                        )}
                                     </div>
-                                    {plan.save && (
-                                        <div className="mt-2 text-green-400 text-sm font-medium">
-                                            {t.pricing.savings} ${plan.save}
+
+                                    {/* Footer */}
+                                    {isVip && (
+                                        <div className="p-4 bg-black/20 text-center">
+                                            <p className="text-xs text-green-400">✓ Full details available</p>
                                         </div>
                                     )}
                                 </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
 
-                                <ul className="space-y-4 mb-8">
-                                    {t.pricing.features.map((feature, fIndex) => (
-                                        <li key={fIndex} className="flex items-center gap-3 text-gray-300">
-                                            <span className="text-[#D4AF37] text-lg">✓</span>
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <a
-                                    href={telegramLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`block text-center py-4 rounded-xl font-bold transition-all ${plan.popular
-                                            ? 'gold-button'
-                                            : 'glass border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10'
-                                        }`}
-                                >
-                                    {t.pricing.subscribe}
-                                </a>
+            {/* WHY US */}
+            <section className="py-20 px-4">
+                <div className="max-w-6xl mx-auto">
+                    <h2 className="text-4xl font-bold text-center mb-16">{t.why.title}</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {t.why.items.map((item, i) => (
+                            <div key={i} className="glass p-8 rounded-3xl text-center hover:glass-gold transition group">
+                                <div className="text-5xl mb-4 group-hover:scale-110 transition">{item.icon}</div>
+                                <h3 className="text-xl font-bold mb-2 text-gold">{item.title}</h3>
+                                <p className="text-gray-400 text-sm">{item.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Testimonials Section */}
-            <section className="py-24 px-4 relative">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold">
-                            <span className="gold-text">{t.testimonials.title}</span>
-                        </h2>
-                    </div>
-
-                    <div className="glass-strong rounded-3xl p-8 md:p-12 text-center">
-                        <div className="text-6xl mb-6">💬</div>
-                        <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed italic">
-                            "{t.testimonials.items[currentTestimonial].text}"
-                        </p>
-                        <div className="text-[#FFD700] font-bold text-lg">{t.testimonials.items[currentTestimonial].name}</div>
-                        <div className="text-gray-500 text-sm">{t.testimonials.items[currentTestimonial].role}</div>
-
-                        {/* Dots */}
-                        <div className="flex justify-center gap-3 mt-8">
-                            {t.testimonials.items.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentTestimonial(index)}
-                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentTestimonial ? 'bg-[#D4AF37] w-8' : 'bg-gray-600 hover:bg-gray-500'
-                                        }`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Final CTA Section */}
-            <section className="py-24 px-4 relative">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="glass-gold rounded-3xl p-12 md:p-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                            <span className="gold-text">{t.cta.title}</span>
-                        </h2>
-                        <p className="text-gray-400 text-lg mb-10">
-                            {t.cta.subtitle}
-                        </p>
-                        <a
-                            href={telegramLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="gold-button animate-pulse-glow inline-flex items-center gap-3 px-10 py-5 rounded-full text-xl font-bold"
-                        >
-                            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18.717-.962 4.152-1.359 5.51-.168.574-.336.766-.551.785-.466.042-.82-.308-1.27-.603-.705-.462-1.103-.75-1.787-1.2-.792-.522-.279-.808.173-1.276.118-.123 2.18-1.998 2.22-2.169.005-.021.01-.1-.037-.142-.047-.042-.116-.027-.166-.016-.07.016-1.19.756-3.359 2.22-.318.218-.606.324-.863.318-.284-.006-.831-.16-1.238-.292-.499-.163-.896-.249-.861-.526.018-.144.216-.292.593-.443 2.325-.964 3.876-1.6 4.653-1.906 2.216-.872 2.676-.823 2.975-.78.066.01.213.022.308.138.08.097.102.225.113.315.012.09.026.295-.015.455z" />
-                            </svg>
-                            {t.cta.button}
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="py-10 px-4 border-t border-white/5 glass">
+            {/* PRICING */}
+            <section id="pricing" className="py-24 px-4 bg-gradient-to-b from-black/20 to-transparent">
                 <div className="max-w-6xl mx-auto">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="flex items-center gap-3">
-                            <span className="text-2xl">🏆</span>
-                            <span className="text-xl font-bold gold-text">{t.nav.brand}</span>
-                        </div>
-
-                        <div className="text-gray-500 text-sm">
-                            © {currentYear} {t.nav.brand}. {t.footer.rights}
-                        </div>
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-bold mb-4">{t.pricing.title}</h2>
+                        <p className="text-gray-400">{t.pricing.subtitle}</p>
                     </div>
 
-                    {/* Disclaimer */}
-                    <div className="mt-8 text-center text-gray-600 text-xs leading-relaxed max-w-3xl mx-auto">
-                        <p>{t.footer.disclaimer}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Monthly */}
+                        <div className="glass p-8 rounded-3xl hover:glass-strong transition">
+                            <div className="text-center mb-8">
+                                <h3 className="text-lg font-semibold text-gray-300 mb-4">{t.pricing.monthly}</h3>
+                                <div className="flex items-baseline justify-center gap-1">
+                                    <span className="text-5xl font-black text-white">$79</span>
+                                    <span className="text-gray-500">{t.pricing.perMonth}</span>
+                                </div>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                {t.pricing.features.map((f, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                                        <span className="text-green-400">✓</span> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href={tgLink} target="_blank" className="block w-full text-center glass-strong py-3 rounded-xl font-bold hover:bg-white/10 transition">
+                                {t.pricing.cta}
+                            </a>
+                        </div>
+
+                        {/* Quarterly (Featured) */}
+                        <div className="glass-gold p-8 rounded-3xl relative border-2 border-gold/50 transform md:scale-105">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold text-black px-4 py-1 rounded-full text-xs font-bold">
+                                {t.pricing.bestValue}
+                            </div>
+                            <div className="text-center mb-8">
+                                <h3 className="text-lg font-semibold text-gold mb-4">{t.pricing.quarterly}</h3>
+                                <div className="flex items-baseline justify-center gap-1">
+                                    <span className="text-5xl font-black text-white">$179</span>
+                                    <span className="text-gray-400">{t.pricing.per3Months}</span>
+                                </div>
+                                <p className="text-sm text-green-400 mt-2">{t.pricing.save} $58</p>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                {t.pricing.features.map((f, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-sm text-gray-200">
+                                        <span className="text-gold">✓</span> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href={tgLink} target="_blank" className="block w-full text-center btn-premium py-3 rounded-xl">
+                                {t.pricing.cta}
+                            </a>
+                        </div>
+
+                        {/* Yearly */}
+                        <div className="glass p-8 rounded-3xl hover:glass-strong transition">
+                            <div className="text-center mb-8">
+                                <h3 className="text-lg font-semibold text-gray-300 mb-4">{t.pricing.yearly}</h3>
+                                <div className="flex items-baseline justify-center gap-1">
+                                    <span className="text-5xl font-black text-white">$479</span>
+                                    <span className="text-gray-500">{t.pricing.perYear}</span>
+                                </div>
+                                <p className="text-sm text-green-400 mt-2">{t.pricing.save} $469</p>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                {t.pricing.features.map((f, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                                        <span className="text-green-400">✓</span> {f}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href={tgLink} target="_blank" className="block w-full text-center glass-strong py-3 rounded-xl font-bold hover:bg-white/10 transition">
+                                {t.pricing.cta}
+                            </a>
+                        </div>
                     </div>
                 </div>
+            </section>
+
+            {/* FOOTER */}
+            <footer className="border-t border-white/5 py-10 px-4 text-center">
+                <p className="text-gray-500 text-sm mb-2">© {year} {t.brand}. {t.footer.copy}</p>
+                <p className="text-gray-600 text-xs">{t.footer.disclaimer}</p>
             </footer>
+
+            <script src="https://telegram.org/js/telegram-web-app.js" async></script>
         </div>
     );
 }
