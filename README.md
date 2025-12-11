@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🎯 Sniper Signals - Premium Trading Signals Platform
 
-## Getting Started
+A premium, multi-language Telegram Web App for delivering exclusive gold trading signals to VIP subscribers. Built with Next.js 16, featuring glassmorphic design, Arabic/English support, and protected admin panel.
 
-First, run the development server:
+## ✨ Features
 
+### 🌍 Multi-Language Support
+- **Auto-detection** of browser language (Arabic/English)
+- Manual language toggle
+- RTL support for Arabic
+- Complete UI translation
+
+### 🎨 Premium Glassmorphic Design
+- Modern glassmorphism effects with backdrop blur
+- Smooth animations and transitions
+- Mobile-first responsive design
+- Dark theme with gold accents
+
+### 💰 Subscription Plans
+Three pricing tiers without using the word "packages":
+- **Monthly**: $79/month
+- **Quarterly**: $179/3 months (Save $58)
+- **Yearly**: $479/year (Save $469)
+
+### 🔐 Admin Panel
+- **Protected Login**: Password-protected admin access at `/admin/login`
+- **Dashboard**: Full-featured dashboard at `/admin/dashboard`
+- **Image Upload**: Paste from clipboard or upload signal charts
+- **Signal Management**: Post, view, and delete signals
+
+### 👥 User Experience
+- **VIP Members**: Full access to signal details and charts
+- **Free Users**: Blurred preview with upgrade prompts
+- **Telegram Integration**: Works seamlessly within Telegram Web App
+- **Browser Landing Page**: Converts visitors to subscribers
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment Variables
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Create a `.env.local` file in the root directory:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# MongoDB Connection (Required)
+MONGODB_URI=your_mongodb_connection_string
 
-## Learn More
+# Admin Authentication (Default: @Mainpassword87707)
+ADMIN_PASSWORD=@Mainpassword87707
 
-To learn more about Next.js, take a look at the following resources:
+# Telegram Configuration
+NEXT_PUBLIC_TELEGRAM_BOT=VIPSignals0_Bot
+NEXT_PUBLIC_TELEGRAM_CHANNEL=YourChannelUsername
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See `ENV.md` for detailed setup instructions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Run Development Server
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 4. Build for Production
+```bash
+npm run build
+npm start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📁 Project Structure
+
+```
+signals-vip-app/
+├── app/
+│   ├── page.js                      # Main landing page (multi-language)
+│   ├── layout.js                    # Root layout with fonts
+│   ├── globals.css                  # Global styles with glassmorphism
+│   ├── admin/
+│   │   ├── login/page.js           # Admin login page
+│   │   └── dashboard/page.js       # Admin dashboard
+│   └── api/
+│       ├── signals/
+│       │   ├── route.js            # GET/POST signals
+│       │   └── [id]/route.js       # DELETE signal
+│       └── auth/
+│           └── login/route.js       # Admin authentication
+├── lib/
+│   ├── mongodb.js                   # MongoDB connection
+│   └── translations.js              # English/Arabic translations
+├── hooks/
+│   └── useLanguage.js              # Language management hook
+├── models/
+│   ├── Signal.js                   # Signal schema
+│   └── User.js                     # User schema (VIP status)
+└── tailwind.config.js              # Tailwind with custom utilities
+```
+
+## 🔑 Admin Access
+
+1. Navigate to `/admin/login`
+2. Enter password: `@Mainpassword87707`
+3. Access dashboard at `/admin/dashboard`
+4. Post signals by pasting images or uploading files
+
+## 🌐 Multi-Language Implementation
+
+The app automatically detects the user's browser language and displays content in:
+- **English** for non-Arabic browsers
+- **Arabic** with RTL layout for Arabic browsers
+- Manual toggle available in navigation
+
+## 📱 Telegram Web App Integration
+
+The app works in two modes:
+1. **Browser Mode**: Landing page to convert visitors
+2. **Telegram Mode**: Signal delivery app for VIP/Free users
+
+Telegram Web App API automatically initializes when accessed from Telegram.
+
+## 🎨 Design Features
+
+- **Glassmorphism**: `backdrop-blur`, semi-transparent backgrounds
+- **Animations**: Fade-in, slide-up, float effects
+- **Gold Theme**: Premium gold gradients and accents
+- **Responsive**: Mobile-first, works on all screen sizes
+- **Dynamic Footer**: Automatically shows current year (2025)
+
+## 🗄️ Database Schema
+
+### User Model
+```javascript
+{
+  telegramId: String (unique),
+  isVip: Boolean (default: false),
+  name: String
+}
+```
+
+### Signal Model
+```javascript
+{
+  pair: String,           // e.g., "XAUUSD - GOLD"
+  type: String,           // "BUY" or "SELL"
+  imageUrl: String,       // Base64 or URL
+  createdAt: Date
+}
+```
+
+## 🔧 Technologies Used
+
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS v4
+- **Database**: MongoDB with Mongoose
+- **Fonts**: Inter (English), Cairo (Arabic)
+- **Icons**: Emoji-based for lightweight design
+
+## 📄 License
+
+All Rights Reserved © 2025 Sniper Signals
+
+## 💡 Support
+
+For assistance or feature requests, contact the development team.
