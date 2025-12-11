@@ -3,6 +3,39 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
+// Modern Lock Icon Component
+const ModernLockIcon = () => (
+    <div style={{
+        position: 'relative',
+        width: '80px',
+        height: '80px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '1.5rem',
+        animation: 'float 3s ease-in-out infinite'
+    }}>
+        <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%)',
+            filter: 'blur(5px)'
+        }}></div>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="goldLock" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#FFE566" />
+                    <stop offset="50%" stopColor="#B8860B" />
+                    <stop offset="100%" stopColor="#705C0B" />
+                </linearGradient>
+            </defs>
+            <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#goldLock)" strokeWidth="2" fill="rgba(0,0,0,0.3)" />
+            <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#goldLock)" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="12" cy="16" r="1.5" fill="url(#goldLock)" />
+        </svg>
+    </div>
+);
+
 export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [signals, setSignals] = useState([]);
@@ -130,35 +163,23 @@ export default function SignalsPage() {
                                         }}
                                     />
 
-                                    {/* Overlay for non-VIP */}
+                                    {/* Overlay for non-VIP with Glassmorphism */}
                                     {!isVip && (
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,
-                                            background: 'rgba(8, 8, 16, 0.85)',
+                                            background: 'rgba(8, 8, 16, 0.4)',
+                                            backdropFilter: 'blur(12px)',
+                                            WebkitBackdropFilter: 'blur(12px)',
                                             display: 'flex',
                                             flexDirection: 'column',
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             padding: '2rem',
-                                            textAlign: 'center'
+                                            textAlign: 'center',
+                                            border: '1px solid rgba(255, 255, 255, 0.05)'
                                         }}>
-                                            <div style={{
-                                                fontSize: '2.5rem',
-                                                marginBottom: '1rem',
-                                                background: 'linear-gradient(180deg, #E6BE44 0%, #B8860B 50%, #705C0B 100%)',
-                                                backgroundSize: '200% 100%',
-                                                animation: 'goldShine 3s linear infinite',
-                                                width: '70px',
-                                                height: '70px',
-                                                borderRadius: '50%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                boxShadow: '0 0 30px rgba(184, 134, 11, 0.4)'
-                                            }}>
-                                                🔒
-                                            </div>
+                                            <ModernLockIcon />
                                             <h3 style={{
                                                 color: '#DAA520',
                                                 fontSize: '1.25rem',
@@ -224,6 +245,10 @@ export default function SignalsPage() {
                 @keyframes pulse {
                     0%, 100% { transform: scale(1); opacity: 1; }
                     50% { transform: scale(1.1); opacity: 0.8; }
+                }
+                @keyframes float {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-5px); }
                 }
             `}</style>
         </div>
