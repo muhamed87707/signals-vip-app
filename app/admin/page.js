@@ -1,176 +1,343 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function Home() {
-  const [signals, setSignals] = useState([]);
-  const [isVip, setIsVip] = useState(false);
-  const [telegramId, setTelegramId] = useState(null);
-  const [isInTelegram, setIsInTelegram] = useState(false);
+const ADMIN_PASSWORD = '@Mainpassword87707';
 
-  useEffect(() => {
-    // التحقق هل نحن داخل تليجرام أم في المتصفح؟
-    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      
-      // إذا كان هناك منصة تليجرام، نتأكد من وجود user data
-      if (tg.initDataUnsafe?.user) {
-        setIsInTelegram(true);
-        const user = tg.initDataUnsafe.user;
-        setTelegramId(user.id);
-        fetchData(user.id);
-        // توسيع التطبيق ليأخذ كامل الشاشة
-        tg.expand(); 
-      } else {
-        // نحن في المتصفح العادي
-        setIsInTelegram(false);
-        fetchData(null);
-      }
-    } else {
-      setIsInTelegram(false);
-      fetchData(null);
+export default function AdminPage() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [signals, setSignals] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [success, setSuccess] = useState('');
+
+    // Form state
+    const [pair, setPair] = useState('XAUUSD');
+    const [signalType, setSignalType] = useState('BUY');
+    const [imageUrl, setImageUrl] = useState('');
+    const [imagePreview, setImagePreview] = useState('');
+
+    useEffect(() => {
+        // Check if already authenticated in session
+        const auth = sessionStorage.getItem('adminAuth');
+        if (auth === 'true') {
+            setIsAuthenticated(true);
+            fetchSignals();
+        }
+    }, []);
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        if (password === ADMIN_PASSWORD) {
+            setIsAuthenticated(true);
+            sessionStorage.setItem('adminAuth', 'true');
+            setError('');
+            fetchSignals();
+        } else {
+            setError('كلمة المرور غير صحيحة');
+        }
+    };
+
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        sessionStorage.removeItem('adminAuth');
+        setPassword('');
+    };
+
+    const fetchSignals = async () => {
+        try {
+            const res = await fetch('/api/signals');
+            const data = await res.json();
+            if (data.signals) setSignals(data.signals);
+        } catch (error) {
+            console.error('Error fetching signals:', error);
+        }
+    };
+
+    const handleImagePaste = (e) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const base64 = event.target.result;
+                    setImagePreview(base64);
+                    setImageUrl(base64);
+                };
+                reader.readAsDataURL(blob);
+                break;
+            }
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!imageUrl) {
+            setError('الرجاء لصق صورة التوصية');
+            return;
+        }
+
+        setUploading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const res = await fetch('/api/signals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pair,
+                    type: signalType,
+                    imageUrl,
+                }),
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setSuccess('تم نشر التوصية بنجاح! ✅');
+                setImageUrl('');
+                setImagePreview('');
+                setPair('XAUUSD');
+                setSignalType('BUY');
+                fetchSignals();
+            } else {
+                setError('حدث خطأ أثناء نشر التوصية');
+            }
+        } catch (error) {
+            setError('حدث خطأ في الاتصال');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const deleteSignal = async (id) => {
+        if (!confirm('هل أنت متأكد من حذف هذه التوصية؟')) return;
+
+        try {
+            const res = await fetch(`/api/signals?id=${id}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+            if (data.success) {
+                fetchSignals();
+                setSuccess('تم حذف التوصية ✅');
+            }
+        } catch (error) {
+            setError('حدث خطأ أثناء الحذف');
+        }
+    };
+
+    // Login Screen
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-[#050510] flex items-center justify-center p-4" dir="rtl">
+                <div className="glass-strong rounded-3xl p-8 w-full max-w-md">
+                    <div className="text-center mb-8">
+                        <span className="text-5xl mb-4 block">🔐</span>
+                        <h1 className="text-2xl font-bold gold-text">لوحة تحكم الأدمن</h1>
+                        <p className="text-gray-400 text-sm mt-2">أدخل كلمة المرور للدخول</p>
+                    </div>
+
+                    <form onSubmit={handleLogin}>
+                        <div className="mb-6">
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="كلمة المرور"
+                                className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D4AF37]/50 transition"
+                                autoFocus
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="mb-4 text-red-400 text-center text-sm bg-red-500/10 py-2 px-4 rounded-lg">
+                                {error}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="w-full gold-button py-4 rounded-xl text-lg font-bold"
+                        >
+                            دخول
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
     }
-  }, []);
 
-  const fetchData = async (id) => {
-    try {
-      const res = await fetch(`/api/signals?telegramId=${id || ''}`);
-      const data = await res.json();
-      if (data.signals) setSignals(data.signals);
-      if (data.isUserVip) setIsVip(data.isUserVip);
-    } catch (error) {
-      console.error("Error fetching data", error);
-    }
-  };
-
-  // --- تصميم صفحة المتصفح (Landing Page) ---
-  if (!isInTelegram && !telegramId) {
+    // Admin Dashboard
     return (
-      <div className="min-h-screen bg-gray-900 text-white font-sans">
-        {/* Navbar */}
-        <nav className="p-6 flex justify-between items-center max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold text-blue-500">توصيات القناص 🎯</h1>
-          <a 
-            href="https://t.me/VIPSignals0_Bot" 
-            className="bg-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition"
-          >
-            دخول المشتركين
-          </a>
-        </nav>
-
-        {/* Hero Section */}
-        <div className="text-center py-20 px-4">
-          <h2 className="text-5xl font-bold mb-6 leading-tight">
-            حقق أرباحاً حقيقية <br/> مع أدق <span className="text-blue-500">إشارات الذهب</span>
-          </h2>
-          <p className="text-gray-400 text-xl mb-10 max-w-2xl mx-auto">
-            انضم لأكثر من 150 متداول يحققون الأرباح يومياً. نظام آلي، دقة عالية، ونتائج موثقة.
-          </p>
-          <a 
-            href="https://t.me/YOUR_BOT_USERNAME" 
-            className="inline-block bg-white text-black text-xl font-bold px-10 py-4 rounded-full hover:bg-gray-200 transition transform hover:scale-105"
-          >
-            🚀 ابدأ الآن مجاناً عبر تليجرام
-          </a>
-        </div>
-
-        {/* Live Preview (Show Blurred Signals to entice users) */}
-        <div className="max-w-4xl mx-auto p-4">
-          <h3 className="text-2xl font-bold mb-6 text-center">آخر الفرص الحية 👇</h3>
-          <div className="grid gap-6 md:grid-cols-2">
-            {signals.slice(0, 2).map((signal) => (
-              <div key={signal._id} className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700">
-                <div className="p-4 flex justify-between border-b border-gray-700">
-                  <span className="font-bold">{signal.pair}</span>
-                  <span className={`px-2 py-1 rounded text-sm ${signal.type === 'BUY' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-                    {signal.type}
-                  </span>
+        <div className="min-h-screen bg-[#050510] p-4 md:p-8" dir="rtl">
+            {/* Header */}
+            <div className="max-w-6xl mx-auto mb-8">
+                <div className="flex justify-between items-center glass rounded-2xl p-4">
+                    <div className="flex items-center gap-3">
+                        <span className="text-3xl">🏆</span>
+                        <h1 className="text-xl font-bold gold-text">لوحة تحكم الأدمن</h1>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition text-sm"
+                    >
+                        خروج
+                    </button>
                 </div>
-                <div className="relative h-48 bg-gray-700">
-                  <img src={signal.imageUrl} className="w-full h-full object-cover opacity-50 blur-sm" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="bg-black/80 px-4 py-2 rounded-lg text-sm">🔒 للمشتركين فقط</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Footer */}
-        <footer className="text-center text-gray-500 py-10 mt-10 border-t border-gray-800">
-          © 2024 Sniper Signals. جميع الحقوق محفوظة.
-        </footer>
-      </div>
+            <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
+                {/* New Signal Form */}
+                <div className="glass rounded-3xl p-6">
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span>📤</span> نشر توصية جديدة
+                    </h2>
+
+                    <form onSubmit={handleSubmit}>
+                        {/* Pair Selection */}
+                        <div className="mb-4">
+                            <label className="block text-gray-400 text-sm mb-2">الزوج</label>
+                            <select
+                                value={pair}
+                                onChange={(e) => setPair(e.target.value)}
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#D4AF37]/50"
+                            >
+                                <option value="XAUUSD">XAUUSD (الذهب)</option>
+                                <option value="EURUSD">EURUSD</option>
+                                <option value="GBPUSD">GBPUSD</option>
+                                <option value="USDJPY">USDJPY</option>
+                                <option value="BTCUSD">BTCUSD</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+
+                        {/* Signal Type */}
+                        <div className="mb-4">
+                            <label className="block text-gray-400 text-sm mb-2">نوع التوصية</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setSignalType('BUY')}
+                                    className={`py-3 rounded-xl font-bold transition ${signalType === 'BUY'
+                                            ? 'bg-green-500/20 text-green-400 border-2 border-green-500'
+                                            : 'bg-white/5 text-gray-400 border border-white/10'
+                                        }`}
+                                >
+                                    🟢 BUY
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSignalType('SELL')}
+                                    className={`py-3 rounded-xl font-bold transition ${signalType === 'SELL'
+                                            ? 'bg-red-500/20 text-red-400 border-2 border-red-500'
+                                            : 'bg-white/5 text-gray-400 border border-white/10'
+                                        }`}
+                                >
+                                    🔴 SELL
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Image Paste Area */}
+                        <div className="mb-6">
+                            <label className="block text-gray-400 text-sm mb-2">صورة التوصية (الصق هنا)</label>
+                            <div
+                                onPaste={handleImagePaste}
+                                className="w-full h-48 border-2 border-dashed border-white/20 rounded-xl flex items-center justify-center cursor-pointer hover:border-[#D4AF37]/50 transition bg-white/5 overflow-hidden"
+                                tabIndex={0}
+                            >
+                                {imagePreview ? (
+                                    <img src={imagePreview} alt="Preview" className="max-w-full max-h-full object-contain" />
+                                ) : (
+                                    <div className="text-center text-gray-500">
+                                        <span className="text-4xl block mb-2">📋</span>
+                                        <p>اضغط هنا ثم الصق الصورة (Ctrl+V)</p>
+                                    </div>
+                                )}
+                            </div>
+                            {imagePreview && (
+                                <button
+                                    type="button"
+                                    onClick={() => { setImagePreview(''); setImageUrl(''); }}
+                                    className="mt-2 text-red-400 text-sm hover:underline"
+                                >
+                                    إزالة الصورة
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Messages */}
+                        {error && (
+                            <div className="mb-4 text-red-400 text-center text-sm bg-red-500/10 py-2 px-4 rounded-lg">
+                                {error}
+                            </div>
+                        )}
+                        {success && (
+                            <div className="mb-4 text-green-400 text-center text-sm bg-green-500/10 py-2 px-4 rounded-lg">
+                                {success}
+                            </div>
+                        )}
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={uploading}
+                            className={`w-full gold-button py-4 rounded-xl text-lg font-bold ${uploading ? 'opacity-50' : ''}`}
+                        >
+                            {uploading ? 'جاري النشر...' : '🚀 نشر التوصية'}
+                        </button>
+                    </form>
+                </div>
+
+                {/* Signals List */}
+                <div className="glass rounded-3xl p-6">
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span>📊</span> التوصيات المنشورة ({signals.length})
+                    </h2>
+
+                    <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                        {signals.length === 0 ? (
+                            <div className="text-center text-gray-500 py-10">
+                                لا توجد توصيات منشورة بعد
+                            </div>
+                        ) : (
+                            signals.map((signal) => (
+                                <div key={signal._id} className="bg-white/5 rounded-xl p-4 border border-white/10">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-bold text-lg">{signal.pair}</span>
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${signal.type === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                                }`}>
+                                                {signal.type}
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => deleteSignal(signal._id)}
+                                            className="text-red-400 hover:text-red-300 text-sm"
+                                        >
+                                            🗑️ حذف
+                                        </button>
+                                    </div>
+                                    {signal.imageUrl && (
+                                        <img
+                                            src={signal.imageUrl}
+                                            alt="Signal"
+                                            className="w-full h-32 object-cover rounded-lg"
+                                        />
+                                    )}
+                                    <div className="mt-2 text-gray-500 text-xs">
+                                        {new Date(signal.createdAt).toLocaleString('ar-EG')}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
-  }
-
-  // --- تصميم التطبيق داخل تليجرام (App View) ---
-  return (
-    <div className="min-h-screen bg-gray-100 p-3 pb-20">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold text-gray-800">توصيات القناص 🎯</h1>
-        {isVip ? (
-          <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-bold shadow-sm">VIP MEMBER 👑</span>
-        ) : (
-          <span className="bg-gray-300 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">Free Plan</span>
-        )}
-      </header>
-
-      <div className="space-y-4">
-        {signals.map((signal) => (
-          <div key={signal._id} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-            <div className="p-4 flex justify-between items-center bg-gray-50 border-b">
-              <span className="font-bold text-lg text-gray-800">{signal.pair}</span>
-              <span className={`px-3 py-1 rounded-lg text-sm font-bold shadow-sm ${signal.type === 'BUY' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
-                {signal.type}
-              </span>
-            </div>
-
-            <div className="relative">
-              <img 
-                src={signal.imageUrl} 
-                alt="Signal Chart" 
-                className={`w-full h-64 object-cover transition-all duration-300 ${isVip ? '' : 'blur-md filter'}`} 
-              />
-              
-              {!isVip && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                  <div className="bg-white/95 p-5 rounded-2xl text-center shadow-2xl max-w-[80%]">
-                    <p className="font-bold text-gray-800 mb-1 text-lg">🔒 محتوى VIP</p>
-                    <p className="text-xs text-gray-500 mb-3">تفاصيل الدخول والهدف مخفية</p>
-                    <div className="h-1 w-10 bg-blue-500 mx-auto rounded-full"></div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-3">
-              {isVip ? (
-                 <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold text-gray-700">
-                   <div className="bg-gray-100 p-2 rounded-lg border">دخول: متاح</div>
-                   <div className="bg-green-50 p-2 rounded-lg text-green-700 border border-green-200">هدف: متاح</div>
-                   <div className="bg-red-50 p-2 rounded-lg text-red-700 border border-red-200">وقف: متاح</div>
-                 </div>
-              ) : (
-                <a 
-                  href={`https://t.me/YOUR_BOT_USERNAME`} 
-                  className="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:shadow-xl transition transform active:scale-95 cursor-pointer"
-                >
-                  💎 ترقية لـ VIP (100$)
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {signals.length === 0 && (
-          <div className="text-center py-10">
-            <p className="text-gray-400 text-sm">جاري انتظار الفرص القوية...</p>
-          </div>
-        )}
-      </div>
-      <script src="https://telegram.org/js/telegram-web-app.js" async></script>
-    </div>
-  );
 }

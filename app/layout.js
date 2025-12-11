@@ -2,73 +2,70 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
 });
 
 export const metadata = {
-  title: "مؤسسة ابو الذهب | توصيات تداول الذهب والفوركس VIP",
-  description: "انضم لأكثر من 500+ متداول ناجح مع مؤسسة ابو الذهب. توصيات احترافية للذهب والفوركس بدقة عالية ونتائج موثقة. ابدأ رحلتك نحو الأرباح اليوم!",
-  keywords: "توصيات ذهب, توصيات فوركس, تداول الذهب, توصيات تداول, VIP signals, مؤسسة ابو الذهب, gold trading signals, forex signals, تحليل فني, إشارات تداول",
-  authors: [{ name: "مؤسسة ابو الذهب" }],
-  creator: "مؤسسة ابو الذهب",
-  publisher: "مؤسسة ابو الذهب",
-  openGraph: {
-    type: "website",
-    locale: "ar_SA",
-    url: "https://your-domain.com",
-    siteName: "مؤسسة ابو الذهب",
-    title: "مؤسسة ابو الذهب | توصيات تداول الذهب والفوركس VIP",
-    description: "انضم لأكثر من 500+ متداول ناجح. توصيات احترافية للذهب والفوركس بدقة عالية ونتائج موثقة.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "مؤسسة ابو الذهب - توصيات تداول احترافية",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "مؤسسة ابو الذهب | توصيات تداول الذهب والفوركس VIP",
-    description: "انضم لأكثر من 500+ متداول ناجح. توصيات احترافية للذهب والفوركس بدقة عالية.",
-    images: ["/og-image.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+    title: "Abu Al-Dahab | مؤسسة ابو الذهب - Premium Trading Signals",
+    description: "Premium gold and forex trading signals with high accuracy. Join our VIP community for professional signals. | توصيات احترافية لتداول الذهب والفوركس بدقة عالية. انضم لمجتمع VIP للتوصيات الاحترافية.",
+    keywords: "trading signals, gold signals, forex signals, VIP signals, توصيات تداول, توصيات ذهب, توصيات فوركس, مؤسسة ابو الذهب, Abu Al-Dahab, XAUUSD signals",
+    authors: [{ name: "Abu Al-Dahab" }],
+    creator: "Abu Al-Dahab",
+    publisher: "Abu Al-Dahab",
+    openGraph: {
+        type: "website",
+        locale: "ar_SA",
+        alternateLocale: "en_US",
+        url: "https://your-domain.com",
+        siteName: "Abu Al-Dahab | مؤسسة ابو الذهب",
+        title: "Abu Al-Dahab | Premium Trading Signals | توصيات VIP",
+        description: "Premium gold and forex trading signals. Join our VIP community. | توصيات احترافية للذهب والفوركس. انضم لمجتمعنا VIP.",
+        images: [
+            {
+                url: "/og-image.png",
+                width: 1200,
+                height: 630,
+                alt: "Abu Al-Dahab - Premium Trading Signals",
+            },
+        ],
     },
-  },
-  verification: {
-    google: "your-google-verification-code",
-  },
+    twitter: {
+        card: "summary_large_image",
+        title: "Abu Al-Dahab | Premium Trading Signals",
+        description: "Premium gold and forex trading signals with high accuracy.",
+        images: ["/og-image.png"],
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
+    },
 };
 
 export default function RootLayout({ children }) {
-  return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning={true}>
-      <head>
-        <link rel="canonical" href="https://your-domain.com" />
-        <meta name="theme-color" content="#D4AF37" />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+    return (
+        <html suppressHydrationWarning={true}>
+            <head>
+                <meta name="theme-color" content="#D4AF37" />
+                <link rel="icon" href="/favicon.ico" />
+            </head>
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+                {children}
+            </body>
+        </html>
+    );
 }
