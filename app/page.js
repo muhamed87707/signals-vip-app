@@ -15,18 +15,17 @@ const translations = {
         heroTitleHighlight: 'Golden Precision',
         heroSubtitle: 'Join an elite community of traders receiving accurate Gold & Forex signals. Make informed decisions, maximize profits, and trade with confidence.',
         ctaButton: 'Start Trading Now',
+        loginButton: 'VIP Login',
 
-        // Features
+        // Features (3 only)
         featuresTitle: 'Why Choose Us?',
         featuresSubtitle: 'We deliver precision, speed, and results that speak for themselves',
         feature1Title: 'High Accuracy Signals',
         feature1Desc: 'Our signals are carefully analyzed by expert traders with years of experience in the Gold and Forex markets.',
-        feature2Title: 'Real-Time Alerts',
-        feature2Desc: 'Receive instant notifications directly to your Telegram. Never miss a profitable opportunity again.',
-        feature3Title: 'Expert Analysis',
-        feature3Desc: 'Each signal comes with detailed technical analysis explaining entry points, stop loss, and take profit levels.',
-        feature4Title: '24/7 Support',
-        feature4Desc: 'Our dedicated team is here round the clock to answer your questions and guide your trading journey.',
+        feature2Title: 'Expert Analysis',
+        feature2Desc: 'Each signal comes with detailed technical analysis explaining entry points, stop loss, and take profit levels.',
+        feature3Title: '24/7 Support',
+        feature3Desc: 'Our dedicated team is here round the clock to answer your questions and guide your trading journey.',
 
         // Testimonials
         testimonialsTitle: 'What Our Traders Say',
@@ -52,6 +51,12 @@ const translations = {
         feature_education: 'Educational resources',
         originalPrice: 'Instead of',
 
+        // Login Modal
+        loginTitle: 'VIP Member Login',
+        loginSubtitle: 'Sign in to access your signals',
+        continueWithTelegram: 'Continue with Telegram',
+        continueWithGoogle: 'Continue with Google',
+
         // Disclaimer
         disclaimerTitle: '⚠️ Risk Disclaimer',
         disclaimerText: 'Trading in financial markets involves substantial risk and may not be suitable for all investors. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before trading. Never invest money you cannot afford to lose. The signals provided are for educational purposes only and do not constitute financial advice.',
@@ -70,18 +75,17 @@ const translations = {
         heroTitleHighlight: 'دقة ذهبية',
         heroSubtitle: 'انضم إلى مجتمع نخبة من المتداولين الذين يتلقون توصيات دقيقة للذهب والفوركس. اتخذ قرارات واعية، ضاعف أرباحك، وتداول بثقة.',
         ctaButton: 'ابدأ التداول الآن',
+        loginButton: 'تسجيل دخول VIP',
 
-        // Features
+        // Features (3 only)
         featuresTitle: 'لماذا تختارنا؟',
         featuresSubtitle: 'نقدم الدقة والسرعة ونتائج تتحدث عن نفسها',
         feature1Title: 'توصيات عالية الدقة',
         feature1Desc: 'يتم تحليل توصياتنا بعناية من قبل متداولين خبراء لديهم سنوات من الخبرة في أسواق الذهب والفوركس.',
-        feature2Title: 'تنبيهات فورية',
-        feature2Desc: 'استلم إشعارات فورية مباشرة على تليجرام. لا تفوت أي فرصة مربحة بعد الآن.',
-        feature3Title: 'تحليل الخبراء',
-        feature3Desc: 'كل توصية تأتي مع تحليل فني مفصل يشرح نقاط الدخول ووقف الخسارة وجني الأرباح.',
-        feature4Title: 'دعم على مدار الساعة',
-        feature4Desc: 'فريقنا المتخصص موجود على مدار الساعة للإجابة على أسئلتك وتوجيه رحلتك في التداول.',
+        feature2Title: 'تحليل الخبراء',
+        feature2Desc: 'كل توصية تأتي مع تحليل فني مفصل يشرح نقاط الدخول ووقف الخسارة وجني الأرباح.',
+        feature3Title: 'دعم على مدار الساعة',
+        feature3Desc: 'فريقنا المتخصص موجود على مدار الساعة للإجابة على أسئلتك وتوجيه رحلتك في التداول.',
 
         // Testimonials
         testimonialsTitle: 'ماذا يقول متداولونا',
@@ -106,6 +110,12 @@ const translations = {
         feature_community: 'وصول لمجتمع VIP',
         feature_education: 'موارد تعليمية',
         originalPrice: 'بدلاً من',
+
+        // Login Modal
+        loginTitle: 'تسجيل دخول الأعضاء',
+        loginSubtitle: 'سجل دخولك للوصول إلى التوصيات',
+        continueWithTelegram: 'المتابعة عبر تليجرام',
+        continueWithGoogle: 'المتابعة عبر جوجل',
 
         // Disclaimer
         disclaimerTitle: '⚠️ إخلاء المسؤولية',
@@ -203,10 +213,99 @@ const CheckIcon = () => (
     </svg>
 );
 
+// ===== Login Modal Component =====
+const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
+    if (!isOpen) return null;
+
+    const handleTelegramLogin = () => {
+        // Telegram Login Widget will be integrated here
+        // For now, redirect to Telegram bot
+        window.open('https://t.me/your_bot?start=login', '_blank');
+    };
+
+    const handleGoogleLogin = () => {
+        // Google OAuth will be integrated here
+        // This would typically use next-auth or similar
+        alert('Google login will be configured with your Google OAuth credentials');
+    };
+
+    return (
+        <div
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' }}
+            onClick={onClose}
+        >
+            <div
+                className="bg-[#13131a] border border-[rgba(201,162,39,0.3)] rounded-3xl p-8 max-w-md w-full relative"
+                style={{ boxShadow: '0 0 60px rgba(201,162,39,0.2)' }}
+                onClick={e => e.stopPropagation()}
+                dir={isRTL ? 'rtl' : 'ltr'}
+            >
+                {/* Close Button */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl"
+                    style={isRTL ? { right: 'auto', left: '1rem' } : {}}
+                >
+                    ×
+                </button>
+
+                {/* Modal Header */}
+                <div className="text-center mb-8">
+                    <div className="text-4xl mb-4">💎</div>
+                    <h2 className="text-2xl font-bold text-white mb-2">{t.loginTitle}</h2>
+                    <p className="text-gray-400">{t.loginSubtitle}</p>
+                </div>
+
+                {/* Login Buttons */}
+                <div className="space-y-4">
+                    {/* Telegram Login */}
+                    <button
+                        onClick={handleTelegramLogin}
+                        className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-semibold text-white transition-all"
+                        style={{
+                            background: 'linear-gradient(135deg, #0088cc 0%, #00a8e8 100%)',
+                            boxShadow: '0 4px 15px rgba(0,136,204,0.4)'
+                        }}
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" />
+                        </svg>
+                        {t.continueWithTelegram}
+                    </button>
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-4">
+                        <div className="flex-1 h-px bg-gray-700"></div>
+                        <span className="text-gray-500 text-sm">{isRTL ? 'أو' : 'or'}</span>
+                        <div className="flex-1 h-px bg-gray-700"></div>
+                    </div>
+
+                    {/* Google Login */}
+                    <button
+                        onClick={handleGoogleLogin}
+                        className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-semibold transition-all bg-white text-gray-800 hover:bg-gray-100"
+                        style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        {t.continueWithGoogle}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // ===== Main Page Component =====
 export default function LandingPage() {
     const [lang, setLang] = useState('en');
     const [mounted, setMounted] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const t = translations[lang];
     const isRTL = lang === 'ar';
@@ -264,6 +363,14 @@ export default function LandingPage() {
 
     return (
         <div dir={isRTL ? 'rtl' : 'ltr'}>
+            {/* Login Modal */}
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                t={t}
+                isRTL={isRTL}
+            />
+
             {/* ===== Header ===== */}
             <header className="header">
                 <div className="container header-content">
@@ -292,14 +399,22 @@ export default function LandingPage() {
                         <p className="hero-subtitle animate-fade-in-up delay-200">
                             {t.heroSubtitle}
                         </p>
-                        <a href="#pricing" className="btn-primary animate-fade-in-up delay-300">
-                            {t.ctaButton} →
-                        </a>
+                        <div className="hero-buttons animate-fade-in-up delay-300">
+                            <a href="#pricing" className="btn-primary">
+                                {t.ctaButton} →
+                            </a>
+                            <button
+                                onClick={() => setShowLoginModal(true)}
+                                className="btn-secondary"
+                            >
+                                🔐 {t.loginButton}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* ===== Features Section ===== */}
+            {/* ===== Features Section (3 Features Only) ===== */}
             <section className="features">
                 <div className="container">
                     <h2 className="section-title">
@@ -315,19 +430,14 @@ export default function LandingPage() {
                             <p className="feature-desc">{t.feature1Desc}</p>
                         </div>
                         <div className="card">
-                            <div className="feature-icon">⚡</div>
+                            <div className="feature-icon">🎯</div>
                             <h3 className="feature-title">{t.feature2Title}</h3>
                             <p className="feature-desc">{t.feature2Desc}</p>
                         </div>
                         <div className="card">
-                            <div className="feature-icon">🎯</div>
+                            <div className="feature-icon">💬</div>
                             <h3 className="feature-title">{t.feature3Title}</h3>
                             <p className="feature-desc">{t.feature3Desc}</p>
-                        </div>
-                        <div className="card">
-                            <div className="feature-icon">💬</div>
-                            <h3 className="feature-title">{t.feature4Title}</h3>
-                            <p className="feature-desc">{t.feature4Desc}</p>
                         </div>
                     </div>
                 </div>
