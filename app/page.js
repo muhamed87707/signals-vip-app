@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 const translations = {
     en: {
         // Header
-        brand: 'Abu Al-Dahab',
+        brand: 'Abu Al-Dahab Est.',
         langSwitch: 'العربية',
 
         // Hero
@@ -28,6 +28,10 @@ const translations = {
         feature4Title: '24/7 Support',
         feature4Desc: 'Our dedicated team is here round the clock to answer your questions and guide your trading journey.',
 
+        // Testimonials
+        testimonialsTitle: 'What Our Traders Say',
+        testimonialsSubtitle: 'Real feedback from our VIP community members',
+
         // Pricing
         pricingTitle: 'Choose Your Plan',
         pricingSubtitle: 'Simple, transparent pricing with no hidden fees',
@@ -39,19 +43,25 @@ const translations = {
         perYear: '/year',
         popular: 'Most Popular',
         bestValue: 'Best Value',
+        save: 'Save',
         subscribe: 'Subscribe Now',
         feature_signals: 'Unlimited trading signals',
         feature_support: 'Priority support',
         feature_analysis: 'Detailed market analysis',
         feature_community: 'VIP community access',
         feature_education: 'Educational resources',
+        originalPrice: 'Instead of',
+
+        // Disclaimer
+        disclaimerTitle: '⚠️ Risk Disclaimer',
+        disclaimerText: 'Trading in financial markets involves substantial risk and may not be suitable for all investors. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before trading. Never invest money you cannot afford to lose. The signals provided are for educational purposes only and do not constitute financial advice.',
 
         // Footer
         footerText: 'All Rights Reserved',
     },
     ar: {
         // Header
-        brand: 'أبو الذهب',
+        brand: 'مؤسسة أبو الذهب',
         langSwitch: 'English',
 
         // Hero
@@ -73,6 +83,10 @@ const translations = {
         feature4Title: 'دعم على مدار الساعة',
         feature4Desc: 'فريقنا المتخصص موجود على مدار الساعة للإجابة على أسئلتك وتوجيه رحلتك في التداول.',
 
+        // Testimonials
+        testimonialsTitle: 'ماذا يقول متداولونا',
+        testimonialsSubtitle: 'آراء حقيقية من أعضاء مجتمعنا المميز',
+
         // Pricing
         pricingTitle: 'اختر خطتك',
         pricingSubtitle: 'أسعار بسيطة وشفافة بدون رسوم مخفية',
@@ -84,17 +98,54 @@ const translations = {
         perYear: '/سنة',
         popular: 'الأكثر شعبية',
         bestValue: 'أفضل قيمة',
+        save: 'وفّر',
         subscribe: 'اشترك الآن',
         feature_signals: 'توصيات تداول غير محدودة',
         feature_support: 'دعم ذو أولوية',
         feature_analysis: 'تحليل مفصل للسوق',
         feature_community: 'وصول لمجتمع VIP',
         feature_education: 'موارد تعليمية',
+        originalPrice: 'بدلاً من',
+
+        // Disclaimer
+        disclaimerTitle: '⚠️ إخلاء المسؤولية',
+        disclaimerText: 'التداول في الأسواق المالية ينطوي على مخاطر كبيرة وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق لا يضمن النتائج المستقبلية. يجب أن تدرس بعناية أهدافك الاستثمارية ومستوى خبرتك ومدى تحملك للمخاطر قبل التداول. لا تستثمر أبداً أموالاً لا يمكنك تحمل خسارتها. التوصيات المقدمة هي لأغراض تعليمية فقط ولا تمثل نصيحة مالية.',
 
         // Footer
         footerText: 'جميع الحقوق محفوظة',
     }
 };
+
+// ===== Testimonials Data =====
+const testimonials = [
+    {
+        name: { ar: 'أحمد الشمري', en: 'Ahmed Al-Shammari' },
+        title: { ar: 'متداول منذ سنتين', en: 'Trader for 2 years' },
+        text: {
+            ar: 'توصيات دقيقة جداً ونتائج ممتازة. حققت أرباحاً ممتازة خلال شهرين فقط. أنصح الجميع بالاشتراك.',
+            en: 'Very accurate signals and excellent results. I made great profits in just two months. I recommend everyone to subscribe.'
+        },
+        initial: 'أ'
+    },
+    {
+        name: { ar: 'محمد العتيبي', en: 'Mohammed Al-Otaibi' },
+        title: { ar: 'مستثمر في الذهب', en: 'Gold Investor' },
+        text: {
+            ar: 'أفضل خدمة توصيات جربتها على الإطلاق. الدعم الفني سريع والتحليلات مفصلة ومفيدة جداً.',
+            en: 'Best signal service I have ever tried. Technical support is fast and the analysis is detailed and very useful.'
+        },
+        initial: 'م'
+    },
+    {
+        name: { ar: 'خالد السيد', en: 'Khaled El-Sayed' },
+        title: { ar: 'متداول فوركس', en: 'Forex Trader' },
+        text: {
+            ar: 'التوصيات تصلني في الوقت المناسب دائماً. نسبة النجاح عالية جداً وأنا سعيد بالنتائج.',
+            en: 'Signals always reach me at the right time. Success rate is very high and I am happy with the results.'
+        },
+        initial: 'خ'
+    }
+];
 
 // ===== Check Icon Component =====
 const CheckIcon = () => (
@@ -111,6 +162,17 @@ export default function LandingPage() {
     const t = translations[lang];
     const isRTL = lang === 'ar';
     const currentYear = new Date().getFullYear();
+
+    // Pricing calculations
+    const monthlyPrice = 79;
+    const quarterlyPrice = 179;
+    const yearlyPrice = 479;
+    const quarterlyOriginal = monthlyPrice * 3; // $237
+    const yearlyOriginal = monthlyPrice * 12; // $948
+    const quarterlySavings = quarterlyOriginal - quarterlyPrice; // $58
+    const yearlySavings = yearlyOriginal - yearlyPrice; // $469
+    const quarterlyDiscount = Math.round((quarterlySavings / quarterlyOriginal) * 100); // 24%
+    const yearlyDiscount = Math.round((yearlySavings / yearlyOriginal) * 100); // 49%
 
     // Detect browser language on mount
     useEffect(() => {
@@ -221,6 +283,33 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* ===== Testimonials Section ===== */}
+            <section className="testimonials">
+                <div className="container">
+                    <h2 className="section-title">
+                        {t.testimonialsTitle.split(' ')[0]}{' '}
+                        <span className="text-gradient">{t.testimonialsTitle.split(' ').slice(1).join(' ')}</span>
+                    </h2>
+                    <p className="section-subtitle">{t.testimonialsSubtitle}</p>
+
+                    <div className="testimonials-grid">
+                        {testimonials.map((testimonial, index) => (
+                            <div key={index} className="testimonial-card">
+                                <div className="testimonial-stars">★★★★★</div>
+                                <p className="testimonial-text">"{testimonial.text[lang]}"</p>
+                                <div className="testimonial-author">
+                                    <div className="testimonial-avatar">{testimonial.initial}</div>
+                                    <div>
+                                        <div className="testimonial-name">{testimonial.name[lang]}</div>
+                                        <div className="testimonial-title">{testimonial.title[lang]}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* ===== Pricing Section ===== */}
             <section id="pricing" className="pricing">
                 <div className="container">
@@ -236,7 +325,7 @@ export default function LandingPage() {
                             <p className="pricing-duration">{t.monthly}</p>
                             <h3 className="pricing-title">{t.monthly}</h3>
                             <div className="pricing-price">
-                                $79<span>{t.perMonth}</span>
+                                ${monthlyPrice}<span>{t.perMonth}</span>
                             </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
@@ -249,12 +338,16 @@ export default function LandingPage() {
                         </div>
 
                         {/* Quarterly Plan */}
-                        <div className="pricing-card featured">
-                            <span className="pricing-badge">{t.popular}</span>
+                        <div className="pricing-card">
+                            <span className="pricing-badge">{t.bestValue}</span>
                             <p className="pricing-duration">{t.quarterly}</p>
                             <h3 className="pricing-title">{t.quarterly}</h3>
+                            <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
                             <div className="pricing-price">
-                                $179<span>{t.perQuarter}</span>
+                                ${quarterlyPrice}<span>{t.perQuarter}</span>
+                            </div>
+                            <div className="pricing-discount">
+                                {t.save} {quarterlyDiscount}% (${quarterlySavings})
                             </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
@@ -267,13 +360,17 @@ export default function LandingPage() {
                             </a>
                         </div>
 
-                        {/* Yearly Plan */}
-                        <div className="pricing-card">
-                            <span className="pricing-badge">{t.bestValue}</span>
+                        {/* Yearly Plan - Most Popular */}
+                        <div className="pricing-card featured">
+                            <span className="pricing-badge">{t.popular}</span>
                             <p className="pricing-duration">{t.yearly}</p>
                             <h3 className="pricing-title">{t.yearly}</h3>
+                            <p className="pricing-original">{t.originalPrice} ${yearlyOriginal}</p>
                             <div className="pricing-price">
-                                $479<span>{t.perYear}</span>
+                                ${yearlyPrice}<span>{t.perYear}</span>
+                            </div>
+                            <div className="pricing-discount">
+                                {t.save} {yearlyDiscount}% (${yearlySavings})
                             </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
@@ -286,6 +383,16 @@ export default function LandingPage() {
                                 {t.subscribe}
                             </a>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ===== Disclaimer Section ===== */}
+            <section className="disclaimer">
+                <div className="container">
+                    <div className="disclaimer-content">
+                        <p className="disclaimer-title">{t.disclaimerTitle}</p>
+                        <p>{t.disclaimerText}</p>
                     </div>
                 </div>
             </section>
