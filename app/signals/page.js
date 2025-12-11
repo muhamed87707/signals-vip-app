@@ -106,14 +106,9 @@ export default function SignalsPage() {
                     >
                         {t.back}
                     </a>
-                    <h1 style={{
+                    <h1 className="text-gradient" style={{
                         fontSize: '2.5rem',
                         fontWeight: '700',
-                        background: 'linear-gradient(90deg, #B8860B, #DAA520, #FFE566, #DAA520, #B8860B)',
-                        backgroundSize: '200% 100%',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        animation: 'goldShine 5s ease-in-out infinite',
                         marginBottom: '0.5rem'
                     }}>
                         💎 {t.title}
@@ -190,6 +185,8 @@ export default function SignalsPage() {
                                                 fontSize: '2.5rem',
                                                 marginBottom: '1rem',
                                                 background: 'linear-gradient(180deg, #E6BE44 0%, #B8860B 50%, #705C0B 100%)',
+                                                backgroundSize: '200% 100%',
+                                                animation: 'goldShine 3s linear infinite',
                                                 width: '70px',
                                                 height: '70px',
                                                 borderRadius: '50%',
@@ -214,16 +211,10 @@ export default function SignalsPage() {
                                             }}>{t.unlockDesc}</p>
                                             <a
                                                 href="/#pricing"
+                                                className="btn-primary"
                                                 style={{
-                                                    display: 'inline-block',
-                                                    padding: '0.75rem 1.5rem',
-                                                    background: 'linear-gradient(180deg, #E6BE44 0%, #DAA520 15%, #B8860B 50%, #8B6914 85%, #705C0B 100%)',
-                                                    borderRadius: '50px',
-                                                    color: '#1a1a1a',
-                                                    fontWeight: '700',
-                                                    textDecoration: 'none',
                                                     fontSize: '0.9rem',
-                                                    boxShadow: 'inset 0 2px 0 rgba(255, 244, 184, 0.5), 0 4px 15px rgba(184, 134, 11, 0.4)'
+                                                    padding: '0.75rem 1.5rem'
                                                 }}
                                             >
                                                 {t.viewPlans}
@@ -268,16 +259,7 @@ export default function SignalsPage() {
                 )}
             </div>
 
-            <style jsx>{`
-                @keyframes goldShine {
-                    0%, 100% { background-position: 0% center; }
-                    50% { background-position: 100% center; }
-                }
-                @keyframes pulse {
-                    0%, 100% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.1); opacity: 0.8; }
-                }
-            `}</style>
+
         </div>
     );
 }

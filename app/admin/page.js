@@ -179,12 +179,9 @@ export default function AdminPage() {
                 }}>
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
-                        <h1 style={{
+                        <h1 className="text-gradient" style={{
                             fontSize: '1.75rem',
                             fontWeight: '700',
-                            background: 'linear-gradient(90deg, #B8860B, #DAA520, #FFE566, #DAA520, #B8860B)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
                             marginBottom: '0.5rem'
                         }}>لوحة تحكم الإدمن</h1>
                         <p style={{ color: '#9a9ab0' }}>أدخل كلمة المرور للدخول</p>
@@ -214,17 +211,10 @@ export default function AdminPage() {
                         )}
                         <button
                             type="submit"
+                            className="btn-primary"
                             style={{
                                 width: '100%',
-                                padding: '1rem',
-                                background: 'linear-gradient(180deg, #E6BE44 0%, #DAA520 15%, #B8860B 50%, #8B6914 85%, #705C0B 100%)',
-                                border: 'none',
-                                borderRadius: '50px',
-                                color: '#1a1a1a',
-                                fontWeight: '700',
-                                fontSize: '1rem',
-                                cursor: 'pointer',
-                                boxShadow: 'inset 0 2px 0 rgba(255, 244, 184, 0.5), 0 4px 20px rgba(184, 134, 11, 0.4)'
+                                fontSize: '1rem'
                             }}
                         >
                             دخول
@@ -255,12 +245,9 @@ export default function AdminPage() {
                     flexWrap: 'wrap',
                     gap: '1rem'
                 }}>
-                    <h1 style={{
+                    <h1 className="text-gradient" style={{
                         fontSize: '1.75rem',
-                        fontWeight: '700',
-                        background: 'linear-gradient(90deg, #B8860B, #DAA520, #FFE566, #DAA520, #B8860B)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent'
+                        fontWeight: '700'
                     }}>
                         💎 لوحة تحكم التوصيات
                     </h1>
@@ -307,15 +294,10 @@ export default function AdminPage() {
                     />
                     <label
                         htmlFor="image-upload"
+                        className="btn-primary"
                         style={{
                             display: 'inline-block',
-                            padding: '1rem 2rem',
-                            background: 'linear-gradient(180deg, #E6BE44 0%, #DAA520 15%, #B8860B 50%, #8B6914 85%, #705C0B 100%)',
-                            borderRadius: '50px',
-                            color: '#1a1a1a',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            boxShadow: 'inset 0 2px 0 rgba(255, 244, 184, 0.5), 0 4px 20px rgba(184, 134, 11, 0.4)'
+                            cursor: 'pointer'
                         }}
                     >
                         {uploading ? 'جاري الرفع...' : 'اختر صورة'}
