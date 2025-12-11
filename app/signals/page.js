@@ -290,9 +290,8 @@ export default function SignalsPage() {
                                                 href="/#pricing"
                                                 className="btn-primary"
                                                 style={{
-                                                    fontSize: '0.95rem',
-                                                    padding: '0.8rem 2rem',
-                                                    boxShadow: '0 4px 20px rgba(184, 134, 11, 0.3)'
+                                                    fontSize: '0.9rem',
+                                                    padding: '0.75rem 1.5rem'
                                                 }}
                                             >
                                                 {t.viewPlans}
