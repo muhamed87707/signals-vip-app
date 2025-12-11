@@ -1,119 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
-// ===== Translations =====
-const translations = {
-    en: {
-        brand: 'Abu Al-Dahab Est.',
-        langSwitch: 'العربية',
-        badge: '✨ Premium Trading Signals',
-        heroTitle: 'Master the Markets with',
-        heroTitleHighlight: 'Golden Precision',
-        heroSubtitle: 'Join an elite community of traders receiving accurate Gold & Forex signals. Make informed decisions, maximize profits, and trade with confidence.',
-        ctaButton: 'Start Trading Now',
-        loginButton: 'VIP Login',
-        featuresTitle: 'Why Choose Us?',
-        featuresSubtitle: 'We deliver precision, speed, and results that speak for themselves',
-        feature1Title: 'High Accuracy Signals',
-        feature1Desc: 'Our signals are carefully analyzed by expert traders with years of experience in the Gold and Forex markets.',
-        feature2Title: 'Expert Analysis',
-        feature2Desc: 'Each signal comes with detailed technical analysis explaining entry points, stop loss, and take profit levels.',
-        feature3Title: '24/7 Support',
-        feature3Desc: 'Our dedicated team is here round the clock to answer your questions and guide your trading journey.',
-        testimonialsTitle: 'What Our Traders Say',
-        testimonialsSubtitle: 'Real feedback from our VIP community members',
-        pricingTitle: 'Choose Your Plan',
-        pricingSubtitle: 'Simple, transparent pricing with no hidden fees',
-        monthly: 'Monthly',
-        quarterly: '3 Months',
-        yearly: 'Yearly',
-        perMonth: '/month',
-        perQuarter: '/3 months',
-        perYear: '/year',
-        popular: 'Most Popular',
-        bestValue: 'Best Value',
-        youSave: 'You Save',
-        subscribe: 'Subscribe Now',
-        feature_signals: 'Unlimited trading signals',
-        feature_support: 'Priority support',
-        feature_analysis: 'Detailed market analysis',
-        feature_community: 'VIP community access',
-        feature_education: 'Educational resources',
-        originalPrice: 'Instead of',
-        loginTitle: 'VIP Member Login',
-        loginSubtitle: 'Sign in to access your signals',
-        continueWithTelegram: 'Continue with Telegram',
-        continueWithGoogle: 'Continue with Google',
-        disclaimerTitle: '⚠️ Risk Disclaimer',
-        disclaimerText: 'Trading in financial markets involves substantial risk and may not be suitable for all investors. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before trading. Never invest money you cannot afford to lose. The signals provided are for educational purposes only and do not constitute financial advice.',
-        footerText: 'All Rights Reserved',
-    },
-    ar: {
-        brand: 'مؤسسة أبو الذهب',
-        langSwitch: 'English',
-        badge: '✨ توصيات تداول حصرية',
-        heroTitle: 'أتقن الأسواق مع',
-        heroTitleHighlight: 'دقة ذهبية',
-        heroSubtitle: 'انضم إلى مجتمع نخبة من المتداولين الذين يتلقون توصيات دقيقة للذهب والفوركس. اتخذ قرارات واعية، ضاعف أرباحك، وتداول بثقة.',
-        ctaButton: 'ابدأ التداول الآن',
-        loginButton: 'تسجيل دخول VIP',
-        featuresTitle: 'لماذا تختارنا؟',
-        featuresSubtitle: 'نقدم الدقة والسرعة ونتائج تتحدث عن نفسها',
-        feature1Title: 'توصيات عالية الدقة',
-        feature1Desc: 'يتم تحليل توصياتنا بعناية من قبل متداولين خبراء لديهم سنوات من الخبرة في أسواق الذهب والفوركس.',
-        feature2Title: 'تحليل الخبراء',
-        feature2Desc: 'كل توصية تأتي مع تحليل فني مفصل يشرح نقاط الدخول ووقف الخسارة وجني الأرباح.',
-        feature3Title: 'دعم على مدار الساعة',
-        feature3Desc: 'فريقنا المتخصص موجود على مدار الساعة للإجابة على أسئلتك وتوجيه رحلتك في التداول.',
-        testimonialsTitle: 'ماذا يقول متداولونا',
-        testimonialsSubtitle: 'آراء حقيقية من أعضاء مجتمعنا المميز',
-        pricingTitle: 'اختر خطتك',
-        pricingSubtitle: 'أسعار بسيطة وشفافة بدون رسوم مخفية',
-        monthly: 'شهري',
-        quarterly: '3 أشهر',
-        yearly: 'سنوي',
-        perMonth: '/شهر',
-        perQuarter: '/3 أشهر',
-        perYear: '/سنة',
-        popular: 'الأكثر شعبية',
-        bestValue: 'أفضل قيمة',
-        youSave: 'توفر',
-        subscribe: 'اشترك الآن',
-        feature_signals: 'توصيات تداول غير محدودة',
-        feature_support: 'دعم ذو أولوية',
-        feature_analysis: 'تحليل مفصل للسوق',
-        feature_community: 'وصول لمجتمع VIP',
-        feature_education: 'موارد تعليمية',
-        originalPrice: 'بدلاً من',
-        loginTitle: 'تسجيل دخول الأعضاء',
-        loginSubtitle: 'سجل دخولك للوصول إلى التوصيات',
-        continueWithTelegram: 'المتابعة عبر تليجرام',
-        continueWithGoogle: 'المتابعة عبر جوجل',
-        disclaimerTitle: '⚠️ إخلاء المسؤولية',
-        disclaimerText: 'التداول في الأسواق المالية ينطوي على مخاطر كبيرة وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق لا يضمن النتائج المستقبلية. يجب أن تدرس بعناية أهدافك الاستثمارية ومستوى خبرتك ومدى تحملك للمخاطر قبل التداول. لا تستثمر أبداً أموالاً لا يمكنك تحمل خسارتها. التوصيات المقدمة هي لأغراض تعليمية فقط ولا تمثل نصيحة مالية.',
-        footerText: 'جميع الحقوق محفوظة',
-    }
-};
-
-// ===== Testimonials =====
-const arabicTestimonials = [
-    { name: 'أحمد الشمري', title: 'متداول منذ سنتين', text: 'توصيات دقيقة جداً ونتائج ممتازة. حققت أرباحاً ممتازة خلال شهرين فقط.', initial: 'أ' },
-    { name: 'محمد العتيبي', title: 'مستثمر في الذهب', text: 'أفضل خدمة توصيات جربتها. الدعم الفني سريع والتحليلات مفصلة ومفيدة.', initial: 'م' },
-    { name: 'خالد السيد', title: 'متداول فوركس', text: 'التوصيات تصلني في الوقت المناسب. نسبة النجاح عالية جداً وأنا سعيد بالنتائج.', initial: 'خ' },
-    { name: 'عبدالله الحربي', title: 'متداول محترف', text: 'بعد تجربة عدة خدمات، هذه الأفضل بلا منازع. التحليلات عميقة والنتائج مبهرة.', initial: 'ع' },
-    { name: 'سعود المالكي', title: 'مستثمر مبتدئ', text: 'كنت مبتدئاً ولكن أصبحت أفهم السوق بشكل أفضل. شكراً جزيلاً!', initial: 'س' },
-    { name: 'فهد القحطاني', title: 'متداول ذهب', text: 'دقة التوصيات مذهلة! أحقق أرباح ثابتة شهرياً والدعم متاح دائماً.', initial: 'ف' }
-];
-
-const englishTestimonials = [
-    { name: 'James Mitchell', title: 'Professional Trader', text: 'Incredibly accurate signals. My portfolio has grown significantly since joining. Highly recommended!', initial: 'J' },
-    { name: 'Michael Thompson', title: 'Gold Investor', text: 'The best signal service I have ever used. Exceptional support and top-notch analysis.', initial: 'M' },
-    { name: 'David Anderson', title: 'Forex Trader', text: 'Signals are always on time with an impressive success rate. Couldnt be happier!', initial: 'D' },
-    { name: 'Robert Williams', title: 'Part-time Trader', text: 'Perfect for a busy schedule. I follow the signals and results speak for themselves.', initial: 'R' },
-    { name: 'Chris Johnson', title: 'Beginner Trader', text: 'Started with zero experience. The resources helped me understand the market quickly.', initial: 'C' },
-    { name: 'Daniel Brown', title: 'Investment Analyst', text: 'As a professional, I appreciate the depth of analysis. Consistently profitable signals.', initial: 'D' }
-];
+import { useState } from 'react';
+import { useLanguage } from './context/LanguageContext';
 
 // ===== Components =====
 const CheckIcon = () => (
@@ -172,14 +60,9 @@ const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
 
 // ===== Main Page =====
 export default function LandingPage() {
-    const [lang, setLang] = useState('en');
-    const [mounted, setMounted] = useState(false);
+    const { t, lang, toggleLang, isRTL, testimonials, mounted } = useLanguage();
     const [showLoginModal, setShowLoginModal] = useState(false);
-
-    const t = translations[lang];
-    const isRTL = lang === 'ar';
     const currentYear = new Date().getFullYear();
-    const testimonials = lang === 'ar' ? arabicTestimonials : englishTestimonials;
 
     const monthlyPrice = 79;
     const quarterlyPrice = 179;
@@ -189,34 +72,10 @@ export default function LandingPage() {
     const quarterlySavings = quarterlyOriginal - quarterlyPrice;
     const yearlySavings = yearlyOriginal - yearlyPrice;
 
-    useEffect(() => {
-        setMounted(true);
-        const savedLang = localStorage.getItem('preferred-language');
-        if (savedLang && (savedLang === 'ar' || savedLang === 'en')) {
-            setLang(savedLang);
-            return;
-        }
-        const browserLang = navigator.language || navigator.userLanguage;
-        if (browserLang.startsWith('ar')) setLang('ar');
-    }, []);
-
-    const toggleLang = () => {
-        const newLang = lang === 'en' ? 'ar' : 'en';
-        setLang(newLang);
-        localStorage.setItem('preferred-language', newLang);
-    };
-
-    useEffect(() => {
-        if (mounted) {
-            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-            document.documentElement.lang = lang;
-        }
-    }, [lang, isRTL, mounted]);
-
     if (!mounted) return null;
 
     return (
-        <div dir={isRTL ? 'rtl' : 'ltr'}>
+        <div>
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} t={t} isRTL={isRTL} />
 
             {/* Header */}
@@ -276,7 +135,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Testimonials - Stars next to name */}
+            {/* Testimonials */}
             <section className="testimonials">
                 <div className="container">
                     <h2 className="section-title">
@@ -337,7 +196,7 @@ export default function LandingPage() {
                             </ul>
                             <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
                         </div>
-                        {/* Yearly - Most Popular */}
+                        {/* Yearly */}
                         <div className="pricing-card featured">
                             <span className="pricing-badge">{t.popular}</span>
                             <h3 className="pricing-title">{t.yearly}</h3>

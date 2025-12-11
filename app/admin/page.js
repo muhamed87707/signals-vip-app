@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 const ADMIN_PASSWORD = '123';
 
 export default function AdminPage() {
+    const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -31,7 +33,7 @@ export default function AdminPage() {
             setError('');
             fetchSignals();
         } else {
-            setError('كلمة المرور غير صحيحة');
+            setError(t.loginError);
         }
     };
 
@@ -78,17 +80,17 @@ export default function AdminPage() {
 
                 const data = await res.json();
                 if (data.success) {
-                    setSuccessMessage('تم نشر التوصية بنجاح! ✓');
+                    setSuccessMessage(t.postSuccess);
                     fetchSignals();
                 } else {
-                    setError('حدث خطأ في نشر التوصية');
+                    setError(t.postError);
                 }
                 setUploading(false);
             };
             reader.readAsDataURL(file);
         } catch (err) {
             console.error('Upload error:', err);
-            setError('حدث خطأ في رفع الصورة');
+            setError(t.uploadError);
             setUploading(false);
         }
 
@@ -126,13 +128,13 @@ export default function AdminPage() {
 
                             const data = await res.json();
                             if (data.success) {
-                                setSuccessMessage('تم نشر التوصية بنجاح! ✓');
+                                setSuccessMessage(t.postSuccess);
                                 fetchSignals();
                             } else {
-                                setError('حدث خطأ في نشر التوصية');
+                                setError(t.postError);
                             }
                         } catch (err) {
-                            setError('حدث خطأ في نشر التوصية');
+                            setError(t.postError);
                         }
                         setUploading(false);
                     };
@@ -144,7 +146,7 @@ export default function AdminPage() {
     };
 
     const deleteSignal = async (id) => {
-        if (!confirm('هل أنت متأكد من حذف هذه التوصية؟')) return;
+        if (!confirm(t.deleteConfirm)) return;
 
         try {
             const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
@@ -157,6 +159,8 @@ export default function AdminPage() {
         }
     };
 
+    if (!mounted) return null;
+
     // Login Screen
     if (!isAuthenticated) {
         return (
@@ -168,23 +172,19 @@ export default function AdminPage() {
                 justifyContent: 'center',
                 padding: '2rem'
             }}>
-                <div style={{
-                    background: '#0f0f18',
-                    border: '1px solid rgba(184, 134, 11, 0.3)',
-                    borderRadius: '24px',
-                    padding: '3rem',
-                    maxWidth: '400px',
-                    width: '100%',
-                    boxShadow: '0 0 60px rgba(184, 134, 11, 0.1)'
-                }}>
+                <div className="absolute top-4 right-4" style={{ right: isRTL ? 'auto' : '1rem', left: isRTL ? '1rem' : 'auto' }}>
+                    <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                </div>
+
+                <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
                         <h1 className="text-gradient" style={{
                             fontSize: '1.75rem',
                             fontWeight: '700',
                             marginBottom: '0.5rem'
-                        }}>لوحة تحكم الإدمن</h1>
-                        <p style={{ color: '#9a9ab0' }}>أدخل كلمة المرور للدخول</p>
+                        }}>{t.adminTitle}</h1>
+                        <p style={{ color: '#9a9ab0' }}>{t.adminSubtitle}</p>
                     </div>
 
                     <form onSubmit={handleLogin}>
@@ -192,7 +192,7 @@ export default function AdminPage() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="كلمة المرور"
+                            placeholder={t.passwordPlaceholder}
                             style={{
                                 width: '100%',
                                 padding: '1rem',
@@ -217,7 +217,7 @@ export default function AdminPage() {
                                 fontSize: '1rem'
                             }}
                         >
-                            دخول
+                            {t.login}
                         </button>
                     </form>
                 </div>
@@ -235,7 +235,7 @@ export default function AdminPage() {
             }}
             onPaste={handlePaste}
         >
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div className="container">
                 {/* Header */}
                 <div style={{
                     display: 'flex',
@@ -249,39 +249,41 @@ export default function AdminPage() {
                         fontSize: '1.75rem',
                         fontWeight: '700'
                     }}>
-                        💎 لوحة تحكم التوصيات
+                        💎 {t.signalsDashboard}
                     </h1>
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            padding: '0.75rem 1.5rem',
-                            background: 'transparent',
-                            border: '1px solid rgba(239, 68, 68, 0.5)',
-                            borderRadius: '50px',
-                            color: '#ef4444',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem'
-                        }}
-                    >
-                        تسجيل خروج
-                    </button>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                        <button
+                            onClick={handleLogout}
+                            style={{
+                                padding: '0.75rem 1.5rem',
+                                background: 'transparent',
+                                border: '1px solid rgba(239, 68, 68, 0.5)',
+                                borderRadius: '50px',
+                                color: '#ef4444',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            {t.logout}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Upload Section */}
-                <div style={{
-                    background: '#0f0f18',
+                <div className="card" style={{
                     border: '2px dashed rgba(184, 134, 11, 0.4)',
-                    borderRadius: '20px',
                     padding: '3rem',
                     textAlign: 'center',
-                    marginBottom: '2rem'
+                    marginBottom: '2rem',
+                    background: '#0f0f18'
                 }}>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
                     <h2 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.5rem' }}>
-                        نشر توصية جديدة
+                        {t.postNewSignal}
                     </h2>
                     <p style={{ color: '#9a9ab0', marginBottom: '1.5rem' }}>
-                        الصق صورة التوصية مباشرة (Ctrl+V) أو اختر ملف
+                        {t.dragDropText}
                     </p>
 
                     <input
@@ -300,7 +302,7 @@ export default function AdminPage() {
                             cursor: 'pointer'
                         }}
                     >
-                        {uploading ? 'جاري الرفع...' : 'اختر صورة'}
+                        {uploading ? t.uploading : t.chooseImage}
                     </label>
 
                     {successMessage && (
@@ -311,20 +313,15 @@ export default function AdminPage() {
                 </div>
 
                 {/* Signals List */}
-                <div style={{
-                    background: '#0f0f18',
-                    border: '1px solid rgba(184, 134, 11, 0.2)',
-                    borderRadius: '20px',
-                    padding: '2rem'
-                }}>
+                <div className="card" style={{ padding: '2rem' }}>
                     <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', fontSize: '1.25rem' }}>
-                        📊 التوصيات المنشورة ({signals.length})
+                        📊 {t.publishedSignals} ({signals.length})
                     </h2>
 
                     {loading ? (
-                        <p style={{ color: '#9a9ab0', textAlign: 'center' }}>جاري التحميل...</p>
+                        <p style={{ color: '#9a9ab0', textAlign: 'center' }}>{t.loading}</p>
                     ) : signals.length === 0 ? (
-                        <p style={{ color: '#9a9ab0', textAlign: 'center' }}>لا توجد توصيات منشورة</p>
+                        <p style={{ color: '#9a9ab0', textAlign: 'center' }}>{t.noSignals || 'No signals'}</p>
                     ) : (
                         <div style={{
                             display: 'grid',
@@ -357,7 +354,7 @@ export default function AdminPage() {
                                             alignItems: 'center'
                                         }}>
                                             <span style={{ color: '#9a9ab0', fontSize: '0.85rem' }}>
-                                                {new Date(signal.createdAt).toLocaleDateString('ar-EG')}
+                                                {new Date(signal.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US')}
                                             </span>
                                             <button
                                                 onClick={() => deleteSignal(signal._id)}
@@ -371,7 +368,7 @@ export default function AdminPage() {
                                                     fontSize: '0.85rem'
                                                 }}
                                             >
-                                                حذف
+                                                {t.delete}
                                             </button>
                                         </div>
                                     </div>

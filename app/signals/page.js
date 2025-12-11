@@ -1,53 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-const translations = {
-    en: {
-        title: 'Trading Signals',
-        subtitle: 'Latest signals from our expert analysts',
-        loading: 'Loading signals...',
-        noSignals: 'No signals available yet. Check back soon!',
-        locked: '🔒 VIP Only',
-        unlockTitle: 'Unlock Premium Signals',
-        unlockDesc: 'Subscribe to access all trading signals with entry, stop loss, and take profit levels.',
-        viewPlans: 'View Subscription Plans',
-        signalTime: 'Posted',
-        back: '← Back to Home'
-    },
-    ar: {
-        title: 'توصيات التداول',
-        subtitle: 'أحدث التوصيات من محللينا الخبراء',
-        loading: 'جاري تحميل التوصيات...',
-        noSignals: 'لا توجد توصيات متاحة حالياً. تحقق لاحقاً!',
-        locked: '🔒 للأعضاء فقط',
-        unlockTitle: 'افتح التوصيات المميزة',
-        unlockDesc: 'اشترك للوصول إلى جميع توصيات التداول مع نقاط الدخول ووقف الخسارة وجني الأرباح.',
-        viewPlans: 'عرض خطط الاشتراك',
-        signalTime: 'نُشرت',
-        back: '→ العودة للرئيسية'
-    }
-};
+import { useLanguage } from '../context/LanguageContext';
 
 export default function SignalsPage() {
-    const [lang, setLang] = useState('ar');
+    const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isVip, setIsVip] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    const t = translations[lang];
-    const isRTL = lang === 'ar';
 
     useEffect(() => {
-        setMounted(true);
-
-        // Get language preference
-        const savedLang = localStorage.getItem('preferred-language');
-        if (savedLang === 'en' || savedLang === 'ar') {
-            setLang(savedLang);
-        }
-
         // Check VIP status (from URL param or localStorage)
         const urlParams = new URLSearchParams(window.location.search);
         const telegramId = urlParams.get('telegramId');
@@ -82,38 +44,40 @@ export default function SignalsPage() {
 
     return (
         <div
-            dir={isRTL ? 'rtl' : 'ltr'}
             style={{
                 minHeight: '100vh',
                 background: 'linear-gradient(180deg, #080810 0%, #0f0f18 100%)',
                 padding: '2rem'
             }}
         >
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div className="container">
                 {/* Header */}
                 <div style={{ marginBottom: '3rem' }}>
-                    <a
-                        href="/"
-                        style={{
-                            color: '#DAA520',
-                            textDecoration: 'none',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            marginBottom: '1.5rem',
-                            fontSize: '0.95rem'
-                        }}
-                    >
-                        {t.back}
-                    </a>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <a
+                            href="/"
+                            style={{
+                                color: '#DAA520',
+                                textDecoration: 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontSize: '0.95rem'
+                            }}
+                        >
+                            {t.backToHome}
+                        </a>
+                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                    </div>
+
                     <h1 className="text-gradient" style={{
                         fontSize: '2.5rem',
                         fontWeight: '700',
                         marginBottom: '0.5rem'
                     }}>
-                        💎 {t.title}
+                        💎 {t.signalsTitle}
                     </h1>
-                    <p style={{ color: '#9a9ab0', fontSize: '1.1rem' }}>{t.subtitle}</p>
+                    <p style={{ color: '#9a9ab0', fontSize: '1.1rem' }}>{t.signalsSubtitle}</p>
                 </div>
 
                 {/* Content */}
@@ -127,11 +91,9 @@ export default function SignalsPage() {
                         <p style={{ color: '#9a9ab0' }}>{t.loading}</p>
                     </div>
                 ) : signals.length === 0 ? (
-                    <div style={{
+                    <div className="card" style={{
                         textAlign: 'center',
                         padding: '4rem',
-                        background: '#0f0f18',
-                        borderRadius: '20px',
                         border: '1px solid rgba(184, 134, 11, 0.2)'
                     }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
@@ -234,7 +196,7 @@ export default function SignalsPage() {
                                             color: '#9a9ab0',
                                             fontSize: '0.85rem'
                                         }}>
-                                            {t.signalTime}: {new Date(signal.createdAt).toLocaleDateString(
+                                            {t.posted}: {new Date(signal.createdAt).toLocaleDateString(
                                                 lang === 'ar' ? 'ar-EG' : 'en-US',
                                                 { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
                                             )}
@@ -258,8 +220,12 @@ export default function SignalsPage() {
                     </div>
                 )}
             </div>
-
-
+            <style jsx>{`
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.1); opacity: 0.8; }
+                }
+            `}</style>
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import { Inter, Cairo } from 'next/font/google';
+import { LanguageProvider } from './context/LanguageContext';
 import "./globals.css";
 
 const inter = Inter({
@@ -23,7 +24,9 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${cairo.variable} antialiased`}>
-                {children}
+                <LanguageProvider>
+                    {children}
+                </LanguageProvider>
             </body>
         </html>
     );
