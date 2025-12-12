@@ -117,12 +117,6 @@ export default function AdminPage() {
                             <stop offset="70%" style="stop-color:rgba(0, 0, 0, 0);stop-opacity:0" />
                         </radialGradient>
 
-                        <!-- Glassmorphism BG (Semi-transparent dark with blur simulated by color) -->
-                        <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:rgba(30,30,40,0.6)" />
-                            <stop offset="100%" style="stop-color:rgba(10,10,15,0.8)" />
-                        </linearGradient>
-
                         <!-- Gold Lock Gradient -->
                         <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#FFE566;stop-opacity:1" />
@@ -133,12 +127,8 @@ export default function AdminPage() {
                     
                     <!-- 1. Ambient Glow (Large) -->
                     <circle cx="50" cy="50" r="50" fill="url(#glow)" />
-
-                    <!-- 2. Glassy Container (Smaller) -->
-                    <!-- We use a subtle dark overlay to make the lock pop without being a black hole -->
-                    <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#glass)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
                     
-                    <!-- 3. Lock Icon -->
+                    <!-- 2. Lock Icon (Directly on Glow, No Square Background) -->
                     <g transform="translate(25, 25) scale(0.5)">
                          <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
                          <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
@@ -300,13 +290,29 @@ export default function AdminPage() {
                     </div>
                 </div>
 
-                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(76, 175, 80, 0.05)', border: '1px solid rgba(76, 175, 80, 0.2)' }}>
-                    <h2 style={{ color: '#4caf50', marginBottom: '0.5rem' }}>{t.manageVip}</h2>
-                    <form onSubmit={handleGrantVip} style={{ display: 'flex', gap: '0.5rem', maxWidth: '500px' }}>
-                        <input type="text" value={telegramId} onChange={(e) => setTelegramId(e.target.value)} placeholder={t.telegramIdPlaceholder} style={{ flex: 1, padding: '0.8rem', background: '#161622', border: '1px solid rgba(76, 175, 80, 0.3)', borderRadius: '8px', color: '#fff' }} />
-                        <button type="submit" className="btn-primary" style={{ background: '#4caf50' }}>{vipLoading ? '...' : t.grantVip}</button>
+                {/* VIP Management - Reverted to Simple Design */}
+                <div style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '1rem' }}>{t.manageVip}</h2>
+                    <form onSubmit={handleGrantVip} style={{ display: 'flex', gap: '1rem', maxWidth: '500px' }}>
+                        <input
+                            type="text"
+                            value={telegramId}
+                            onChange={(e) => setTelegramId(e.target.value)}
+                            placeholder={t.telegramIdPlaceholder}
+                            style={{
+                                flex: 1,
+                                padding: '1rem',
+                                background: '#13131d',
+                                border: '1px solid #2a2a35',
+                                borderRadius: '12px',
+                                color: '#fff'
+                            }}
+                        />
+                        <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap' }}>
+                            {vipLoading ? '...' : t.grantVip}
+                        </button>
                     </form>
-                    {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '0.5rem' }}>{vipMessage.text}</p>}
+                    {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
                 </div>
 
                 <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
