@@ -272,18 +272,20 @@ export default function SignalsPage() {
                             background: 'rgba(218, 165, 32, 0.08)',
                             border: '1px solid rgba(218, 165, 32, 0.25)',
                             borderRadius: '50px',
-                            padding: '0.6rem 2rem', // Increased padding for long numbers
+                            padding: '0.7rem 3rem', // maximized horizontal padding
                             marginBottom: '2rem',
                             marginTop: '1rem',
                             color: '#FFD700',
-                            fontSize: '0.9rem', // Slightly larger for readability
+                            fontSize: '0.85rem', // optimized for fit
                             fontWeight: '500',
                             backdropFilter: 'blur(10px)',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             whiteSpace: 'nowrap',
-                            maxWidth: '90vw', // Reduced slightly to ensure it fits screen
+                            maxWidth: '95vw',
                             flexWrap: 'nowrap',
-                            width: 'fit-content' // Ensure container grows with text
+                            width: 'fit-content',
+                            marginLeft: 'auto',
+                            marginRight: 'auto'
                         }}>
                             <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>👑</span>
                             <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
