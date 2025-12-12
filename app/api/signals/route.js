@@ -93,7 +93,7 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const telegramId = searchParams.get('telegramId');
 
-        const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(20);
+        const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(10);
         let isVip = false;
 
         if (telegramId && telegramId !== 'null' && telegramId !== 'undefined') {
