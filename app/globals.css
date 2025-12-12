@@ -394,11 +394,6 @@ h6 {
     line-height: 1;
     margin: 1rem 0;
     filter: drop-shadow(0 2px 4px rgba(112, 92, 11, 0.4));
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: nowrap;
 }
 
 .pricing-price span {
@@ -406,9 +401,6 @@ h6 {
     font-weight: 400;
     background: none;
     -webkit-text-fill-color: var(--text-secondary);
-    white-space: nowrap;
-    direction: ltr;
-    unicode-bidi: isolate;
 }
 
 .pricing-original {
@@ -483,7 +475,6 @@ h6 {
 .pricing-duration,
 .pricing-title {
     color: var(--text-primary);
-    white-space: nowrap;
 }
 
 /* ===== Header ===== */
