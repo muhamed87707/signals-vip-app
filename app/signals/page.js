@@ -97,11 +97,28 @@ export default function SignalsPage() {
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        const telegramId = urlParams.get('telegramId');
+        let telegramId = urlParams.get('telegramId');
         const vipStatus = localStorage.getItem('isVip');
 
         if (vipStatus === 'true') {
             setIsVip(true);
+        }
+
+        // Telegram Mini App Integrated Logic
+        if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            try {
+                tg.expand();
+            } catch (e) {
+                console.log('Telegram expand failed', e);
+            }
+
+            // Auto-login if opened inside Telegram
+            const user = tg.initDataUnsafe?.user;
+            if (user?.id) {
+                telegramId = user.id.toString();
+            }
         }
 
         fetchSignals(telegramId);

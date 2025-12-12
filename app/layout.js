@@ -1,4 +1,5 @@
 import { Inter, Cairo } from 'next/font/google';
+import Script from 'next/script';
 import { LanguageProvider } from './context/LanguageContext';
 import "./globals.css";
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${cairo.variable} antialiased`}>
+                <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
                 <LanguageProvider>
                     {children}
                 </LanguageProvider>
