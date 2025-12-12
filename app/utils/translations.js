@@ -57,7 +57,12 @@ export const translations = {
         unlockTitle: 'Unlock Premium Signals',
         unlockDesc: 'Subscribe to access all trading signals with entry, stop loss, and take profit levels.',
         viewPlans: 'View Subscription Plans',
+        viewPlans: 'View Subscription Plans',
         posted: 'Posted',
+        vipActive: '👑 VIP Active',
+        expiresIn: 'Expires in',
+        lifetime: 'Lifetime Access ♾️',
+        days: 'Days',
 
         // Admin Page
         adminTitle: 'Admin Dashboard',
@@ -149,7 +154,12 @@ export const translations = {
         unlockTitle: 'افتح التوصيات المميزة',
         unlockDesc: 'اشترك للوصول إلى جميع توصيات التداول مع نقاط الدخول ووقف الخسارة وجني الأرباح.',
         viewPlans: 'عرض خطط الاشتراك',
+        viewPlans: 'عرض خطط الاشتراك',
         posted: 'نُشرت',
+        vipActive: '👑 عضوية VIP نشطة',
+        expiresIn: 'تنتهي خلال',
+        lifetime: 'مدى الحياة ♾️',
+        days: 'يوماً',
 
         // Admin Page
         adminTitle: 'لوحة تحكم الإدمن',

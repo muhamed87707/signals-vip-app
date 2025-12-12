@@ -237,22 +237,26 @@ export default function SignalsPage() {
                         <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.5rem',
-                            background: 'rgba(218, 165, 32, 0.1)',
-                            border: '1px solid rgba(218, 165, 32, 0.3)',
+                            justifyContent: 'center',
+                            gap: '0.6rem',
+                            background: 'rgba(218, 165, 32, 0.08)',
+                            border: '1px solid rgba(218, 165, 32, 0.25)',
                             borderRadius: '50px',
-                            padding: '0.4rem 1rem',
-                            marginBottom: '1.5rem',
+                            padding: '0.5rem 1.25rem',
+                            marginBottom: '2rem',
                             color: '#FFD700',
                             fontSize: '0.9rem',
-                            fontWeight: '600'
+                            fontWeight: '500',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                         }}>
-                            <span>👑 VIP Active</span>
-                            <span style={{ width: '1px', height: '12px', background: 'rgba(218, 165, 32, 0.3)' }}></span>
-                            <span>
+                            <span style={{ fontSize: '1.1rem' }}>👑</span>
+                            <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
+                            <span style={{ width: '1px', height: '14px', background: 'rgba(218, 165, 32, 0.3)', margin: '0 0.2rem' }}></span>
+                            <span style={{ color: '#fff', opacity: 0.9 }}>
                                 {expirationDate
-                                    ? `Expires in ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} Days`
-                                    : 'Lifetime Access ♾️'}
+                                    ? `${t.expiresIn} ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} ${t.days || 'Days'}`
+                                    : t.lifetime}
                             </span>
                         </div>
                     )}
