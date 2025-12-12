@@ -514,8 +514,8 @@ export default function SignalsPage() {
                     }}>{t.signalsSubtitle}</p>
                 </div>
 
-                {/* Lot Size Calculator - VIP Only */}
-                {isVip && <LotSizeCalculator t={t} isRTL={isRTL} />}
+                {/* Lot Size Calculator */}
+                <LotSizeCalculator t={t} isRTL={isRTL} />
 
                 {/* Content */}
                 {loading ? (
