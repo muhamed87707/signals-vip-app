@@ -16,6 +16,11 @@ export default function AdminPage() {
     const [successMessage, setSuccessMessage] = useState('');
     const fileInputRef = useRef(null);
 
+    // VIP Management State
+    const [telegramId, setTelegramId] = useState('');
+    const [vipLoading, setVipLoading] = useState(false);
+    const [vipMessage, setVipMessage] = useState({ type: '', text: '' });
+
     // Check authentication on mount
     useEffect(() => {
         const auth = sessionStorage.getItem('admin-auth');
@@ -98,6 +103,31 @@ export default function AdminPage() {
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+    };
+
+    const handleGrantVip = async (e) => {
+        e.preventDefault();
+        if (!telegramId) return;
+        setVipLoading(true);
+        setVipMessage({ type: '', text: '' });
+
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId, isVip: true })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setVipMessage({ type: 'success', text: t.vipSuccess });
+                setTelegramId('');
+            } else {
+                setVipMessage({ type: 'error', text: t.vipError });
+            }
+        } catch (err) {
+            setVipMessage({ type: 'error', text: t.vipError });
+        }
+        setVipLoading(false);
     };
 
     const handlePaste = async (e) => {
@@ -268,6 +298,68 @@ export default function AdminPage() {
                             {t.logout}
                         </button>
                     </div>
+                </div>
+
+                {/* VIP Management Section */}
+                <div className="card" style={{
+                    border: '1px solid rgba(76, 175, 80, 0.3)',
+                    padding: '2rem',
+                    textAlign: 'center',
+                    marginBottom: '2rem',
+                    background: 'rgba(76, 175, 80, 0.05)'
+                }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>👑</div>
+                    <h2 style={{ color: '#4caf50', marginBottom: '0.5rem', fontSize: '1.5rem' }}>
+                        {t.manageVip}
+                    </h2>
+                    <p style={{ color: '#9a9ab0', marginBottom: '1.5rem' }}>
+                        {t.manageVipSubtitle}
+                    </p>
+
+                    <form onSubmit={handleGrantVip} style={{ maxWidth: '400px', margin: '0 auto' }}>
+                        <input
+                            type="text"
+                            value={telegramId}
+                            onChange={(e) => setTelegramId(e.target.value)}
+                            placeholder={t.telegramIdPlaceholder}
+                            style={{
+                                width: '100%',
+                                padding: '1rem',
+                                background: '#161622',
+                                border: '1px solid rgba(76, 175, 80, 0.3)',
+                                borderRadius: '12px',
+                                color: '#fff',
+                                fontSize: '1rem',
+                                marginBottom: '1rem',
+                                textAlign: 'center',
+                                direction: 'ltr'
+                            }}
+                        />
+                        <button
+                            type="submit"
+                            className="btn-primary"
+                            style={{
+                                width: '100%',
+                                fontSize: '1rem',
+                                background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+                                boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)'
+                            }}
+                            disabled={vipLoading}
+                        >
+                            {vipLoading ? t.loading : t.grantVip}
+                        </button>
+                    </form>
+
+                    {vipMessage.text && (
+                        <p style={{
+                            color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444',
+                            marginTop: '1rem',
+                            fontSize: '1.1rem',
+                            fontWeight: '600'
+                        }}>
+                            {vipMessage.text}
+                        </p>
+                    )}
                 </div>
 
                 {/* Upload Section */}

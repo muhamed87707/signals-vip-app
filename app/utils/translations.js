@@ -77,6 +77,14 @@ export const translations = {
         publishedSignals: 'Published Signals',
         delete: 'Delete',
         deleteConfirm: 'Are you sure you want to delete this signal?',
+
+        // VIP Management
+        manageVip: 'Manage VIP Access',
+        manageVipSubtitle: 'Grant or revoke VIP status by Telegram ID',
+        telegramIdPlaceholder: 'Enter Telegram ID',
+        grantVip: 'Grant VIP Access',
+        vipSuccess: 'VIP status updated successfully! ✓',
+        vipError: 'Error updating user',
     },
     ar: {
         // Shared
@@ -156,6 +164,14 @@ export const translations = {
         publishedSignals: 'التوصيات المنشورة',
         delete: 'حذف',
         deleteConfirm: 'هل أنت متأكد من حذف هذه التوصية؟',
+
+        // VIP Management
+        manageVip: 'إدارة مشتركي VIP',
+        manageVipSubtitle: 'منح أو إلغاء العضوية باستخدام معرف تليجرام',
+        telegramIdPlaceholder: 'أدخل معرف تليجرام (Telegram ID)',
+        grantVip: 'منح عضوية VIP',
+        vipSuccess: 'تم تحديث حالة العضو بنجاح! ✓',
+        vipError: 'حدث خطأ في تحديث البيانات',
     }
 };
 
