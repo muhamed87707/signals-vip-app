@@ -202,7 +202,7 @@ export default function SignalsPage() {
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.02)',
                     backdropFilter: 'blur(10px)',
-                    padding: '3rem 2rem',
+                    padding: '2rem 2rem', // Reduced top padding to move elements up
                     borderRadius: '30px',
                     border: '1px solid rgba(184, 134, 11, 0.1)',
                     display: 'flex',
@@ -217,7 +217,7 @@ export default function SignalsPage() {
                         justifyContent: 'center',
                         alignItems: 'center',
                         gap: '1.5rem',
-                        marginBottom: '2rem',
+                        marginBottom: '1rem', // Reduced margin
                         width: '100%',
                         flexWrap: 'wrap'
                     }}>
@@ -238,7 +238,25 @@ export default function SignalsPage() {
                         >
                             {t.backToHome}
                         </a>
-                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                        <button
+                            onClick={toggleLang}
+                            style={{
+                                color: '#DAA520',
+                                border: 'none',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontSize: '0.95rem',
+                                padding: '0.5rem 1rem',
+                                background: 'rgba(218, 165, 32, 0.1)',
+                                borderRadius: '20px',
+                                transition: 'all 0.3s ease',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            🌐 {t.langSwitch}
+                        </button>
                     </div>
 
                     <div className="signals-diamond" style={{
