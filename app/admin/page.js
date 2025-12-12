@@ -446,11 +446,11 @@ export default function AdminPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.filter(u => u.isVip && (!u.vipExpiryDate || new Date(u.vipExpiryDate) > new Date())).length === 0 ? (
+                                {(Array.isArray(users) ? users : []).filter(u => u.isVip && (!u.vipExpiryDate || new Date(u.vipExpiryDate) > new Date())).length === 0 ? (
                                     <tr>
                                         <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No active members found.</td>
                                     </tr>
-                                ) : users.filter(u => u.isVip && (!u.vipExpiryDate || new Date(u.vipExpiryDate) > new Date())).map((user) => {
+                                ) : (Array.isArray(users) ? users : []).filter(u => u.isVip && (!u.vipExpiryDate || new Date(u.vipExpiryDate) > new Date())).map((user) => {
                                     const expiry = user.vipExpiryDate ? new Date(user.vipExpiryDate) : null;
                                     const isLifetime = expiry && expiry.getFullYear() > 2090;
                                     const daysLeft = expiry ? Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24)) : 0;
