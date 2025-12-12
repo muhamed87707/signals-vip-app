@@ -451,7 +451,7 @@ export default function SignalsPage() {
                                 </div>
 
                                 {/* Signal Info (Footer) */}
-                                <div className="signal-card-footer" style={{
+                                <div style={{
                                     padding: '0.8rem 1.25rem',
                                     background: '#0f0f18', // Seamless blend
                                     borderTop: 'none',
@@ -517,33 +517,32 @@ export default function SignalsPage() {
                 @media (max-width: 768px) {
                     .signals-page-container {
                         padding-top: 0.5rem !important;
-                        padding-bottom: 1rem !important;
+                        padding-bottom: 2rem !important;
                     }
                     .signals-header-container {
-                        padding: 1rem 0.8rem !important;
-                        margin-bottom: 1.5rem !important;
+                        padding: 1rem 0.5rem !important;
+                        margin-bottom: 1rem !important;
                         border-radius: 20px !important;
                     }
                     .signals-nav {
                         margin-bottom: 0.5rem !important;
-                        gap: 0.5rem !important;
+                        gap: 0.6rem !important;
                     }
                     .signals-diamond {
                         font-size: 2rem !important;
-                        margin-bottom: 0.25rem !important;
+                        margin-bottom: 0.2rem !important;
                     }
                     .signals-title {
                         font-size: 1.5rem !important;
-                        margin-bottom: 0.25rem !important;
+                        margin-bottom: 0.3rem !important;
                     }
                     .signals-subtitle {
                         font-size: 0.85rem !important;
                         line-height: 1.3 !important;
-                        padding: 0 0.5rem;
                     }
                     .vip-badge-container {
                         margin-bottom: 0.5rem !important;
-                        margin-top: 0.25rem !important;
+                        margin-top: 0.2rem !important;
                         padding: 0.25rem 0.6rem !important;
                     }
                     .vip-badge-icon {
@@ -551,9 +550,6 @@ export default function SignalsPage() {
                     }
                     .vip-badge-text {
                         font-size: 0.7rem !important;
-                    }
-                    .signal-card-footer {
-                        padding: 0.6rem 1rem !important;
                     }
                 }
             `}</style>
