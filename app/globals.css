@@ -747,13 +747,13 @@ h6 {
 
 /* Ensure text inside avatar (initials) also shines */
 .testimonial-avatar {
-    background: linear-gradient(90deg, #8B6914 0%, #FFD700 40%, #FFFFFF 50%, #FFD700 60%, #8B6914 100%);
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
-    animation: goldShine 2.5s linear infinite;
+    animation: goldShine 2.5s linear infinite alternate;
 }
 
 .testimonial-info {
@@ -762,7 +762,12 @@ h6 {
 
 .testimonial-name {
     font-weight: 600;
-    color: var(--text-primary);
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: goldShine 2.5s linear infinite alternate;
     margin-bottom: 0.15rem;
 }
 
