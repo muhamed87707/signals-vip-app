@@ -195,14 +195,14 @@ export default function SignalsPage() {
                 animation: 'pulse 10s ease-in-out infinite reverse'
             }}></div>
 
-            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '1rem', paddingBottom: '4rem' }}>
+            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '0.5rem', paddingBottom: '4rem' }}>
                 {/* Header */}
                 <div className="signals-header-container" style={{
                     marginBottom: '1.5rem',
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.02)',
                     backdropFilter: 'blur(10px)',
-                    padding: '1.5rem 1.5rem', // Further reduced padding
+                    padding: '1rem 1.5rem', // Maximally reduced padding
                     borderRadius: '30px',
                     border: '1px solid rgba(184, 134, 11, 0.1)',
                     display: 'flex',
@@ -534,11 +534,11 @@ export default function SignalsPage() {
                 /* Mobile Optimizations */
                 @media (max-width: 768px) {
                     .signals-page-container {
-                        padding-top: 1rem !important;
+                        padding-top: 0.5rem !important;
                         padding-bottom: 2rem !important;
                     }
                     .signals-header-container {
-                        padding: 1.5rem 1rem !important;
+                        padding: 1rem 1rem !important;
                         margin-bottom: 1rem !important; /* Reduced margin */
                         border-radius: 20px !important;
                     }
