@@ -62,7 +62,7 @@ export default function AdminPage() {
         setLoading(false);
     };
 
-    // Helper to Create Blurred Image
+    // Helper to Create Blurred Image with Lock Overlay
     const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -76,6 +76,16 @@ export default function AdminPage() {
                 // Apply Blur
                 ctx.filter = 'blur(20px)';
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Draw Lock Emoji Overlay
+                ctx.filter = 'none'; // Reset filter for text
+                const fontSize = Math.min(canvas.width, canvas.height) * 0.3; // Responsive font size
+                ctx.font = `${fontSize}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 10;
+                ctx.fillText('🔒', canvas.width / 2, canvas.height / 2);
 
                 // Get Base64
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.8);

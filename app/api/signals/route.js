@@ -32,7 +32,14 @@ async function sendToTelegram(imageUrl) {
   if (!imageUrl) return;
 
   try {
-    const text = "🔥 *New VIP Signal Released!* 🔥\n\nاضغط بالأسفل لفتح التوصية 👇";
+    const text = `🔥 *توصية VIP جديدة!* 💎
+تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
+اضغط بالأسفل لفك القفل ومشاهدة التوصية 👇
+
+🔥 *New VIP Signal!* 💎
+A high-potential trade has been posted for premium subscribers! 🚀
+Click below to unlock and view details 👇`;
+
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
     await fetch(url, {
@@ -45,7 +52,7 @@ async function sendToTelegram(imageUrl) {
         parse_mode: 'Markdown',
         reply_markup: {
           inline_keyboard: [[
-            { text: "🔓 View Signal | عرض التوصية", url: "https://t.me/AbouAlDahabVIP_bot/app?startapp=true" }
+            { text: "🔒 Unlock Signal | فك القفل", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
           ]]
         }
       })
@@ -91,7 +98,7 @@ export async function POST(request) {
     if (shouldSend && telegramImage) {
       const blurredUrl = await uploadToImgBB(telegramImage);
       if (blurredUrl) {
-        // Fire and forget Telegram post to avoid blocking response
+        // Fire and forget Telegram post
         sendToTelegram(blurredUrl);
       }
     }
