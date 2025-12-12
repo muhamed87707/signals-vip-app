@@ -193,7 +193,11 @@ export default function SignalsPage() {
                     backdropFilter: 'blur(10px)',
                     padding: '3rem 2rem',
                     borderRadius: '30px',
-                    border: '1px solid rgba(184, 134, 11, 0.1)'
+                    border: '1px solid rgba(184, 134, 11, 0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
                     <div style={{
                         display: 'flex',
@@ -298,9 +302,10 @@ export default function SignalsPage() {
                 ) : (
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
                         gap: '2.5rem',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        width: '100%'
                     }}>
                         {signals.map((signal, index) => (
                             <div
