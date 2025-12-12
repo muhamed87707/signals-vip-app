@@ -477,7 +477,7 @@ export default function SignalsPage() {
                             animation: 'pulse 2s infinite',
                             whiteSpace: 'nowrap'
                         }}>
-                            {t.joinVip} <span style={{ fontSize: '1.1rem' }}>👉</span>
+                            {t.joinVip} <span style={{ fontSize: '1.1rem' }}>🚀</span>
                         </a>
                     )}
 
