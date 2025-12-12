@@ -65,6 +65,30 @@ const ClockIcon = () => (
     </svg>
 );
 
+const getTimeAgo = (dateStr, lang) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (lang === 'ar') {
+        if (seconds < 60) return 'منذ لحظات';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `منذ ${minutes} دقيقة`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        const days = Math.floor(hours / 24);
+        return `منذ ${days} يوم`;
+    } else {
+        if (seconds < 60) return 'Just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+    }
+};
+
 export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [signals, setSignals] = useState([]);
@@ -255,6 +279,18 @@ export default function SignalsPage() {
                                         }}
                                     />
 
+                                    {/* Gradient Overlay for Seam Fix */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        height: '60px',
+                                        background: 'linear-gradient(to top, #0f0f18 0%, transparent 100%)',
+                                        pointerEvents: 'none',
+                                        zIndex: 1
+                                    }}></div>
+
                                     {/* Overlay for non-VIP with Glassmorphism */}
                                     {!isVip && (
                                         <div style={{
@@ -269,7 +305,8 @@ export default function SignalsPage() {
                                             justifyContent: 'center',
                                             padding: '2rem',
                                             textAlign: 'center',
-                                            border: '1px solid rgba(255, 255, 255, 0.05)'
+                                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                                            zIndex: 2
                                         }}>
                                             <ModernLockIcon />
                                             <h3 className="text-gradient" style={{
@@ -305,8 +342,10 @@ export default function SignalsPage() {
                                 {/* Signal Info (Footer) */}
                                 <div style={{
                                     padding: '0.8rem 1.25rem', // Fix: Reduced padding
-                                    background: 'rgba(255,255,255,0.02)',
-                                    borderTop: '1px solid rgba(255,255,255,0.03)'
+                                    background: '#0f0f18', // Seamless blend
+                                    borderTop: 'none', // Removed border to blend
+                                    position: 'relative',
+                                    zIndex: 2
                                 }}>
                                     <div style={{
                                         display: 'flex',
@@ -322,13 +361,11 @@ export default function SignalsPage() {
                                             background: 'rgba(255,255,255,0.05)',
                                             padding: '0.3rem 0.8rem',
                                             borderRadius: '20px',
-                                            letterSpacing: '0.5px'
+                                            letterSpacing: '0.5px',
+                                            border: '1px solid rgba(255,255,255,0.05)'
                                         }}>
                                             <ClockIcon />
-                                            {new Date(signal.createdAt).toLocaleDateString(
-                                                lang === 'ar' ? 'ar-EG' : 'en-US',
-                                                { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
-                                            )}
+                                            {getTimeAgo(signal.createdAt, lang)}
                                         </span>
                                         {isVip && (
                                             <span style={{
