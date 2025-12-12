@@ -130,7 +130,7 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     marginBottom: '0.5rem'
-                }}>{(t.calcTitle || 'حاسبة اللوت الذكية').replace('📊 ', '')}</h3>
+                }}>{t.calcTitle}</h3>
                 <p style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>{t.calcSubtitle}</p>
             </div>
 
@@ -212,11 +212,8 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                     WebkitTextFillColor: 'transparent',
                     marginBottom: '0.5rem'
                 }}>
-                    {formattedLot.toFixed(2)} Lot
+                    {formattedLot.toFixed(2)}
                 </div>
-                <p style={{ color: currentRisk.color, fontSize: '0.9rem', fontWeight: '600' }}>
-                    {t.riskAmount}: ${riskAmount.toFixed(2)}
-                </p>
             </div>
 
             {/* Safety Tip */}

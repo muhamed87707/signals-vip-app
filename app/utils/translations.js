@@ -101,7 +101,7 @@ export const translations = {
         telegramError: 'Telegram post failed',
 
         // Lot Size Calculator
-        calcTitle: 'Smart Lot Calculator',
+        calcTitle: 'Contract Size Calculator',
         calcSubtitle: 'Calculate the perfect lot size for safe trading',
         accountBalance: 'Account Balance ($)',
         riskPercent: 'Risk per Trade',
@@ -217,7 +217,7 @@ export const translations = {
         telegramError: 'فشل النشر في تليجرام',
 
         // Lot Size Calculator
-        calcTitle: 'حاسبة اللوت الذكية',
+        calcTitle: 'حاسبة حجم العقد',
         calcSubtitle: 'احسب حجم اللوت المناسب لتداول آمن',
         accountBalance: 'رصيد الحساب ($)',
         riskPercent: 'نسبة المخاطرة',
