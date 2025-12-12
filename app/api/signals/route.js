@@ -53,7 +53,7 @@ Click below to reveal the signal 👇`;
                 parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [[
-                        { text: "👁️‍🗨️ Secret Signal | التوصية السرية", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
+                        { text: "💎 Show Signal | إظهار التوصية 💎", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
                     ]]
                 }
             })
