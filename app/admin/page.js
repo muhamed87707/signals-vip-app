@@ -5,6 +5,30 @@ import { useLanguage } from '../context/LanguageContext';
 
 const ADMIN_PASSWORD = '123';
 
+const getTimeAgo = (dateStr, lang) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (lang === 'ar') {
+        if (seconds < 60) return 'منذ لحظات';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `منذ ${minutes} دقيقة`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        const days = Math.floor(hours / 24);
+        return `منذ ${days} يوم`;
+    } else {
+        if (seconds < 60) return 'Just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+    }
+};
+
 export default function AdminPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,7 +48,6 @@ export default function AdminPage() {
     // Telegram Auto-Post State
     const [postToTelegram, setPostToTelegram] = useState(true);
 
-    // Check authentication on mount
     useEffect(() => {
         const auth = sessionStorage.getItem('admin-auth');
         if (auth === 'true') {
@@ -62,7 +85,7 @@ export default function AdminPage() {
         setLoading(false);
     };
 
-    // Helper to Create Blurred Image with Circle + Lock
+    // --- CANVAS LOCK GENERATION ---
     const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -73,44 +96,78 @@ export default function AdminPage() {
                 canvas.width = img.width;
                 canvas.height = img.height;
 
-                // Apply Blur
+                // 1. Draw Blurred Image
                 ctx.filter = 'blur(20px)';
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx.filter = 'none'; // Reset
 
-                // --- LOCK DRAWING LOGIC ---
-                // Reset filter
-                ctx.filter = 'none';
+                // 2. Prepare SVG Lock Badge
+                // We recreate the visual logic of ModernLockIcon using SVG string
+                const size = Math.min(canvas.width, canvas.height) * 0.3; // 30% of image size
+                const x = (canvas.width - size) / 2;
+                const y = (canvas.height - size) / 2;
 
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2;
-                // Size relative to image smallest dimension
-                const size = Math.min(canvas.width, canvas.height) * 0.15;
+                const svgString = `
+                <svg width="${size}" height="${size}" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="bgGrad" cx="0.5" cy="0.5" r="0.5">
+                            <stop offset="0%" stop-color="rgba(184, 134, 11, 0.4)" />
+                            <stop offset="100%" stop-color="rgba(0,0,0,0.6)" />
+                        </radialGradient>
+                        <linearGradient id="goldLock" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#FFE566" />
+                            <stop offset="50%" stop-color="#B8860B" />
+                            <stop offset="100%" stop-color="#705C0B" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background Circle -->
+                    <circle cx="40" cy="40" r="38" fill="url(#bgGrad)" stroke="url(#goldLock)" stroke-width="2" />
+                    
+                    <!-- Lock Icon Centered -->
+                    <g transform="translate(16, 16) scale(1)">
+                         <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#goldLock)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(2) translate(0,0)" />
+                         <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#goldLock)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(2) translate(0,0)" />
+                         <circle cx="12" cy="16" r="1.5" fill="url(#goldLock)" transform="scale(2) translate(0,0)" />
+                    </g>
+                </svg>`;
 
-                // 1. Draw Background Circle (Semi-transparent Black)
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, size * 1.5, 0, 2 * Math.PI, false);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fill();
+                // Note on SVG: The inner lock coordinates are based on 24x24 viewBox. 
+                // We need to scale them up to fill the 80x80 container. 
+                // Simplified SVG for robust rendering:
 
-                // 2. Draw Gold Border for Circle
-                ctx.lineWidth = size * 0.1;
-                ctx.strokeStyle = '#DAA520'; // GoldenRod
-                ctx.stroke();
+                const robustSvg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE566;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#705C0B;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background -->
+                    <circle cx="50" cy="50" r="45" fill="rgba(0,0,0,0.7)" stroke="url(#gold)" stroke-width="3" />
+                    
+                    <!-- Lock Body -->
+                    <rect x="30" y="45" width="40" height="30" rx="5" fill="none" stroke="url(#gold)" stroke-width="4" />
+                    
+                    <!-- Lock Shackle -->
+                    <path d="M 35 45 L 35 30 A 15 15 0 0 1 65 30 L 65 45" fill="none" stroke="url(#gold)" stroke-width="4" stroke-linecap="round" />
+                    
+                    <!-- Keyhole -->
+                    <circle cx="50" cy="60" r="4" fill="url(#gold)" />
+                </svg>
+                `;
 
-                // 3. Draw Lock Emoji
-                ctx.font = `${size * 1.5}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 10;
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillText('🔒', centerX, centerY + (size * 0.1)); // Slight vertical adjustment
-                // ---------------------------
-
-                // Get Base64
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                URL.revokeObjectURL(url);
-                resolve(dataUrl);
+                const badgeImg = new Image();
+                badgeImg.onload = () => {
+                    ctx.drawImage(badgeImg, x, y, size, size);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    URL.revokeObjectURL(url);
+                    resolve(dataUrl);
+                };
+                badgeImg.src = 'data:image/svg+xml;base64,' + btoa(robustSvg);
             };
             img.src = url;
         });
@@ -141,12 +198,10 @@ export default function AdminPage() {
         setError('');
 
         try {
-            // 1. Get Clean Base64
             const reader = new FileReader();
             reader.onloadend = async () => {
                 const base64Image = reader.result;
 
-                // 2. Get Blurred Base64 (if posting to TG)
                 let telegramImage = null;
                 if (postToTelegram) {
                     try {
@@ -156,7 +211,6 @@ export default function AdminPage() {
                     }
                 }
 
-                // 3. Upload to API
                 const res = await fetch('/api/signals', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -195,7 +249,6 @@ export default function AdminPage() {
         if (!telegramId) return;
         setVipLoading(true);
         setVipMessage({ type: '', text: '' });
-
         try {
             const res = await fetch('/api/users', {
                 method: 'POST',
@@ -217,7 +270,6 @@ export default function AdminPage() {
 
     const deleteSignal = async (id) => {
         if (!confirm(t.deleteConfirm)) return;
-
         try {
             const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
             const data = await res.json();
@@ -231,313 +283,79 @@ export default function AdminPage() {
 
     if (!mounted) return null;
 
-    // Login Screen
     if (!isAuthenticated) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                background: 'linear-gradient(180deg, #080810 0%, #0f0f18 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2rem'
-            }}>
-                <div className="absolute top-4 right-4" style={{ right: isRTL ? 'auto' : '1rem', left: isRTL ? '1rem' : 'auto' }}>
-                    <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
-                </div>
-
+            <div style={{ minHeight: '100vh', background: '#080810', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
                 <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
-                        <h1 className="text-gradient" style={{
-                            fontSize: '1.75rem',
-                            fontWeight: '700',
-                            marginBottom: '0.5rem'
-                        }}>{t.adminTitle}</h1>
-                        <p style={{ color: '#9a9ab0' }}>{t.adminSubtitle}</p>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
                     </div>
-
                     <form onSubmit={handleLogin}>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder={t.passwordPlaceholder}
-                            style={{
-                                width: '100%',
-                                padding: '1rem',
-                                background: '#161622',
-                                border: '1px solid rgba(184, 134, 11, 0.2)',
-                                borderRadius: '12px',
-                                color: '#fff',
-                                fontSize: '1rem',
-                                marginBottom: '1rem',
-                                textAlign: 'center',
-                                direction: 'ltr'
-                            }}
-                        />
-                        {error && (
-                            <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>
-                        )}
-                        <button
-                            type="submit"
-                            className="btn-primary"
-                            style={{
-                                width: '100%',
-                                fontSize: '1rem'
-                            }}
-                        >
-                            {t.login}
-                        </button>
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#161622', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
+                        {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
+                        <button type="submit" className="btn-primary" style={{ width: '100%' }}>{t.login}</button>
                     </form>
                 </div>
             </div>
         );
     }
 
-    // Admin Dashboard
     return (
-        <div
-            style={{
-                minHeight: '100vh',
-                background: 'linear-gradient(180deg, #080810 0%, #0f0f18 100%)',
-                padding: '2rem'
-            }}
-            onPaste={handlePaste}
-        >
+        <div style={{ minHeight: '100vh', background: '#080810', padding: '2rem' }} onPaste={handlePaste}>
             <div className="container">
-                {/* Header */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '2rem',
-                    flexWrap: 'wrap',
-                    gap: '1rem'
-                }}>
-                    <h1 className="text-gradient" style={{
-                        fontSize: '1.75rem',
-                        fontWeight: '700'
-                    }}>
-                        💎 {t.signalsDashboard}
-                    </h1>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsDashboard}</h1>
+                    </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
-                        <button
-                            onClick={handleLogout}
-                            style={{
-                                padding: '0.75rem 1.5rem',
-                                background: 'transparent',
-                                border: '1px solid rgba(239, 68, 68, 0.5)',
-                                borderRadius: '50px',
-                                color: '#ef4444',
-                                cursor: 'pointer',
-                                fontSize: '0.9rem'
-                            }}
-                        >
-                            {t.logout}
-                        </button>
+                        <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', borderRadius: '50px', color: '#ef4444', cursor: 'pointer' }}>{t.logout}</button>
                     </div>
                 </div>
 
-                {/* VIP Management Section */}
-                <div className="card" style={{
-                    border: '1px solid rgba(76, 175, 80, 0.3)',
-                    padding: '2rem',
-                    textAlign: 'center',
-                    marginBottom: '2rem',
-                    background: 'rgba(76, 175, 80, 0.05)'
-                }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>👑</div>
-                    <h2 style={{ color: '#4caf50', marginBottom: '0.5rem', fontSize: '1.5rem' }}>
-                        {t.manageVip}
-                    </h2>
-                    <p style={{ color: '#9a9ab0', marginBottom: '1.5rem' }}>
-                        {t.manageVipSubtitle}
-                    </p>
-
-                    <form onSubmit={handleGrantVip} style={{ maxWidth: '400px', margin: '0 auto' }}>
-                        <input
-                            type="text"
-                            value={telegramId}
-                            onChange={(e) => setTelegramId(e.target.value)}
-                            placeholder={t.telegramIdPlaceholder}
-                            style={{
-                                width: '100%',
-                                padding: '1rem',
-                                background: '#161622',
-                                border: '1px solid rgba(76, 175, 80, 0.3)',
-                                borderRadius: '12px',
-                                color: '#fff',
-                                fontSize: '1rem',
-                                marginBottom: '1rem',
-                                textAlign: 'center',
-                                direction: 'ltr'
-                            }}
-                        />
-                        <button
-                            type="submit"
-                            className="btn-primary"
-                            style={{
-                                width: '100%',
-                                fontSize: '1rem',
-                                background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
-                                boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)'
-                            }}
-                            disabled={vipLoading}
-                        >
-                            {vipLoading ? t.loading : t.grantVip}
-                        </button>
+                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(76, 175, 80, 0.05)', border: '1px solid rgba(76, 175, 80, 0.2)' }}>
+                    <h2 style={{ color: '#4caf50', marginBottom: '0.5rem' }}>{t.manageVip}</h2>
+                    <form onSubmit={handleGrantVip} style={{ display: 'flex', gap: '0.5rem', maxWidth: '500px' }}>
+                        <input type="text" value={telegramId} onChange={(e) => setTelegramId(e.target.value)} placeholder={t.telegramIdPlaceholder} style={{ flex: 1, padding: '0.8rem', background: '#161622', border: '1px solid rgba(76, 175, 80, 0.3)', borderRadius: '8px', color: '#fff' }} />
+                        <button type="submit" className="btn-primary" style={{ background: '#4caf50' }}>{vipLoading ? '...' : t.grantVip}</button>
                     </form>
-
-                    {vipMessage.text && (
-                        <p style={{
-                            color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444',
-                            marginTop: '1rem',
-                            fontSize: '1.1rem',
-                            fontWeight: '600'
-                        }}>
-                            {vipMessage.text}
-                        </p>
-                    )}
+                    {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '0.5rem' }}>{vipMessage.text}</p>}
                 </div>
 
-                {/* Upload Section */}
-                <div className="card" style={{
-                    border: '2px dashed rgba(184, 134, 11, 0.4)',
-                    padding: '3rem',
-                    textAlign: 'center',
-                    marginBottom: '2rem',
-                    background: '#0f0f18'
-                }}>
+                <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
-                    <h2 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.5rem' }}>
-                        {t.postNewSignal}
-                    </h2>
-                    <p style={{ color: '#9a9ab0', marginBottom: '1.5rem' }}>
-                        {t.dragDropText}
-                    </p>
+                    <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
 
-                    {/* Telegram Checkbox */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginBottom: '1.5rem',
-                        gap: '0.5rem',
-                        cursor: 'pointer'
-                    }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                        <div style={{
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '6px',
-                            border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`,
-                            background: postToTelegram ? '#229ED9' : 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s'
-                        }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
                         </div>
-                        <span style={{ color: '#f0f0f0', userSelect: 'none' }}>{t.postToTelegram}</span>
+                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                     </div>
 
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        style={{ display: 'none' }}
-                        id="image-upload"
-                    />
-                    <label
-                        htmlFor="image-upload"
-                        className="btn-primary"
-                        style={{
-                            display: 'inline-block',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        {uploading ? t.uploading : t.chooseImage}
-                    </label>
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
+                    <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer' }}>{uploading ? t.uploading : t.chooseImage}</label>
 
-                    {successMessage && (
-                        <p style={{ color: '#4caf50', marginTop: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
-                            {successMessage}
-                        </p>
-                    )}
-                    {error && (
-                        <p style={{ color: '#ef4444', marginTop: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
-                            {error}
-                        </p>
-                    )}
+                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold' }}>{successMessage}</p>}
+                    {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
                 </div>
 
-                {/* Signals List */}
-                <div className="card" style={{ padding: '2rem' }}>
-                    <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', fontSize: '1.25rem' }}>
-                        📊 {t.publishedSignals} ({signals.length})
-                    </h2>
+                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
 
-                    {loading ? (
-                        <p style={{ color: '#9a9ab0', textAlign: 'center' }}>{t.loading}</p>
-                    ) : signals.length === 0 ? (
-                        <p style={{ color: '#9a9ab0', textAlign: 'center' }}>{t.noSignals || 'No signals'}</p>
-                    ) : (
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                            gap: '1.5rem'
-                        }}>
-                            {signals.map((signal) => (
-                                <div
-                                    key={signal._id}
-                                    style={{
-                                        background: '#161622',
-                                        borderRadius: '16px',
-                                        overflow: 'hidden',
-                                        border: '1px solid rgba(184, 134, 11, 0.1)'
-                                    }}
-                                >
-                                    <img
-                                        src={signal.imageUrl}
-                                        alt="Signal"
-                                        style={{
-                                            width: '100%',
-                                            height: '200px',
-                                            objectFit: 'cover'
-                                        }}
-                                    />
-                                    <div style={{ padding: '1rem' }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}>
-                                            <span style={{ color: '#9a9ab0', fontSize: '0.85rem' }}>
-                                                {new Date(signal.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US')}
-                                            </span>
-                                            <button
-                                                onClick={() => deleteSignal(signal._id)}
-                                                style={{
-                                                    padding: '0.5rem 1rem',
-                                                    background: 'rgba(239, 68, 68, 0.1)',
-                                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                                    borderRadius: '8px',
-                                                    color: '#ef4444',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.85rem'
-                                                }}
-                                            >
-                                                {t.delete}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                {/* Full Width Grid Layout - Matches User Request */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
+                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
+                        <div key={signal._id} style={{ background: '#0f0f18', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
+                            <div style={{ position: 'relative' }}>
+                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                            </div>
+                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
+                                <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                            </div>
                         </div>
-                    )}
+                    ))}
                 </div>
             </div>
         </div>
