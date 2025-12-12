@@ -240,7 +240,7 @@ export default function SignalsPage() {
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
                         gap: '2.5rem',
-                        justifyContent: 'center' // Fix: Center the grid items
+                        justifyContent: 'center'
                     }}>
                         {signals.map((signal, index) => (
                             <div
@@ -265,16 +265,16 @@ export default function SignalsPage() {
                                     e.currentTarget.style.borderColor = 'rgba(184, 134, 11, 0.15)';
                                 }}
                             >
-                                {/* Signal Image */}
+                                {/* Signal Image with Auto Height */}
                                 <div style={{ position: 'relative' }}>
                                     <img
                                         src={signal.imageUrl}
                                         alt="Trading Signal"
                                         style={{
                                             width: '100%',
-                                            height: '300px',
-                                            objectFit: 'cover',
-                                            filter: isVip ? 'none' : 'blur(4px)', // Fix: Reduced blur for intrigue
+                                            height: 'auto',
+                                            display: 'block',
+                                            filter: isVip ? 'none' : 'blur(4px)',
                                             transition: 'filter 0.3s ease'
                                         }}
                                     />
@@ -341,9 +341,9 @@ export default function SignalsPage() {
 
                                 {/* Signal Info (Footer) */}
                                 <div style={{
-                                    padding: '0.8rem 1.25rem', // Fix: Reduced padding
+                                    padding: '0.8rem 1.25rem',
                                     background: '#0f0f18', // Seamless blend
-                                    borderTop: 'none', // Removed border to blend
+                                    borderTop: 'none',
                                     position: 'relative',
                                     zIndex: 2
                                 }}>
