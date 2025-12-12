@@ -89,6 +89,173 @@ const getTimeAgo = (dateStr, lang) => {
     }
 };
 
+// ===== LOT SIZE CALCULATOR COMPONENT =====
+const LotSizeCalculator = ({ t, isRTL }) => {
+    const [balance, setBalance] = useState(1000);
+    const [riskPercent, setRiskPercent] = useState(2);
+    const [stopLoss, setStopLoss] = useState(50);
+    const [showResult, setShowResult] = useState(false);
+
+    // Calculate lot size (assuming $10 per pip for 1 lot on major pairs)
+    const pipValue = 10; // $10 per pip for 1 standard lot
+    const riskAmount = (balance * riskPercent) / 100;
+    const lotSize = riskAmount / (stopLoss * pipValue);
+    const formattedLot = Math.floor(lotSize * 100) / 100; // Round down to 2 decimals
+
+    const getRiskLevel = () => {
+        if (riskPercent <= 1) return { level: t.riskLow, color: '#4ade80', bg: 'rgba(74, 222, 128, 0.1)' };
+        if (riskPercent <= 2) return { level: t.riskMedium, color: '#facc15', bg: 'rgba(250, 204, 21, 0.1)' };
+        return { level: t.riskHigh, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' };
+    };
+
+    const risk = getRiskLevel();
+
+    return (
+        <div style={{
+            background: 'linear-gradient(135deg, rgba(12, 12, 12, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%)',
+            border: '2px solid rgba(184, 134, 11, 0.3)',
+            borderRadius: '24px',
+            padding: '2rem',
+            marginBottom: '2rem',
+            maxWidth: '500px',
+            margin: '0 auto 2.5rem auto',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+        }}>
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <h3 style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    background: 'linear-gradient(90deg, #FFD700, #FFE566, #FFD700)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '0.5rem'
+                }}>{t.calcTitle}</h3>
+                <p style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>{t.calcSubtitle}</p>
+            </div>
+
+            {/* Inputs */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {/* Account Balance */}
+                <div>
+                    <label style={{ display: 'block', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
+                        {t.accountBalance}
+                    </label>
+                    <input
+                        type="number"
+                        value={balance}
+                        onChange={(e) => setBalance(Number(e.target.value))}
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem 1rem',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(184, 134, 11, 0.2)',
+                            borderRadius: '12px',
+                            color: '#fff',
+                            fontSize: '1.1rem',
+                            fontWeight: '600',
+                            textAlign: 'center'
+                        }}
+                    />
+                </div>
+
+                {/* Risk Percentage Slider */}
+                <div>
+                    <label style={{ display: 'flex', justifyContent: 'space-between', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
+                        <span>{t.riskPercent}</span>
+                        <span style={{
+                            padding: '0.2rem 0.6rem',
+                            background: risk.bg,
+                            color: risk.color,
+                            borderRadius: '20px',
+                            fontSize: '0.75rem',
+                            fontWeight: '700'
+                        }}>{riskPercent}% - {risk.level}</span>
+                    </label>
+                    <input
+                        type="range"
+                        min="0.5"
+                        max="5"
+                        step="0.5"
+                        value={riskPercent}
+                        onChange={(e) => setRiskPercent(Number(e.target.value))}
+                        style={{
+                            width: '100%',
+                            height: '8px',
+                            borderRadius: '4px',
+                            background: `linear-gradient(to right, #4ade80 0%, #facc15 40%, #ef4444 100%)`,
+                            cursor: 'pointer',
+                            accentColor: '#DAA520'
+                        }}
+                    />
+                </div>
+
+                {/* Stop Loss */}
+                <div>
+                    <label style={{ display: 'block', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
+                        {t.stopLossPips}
+                    </label>
+                    <input
+                        type="number"
+                        value={stopLoss}
+                        onChange={(e) => setStopLoss(Number(e.target.value))}
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem 1rem',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(184, 134, 11, 0.2)',
+                            borderRadius: '12px',
+                            color: '#fff',
+                            fontSize: '1.1rem',
+                            fontWeight: '600',
+                            textAlign: 'center'
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* Result Display */}
+            <div style={{
+                marginTop: '1.5rem',
+                padding: '1.25rem',
+                background: 'rgba(184, 134, 11, 0.08)',
+                border: '1px solid rgba(184, 134, 11, 0.2)',
+                borderRadius: '16px',
+                textAlign: 'center'
+            }}>
+                <p style={{ color: '#9a9ab0', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{t.recommendedLot}</p>
+                <div style={{
+                    fontSize: '2.5rem',
+                    fontWeight: '800',
+                    background: 'linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '0.5rem'
+                }}>
+                    {formattedLot.toFixed(2)} Lot
+                </div>
+                <p style={{ color: risk.color, fontSize: '0.9rem', fontWeight: '600' }}>
+                    {t.riskAmount}: ${riskAmount.toFixed(2)}
+                </p>
+            </div>
+
+            {/* Safety Tip */}
+            <div style={{
+                marginTop: '1rem',
+                padding: '0.75rem',
+                background: 'rgba(74, 222, 128, 0.08)',
+                border: '1px solid rgba(74, 222, 128, 0.2)',
+                borderRadius: '12px',
+                textAlign: 'center',
+                color: '#4ade80',
+                fontSize: '0.8rem'
+            }}>
+                {t.safetyTip}
+            </div>
+        </div>
+    );
+};
+
 export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [signals, setSignals] = useState([]);
@@ -346,6 +513,9 @@ export default function SignalsPage() {
                         width: '100%'
                     }}>{t.signalsSubtitle}</p>
                 </div>
+
+                {/* Lot Size Calculator - VIP Only */}
+                {isVip && <LotSizeCalculator t={t} isRTL={isRTL} />}
 
                 {/* Content */}
                 {loading ? (
