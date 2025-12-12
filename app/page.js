@@ -146,8 +146,8 @@ export default function LandingPage() {
     const currentYear = new Date().getFullYear();
 
     const monthlyPrice = 79;
-    const quarterlyPrice = 179;
-    const yearlyPrice = 479;
+    const quarterlyPrice = 149;
+    const yearlyPrice = 449;
     const quarterlyOriginal = monthlyPrice * 3;
     const yearlyOriginal = monthlyPrice * 12;
     const quarterlySavings = quarterlyOriginal - quarterlyPrice;
