@@ -206,8 +206,10 @@ export default function SignalsPage() {
                 ) : (
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-                        gap: '2.5rem'
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: '2rem',
+                        paddingBottom: '2rem',
+                        justifyContent: 'center'
                     }}>
                         {signals.map((signal, index) => (
                             <div
@@ -241,7 +243,7 @@ export default function SignalsPage() {
                                             width: '100%',
                                             height: '300px',
                                             objectFit: 'cover',
-                                            filter: isVip ? 'none' : 'blur(6px)',
+                                            filter: isVip ? 'none' : 'blur(3.5px)',
                                             transition: 'filter 0.3s ease'
                                         }}
                                     />
@@ -251,9 +253,9 @@ export default function SignalsPage() {
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,
-                                            background: 'rgba(8, 8, 16, 0.4)',
-                                            backdropFilter: 'blur(12px)',
-                                            WebkitBackdropFilter: 'blur(12px)',
+                                            background: 'rgba(8, 8, 16, 0.3)',
+                                            backdropFilter: 'blur(8px)',
+                                            WebkitBackdropFilter: 'blur(8px)',
                                             display: 'flex',
                                             flexDirection: 'column',
                                             alignItems: 'center',
@@ -302,15 +304,25 @@ export default function SignalsPage() {
                                     }}>
                                         <span style={{
                                             color: '#9a9ab0',
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.85rem',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '0.5rem'
+                                            gap: '0.5rem',
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '20px',
+                                            border: '1px solid rgba(255, 255, 255, 0.05)'
                                         }}>
-                                            ⏰ {new Date(signal.createdAt).toLocaleDateString(
-                                                lang === 'ar' ? 'ar-EG' : 'en-US',
-                                                { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
-                                            )}
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="12" cy="12" r="10" stroke="#DAA520" strokeWidth="2" />
+                                                <path d="M12 6V12L16 14" stroke="#DAA520" strokeWidth="2" strokeLinecap="round" />
+                                            </svg>
+                                            <span style={{ color: '#ccc' }}>
+                                                {new Date(signal.createdAt).toLocaleDateString(
+                                                    lang === 'ar' ? 'ar-EG' : 'en-US',
+                                                    { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+                                                )}
+                                            </span>
                                         </span>
                                         {isVip && (
                                             <span style={{
