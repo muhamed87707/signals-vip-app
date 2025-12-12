@@ -93,49 +93,33 @@ export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [vipExpiry, setVipExpiry] = useState(null);
-    const [isVip, setIsVip] = useState(false); // Added isVip state
-    const [remainingTime, setRemainingTime] = useState('');
-
-    useEffect(() => {
-        if (!isVip || !vipExpiry) {
-            setRemainingTime('');
-            return;
-        }
-
-        const calculateTime = () => {
-            const expiry = new Date(vipExpiry);
-            const now = new Date();
-
-            if (expiry.getFullYear() > 2090) {
-                setRemainingTime(lang === 'ar' ? 'مدى الحياة' : 'Lifetime');
-            } else {
-                const diffTime = expiry - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays < 0) {
-                    setRemainingTime(lang === 'ar' ? 'منتهي' : 'Expired');
-                } else {
-                    setRemainingTime(lang === 'ar' ? `${diffDays} يوم` : `${diffDays} Days`);
-                }
-            }
-        };
-
-        calculateTime();
-        // Optional: Update every minute? Not strictly necessary for "Days"
-    }, [isVip, vipExpiry, lang]);
+    const [isVip, setIsVip] = useState(false);
+    const [expirationDate, setExpirationDate] = useState(null);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         let telegramId = urlParams.get('telegramId');
+        const vipStatus = localStorage.getItem('isVip');
+
+        if (vipStatus === 'true') {
+            setIsVip(true);
+        }
 
         // Telegram Mini App Integrated Logic
         if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
-            try { tg.expand(); } catch (e) { console.log('Telegram expand failed', e); }
+            try {
+                tg.expand();
+            } catch (e) {
+                console.log('Telegram expand failed', e);
+            }
+
+            // Auto-login if opened inside Telegram
             const user = tg.initDataUnsafe?.user;
-            if (user?.id) telegramId = user.id.toString();
+            if (user?.id) {
+                telegramId = user.id.toString();
+            }
         }
 
         fetchSignals(telegramId);
@@ -150,14 +134,16 @@ export default function SignalsPage() {
             const data = await res.json();
             setSignals(data.signals || []);
 
-            // STRICT VALIDATION: Trust server response 100%
+            // STRICT VIP SYNC
             if (data.isUserVip) {
                 setIsVip(true);
-                setVipExpiry(data.vipExpiryDate);
-                // Optional: cache locally only if absolutely needed, but here we prefer fresh state
+                localStorage.setItem('isVip', 'true');
+                setExpirationDate(data.subscriptionEndDate);
             } else {
+                // If API says NOT VIP, ensure we reflect that (revoke access)
                 setIsVip(false);
-                setVipExpiry(null);
+                localStorage.removeItem('isVip');
+                setExpirationDate(null);
             }
         } catch (err) {
             console.error('Error fetching signals:', err);
@@ -245,6 +231,32 @@ export default function SignalsPage() {
                     }}>
                         {t.signalsTitle}
                     </h1>
+
+                    {/* VIP Status Badge */}
+                    {isVip && (
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            background: 'rgba(218, 165, 32, 0.1)',
+                            border: '1px solid rgba(218, 165, 32, 0.3)',
+                            borderRadius: '50px',
+                            padding: '0.4rem 1rem',
+                            marginBottom: '1.5rem',
+                            color: '#FFD700',
+                            fontSize: '0.9rem',
+                            fontWeight: '600'
+                        }}>
+                            <span>👑 VIP Active</span>
+                            <span style={{ width: '1px', height: '12px', background: 'rgba(218, 165, 32, 0.3)' }}></span>
+                            <span>
+                                {expirationDate
+                                    ? `Expires in ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} Days`
+                                    : 'Lifetime Access ♾️'}
+                            </span>
+                        </div>
+                    )}
+
                     <p style={{
                         color: '#9a9ab0',
                         fontSize: '1.2rem',
@@ -252,14 +264,6 @@ export default function SignalsPage() {
                         margin: '0 auto',
                         lineHeight: '1.6'
                     }}>{t.signalsSubtitle}</p>
-
-                    {isVip && remainingTime && (
-                        <div style={{ marginTop: '1.5rem', display: 'inline-block', padding: '0.5rem 1.5rem', background: 'rgba(76, 175, 80, 0.1)', border: '1px solid rgba(76, 175, 80, 0.3)', borderRadius: '50px' }}>
-                            <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
-                                ⏳ {lang === 'ar' ? 'الوقت المتبقي:' : 'Time Remaining:'} {remainingTime}
-                            </span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Content */}

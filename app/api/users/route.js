@@ -5,9 +5,11 @@ import { NextResponse } from 'next/server';
 export async function GET(request) {
     try {
         await dbConnect();
-        const users = await User.find({}).sort({ isVip: -1, createdAt: -1 });
+        // Fetch all users sorted by creation or name
+        const users = await User.find({}).sort({ _id: -1 });
         return NextResponse.json({ success: true, users });
     } catch (error) {
+        console.error('Error fetching users:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
@@ -16,69 +18,61 @@ export async function POST(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        const { telegramId, isVip, duration } = body;
+        const { telegramId, isVip, durationMonths, isLifetime, removeUser } = body;
 
         if (!telegramId) {
             return NextResponse.json({ success: false, error: 'Telegram ID is required' }, { status: 400 });
         }
 
-        let updateData = { isVip };
-        if (isVip && duration) {
-            const now = new Date();
-            let expiry = new Date();
-            updateData.vipStartDate = now;
-
-            if (duration === 'lifetime') {
-                expiry = new Date('2099-12-31');
-            } else if (!isNaN(duration)) {
-                // Custom months (integer)
-                expiry.setMonth(now.getMonth() + parseInt(duration));
-            } else {
-                // Fallback for old string format (though we will use numbers now)
-                switch (duration) {
-                    case '1m': expiry.setMonth(now.getMonth() + 1); break;
-                    case '3m': expiry.setMonth(now.getMonth() + 3); break;
-                    case '6m': expiry.setMonth(now.getMonth() + 6); break;
-                    case '1y': expiry.setFullYear(now.getFullYear() + 1); break;
-                    default: expiry.setMonth(now.getMonth() + 1);
-                }
-            }
-            updateData.vipExpiryDate = expiry;
+        // Handle deletion/removal
+        if (removeUser) {
+            await User.deleteOne({ telegramId });
+            return NextResponse.json({ success: true, message: 'User removed' });
         }
 
         // Find and update or create
-        let user = await User.findOneAndUpdate(
-            { telegramId },
-            updateData,
-            { new: true, upsert: true, setDefaultsOnInsert: true }
-        );
+        let user = await User.findOne({ telegramId });
+
+        let subscriptionEndDate = null; // Default to null (Lifetime if VIP, or no sub)
+
+        if (isVip) {
+            if (isLifetime) {
+                subscriptionEndDate = null;
+            } else if (durationMonths && durationMonths > 0) {
+                const now = new Date();
+                // If user already has active subscription, add to it? 
+                // For simplicity, let's just set from NOW or restart. 
+                // Use case: Admin sets specific duration. 
+                // Let's set it from NOW + duration.
+                const futureDate = new Date();
+                futureDate.setMonth(futureDate.getMonth() + parseInt(durationMonths));
+                subscriptionEndDate = futureDate;
+            }
+        }
+
+        if (user) {
+            user.isVip = isVip;
+            // Only update date if it's a VIP update action
+            if (isVip) {
+                user.subscriptionEndDate = subscriptionEndDate;
+            } else {
+                // If removing VIP, maybe clear date?
+                // Let's keep it null for non-vip
+                user.subscriptionEndDate = null;
+            }
+            await user.save();
+        } else {
+            user = await User.create({
+                telegramId,
+                isVip,
+                subscriptionEndDate,
+                name: 'User'
+            });
+        }
 
         return NextResponse.json({ success: true, data: user });
     } catch (error) {
         console.error('Error in user API:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-}
-
-export async function DELETE(request) {
-    try {
-        await dbConnect();
-        const { searchParams } = new URL(request.url);
-        const telegramId = searchParams.get('telegramId');
-
-        if (!telegramId) {
-            return NextResponse.json({ success: false, error: 'Telegram ID required' }, { status: 400 });
-        }
-
-        // We don't delete the user, just revoke VIP
-        const user = await User.findOneAndUpdate(
-            { telegramId },
-            { isVip: false, vipExpiryDate: null },
-            { new: true }
-        );
-
-        return NextResponse.json({ success: true, data: user });
-    } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

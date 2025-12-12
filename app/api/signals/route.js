@@ -1,6 +1,6 @@
-import dbConnect from '../../../lib/mongodb';
-import Signal from '../../../models/Signal';
-import User from '../../../models/User';
+import dbConnect from '@/lib/mongodb';
+import Signal from '@/models/Signal';
+import User from '@/models/User';
 import { NextResponse } from 'next/server';
 
 const IMGBB_API_KEY = 'b22927160ecad0d183ebc9a28d05ce9c';
@@ -95,27 +95,37 @@ export async function GET(request) {
 
         const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(10);
         let isVip = false;
+        let subscriptionEndDate = null;
 
         if (telegramId && telegramId !== 'null' && telegramId !== 'undefined') {
             const idString = String(telegramId);
             const user = await User.findOne({ telegramId: idString });
+
             if (user && user.isVip) {
-                // Check redundancy: strictly verify expiry if present
-                if (user.vipExpiryDate && new Date(user.vipExpiryDate) < new Date()) {
-                    isVip = false;
+                // Check if expired
+                if (user.subscriptionEndDate) {
+                    const now = new Date();
+                    const end = new Date(user.subscriptionEndDate);
+                    if (now > end) {
+                        // Expired
+                        user.isVip = false;
+                        user.subscriptionEndDate = null;
+                        await user.save();
+                        isVip = false;
+                    } else {
+                        // Active with end date
+                        isVip = true;
+                        subscriptionEndDate = user.subscriptionEndDate;
+                    }
                 } else {
+                    // Active Lifetime (isVip=true, date=null)
                     isVip = true;
+                    subscriptionEndDate = null;
                 }
             }
-
-            return NextResponse.json({
-                signals,
-                isUserVip: isVip,
-                vipExpiryDate: user?.vipExpiryDate
-            });
         }
 
-        return NextResponse.json({ signals, isUserVip: isVip });
+        return NextResponse.json({ signals, isUserVip: isVip, subscriptionEndDate });
     } catch (error) {
         console.error("Database Error:", error);
         return NextResponse.json({ signals: [], isUserVip: false }, { status: 500 });
