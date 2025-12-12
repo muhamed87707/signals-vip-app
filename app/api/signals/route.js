@@ -1,6 +1,6 @@
-import dbConnect from '@/lib/mongodb';
-import Signal from '@/models/Signal';
-import User from '@/models/User';
+import dbConnect from '../../../lib/mongodb';
+import Signal from '../../../models/Signal';
+import User from '../../../models/User';
 import { NextResponse } from 'next/server';
 
 const IMGBB_API_KEY = 'b22927160ecad0d183ebc9a28d05ce9c';
