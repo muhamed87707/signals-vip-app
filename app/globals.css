@@ -401,6 +401,7 @@ h6 {
     font-weight: 400;
     background: none;
     -webkit-text-fill-color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 .pricing-original {
