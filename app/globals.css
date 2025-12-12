@@ -405,9 +405,21 @@ h6 {
 
 .pricing-original {
     color: var(--text-secondary);
-    text-decoration: line-through;
     font-size: 1rem;
     margin-top: 0.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.pricing-original::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: var(--text-secondary);
+    transform: translateY(-50%);
 }
 
 .pricing-savings {
