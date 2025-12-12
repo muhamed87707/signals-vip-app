@@ -129,11 +129,13 @@ export default function AdminPage() {
                     <!-- 1. Ambient Glow (Large) -->
                     <circle cx="50" cy="50" r="50" fill="url(#glow)" />
                     
-                    <!-- 2. Small Dark Background behind Lock (Aesthetic Touch) -->
-                    <circle cx="50" cy="50" r="18" fill="rgba(0,0,0,0.5)" />
-
-                    <!-- 3. Lock Icon (Directly on Glow) -->
-                    <g transform="translate(25, 25) scale(0.5)">
+                    <!-- 2. Lock Icon Group (Centered) -->
+                    <!-- Net Scale: 0.5 * 3.5 = 1.75. Center: 12 * 1.75 = 21. Offset needed: 50 - 21 = 29. -->
+                    <g transform="translate(29, 29) scale(0.5)">
+                         <!-- Backing Circle (Behind Lock Body Only) -->
+                         <circle cx="12" cy="16" r="6" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
+                         
+                         <!-- Lock Parts -->
                          <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
                          <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
                          <circle cx="12" cy="16" r="1.5" fill="url(#gold)" transform="scale(3.5)" />
