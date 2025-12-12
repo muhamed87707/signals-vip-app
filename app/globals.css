@@ -475,6 +475,7 @@ h6 {
 .pricing-duration,
 .pricing-title {
     color: var(--text-primary);
+    white-space: nowrap;
 }
 
 /* ===== Header ===== */
