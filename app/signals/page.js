@@ -242,15 +242,19 @@ export default function SignalsPage() {
                             background: 'rgba(218, 165, 32, 0.08)',
                             border: '1px solid rgba(218, 165, 32, 0.25)',
                             borderRadius: '50px',
-                            padding: '0.5rem 1.25rem',
+                            padding: '0.4rem 1.2rem',
                             marginBottom: '2rem',
+                            marginTop: '1rem',
                             color: '#FFD700',
-                            fontSize: '0.9rem',
+                            fontSize: '0.85rem',
                             fontWeight: '500',
                             backdropFilter: 'blur(10px)',
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '95vw',
+                            flexWrap: 'nowrap'
                         }}>
-                            <span style={{ fontSize: '1.1rem' }}>👑</span>
+                            <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>👑</span>
                             <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
                             <span style={{ width: '1px', height: '14px', background: 'rgba(218, 165, 32, 0.3)', margin: '0 0.2rem' }}></span>
                             <span style={{ color: '#fff', opacity: 0.9 }}>

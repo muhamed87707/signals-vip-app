@@ -59,7 +59,7 @@ export const translations = {
         viewPlans: 'View Subscription Plans',
         viewPlans: 'View Subscription Plans',
         posted: 'Posted',
-        vipActive: '👑 VIP Active',
+        vipActive: 'VIP Active',
         expiresIn: 'Expires in',
         lifetime: 'Lifetime Access ♾️',
         days: 'Days',
@@ -156,7 +156,7 @@ export const translations = {
         viewPlans: 'عرض خطط الاشتراك',
         viewPlans: 'عرض خطط الاشتراك',
         posted: 'نُشرت',
-        vipActive: '👑 عضوية VIP نشطة',
+        vipActive: 'عضوية VIP نشطة',
         expiresIn: 'تنتهي خلال',
         lifetime: 'مدى الحياة ♾️',
         days: 'يوماً',
