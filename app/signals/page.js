@@ -99,16 +99,13 @@ export default function SignalsPage() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         let telegramId = urlParams.get('telegramId');
+        const vipStatus = localStorage.getItem('isVip');
+        const savedExpiration = localStorage.getItem('subscriptionEndDate');
 
-        // Initial Local Load to prevent Flicker
-        const storedVip = localStorage.getItem('isVip');
-        const storedExpiry = localStorage.getItem('subscriptionEndDate');
-
-        if (storedVip === 'true') {
+        if (vipStatus === 'true') {
             setIsVip(true);
-            // If we have a stored expiry, use it immediately to prevent "Lifetime" flash
-            if (storedExpiry && storedExpiry !== 'undefined' && storedExpiry !== 'null') {
-                setExpirationDate(storedExpiry);
+            if (savedExpiration) {
+                setExpirationDate(savedExpiration);
             }
         }
 
@@ -145,13 +142,11 @@ export default function SignalsPage() {
             if (data.isUserVip) {
                 setIsVip(true);
                 localStorage.setItem('isVip', 'true');
-
-                // Save/Update Expiry to fix flicker on next reload
                 if (data.subscriptionEndDate) {
                     setExpirationDate(data.subscriptionEndDate);
                     localStorage.setItem('subscriptionEndDate', data.subscriptionEndDate);
                 } else {
-                    setExpirationDate(null); // Lifetime
+                    setExpirationDate(null);
                     localStorage.removeItem('subscriptionEndDate');
                 }
             } else {
@@ -264,38 +259,63 @@ export default function SignalsPage() {
                         {t.signalsTitle}
                     </h1>
 
-                    {/* VIP Status Badge */}
-                    {isVip && (
+                    {/* VIP Status Badge or Join CTA */}
+                    {isVip ? (
                         <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '0.6rem',
+                            // Removed gap to control spacing manually for tighter layout
                             background: 'rgba(218, 165, 32, 0.08)',
                             border: '1px solid rgba(218, 165, 32, 0.25)',
                             borderRadius: '50px',
-                            padding: '0.5rem 1.75rem', /* Increased padding */
+                            padding: '0.4rem 1rem',
                             marginBottom: '2rem',
                             marginTop: '1rem',
                             color: '#FFD700',
-                            fontSize: '0.85rem',
+                            fontSize: '0.8rem',
                             fontWeight: '500',
                             backdropFilter: 'blur(10px)',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             whiteSpace: 'nowrap',
-                            maxWidth: '90vw',
+                            maxWidth: '88vw', // Prevent overflow on small screens
                             flexWrap: 'nowrap',
-                            boxSizing: 'border-box'
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
                         }}>
-                            <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>👑</span>
+                            <span style={{ fontSize: '1.1rem', lineHeight: 1, marginInlineEnd: '0.4rem' }}>👑</span>
                             <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
-                            <span style={{ width: '1px', height: '14px', background: 'rgba(218, 165, 32, 0.3)', margin: '0 0.5rem' }}></span>
+                            {/* Visible Separator with adjusted spacing */}
+                            <span style={{ width: '1px', height: '16px', background: 'rgba(218, 165, 32, 0.8)', margin: '0 0.35rem' }}></span>
                             <span style={{ color: '#fff', opacity: 0.9 }}>
                                 {expirationDate
                                     ? `${t.expiresIn} ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} ${t.days || 'Days'}`
                                     : t.lifetime}
                             </span>
                         </div>
+                    ) : (
+                        <a href="/#pricing" style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.6rem',
+                            background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.2) 0%, rgba(218, 165, 32, 0.1) 100%)',
+                            border: '1px solid rgba(218, 165, 32, 0.4)',
+                            borderRadius: '50px',
+                            padding: '0.5rem 1.5rem',
+                            marginBottom: '2rem',
+                            marginTop: '1rem',
+                            color: '#FFD700',
+                            fontSize: '0.9rem',
+                            fontWeight: '700',
+                            textDecoration: 'none',
+                            backdropFilter: 'blur(10px)',
+                            boxShadow: '0 0 20px rgba(218, 165, 32, 0.15)',
+                            animation: 'pulse 2s infinite',
+                            whiteSpace: 'nowrap'
+                        }}>
+                            {t.joinVip} <span style={{ fontSize: '1.1rem' }}>👉</span>
+                        </a>
                     )}
 
                     <p style={{

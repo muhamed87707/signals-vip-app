@@ -62,7 +62,11 @@ export const translations = {
         vipActive: 'VIP Active',
         expiresIn: 'Expires in',
         lifetime: 'Lifetime Access ♾️',
+        vipActive: 'VIP Active',
+        expiresIn: 'Expires in',
+        lifetime: 'Lifetime Access ♾️',
         days: 'Days',
+        joinVip: '🚀 Activate VIP Status',
 
         // Admin Page
         adminTitle: 'Admin Dashboard',
@@ -159,7 +163,11 @@ export const translations = {
         vipActive: 'عضوية VIP نشطة',
         expiresIn: 'تنتهي خلال',
         lifetime: 'مدى الحياة ♾️',
+        vipActive: 'عضوية VIP نشطة',
+        expiresIn: 'تنتهي خلال',
+        lifetime: 'مدى الحياة ♾️',
         days: 'يوماً',
+        joinVip: '🚀 فعل عضوية VIP الآن',
 
         // Admin Page
         adminTitle: 'لوحة تحكم الإدمن',
