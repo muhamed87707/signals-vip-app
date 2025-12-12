@@ -96,9 +96,10 @@ export default function AdminPage() {
                 canvas.width = img.width;
                 canvas.height = img.height;
 
-                // 1. Draw Reduced Blur Image (10px - not obliterating)
+                // 1. Draw Reduced Blur Image (10px) - Overdraw to prevent black edges
                 ctx.filter = 'blur(10px)';
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                // Draw image slightly larger (-20px offset) to ensure blur doesn't pull transparency from edges
+                ctx.drawImage(img, -20, -20, canvas.width + 40, canvas.height + 40);
                 ctx.filter = 'none'; // Reset
 
                 // 2. Prepare SVG Lock Badge (Corrected Radial Gradient)
@@ -128,7 +129,10 @@ export default function AdminPage() {
                     <!-- 1. Ambient Glow (Large) -->
                     <circle cx="50" cy="50" r="50" fill="url(#glow)" />
                     
-                    <!-- 2. Lock Icon (Directly on Glow, No Square Background) -->
+                    <!-- 2. Small Dark Background behind Lock (Aesthetic Touch) -->
+                    <circle cx="50" cy="50" r="18" fill="rgba(0,0,0,0.5)" />
+
+                    <!-- 3. Lock Icon (Directly on Glow) -->
                     <g transform="translate(25, 25) scale(0.5)">
                          <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
                          <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
