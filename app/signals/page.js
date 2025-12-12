@@ -195,14 +195,14 @@ export default function SignalsPage() {
                 animation: 'pulse 10s ease-in-out infinite reverse'
             }}></div>
 
-            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '2rem', paddingBottom: '4rem' }}>
+            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '1rem', paddingBottom: '4rem' }}>
                 {/* Header */}
                 <div className="signals-header-container" style={{
-                    marginBottom: '4rem',
+                    marginBottom: '2.5rem',
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.02)',
                     backdropFilter: 'blur(10px)',
-                    padding: '2rem 2rem', // Reduced top padding to move elements up
+                    padding: '1.5rem 1.5rem', // Further reduced padding
                     borderRadius: '30px',
                     border: '1px solid rgba(184, 134, 11, 0.1)',
                     display: 'flex',
@@ -210,14 +210,14 @@ export default function SignalsPage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     maxWidth: '1000px',
-                    margin: '0 auto 4rem auto'
+                    margin: '0 auto 2.5rem auto' // Reduced bottom margin
                 }}>
                     <div className="signals-nav" style={{
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
                         gap: '1.5rem',
-                        marginBottom: '1rem', // Reduced margin
+                        marginBottom: '0.8rem', // Further reduced margin
                         width: '100%',
                         flexWrap: 'wrap'
                     }}>
@@ -534,32 +534,32 @@ export default function SignalsPage() {
                 /* Mobile Optimizations */
                 @media (max-width: 768px) {
                     .signals-page-container {
-                        padding-top: 0.5rem !important;
+                        padding-top: 1rem !important;
                         padding-bottom: 2rem !important;
                     }
                     .signals-header-container {
-                        padding: 1rem 0.5rem !important;
-                        margin-bottom: 1rem !important;
+                        padding: 1.5rem 1rem !important;
+                        margin-bottom: 2rem !important;
                         border-radius: 20px !important;
                     }
                     .signals-nav {
-                        margin-bottom: 0.5rem !important;
-                        gap: 0.5rem !important;
+                        margin-bottom: 1rem !important;
+                        gap: 0.8rem !important;
                     }
                     .signals-diamond {
-                        font-size: 2rem !important;
-                        margin-bottom: 0.2rem !important;
+                        font-size: 2.5rem !important;
+                        margin-bottom: 0.5rem !important;
                     }
                     .signals-title {
-                        font-size: 1.5rem !important;
-                        margin-bottom: 0.2rem !important;
+                        font-size: 1.8rem !important;
+                        margin-bottom: 0.5rem !important;
                     }
                     .signals-subtitle {
-                        font-size: 0.85rem !important;
-                        line-height: 1.3 !important;
+                        font-size: 0.95rem !important;
+                        line-height: 1.4 !important;
                     }
                     .vip-badge-container {
-                        margin-bottom: 0.8rem !important;
+                        margin-bottom: 1rem !important;
                         margin-top: 0.5rem !important;
                         padding: 0.3rem 0.8rem !important;
                     }
