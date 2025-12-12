@@ -442,11 +442,11 @@ export default function AdminPage() {
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
                             <thead>
-                                <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'left' }}>
-                                    <th style={{ padding: '1rem' }}>Telegram ID</th>
-                                    <th style={{ padding: '1rem' }}>{t.status || 'Status'}</th>
-                                    <th style={{ padding: '1rem' }}>{t.expiresIn || 'Expires In'}</th>
-                                    <th style={{ padding: '1rem' }}>{t.actions || 'Actions'}</th>
+                                <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -471,7 +471,7 @@ export default function AdminPage() {
                                         }
 
                                         return (
-                                            <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
                                                 <td style={{ padding: '1rem' }}>{user.telegramId}</td>
                                                 <td style={{ padding: '1rem' }}>
                                                     <span style={{
