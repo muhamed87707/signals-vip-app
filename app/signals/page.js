@@ -195,9 +195,9 @@ export default function SignalsPage() {
                 animation: 'pulse 10s ease-in-out infinite reverse'
             }}></div>
 
-            <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: '2rem', paddingBottom: '4rem' }}>
+            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '2rem', paddingBottom: '4rem' }}>
                 {/* Header */}
-                <div style={{
+                <div className="signals-header-container" style={{
                     marginBottom: '4rem',
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.02)',
@@ -212,7 +212,7 @@ export default function SignalsPage() {
                     maxWidth: '1000px',
                     margin: '0 auto 4rem auto'
                 }}>
-                    <div style={{
+                    <div className="signals-nav" style={{
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -241,14 +241,14 @@ export default function SignalsPage() {
                         <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
                     </div>
 
-                    <div style={{
+                    <div className="signals-diamond" style={{
                         fontSize: '4rem',
                         marginBottom: '1rem',
                         animation: 'float 6s ease-in-out infinite',
                         textAlign: 'center',
                         width: '100%'
                     }}>💎</div>
-                    <h1 className="text-gradient" style={{
+                    <h1 className="text-gradient signals-title" style={{
                         fontSize: '3rem',
                         fontWeight: '800',
                         marginBottom: '1rem',
@@ -261,7 +261,7 @@ export default function SignalsPage() {
 
                     {/* VIP Status Badge or Join CTA */}
                     {isVip ? (
-                        <div style={{
+                        <div className="vip-badge-container" style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -283,18 +283,18 @@ export default function SignalsPage() {
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
                         }}>
-                            <span style={{ fontSize: '1.1rem', lineHeight: 1, marginInlineEnd: '0.4rem' }}>👑</span>
-                            <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
+                            <span className="vip-badge-icon" style={{ fontSize: '1.1rem', lineHeight: 1, marginInlineEnd: '0.4rem' }}>👑</span>
+                            <span className="vip-badge-text" style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
                             {/* Visible Separator with adjusted spacing */}
                             <span style={{ width: '1px', height: '16px', background: 'rgba(218, 165, 32, 0.8)', margin: '0 0.35rem' }}></span>
-                            <span style={{ color: '#fff', opacity: 0.9 }}>
+                            <span className="vip-badge-text" style={{ color: '#fff', opacity: 0.9 }}>
                                 {expirationDate
                                     ? `${t.expiresIn} ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} ${t.days || 'Days'}`
                                     : t.lifetime}
                             </span>
                         </div>
                     ) : (
-                        <a href="/#pricing" style={{
+                        <a href="/#pricing" className="vip-badge-container" style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -318,7 +318,7 @@ export default function SignalsPage() {
                         </a>
                     )}
 
-                    <p style={{
+                    <p className="signals-subtitle" style={{
                         color: '#9a9ab0',
                         fontSize: '1.2rem',
                         maxWidth: '600px',
@@ -511,6 +511,46 @@ export default function SignalsPage() {
                 @keyframes shimmer {
                     0% { transform: skewX(-25deg) translateX(-150%); }
                     100% { transform: skewX(-25deg) translateX(150%); }
+                }
+
+                /* Mobile Optimizations */
+                @media (max-width: 768px) {
+                    .signals-page-container {
+                        padding-top: 1rem !important;
+                        padding-bottom: 2rem !important;
+                    }
+                    .signals-header-container {
+                        padding: 1.5rem 1rem !important;
+                        margin-bottom: 2rem !important;
+                        border-radius: 20px !important;
+                    }
+                    .signals-nav {
+                        margin-bottom: 1rem !important;
+                        gap: 0.8rem !important;
+                    }
+                    .signals-diamond {
+                        font-size: 2.5rem !important;
+                        margin-bottom: 0.5rem !important;
+                    }
+                    .signals-title {
+                        font-size: 1.8rem !important;
+                        margin-bottom: 0.5rem !important;
+                    }
+                    .signals-subtitle {
+                        font-size: 0.95rem !important;
+                        line-height: 1.4 !important;
+                    }
+                    .vip-badge-container {
+                        margin-bottom: 1rem !important;
+                        margin-top: 0.5rem !important;
+                        padding: 0.3rem 0.8rem !important;
+                    }
+                    .vip-badge-icon {
+                        font-size: 1rem !important;
+                    }
+                    .vip-badge-text {
+                        font-size: 0.75rem !important;
+                    }
                 }
             `}</style>
         </div>
