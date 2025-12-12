@@ -94,6 +94,36 @@ export default function SignalsPage() {
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [vipExpiry, setVipExpiry] = useState(null);
+    const [isVip, setIsVip] = useState(false); // Added isVip state
+    const [remainingTime, setRemainingTime] = useState('');
+
+    useEffect(() => {
+        if (!isVip || !vipExpiry) {
+            setRemainingTime('');
+            return;
+        }
+
+        const calculateTime = () => {
+            const expiry = new Date(vipExpiry);
+            const now = new Date();
+
+            if (expiry.getFullYear() > 2090) {
+                setRemainingTime(lang === 'ar' ? 'مدى الحياة' : 'Lifetime');
+            } else {
+                const diffTime = expiry - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0) {
+                    setRemainingTime(lang === 'ar' ? 'منتهي' : 'Expired');
+                } else {
+                    setRemainingTime(lang === 'ar' ? `${diffDays} يوم` : `${diffDays} Days`);
+                }
+            }
+        };
+
+        calculateTime();
+        // Optional: Update every minute? Not strictly necessary for "Days"
+    }, [isVip, vipExpiry, lang]);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -105,7 +135,7 @@ export default function SignalsPage() {
             tg.ready();
             try { tg.expand(); } catch (e) { console.log('Telegram expand failed', e); }
             const user = tg.initDataUnsafe?.user;
-            if (user?.id) description: telegramId = user.id.toString();
+            if (user?.id) telegramId = user.id.toString();
         }
 
         fetchSignals(telegramId);
@@ -223,14 +253,10 @@ export default function SignalsPage() {
                         lineHeight: '1.6'
                     }}>{t.signalsSubtitle}</p>
 
-                    {isVip && vipExpiry && (
+                    {isVip && remainingTime && (
                         <div style={{ marginTop: '1.5rem', display: 'inline-block', padding: '0.5rem 1.5rem', background: 'rgba(76, 175, 80, 0.1)', border: '1px solid rgba(76, 175, 80, 0.3)', borderRadius: '50px' }}>
                             <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
-                                ⏳ {lang === 'ar' ? 'الوقت المتبقي:' : 'Time Remaining:'} {
-                                    new Date(vipExpiry).getFullYear() > 2090
-                                        ? (lang === 'ar' ? 'مدى الحياة' : 'Lifetime')
-                                        : Math.ceil((new Date(vipExpiry) - new Date()) / (1000 * 60 * 60 * 24)) + (lang === 'ar' ? ' يوم' : ' Days')
-                                }
+                                ⏳ {lang === 'ar' ? 'الوقت المتبقي:' : 'Time Remaining:'} {remainingTime}
                             </span>
                         </div>
                     )}
