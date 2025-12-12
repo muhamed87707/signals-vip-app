@@ -244,7 +244,7 @@ h6 {
 /* ===== Cards ===== */
 .card {
     background: var(--bg-card);
-    border: 1px solid rgba(184, 134, 11, 0.12);
+    border: 2px solid #FFD700;
     border-radius: 20px;
     padding: 2rem;
     transition: all 0.3s ease;
@@ -258,21 +258,9 @@ h6 {
 
 .card:hover {
     background: var(--bg-card-hover);
-    border-color: rgba(184, 134, 11, 0.35);
+    border-color: #FFE566;
     transform: translateY(-5px);
-    box-shadow: var(--shadow-card);
-}
-
-/* Subtle gold glow on top border for premium feel */
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.5), transparent);
-    opacity: 0.5;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.2), var(--shadow-card);
 }
 
 /* ===== Feature Icon ===== */
@@ -314,7 +302,7 @@ h6 {
 /* ===== Pricing Cards ===== */
 .pricing-card {
     background: var(--bg-card);
-    border: 1px solid rgba(184, 134, 11, 0.12);
+    border: 2px solid #FFD700;
     border-radius: 24px;
     padding: 2rem 1.5rem;
     text-align: center;
@@ -348,11 +336,11 @@ h6 {
 }
 
 .pricing-card.featured {
-    border-color: var(--gold-primary);
-    border-width: 2px;
+    border-color: #FFD700;
+    border-width: 3px;
     background: linear-gradient(180deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
     transform: scale(1.05);
-    box-shadow: var(--shadow-gold);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), var(--shadow-gold);
 }
 
 .pricing-card.featured::before {
@@ -670,7 +658,7 @@ h6 {
 
 .testimonial-card {
     background: var(--bg-card);
-    border: 1px solid rgba(184, 134, 11, 0.1);
+    border: 2px solid #FFD700;
     border-radius: 20px;
     padding: 2rem;
     transition: all 0.3s ease;
@@ -679,8 +667,8 @@ h6 {
 }
 
 .testimonial-card:hover {
-    border-color: rgba(184, 134, 11, 0.25);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border-color: #FFE566;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.2), 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .testimonial-quote-icon {
