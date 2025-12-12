@@ -99,10 +99,16 @@ export default function SignalsPage() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         let telegramId = urlParams.get('telegramId');
+
+        // 1. Initial Load from LocalStorage to prevent flicker
         const vipStatus = localStorage.getItem('isVip');
+        const savedExpiry = localStorage.getItem('subscriptionEndDate');
 
         if (vipStatus === 'true') {
             setIsVip(true);
+            if (savedExpiry && savedExpiry !== 'undefined' && savedExpiry !== 'null') {
+                setExpirationDate(savedExpiry);
+            }
         }
 
         // Telegram Mini App Integrated Logic
@@ -138,11 +144,19 @@ export default function SignalsPage() {
             if (data.isUserVip) {
                 setIsVip(true);
                 localStorage.setItem('isVip', 'true');
-                setExpirationDate(data.subscriptionEndDate);
+                // Save expiry or null (for lifetime)
+                if (data.subscriptionEndDate) {
+                    setExpirationDate(data.subscriptionEndDate);
+                    localStorage.setItem('subscriptionEndDate', data.subscriptionEndDate);
+                } else {
+                    setExpirationDate(null);
+                    localStorage.removeItem('subscriptionEndDate'); // Null means lifetime
+                }
             } else {
                 // If API says NOT VIP, ensure we reflect that (revoke access)
                 setIsVip(false);
                 localStorage.removeItem('isVip');
+                localStorage.removeItem('subscriptionEndDate');
                 setExpirationDate(null);
             }
         } catch (err) {
