@@ -296,8 +296,7 @@ export default function SignalsPage() {
                                         }}
                                     />
 
-                                    {/* Gradient Overlay for Seam Fix */}
-                                    {/* Gradient Overlay Removed */}
+
 
                                     {/* Overlay for non-VIP with Glassmorphism */}
                                     {!isVip && (
@@ -350,7 +349,7 @@ export default function SignalsPage() {
                                 {/* Signal Info (Footer) */}
                                 <div style={{
                                     padding: '0.8rem 1.25rem',
-                                    background: '#0f0f18', // Consistent background
+                                    background: '#0f0f18', // Seamless blend
                                     borderTop: 'none',
                                     position: 'relative',
                                     zIndex: 2

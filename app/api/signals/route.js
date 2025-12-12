@@ -8,161 +8,163 @@ const TELEGRAM_BOT_TOKEN = '8540134514:AAFFTwFEniwPQriXqFpdkl0CNBhqCk7Daak';
 const TELEGRAM_CHANNEL_ID = '@mjhgkhg254';
 
 async function uploadToImgBB(base64Image) {
-  if (!base64Image || !base64Image.startsWith('data:image')) return null;
+    if (!base64Image || !base64Image.startsWith('data:image')) return null;
 
-  try {
-    const base64Data = base64Image.split(',')[1];
-    const formData = new FormData();
-    formData.append('image', base64Data);
+    try {
+        const base64Data = base64Image.split(',')[1];
+        const formData = new FormData();
+        formData.append('image', base64Data);
 
-    const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-      method: 'POST',
-      body: formData
-    });
+        const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: 'POST',
+            body: formData
+        });
 
-    const uploadData = await uploadRes.json();
-    return uploadData.success ? uploadData.data.url : null;
-  } catch (error) {
-    console.error('ImgBB Upload Failed:', error);
-    return null;
-  }
+        const uploadData = await uploadRes.json();
+        return uploadData.success ? uploadData.data.url : null;
+    } catch (error) {
+        console.error('ImgBB Upload Failed:', error);
+        return null;
+    }
 }
 
 async function sendToTelegram(imageUrl) {
-  if (!imageUrl) return null;
+    if (!imageUrl) return null;
 
-  try {
-    const text = `🔥 *توصية VIP جديدة!* 💎
+    try {
+        // Updated Caption and Button Text as requested
+        const text = `🔥 *توصية VIP جديدة!* 💎
 تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
-اضغط بالأسفل لفك القفل ومشاهدة التوصية 👇
+اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
 
 🔥 *New VIP Signal!* 💎
 A high-potential trade has been posted for premium subscribers! 🚀
-Click below to unlock and view details 👇`;
+Click below to reveal the signal 👇`;
 
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHANNEL_ID,
-        photo: imageUrl,
-        caption: text,
-        parse_mode: 'Markdown',
-        reply_markup: {
-          inline_keyboard: [[
-            { text: "👁️ View Signal | مشاهدة التوصية", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
-          ]]
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                photo: imageUrl,
+                caption: text,
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [[
+                        { text: "🔞 Reveal Signal | كشف التوصية", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
+                    ]]
+                }
+            })
+        });
+
+        const data = await response.json();
+        if (data.ok && data.result) {
+            return data.result.message_id;
         }
-      })
-    });
-
-    const data = await response.json();
-    return data.result ? data.result.message_id : null;
-  } catch (error) {
-    console.error('Telegram Post Failed:', error);
-    return null;
-  }
+        return null;
+    } catch (error) {
+        console.error('Telegram Post Failed:', error);
+        return null;
+    }
 }
 
-async function deleteFromTelegram(messageId) {
-  if (!messageId) return;
-
-  try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHANNEL_ID,
-        message_id: messageId
-      })
-    });
-  } catch (error) {
-    console.error('Telegram Delete Failed:', error);
-  }
+async function deleteTelegramMessage(messageId) {
+    if (!messageId) return;
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                message_id: messageId
+            })
+        });
+    } catch (error) {
+        console.error('Telegram Delete Failed:', error);
+    }
 }
 
 export async function GET(request) {
-  try {
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-    const telegramId = searchParams.get('telegramId');
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const telegramId = searchParams.get('telegramId');
 
-    const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(20);
-    let isVip = false;
+        const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(20);
+        let isVip = false;
 
-    if (telegramId && telegramId !== 'null' && telegramId !== 'undefined') {
-      const idString = String(telegramId);
-      const user = await User.findOne({ telegramId: idString });
-      if (user && user.isVip) isVip = true;
+        if (telegramId && telegramId !== 'null' && telegramId !== 'undefined') {
+            const idString = String(telegramId);
+            const user = await User.findOne({ telegramId: idString });
+            if (user && user.isVip) isVip = true;
+        }
+
+        return NextResponse.json({ signals, isUserVip: isVip });
+    } catch (error) {
+        console.error("Database Error:", error);
+        return NextResponse.json({ signals: [], isUserVip: false }, { status: 500 });
     }
-
-    return NextResponse.json({ signals, isUserVip: isVip });
-  } catch (error) {
-    console.error("Database Error:", error);
-    return NextResponse.json({ signals: [], isUserVip: false }, { status: 500 });
-  }
 }
 
 export async function POST(request) {
-  try {
-    await dbConnect();
-    const body = await request.json();
-    let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
+    try {
+        await dbConnect();
+        const body = await request.json();
+        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
 
-    // 1. Upload Main Image (Clear)
-    const clearImageUrl = await uploadToImgBB(imageUrl);
-    if (!clearImageUrl) throw new Error('Failed to upload main image');
+        // 1. Upload Main Image (Clear)
+        const clearImageUrl = await uploadToImgBB(imageUrl);
+        if (!clearImageUrl) throw new Error('Failed to upload main image');
 
-    // 2. Upload Telegram Image (Blurred) if requested
-    let telegramMessageId = null;
-    if (shouldSend && telegramImage) {
-      const blurredUrl = await uploadToImgBB(telegramImage);
-      if (blurredUrl) {
-        // Send and capture Message ID
-        telegramMessageId = await sendToTelegram(blurredUrl);
-      }
+        let telegramMessageId = null;
+
+        // 2. Upload Telegram Image (Blurred) if requested
+        if (shouldSend && telegramImage) {
+            const blurredUrl = await uploadToImgBB(telegramImage);
+            if (blurredUrl) {
+                // Send and capture Message ID
+                telegramMessageId = await sendToTelegram(blurredUrl);
+            }
+        }
+
+        // 3. Save to DB with Message ID
+        const signal = await Signal.create({
+            pair,
+            type,
+            imageUrl: clearImageUrl,
+            telegramMessageId: telegramMessageId?.toString()
+        });
+
+        return NextResponse.json({ success: true, signal });
+    } catch (error) {
+        console.error("Post Error:", error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
-
-    // 3. Save to DB
-    const signal = await Signal.create({
-      pair,
-      type,
-      imageUrl: clearImageUrl,
-      telegramMessageId: telegramMessageId
-    });
-
-    return NextResponse.json({ success: true, signal });
-  } catch (error) {
-    console.error("Post Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
 }
 
 export async function DELETE(request) {
-  try {
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
 
-    if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
+        if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
 
-    // Find signal first to get Telegram ID
-    const signal = await Signal.findById(id);
-    if (signal) {
-      // Delete from Telegram if ID exists
-      if (signal.telegramMessageId) {
-        await deleteFromTelegram(signal.telegramMessageId);
-      }
-      // Delete from DB
-      await Signal.findByIdAndDelete(id);
+        const signal = await Signal.findById(id);
+        if (signal) {
+            // Delete from Telegram if message ID exists
+            if (signal.telegramMessageId) {
+                await deleteTelegramMessage(signal.telegramMessageId);
+            }
+            await Signal.findByIdAndDelete(id);
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Delete Error:", error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Delete Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
 }
