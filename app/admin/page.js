@@ -62,7 +62,7 @@ export default function AdminPage() {
         setLoading(false);
     };
 
-    // Helper to Create Blurred Image with Lock Overlay
+    // Helper to Create Blurred Image with Circle + Lock
     const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -77,28 +77,38 @@ export default function AdminPage() {
                 ctx.filter = 'blur(20px)';
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Draw Lock Emoji Overlay
-                ctx.filter = 'none'; // Reset filter
-                const fontSize = Math.min(canvas.width, canvas.height) * 0.3;
-                ctx.font = `${fontSize}px Arial`;
+                // --- LOCK DRAWING LOGIC ---
+                // Reset filter
+                ctx.filter = 'none';
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                // Size relative to image smallest dimension
+                const size = Math.min(canvas.width, canvas.height) * 0.15;
+
+                // 1. Draw Background Circle (Semi-transparent Black)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, size * 1.5, 0, 2 * Math.PI, false);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fill();
+
+                // 2. Draw Gold Border for Circle
+                ctx.lineWidth = size * 0.1;
+                ctx.strokeStyle = '#DAA520'; // GoldenRod
+                ctx.stroke();
+
+                // 3. Draw Lock Emoji
+                ctx.font = `${size * 1.5}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-
-                // Add Glow/Shadow
-                ctx.shadowColor = 'rgba(0,0,0,0.8)';
-                ctx.shadowBlur = 20;
-
-                // Draw Stroke (Outline)
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = '#000000';
-                ctx.strokeText('🔒', canvas.width / 2, canvas.height / 2);
-
-                // Draw Fill (Gold)
-                ctx.fillStyle = '#FFD700';
-                ctx.fillText('🔒', canvas.width / 2, canvas.height / 2);
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillText('🔒', centerX, centerY + (size * 0.1)); // Slight vertical adjustment
+                // ---------------------------
 
                 // Get Base64
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                 URL.revokeObjectURL(url);
                 resolve(dataUrl);
             };

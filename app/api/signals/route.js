@@ -29,7 +29,7 @@ async function uploadToImgBB(base64Image) {
 }
 
 async function sendToTelegram(imageUrl) {
-  if (!imageUrl) return;
+  if (!imageUrl) return null;
 
   try {
     const text = `🔥 *توصية VIP جديدة!* 💎
@@ -42,7 +42,7 @@ Click below to unlock and view details 👇`;
 
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -52,13 +52,35 @@ Click below to unlock and view details 👇`;
         parse_mode: 'Markdown',
         reply_markup: {
           inline_keyboard: [[
-            { text: "🔒 Unlock Signal | فك القفل", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
+            { text: "👁️ View Signal | مشاهدة التوصية", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
           ]]
         }
       })
     });
+
+    const data = await response.json();
+    return data.result ? data.result.message_id : null;
   } catch (error) {
     console.error('Telegram Post Failed:', error);
+    return null;
+  }
+}
+
+async function deleteFromTelegram(messageId) {
+  if (!messageId) return;
+
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHANNEL_ID,
+        message_id: messageId
+      })
+    });
+  } catch (error) {
+    console.error('Telegram Delete Failed:', error);
   }
 }
 
@@ -95,11 +117,12 @@ export async function POST(request) {
     if (!clearImageUrl) throw new Error('Failed to upload main image');
 
     // 2. Upload Telegram Image (Blurred) if requested
+    let telegramMessageId = null;
     if (shouldSend && telegramImage) {
       const blurredUrl = await uploadToImgBB(telegramImage);
       if (blurredUrl) {
-        // Fire and forget Telegram post
-        sendToTelegram(blurredUrl);
+        // Send and capture Message ID
+        telegramMessageId = await sendToTelegram(blurredUrl);
       }
     }
 
@@ -108,6 +131,7 @@ export async function POST(request) {
       pair,
       type,
       imageUrl: clearImageUrl,
+      telegramMessageId: telegramMessageId
     });
 
     return NextResponse.json({ success: true, signal });
@@ -125,7 +149,17 @@ export async function DELETE(request) {
 
     if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
 
-    await Signal.findByIdAndDelete(id);
+    // Find signal first to get Telegram ID
+    const signal = await Signal.findById(id);
+    if (signal) {
+      // Delete from Telegram if ID exists
+      if (signal.telegramMessageId) {
+        await deleteFromTelegram(signal.telegramMessageId);
+      }
+      // Delete from DB
+      await Signal.findByIdAndDelete(id);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Delete Error:", error);
