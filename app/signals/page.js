@@ -452,8 +452,8 @@ export default function SignalsPage() {
 
                                 {/* Signal Info (Footer) */}
                                 <div style={{
-                                    padding: '0.8rem 1.25rem',
-                                    background: '#0f0f18', // Seamless blend
+                                    padding: '0.5rem 1rem', // Reduced padding
+                                    background: '#0f0f18',
                                     borderTop: 'none',
                                     position: 'relative',
                                     zIndex: 2
@@ -465,13 +465,13 @@ export default function SignalsPage() {
                                     }}>
                                         <span style={{
                                             color: '#9a9ab0',
-                                            fontSize: '0.8rem',
+                                            fontSize: '0.75rem', // Smaller text
                                             display: 'inline-flex',
                                             alignItems: 'center',
-                                            gap: '0.4rem',
+                                            gap: '0.3rem',
                                             background: 'rgba(255,255,255,0.05)',
-                                            padding: '0.3rem 0.8rem',
-                                            borderRadius: '20px',
+                                            padding: '0.2rem 0.6rem', // More compact badge
+                                            borderRadius: '15px',
                                             letterSpacing: '0.5px',
                                             border: '1px solid rgba(255,255,255,0.05)'
                                         }}>
@@ -483,9 +483,9 @@ export default function SignalsPage() {
                                                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.2) 100%)',
                                                 border: '1px solid rgba(76, 175, 80, 0.3)',
                                                 color: '#4caf50',
-                                                padding: '0.3rem 0.8rem',
-                                                borderRadius: '30px',
-                                                fontSize: '0.75rem',
+                                                padding: '0.2rem 0.6rem', // More compact badge
+                                                borderRadius: '20px',
+                                                fontSize: '0.7rem',
                                                 fontWeight: '600',
                                                 letterSpacing: '0.5px'
                                             }}>
@@ -516,40 +516,40 @@ export default function SignalsPage() {
                 /* Mobile Optimizations */
                 @media (max-width: 768px) {
                     .signals-page-container {
-                        padding-top: 0.5rem !important;
+                        padding-top: 1rem !important;
                         padding-bottom: 2rem !important;
                     }
                     .signals-header-container {
-                        padding: 1rem 0.5rem !important;
-                        margin-bottom: 1rem !important;
+                        padding: 1.5rem 1rem !important;
+                        margin-bottom: 2rem !important;
                         border-radius: 20px !important;
                     }
                     .signals-nav {
-                        margin-bottom: 0.5rem !important;
-                        gap: 0.6rem !important;
+                        margin-bottom: 1rem !important;
+                        gap: 0.8rem !important;
                     }
                     .signals-diamond {
-                        font-size: 2rem !important;
-                        margin-bottom: 0.2rem !important;
+                        font-size: 2.5rem !important;
+                        margin-bottom: 0.5rem !important;
                     }
                     .signals-title {
-                        font-size: 1.5rem !important;
-                        margin-bottom: 0.3rem !important;
+                        font-size: 1.8rem !important;
+                        margin-bottom: 0.5rem !important;
                     }
                     .signals-subtitle {
-                        font-size: 0.85rem !important;
-                        line-height: 1.3 !important;
+                        font-size: 0.95rem !important;
+                        line-height: 1.4 !important;
                     }
                     .vip-badge-container {
-                        margin-bottom: 0.5rem !important;
-                        margin-top: 0.2rem !important;
-                        padding: 0.25rem 0.6rem !important;
+                        margin-bottom: 1rem !important;
+                        margin-top: 0.5rem !important;
+                        padding: 0.3rem 0.8rem !important;
                     }
                     .vip-badge-icon {
-                        font-size: 0.9rem !important;
+                        font-size: 1rem !important;
                     }
                     .vip-badge-text {
-                        font-size: 0.7rem !important;
+                        font-size: 0.75rem !important;
                     }
                 }
             `}</style>
