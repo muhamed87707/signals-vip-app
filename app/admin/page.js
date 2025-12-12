@@ -21,6 +21,9 @@ export default function AdminPage() {
     const [vipLoading, setVipLoading] = useState(false);
     const [vipMessage, setVipMessage] = useState({ type: '', text: '' });
 
+    // Telegram Auto-Post State
+    const [postToTelegram, setPostToTelegram] = useState(true);
+
     // Check authentication on mount
     useEffect(() => {
         const auth = sessionStorage.getItem('admin-auth');
@@ -59,33 +62,88 @@ export default function AdminPage() {
         setLoading(false);
     };
 
+    // Helper to Create Blurred Image
+    const createBlurredImage = (file) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Apply Blur
+                ctx.filter = 'blur(20px)';
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Get Base64
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                URL.revokeObjectURL(url);
+                resolve(dataUrl);
+            };
+            img.src = url;
+        });
+    };
+
     const handleImageUpload = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        processFile(file);
+    };
 
+    const handlePaste = async (e) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        for (const item of items) {
+            if (item.type.indexOf('image') !== -1) {
+                const file = item.getAsFile();
+                if (file) processFile(file);
+                break;
+            }
+        }
+    };
+
+    const processFile = async (file) => {
         setUploading(true);
         setSuccessMessage('');
+        setError('');
 
         try {
-            // Convert image to base64
+            // 1. Get Clean Base64
             const reader = new FileReader();
             reader.onloadend = async () => {
                 const base64Image = reader.result;
 
-                // Upload to API
+                // 2. Get Blurred Base64 (if posting to TG)
+                let telegramImage = null;
+                if (postToTelegram) {
+                    try {
+                        telegramImage = await createBlurredImage(file);
+                    } catch (blurErr) {
+                        console.error('Blur failed', blurErr);
+                    }
+                }
+
+                // 3. Upload to API
                 const res = await fetch('/api/signals', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         pair: 'GOLD',
                         type: 'SIGNAL',
-                        imageUrl: base64Image
+                        imageUrl: base64Image,
+                        telegramImage: telegramImage,
+                        sendToTelegram: postToTelegram
                     })
                 });
 
                 const data = await res.json();
                 if (data.success) {
-                    setSuccessMessage(t.postSuccess);
+                    let msg = t.postSuccess;
+                    if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
+                    setSuccessMessage(msg);
                     fetchSignals();
                 } else {
                     setError(t.postError);
@@ -99,10 +157,7 @@ export default function AdminPage() {
             setUploading(false);
         }
 
-        // Reset file input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleGrantVip = async (e) => {
@@ -128,51 +183,6 @@ export default function AdminPage() {
             setVipMessage({ type: 'error', text: t.vipError });
         }
         setVipLoading(false);
-    };
-
-    const handlePaste = async (e) => {
-        const items = e.clipboardData?.items;
-        if (!items) return;
-
-        for (const item of items) {
-            if (item.type.indexOf('image') !== -1) {
-                const file = item.getAsFile();
-                if (file) {
-                    setUploading(true);
-                    setSuccessMessage('');
-
-                    const reader = new FileReader();
-                    reader.onloadend = async () => {
-                        const base64Image = reader.result;
-
-                        try {
-                            const res = await fetch('/api/signals', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    pair: 'GOLD',
-                                    type: 'SIGNAL',
-                                    imageUrl: base64Image
-                                })
-                            });
-
-                            const data = await res.json();
-                            if (data.success) {
-                                setSuccessMessage(t.postSuccess);
-                                fetchSignals();
-                            } else {
-                                setError(t.postError);
-                            }
-                        } catch (err) {
-                            setError(t.postError);
-                        }
-                        setUploading(false);
-                    };
-                    reader.readAsDataURL(file);
-                }
-                break;
-            }
-        }
     };
 
     const deleteSignal = async (id) => {
@@ -378,6 +388,31 @@ export default function AdminPage() {
                         {t.dragDropText}
                     </p>
 
+                    {/* Telegram Checkbox */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: '1.5rem',
+                        gap: '0.5rem',
+                        cursor: 'pointer'
+                    }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                        <div style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '6px',
+                            border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`,
+                            background: postToTelegram ? '#229ED9' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s'
+                        }}>
+                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                        </div>
+                        <span style={{ color: '#f0f0f0', userSelect: 'none' }}>{t.postToTelegram}</span>
+                    </div>
+
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -400,6 +435,11 @@ export default function AdminPage() {
                     {successMessage && (
                         <p style={{ color: '#4caf50', marginTop: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
                             {successMessage}
+                        </p>
+                    )}
+                    {error && (
+                        <p style={{ color: '#ef4444', marginTop: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                            {error}
                         </p>
                     )}
                 </div>

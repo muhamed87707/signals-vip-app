@@ -85,6 +85,11 @@ export const translations = {
         grantVip: 'Grant VIP Access',
         vipSuccess: 'VIP status updated successfully! ✓',
         vipError: 'Error updating user',
+
+        // Telegram
+        postToTelegram: 'Post to Telegram Channel',
+        telegramSuccess: 'Sent to Telegram! ✈️',
+        telegramError: 'Telegram post failed',
     },
     ar: {
         // Shared
@@ -172,6 +177,11 @@ export const translations = {
         grantVip: 'منح عضوية VIP',
         vipSuccess: 'تم تحديث حالة العضو بنجاح! ✓',
         vipError: 'حدث خطأ في تحديث البيانات',
+
+        // Telegram
+        postToTelegram: 'نشر تلقائي في قناة تليجرام',
+        telegramSuccess: 'تم النشر في تليجرام! ✈️',
+        telegramError: 'فشل النشر في تليجرام',
     }
 };
 
