@@ -85,7 +85,7 @@ export default function AdminPage() {
         setLoading(false);
     };
 
-    // --- CANVAS LOCK GENERATION ---
+    // --- CANVAS LOCK GENERATION (MATCHING SIGNALS PAGE) ---
     const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -96,47 +96,27 @@ export default function AdminPage() {
                 canvas.width = img.width;
                 canvas.height = img.height;
 
-                // 1. Draw Blurred Image
-                ctx.filter = 'blur(20px)';
+                // 1. Draw Blurred Image (Reduced scale for teasing effect)
+                // Was 20px, reducing to 10px to be less "boring" and more "teasing"
+                ctx.filter = 'blur(10px)';
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 ctx.filter = 'none'; // Reset
 
-                // 2. Prepare SVG Lock Badge
-                // We recreate the visual logic of ModernLockIcon using SVG string
-                const size = Math.min(canvas.width, canvas.height) * 0.3; // 30% of image size
+                // 2. Full Overlay (Glassmorphism Tint)
+                // Matches rgba(8, 8, 16, 0.4) from Signals Page
+                ctx.fillStyle = 'rgba(8, 8, 16, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // 3. Prepare SVG Lock Badge
+                const size = Math.min(canvas.width, canvas.height) * 0.35; // Slightly larger lock
                 const x = (canvas.width - size) / 2;
                 const y = (canvas.height - size) / 2;
 
+                // Replicate the Signals Page Lock:
+                // - No hard background circle
+                // - Subtle Radial Glow behind
+                // - Gold Lock Icon
                 const svgString = `
-                <svg width="${size}" height="${size}" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <radialGradient id="bgGrad" cx="0.5" cy="0.5" r="0.5">
-                            <stop offset="0%" stop-color="rgba(184, 134, 11, 0.4)" />
-                            <stop offset="100%" stop-color="rgba(0,0,0,0.6)" />
-                        </radialGradient>
-                        <linearGradient id="goldLock" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#FFE566" />
-                            <stop offset="50%" stop-color="#B8860B" />
-                            <stop offset="100%" stop-color="#705C0B" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- Background Circle -->
-                    <circle cx="40" cy="40" r="38" fill="url(#bgGrad)" stroke="url(#goldLock)" stroke-width="2" />
-                    
-                    <!-- Lock Icon Centered -->
-                    <g transform="translate(16, 16) scale(1)">
-                         <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#goldLock)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(2) translate(0,0)" />
-                         <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#goldLock)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(2) translate(0,0)" />
-                         <circle cx="12" cy="16" r="1.5" fill="url(#goldLock)" transform="scale(2) translate(0,0)" />
-                    </g>
-                </svg>`;
-
-                // Note on SVG: The inner lock coordinates are based on 24x24 viewBox. 
-                // We need to scale them up to fill the 80x80 container. 
-                // Simplified SVG for robust rendering:
-
-                const robustSvg = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
                     <defs>
                         <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -144,12 +124,16 @@ export default function AdminPage() {
                             <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
                             <stop offset="100%" style="stop-color:#705C0B;stop-opacity:1" />
                         </linearGradient>
+                        <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                            <stop offset="0%" style="stop-color:rgba(184, 134, 11, 0.6)" />
+                            <stop offset="100%" style="stop-color:rgba(184, 134, 11, 0)" />
+                        </radialGradient>
                     </defs>
                     
-                    <!-- Background -->
-                    <circle cx="50" cy="50" r="45" fill="rgba(0,0,0,0.7)" stroke="url(#gold)" stroke-width="3" />
+                    <!-- Subtle Glow (No hard circle) -->
+                    <circle cx="50" cy="50" r="50" fill="url(#glow)" />
                     
-                    <!-- Lock Body -->
+                    <!-- Lock Body (Gold) -->
                     <rect x="30" y="45" width="40" height="30" rx="5" fill="none" stroke="url(#gold)" stroke-width="4" />
                     
                     <!-- Lock Shackle -->
@@ -157,17 +141,20 @@ export default function AdminPage() {
                     
                     <!-- Keyhole -->
                     <circle cx="50" cy="60" r="4" fill="url(#gold)" />
+                    
+                    <!-- Shimmer/Highlight hint (Static) -->
+                    <path d="M 32 47 L 45 47" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
                 </svg>
                 `;
 
                 const badgeImg = new Image();
                 badgeImg.onload = () => {
                     ctx.drawImage(badgeImg, x, y, size, size);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85); // High quality
                     URL.revokeObjectURL(url);
                     resolve(dataUrl);
                 };
-                badgeImg.src = 'data:image/svg+xml;base64,' + btoa(robustSvg);
+                badgeImg.src = 'data:image/svg+xml;base64,' + btoa(svgString);
             };
             img.src = url;
         });
