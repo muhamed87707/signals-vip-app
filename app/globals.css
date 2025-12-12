@@ -218,6 +218,12 @@ h6 {
     border-radius: 20px;
     padding: 2rem;
     transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .card:hover {
@@ -225,6 +231,18 @@ h6 {
     border-color: rgba(184, 134, 11, 0.35);
     transform: translateY(-5px);
     box-shadow: var(--shadow-card);
+}
+
+/* Subtle gold glow on top border for premium feel */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.5), transparent);
+    opacity: 0.5;
 }
 
 /* ===== Feature Icon ===== */
