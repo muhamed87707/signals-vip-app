@@ -8,9 +8,9 @@ export const translations = {
 
         // Homepage
         badge: '✨ Premium Trading Signals',
-        heroTitle: 'Master the Markets with',
-        heroTitleHighlight: 'Golden Precision',
-        heroSubtitle: 'Join an elite community of traders receiving accurate Gold & Forex signals. Make informed decisions, maximize profits, and trade with confidence.',
+        heroTitle: 'Trade with Confidence at',
+        heroTitleHighlight: 'Abu Al-Dahab Institution',
+        heroSubtitle: 'Values, transparency, and results. Backed by a dedicated team of expert analysts, we provide institutional-grade Gold & Forex signals to guide your consistent success.',
         ctaButton: 'Start Trading Now',
         loginButton: 'VIP Login',
         featuresTitle: 'Why Choose Us?',
@@ -109,9 +109,9 @@ export const translations = {
 
         // Homepage
         badge: '✨ توصيات تداول حصرية',
-        heroTitle: 'أتقن الأسواق مع',
-        heroTitleHighlight: 'دقة ذهبية',
-        heroSubtitle: 'انضم إلى مجتمع نخبة من المتداولين الذين يتلقون توصيات دقيقة للذهب والفوركس. اتخذ قرارات واعية، ضاعف أرباحك، وتداول بثقة.',
+        heroTitle: 'تداول بثقة وأمان مع',
+        heroTitleHighlight: 'مؤسسة أبو الذهب',
+        heroSubtitle: 'قيم، شفافية، ونتائج. مدعومين بفريق متكامل من المحللين الخبراء، نقدم لك توصيات ذهبية ومتابعة دقيقة لنصل بك إلى بر الأمان المالي وتحقيق أهدافك الاستثمارية.',
         ctaButton: 'ابدأ التداول الآن',
         loginButton: 'تسجيل دخول VIP',
         featuresTitle: 'لماذا تختارنا؟',

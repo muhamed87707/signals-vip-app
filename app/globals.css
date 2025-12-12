@@ -103,22 +103,22 @@ h6 {
 
 /* ===== Metallic Gold Text ===== */
 .text-gradient {
-    background: var(--gradient-gold-text);
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
     background-size: 200% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: goldShine 3s linear infinite;
+    animation: goldShine 2.5s linear infinite alternate;
     filter: drop-shadow(0 2px 4px rgba(112, 92, 11, 0.6));
 }
 
 @keyframes goldShine {
     0% {
-        background-position: 0% center;
+        background-position: 200% center;
     }
 
     100% {
-        background-position: 200% center;
+        background-position: 0% center;
     }
 }
 
@@ -178,6 +178,7 @@ h6 {
 }
 
 /* ===== Secondary Button ===== */
+/* ===== Secondary Button ===== */
 .btn-secondary {
     display: inline-flex;
     align-items: center;
@@ -185,21 +186,50 @@ h6 {
     gap: 0.5rem;
     padding: 1rem 2.5rem;
     background: transparent;
-    color: var(--gold-medium);
-    font-weight: 600;
-    font-size: 1rem;
-    border: 2px solid var(--gold-primary);
+    border: none;
+    /* Handled by pseudo */
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Shiny Gradient Border */
+/* Shiny Gradient Border */
+.btn-secondary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50px;
+    padding: 2px;
+    /* Border width */
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% 100%;
+    animation: goldShine 2.5s linear infinite alternate;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
 }
 
 .btn-secondary:hover {
-    background: rgba(184, 134, 11, 0.15);
-    border-color: var(--gold-bright);
-    box-shadow: 0 0 25px rgba(184, 134, 11, 0.3);
-    color: var(--gold-bright);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(184, 134, 11, 0.2);
+}
+
+.btn-text-shine {
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: goldShine 2.5s linear infinite alternate;
+    font-weight: 700;
 }
 
 /* ===== Hero Buttons ===== */
@@ -246,32 +276,34 @@ h6 {
 }
 
 /* ===== Feature Icon ===== */
+/* ===== Feature Icon ===== */
 .feature-icon {
     width: 64px;
     height: 64px;
-    background: var(--gradient-gold-button);
-    background-size: 200% 100%;
-    animation: goldShine 3s linear infinite;
-    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
     margin-bottom: 1.5rem;
-    box-shadow:
-        inset 0 2px 0 rgba(255, 244, 184, 0.4),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
-        0 4px 15px rgba(184, 134, 11, 0.3);
+    filter: drop-shadow(0 0 15px rgba(184, 134, 11, 0.3));
+    transition: all 0.3s ease;
 }
 
 .card:hover .feature-icon {
-    box-shadow: var(--shadow-gold);
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 25px rgba(184, 134, 11, 0.6));
 }
 
 .feature-title {
     font-size: 1.25rem;
     margin-bottom: 0.75rem;
-    color: var(--gold-bright);
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: goldShine 2.5s linear infinite alternate;
+    font-weight: 700;
 }
 
 .feature-desc {
@@ -354,12 +386,12 @@ h6 {
 .pricing-price {
     font-size: 3rem;
     font-weight: 800;
-    background: var(--gradient-gold-text);
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
     background-size: 200% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: goldShine 3s linear infinite;
+    animation: goldShine 2.5s linear infinite alternate;
     line-height: 1;
     margin: 1rem 0;
     filter: drop-shadow(0 2px 4px rgba(112, 92, 11, 0.4));
@@ -462,17 +494,28 @@ h6 {
 .logo-icon {
     width: 42px;
     height: 42px;
-    background: var(--gradient-gold-button);
-    background-size: 200% 100%;
-    animation: goldShine 3s linear infinite;
+    background: transparent;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
-    box-shadow:
-        inset 0 2px 0 rgba(255, 244, 184, 0.4),
-        0 4px 15px rgba(184, 134, 11, 0.35);
+    position: relative;
+    z-index: 1;
+}
+
+.logo-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% 100%;
+    animation: goldShine 2.5s linear infinite alternate;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
 }
 
 .lang-toggle {
@@ -480,18 +523,33 @@ h6 {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: rgba(184, 134, 11, 0.1);
-    border: 1px solid rgba(184, 134, 11, 0.25);
+    background: transparent;
+    border: none;
     border-radius: 50px;
-    color: var(--gold-medium);
-    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.lang-toggle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50px;
+    padding: 2px;
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% 100%;
+    animation: goldShine 2.5s linear infinite alternate;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
 }
 
 .lang-toggle:hover {
-    background: rgba(184, 134, 11, 0.2);
-    box-shadow: 0 0 15px rgba(184, 134, 11, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(184, 134, 11, 0.2);
 }
 
 /* ===== Hero Section ===== */
@@ -503,6 +561,11 @@ h6 {
     padding: 8rem 0 5rem;
     position: relative;
     overflow: hidden;
+    /* Subtle financial grid pattern */
+    background-image:
+        linear-gradient(rgba(184, 134, 11, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(184, 134, 11, 0.08) 1px, transparent 1px);
+    background-size: 50px 50px;
 }
 
 .hero::before {
@@ -611,6 +674,8 @@ h6 {
     border-radius: 20px;
     padding: 2rem;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .testimonial-card:hover {
@@ -618,34 +683,78 @@ h6 {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
+.testimonial-quote-icon {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    opacity: 0.5;
+    transform: scale(1.5);
+    pointer-events: none;
+}
+
+[dir="rtl"] .testimonial-quote-icon {
+    right: auto;
+    left: 1.5rem;
+}
+
 .testimonial-text {
-    color: var(--text-secondary);
+    color: #e0e0e0;
+    /* Clearer text */
     font-size: 1rem;
     line-height: 1.7;
     margin-bottom: 1.5rem;
     font-style: italic;
+    position: relative;
+    z-index: 1;
 }
 
 .testimonial-author {
     display: flex;
     align-items: center;
     gap: 1rem;
+    position: relative;
+    z-index: 1;
 }
 
 .testimonial-avatar {
     width: 50px;
     height: 50px;
-    background: var(--gradient-gold-button);
-    background-size: 200% 100%;
-    animation: goldShine 3s linear infinite;
+    background: transparent;
+    border: none;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #1a1a1a;
-    box-shadow: 0 2px 10px rgba(184, 134, 11, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial-avatar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(90deg, #FFD700 0%, #FFE566 25%, #FFFFFF 45%, #FFFFFF 55%, #FFE566 75%, #FFD700 100%);
+    background-size: 200% 100%;
+    animation: goldShine 2.5s linear infinite alternate;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Ensure text inside avatar (initials) also shines */
+.testimonial-avatar {
+    background: linear-gradient(90deg, #8B6914 0%, #FFD700 40%, #FFFFFF 50%, #FFD700 60%, #8B6914 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: goldShine 2.5s linear infinite;
 }
 
 .testimonial-info {

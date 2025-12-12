@@ -10,6 +10,89 @@ const CheckIcon = () => (
     </svg>
 );
 
+const ChartIcon = () => (
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient-icon)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <defs>
+            <linearGradient id="gold-gradient-icon" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FFD700" />
+                <stop offset="25%" stopColor="#FFE566" />
+                <stop offset="45%" stopColor="#FFFFFF" />
+                <stop offset="55%" stopColor="#FFFFFF" />
+                <stop offset="75%" stopColor="#FFE566" />
+                <stop offset="100%" stopColor="#FFD700" />
+                <animate attributeName="x1" values="-50%;150%;-50%" dur="4s" repeatCount="indefinite" />
+                <animate attributeName="x2" values="50%;250%;50%" dur="4s" repeatCount="indefinite" />
+            </linearGradient>
+        </defs>
+        <path d="M18 20V10M12 20V4M6 20v-6" />
+        <path d="M22 20H2" strokeWidth="2" />
+    </svg>
+);
+
+const TargetIcon = () => (
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient-icon)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
+        <circle cx="12" cy="12" r="2" />
+        <path d="M12 2v2M12 22v-2M2 12h2M22 12h-2" />
+    </svg>
+);
+
+const ChatIcon = () => (
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient-icon)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+);
+
+const QuoteIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(184, 134, 11, 0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+        <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+    </svg>
+);
+
+const LockIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <defs>
+            <linearGradient id="gold-gradient-lock" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FFD700" />
+                <stop offset="25%" stopColor="#FFE566" />
+                <stop offset="45%" stopColor="#FFFFFF" />
+                <stop offset="55%" stopColor="#FFFFFF" />
+                <stop offset="75%" stopColor="#FFE566" />
+                <stop offset="100%" stopColor="#FFD700" />
+                <animate attributeName="x1" values="-50%;150%;-50%" dur="4s" repeatCount="indefinite" />
+                <animate attributeName="x2" values="50%;250%;50%" dur="4s" repeatCount="indefinite" />
+            </linearGradient>
+        </defs>
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+);
+
+const BrandAIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* The 'A' Shape */}
+        <path d="M20 4L8 34H13L20 16L27 34H32L20 4Z" strokeWidth="2" />
+        {/* The Swoosh */}
+        <path d="M6 26C6 26 15 20 20 20C25 20 34 26 34 26" strokeWidth="1.5" />
+        {/* Stars */}
+        <path d="M5 14L6 16L8 16L6.5 17.5L7 19.5L5 18L3 19.5L3.5 17.5L2 16L4 16L5 14Z" fill="url(#gold-gradient-lock)" stroke="none" transform="scale(0.8) translate(0,0)" />
+        <path d="M35 14L36 16L38 16L36.5 17.5L37 19.5L35 18L33 19.5L33.5 17.5L32 16L34 16L35 14Z" fill="url(#gold-gradient-lock)" stroke="none" transform="scale(0.8) translate(10,0)" />
+        <path d="M20 32L21 34L23 34L21.5 35.5L22 37.5L20 36L18 37.5L18.5 35.5L17 34L19 34L20 32Z" fill="url(#gold-gradient-lock)" stroke="none" transform="scale(0.6) translate(14,0)" />
+    </svg>
+);
+
+const GlobeIcon = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        <path d="M12 2C8 6 8 18 12 22" />
+        <path d="M12 2C16 6 16 18 12 22" />
+    </svg>
+);
+
 const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
     if (!isOpen) return null;
 
@@ -82,10 +165,12 @@ export default function LandingPage() {
             <header className="header">
                 <div className="container header-content">
                     <a href="/" className="logo">
-                        <span className="logo-icon">💎</span>
-                        <span>{t.brand}</span>
+                        <span className="logo-icon"><BrandAIcon /></span>
+                        <span className="btn-text-shine">{t.brand}</span>
                     </a>
-                    <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                    <button onClick={toggleLang} className="lang-toggle">
+                        <GlobeIcon /> <span className="btn-text-shine">{t.langSwitch}</span>
+                    </button>
                 </div>
             </header>
 
@@ -101,7 +186,9 @@ export default function LandingPage() {
                         <p className="hero-subtitle animate-fade-in-up delay-200">{t.heroSubtitle}</p>
                         <div className="hero-buttons animate-fade-in-up delay-300">
                             <a href="#pricing" className="btn-primary">{t.ctaButton} →</a>
-                            <button onClick={() => setShowLoginModal(true)} className="btn-secondary">🔐 {t.loginButton}</button>
+                            <button onClick={() => setShowLoginModal(true)} className="btn-secondary">
+                                <LockIcon /> <span className="btn-text-shine">{t.loginButton}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -117,17 +204,17 @@ export default function LandingPage() {
                     <p className="section-subtitle">{t.featuresSubtitle}</p>
                     <div className="features-grid">
                         <div className="card">
-                            <div className="feature-icon">📊</div>
+                            <div className="feature-icon"><ChartIcon /></div>
                             <h3 className="feature-title">{t.feature1Title}</h3>
                             <p className="feature-desc">{t.feature1Desc}</p>
                         </div>
                         <div className="card">
-                            <div className="feature-icon">🎯</div>
+                            <div className="feature-icon"><TargetIcon /></div>
                             <h3 className="feature-title">{t.feature2Title}</h3>
                             <p className="feature-desc">{t.feature2Desc}</p>
                         </div>
                         <div className="card">
-                            <div className="feature-icon">💬</div>
+                            <div className="feature-icon"><ChatIcon /></div>
                             <h3 className="feature-title">{t.feature3Title}</h3>
                             <p className="feature-desc">{t.feature3Desc}</p>
                         </div>
@@ -146,6 +233,7 @@ export default function LandingPage() {
                     <div className="testimonials-grid">
                         {testimonials.map((testimonial, index) => (
                             <div key={index} className="testimonial-card">
+                                <div className="testimonial-quote-icon"><QuoteIcon /></div>
                                 <p className="testimonial-text">"{testimonial.text}"</p>
                                 <div className="testimonial-author">
                                     <div className="testimonial-avatar">{testimonial.initial}</div>
