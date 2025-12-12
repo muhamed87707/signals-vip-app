@@ -42,7 +42,7 @@ export default function AdminPage() {
 
     // VIP Management State
     const [telegramId, setTelegramId] = useState('');
-    const [duration, setDuration] = useState('1m'); // Default 1 month
+    const [duration, setDuration] = useState('1'); // Default 1 month
     const [users, setUsers] = useState([]);
     const [vipLoading, setVipLoading] = useState(false);
     const [vipMessage, setVipMessage] = useState({ type: '', text: '' });
@@ -325,6 +325,8 @@ export default function AdminPage() {
                     </div>
                 </div>
 
+
+
                 <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
                     <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
@@ -346,7 +348,7 @@ export default function AdminPage() {
                 <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
 
                 {/* Full Width Grid Layout - Matches User Request */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem', marginBottom: '4rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
                     {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
                         <div key={signal._id} style={{ background: '#0f0f18', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
                             <div style={{ position: 'relative' }}>
@@ -360,8 +362,10 @@ export default function AdminPage() {
                     ))}
                 </div>
 
-                {/* VIP Management - Comprehensive System (Moved to Bottom) */}
-                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: '#13131d', border: '1px solid #2a2a35' }}>
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '4rem 0' }}></div>
+
+                {/* VIP Management - Refined System (Bottom) */}
+                <div className="card" style={{ padding: '2rem', marginBottom: '4rem', background: '#13131d', border: '1px solid #2a2a35' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                         <h2 style={{ color: '#fff', fontSize: '1.5rem' }}>👑 {t.manageVip || 'VIP Members Management'}</h2>
                         <button onClick={fetchUsers} style={{ padding: '0.5rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>🔄 Refresh</button>
@@ -370,7 +374,7 @@ export default function AdminPage() {
                     {/* Add Member Form */}
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem' }}>
                         <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.1rem' }}>➕ Add New VIP Member</h3>
-                        <form onSubmit={handleGrantVip} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                        <form onSubmit={handleGrantVip} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                             <input
                                 type="text"
                                 value={telegramId}
@@ -386,25 +390,41 @@ export default function AdminPage() {
                                     minWidth: '200px'
                                 }}
                             />
-                            <select
-                                value={duration}
-                                onChange={(e) => setDuration(e.target.value)}
-                                style={{
-                                    flex: 1,
-                                    padding: '1rem',
-                                    background: '#080810',
-                                    border: '1px solid #2a2a35',
-                                    borderRadius: '8px',
-                                    color: '#fff',
-                                    minWidth: '150px'
-                                }}
-                            >
-                                <option value="1m">1 Month (شهر)</option>
-                                <option value="3m">3 Months (3 شهور)</option>
-                                <option value="6m">6 Months (6 شهور)</option>
-                                <option value="1y">1 Year (سنة)</option>
-                                <option value="lifetime">Lifetime (مدى الحياة)</option>
-                            </select>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#080810', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid #2a2a35' }}>
+                                {duration === 'lifetime' ? (
+                                    <span style={{ color: '#aaa' }}>Lifetime ∞</span>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={duration}
+                                            onChange={(e) => setDuration(e.target.value)}
+                                            style={{
+                                                width: '60px',
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: '#fff',
+                                                textAlign: 'center',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                        <span style={{ color: '#777' }}>Months</span>
+                                    </>
+                                )}
+                            </div>
+
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#fff' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={duration === 'lifetime'}
+                                    onChange={(e) => setDuration(e.target.checked ? 'lifetime' : '1')}
+                                    style={{ width: '18px', height: '18px' }}
+                                />
+                                Lifetime
+                            </label>
+
                             <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap', minWidth: '120px' }} disabled={vipLoading}>
                                 {vipLoading ? '...' : (t.grantVip || 'Grant VIP')}
                             </button>
@@ -412,7 +432,7 @@ export default function AdminPage() {
                         {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
                     </div>
 
-                    {/* Members List Table */}
+                    {/* Members List Table (Active Only) */}
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.95rem' }}>
                             <thead>
@@ -421,20 +441,19 @@ export default function AdminPage() {
                                     <th style={{ padding: '1rem' }}>Status</th>
                                     <th style={{ padding: '1rem' }}>Start Date</th>
                                     <th style={{ padding: '1rem' }}>Expiry Date</th>
-                                    <th style={{ padding: '1rem' }}>Remaining Time</th>
+                                    <th style={{ padding: '1rem' }}>Remaining</th>
                                     <th style={{ padding: '1rem', textAlign: 'right' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.length === 0 ? (
+                                {users.filter(u => u.isVip && (!u.vipExpiryDate || new Date(u.vipExpiryDate) > new Date())).length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No members found.</td>
+                                        <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No active members found.</td>
                                     </tr>
-                                ) : users.map((user) => {
-                                    const isExpired = user.vipExpiryDate && new Date(user.vipExpiryDate) < new Date();
-                                    const isActive = user.isVip && !isExpired;
-
-                                    const remainingText = getRemaining(user.vipExpiryDate);
+                                ) : users.filter(u => u.isVip && (!u.vipExpiryDate || new Date(u.vipExpiryDate) > new Date())).map((user) => {
+                                    const expiry = user.vipExpiryDate ? new Date(user.vipExpiryDate) : null;
+                                    const isLifetime = expiry && expiry.getFullYear() > 2090;
+                                    const daysLeft = expiry ? Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24)) : 0;
 
                                     return (
                                         <tr key={user._id} style={{ borderBottom: '1px solid #1f1f2e' }}>
@@ -443,41 +462,37 @@ export default function AdminPage() {
                                                 <span style={{
                                                     padding: '0.3rem 0.8rem',
                                                     borderRadius: '50px',
-                                                    background: isActive ? 'rgba(76, 175, 80, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                                                    color: isActive ? '#4caf50' : '#ef4444',
+                                                    background: 'rgba(76, 175, 80, 0.15)',
+                                                    color: '#4caf50',
                                                     fontSize: '0.85rem'
                                                 }}>
-                                                    {isActive ? 'Active' : 'Expired/Inactive'}
+                                                    Active
                                                 </span>
                                             </td>
                                             <td style={{ padding: '1rem', color: '#aaa' }}>
                                                 {user.vipStartDate ? new Date(user.vipStartDate).toLocaleDateString() : '-'}
                                             </td>
                                             <td style={{ padding: '1rem', color: '#aaa' }}>
-                                                {user.vipExpiryDate ? (
-                                                    new Date(user.vipExpiryDate).getFullYear() > 2090 ? 'Lifetime ∞' : new Date(user.vipExpiryDate).toLocaleDateString()
-                                                ) : '-'}
+                                                {isLifetime ? 'Lifetime ∞' : expiry.toLocaleDateString()}
                                             </td>
-                                            <td style={{ padding: '1rem', color: isActive ? '#fff' : '#ef4444', fontWeight: 'bold' }}>
-                                                {remainingText}
+                                            <td style={{ padding: '1rem', fontWeight: 'bold', color: '#DAA520' }}>
+                                                {isLifetime ? '∞' : `${daysLeft} Days`}
                                             </td>
                                             <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                                {user.isVip && (
-                                                    <button
-                                                        onClick={() => revokeVip(user.telegramId)}
-                                                        style={{
-                                                            padding: '0.4rem 0.8rem',
-                                                            background: 'transparent',
-                                                            border: '1px solid rgba(239, 68, 68, 0.5)',
-                                                            borderRadius: '6px',
-                                                            color: '#ef4444',
-                                                            cursor: 'pointer',
-                                                            fontSize: '0.8rem'
-                                                        }}
-                                                    >
-                                                        Revoke Access
-                                                    </button>
-                                                )}
+                                                <button
+                                                    onClick={() => revokeVip(user.telegramId)}
+                                                    style={{
+                                                        padding: '0.4rem 0.8rem',
+                                                        background: 'transparent',
+                                                        border: '1px solid rgba(239, 68, 68, 0.5)',
+                                                        borderRadius: '6px',
+                                                        color: '#ef4444',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.8rem'
+                                                    }}
+                                                >
+                                                    Revoke
+                                                </button>
                                             </td>
                                         </tr>
                                     );

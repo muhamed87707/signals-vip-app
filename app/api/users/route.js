@@ -28,13 +28,20 @@ export async function POST(request) {
             let expiry = new Date();
             updateData.vipStartDate = now;
 
-            switch (duration) {
-                case '1m': expiry.setMonth(now.getMonth() + 1); break;
-                case '3m': expiry.setMonth(now.getMonth() + 3); break;
-                case '6m': expiry.setMonth(now.getMonth() + 6); break;
-                case '1y': expiry.setFullYear(now.getFullYear() + 1); break;
-                case 'lifetime': expiry = new Date('2099-12-31'); break; // Far future
-                default: expiry.setMonth(now.getMonth() + 1); // Default 1 month
+            if (duration === 'lifetime') {
+                expiry = new Date('2099-12-31');
+            } else if (!isNaN(duration)) {
+                // Custom months (integer)
+                expiry.setMonth(now.getMonth() + parseInt(duration));
+            } else {
+                // Fallback for old string format (though we will use numbers now)
+                switch (duration) {
+                    case '1m': expiry.setMonth(now.getMonth() + 1); break;
+                    case '3m': expiry.setMonth(now.getMonth() + 3); break;
+                    case '6m': expiry.setMonth(now.getMonth() + 6); break;
+                    case '1y': expiry.setFullYear(now.getFullYear() + 1); break;
+                    default: expiry.setMonth(now.getMonth() + 1);
+                }
             }
             updateData.vipExpiryDate = expiry;
         }

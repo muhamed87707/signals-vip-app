@@ -99,7 +99,20 @@ export async function GET(request) {
         if (telegramId && telegramId !== 'null' && telegramId !== 'undefined') {
             const idString = String(telegramId);
             const user = await User.findOne({ telegramId: idString });
-            if (user && user.isVip) isVip = true;
+            if (user && user.isVip) {
+                // Check redundancy: strictly verify expiry if present
+                if (user.vipExpiryDate && new Date(user.vipExpiryDate) < new Date()) {
+                    isVip = false;
+                } else {
+                    isVip = true;
+                }
+            }
+
+            return NextResponse.json({
+                signals,
+                isUserVip: isVip,
+                vipExpiryDate: user?.vipExpiryDate
+            });
         }
 
         return NextResponse.json({ signals, isUserVip: isVip });

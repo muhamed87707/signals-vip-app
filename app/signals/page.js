@@ -93,32 +93,19 @@ export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isVip, setIsVip] = useState(false);
+    const [vipExpiry, setVipExpiry] = useState(null);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         let telegramId = urlParams.get('telegramId');
-        const vipStatus = localStorage.getItem('isVip');
-
-        if (vipStatus === 'true') {
-            setIsVip(true);
-        }
 
         // Telegram Mini App Integrated Logic
         if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
-            try {
-                tg.expand();
-            } catch (e) {
-                console.log('Telegram expand failed', e);
-            }
-
-            // Auto-login if opened inside Telegram
+            try { tg.expand(); } catch (e) { console.log('Telegram expand failed', e); }
             const user = tg.initDataUnsafe?.user;
-            if (user?.id) {
-                telegramId = user.id.toString();
-            }
+            if (user?.id) description: telegramId = user.id.toString();
         }
 
         fetchSignals(telegramId);
@@ -133,14 +120,14 @@ export default function SignalsPage() {
             const data = await res.json();
             setSignals(data.signals || []);
 
-            // Strict VIP Check from Server
-            if (typeof data.isUserVip !== 'undefined') {
-                setIsVip(data.isUserVip);
-                if (data.isUserVip) {
-                    localStorage.setItem('isVip', 'true');
-                } else {
-                    localStorage.removeItem('isVip');
-                }
+            // STRICT VALIDATION: Trust server response 100%
+            if (data.isUserVip) {
+                setIsVip(true);
+                setVipExpiry(data.vipExpiryDate);
+                // Optional: cache locally only if absolutely needed, but here we prefer fresh state
+            } else {
+                setIsVip(false);
+                setVipExpiry(null);
             }
         } catch (err) {
             console.error('Error fetching signals:', err);
@@ -235,6 +222,18 @@ export default function SignalsPage() {
                         margin: '0 auto',
                         lineHeight: '1.6'
                     }}>{t.signalsSubtitle}</p>
+
+                    {isVip && vipExpiry && (
+                        <div style={{ marginTop: '1.5rem', display: 'inline-block', padding: '0.5rem 1.5rem', background: 'rgba(76, 175, 80, 0.1)', border: '1px solid rgba(76, 175, 80, 0.3)', borderRadius: '50px' }}>
+                            <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
+                                ⏳ {lang === 'ar' ? 'الوقت المتبقي:' : 'Time Remaining:'} {
+                                    new Date(vipExpiry).getFullYear() > 2090
+                                        ? (lang === 'ar' ? 'مدى الحياة' : 'Lifetime')
+                                        : Math.ceil((new Date(vipExpiry) - new Date()) / (1000 * 60 * 60 * 24)) + (lang === 'ar' ? ' يوم' : ' Days')
+                                }
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content */}
