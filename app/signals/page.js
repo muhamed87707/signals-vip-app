@@ -100,14 +100,15 @@ export default function SignalsPage() {
         const urlParams = new URLSearchParams(window.location.search);
         let telegramId = urlParams.get('telegramId');
 
-        // 1. Initial Load from LocalStorage to prevent flicker
-        const vipStatus = localStorage.getItem('isVip');
-        const savedExpiry = localStorage.getItem('subscriptionEndDate');
+        // Initial Local Load to prevent Flicker
+        const storedVip = localStorage.getItem('isVip');
+        const storedExpiry = localStorage.getItem('subscriptionEndDate');
 
-        if (vipStatus === 'true') {
+        if (storedVip === 'true') {
             setIsVip(true);
-            if (savedExpiry && savedExpiry !== 'undefined' && savedExpiry !== 'null') {
-                setExpirationDate(savedExpiry);
+            // If we have a stored expiry, use it immediately to prevent "Lifetime" flash
+            if (storedExpiry && storedExpiry !== 'undefined' && storedExpiry !== 'null') {
+                setExpirationDate(storedExpiry);
             }
         }
 
@@ -144,13 +145,14 @@ export default function SignalsPage() {
             if (data.isUserVip) {
                 setIsVip(true);
                 localStorage.setItem('isVip', 'true');
-                // Save expiry or null (for lifetime)
+
+                // Save/Update Expiry to fix flicker on next reload
                 if (data.subscriptionEndDate) {
                     setExpirationDate(data.subscriptionEndDate);
                     localStorage.setItem('subscriptionEndDate', data.subscriptionEndDate);
                 } else {
-                    setExpirationDate(null);
-                    localStorage.removeItem('subscriptionEndDate'); // Null means lifetime
+                    setExpirationDate(null); // Lifetime
+                    localStorage.removeItem('subscriptionEndDate');
                 }
             } else {
                 // If API says NOT VIP, ensure we reflect that (revoke access)
@@ -268,26 +270,26 @@ export default function SignalsPage() {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '0.4rem',
+                            gap: '0.6rem',
                             background: 'rgba(218, 165, 32, 0.08)',
                             border: '1px solid rgba(218, 165, 32, 0.25)',
                             borderRadius: '50px',
-                            padding: '0.5rem 1rem', // Reduced padding for mobile
+                            padding: '0.5rem 1.75rem', /* Increased padding */
                             marginBottom: '2rem',
                             marginTop: '1rem',
                             color: '#FFD700',
-                            fontSize: 'clamp(0.75rem, 2.5vw, 0.95rem)', // Responsive font
+                            fontSize: '0.85rem',
                             fontWeight: '500',
                             backdropFilter: 'blur(10px)',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             whiteSpace: 'nowrap',
-                            maxWidth: '95%', // Ensure it stays within screen width
+                            maxWidth: '90vw',
                             flexWrap: 'nowrap',
-                            width: 'fit-content'
+                            boxSizing: 'border-box'
                         }}>
-                            <span style={{ fontSize: '1.1em', lineHeight: 1 }}>👑</span>
+                            <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>👑</span>
                             <span style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
-                            <span style={{ width: '1px', height: '12px', background: 'rgba(218, 165, 32, 0.3)', margin: '0 0.2rem' }}></span>
+                            <span style={{ width: '1px', height: '14px', background: 'rgba(218, 165, 32, 0.3)', margin: '0 0.5rem' }}></span>
                             <span style={{ color: '#fff', opacity: 0.9 }}>
                                 {expirationDate
                                     ? `${t.expiresIn} ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} ${t.days || 'Days'}`
