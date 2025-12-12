@@ -126,14 +126,13 @@ export default function AdminPage() {
                         </linearGradient>
                     </defs>
                     
-                    <!-- 1. Ambient Glow (Large) -->
-                    <circle cx="50" cy="50" r="50" fill="url(#glow)" />
+                    <!-- 1. Ambient Glow REMOVED as requested -->
                     
-                    <!-- 2. Lock Icon Group (Centered) -->
-                    <!-- Net Scale: 0.5 * 3.5 = 1.75. Center: 12 * 1.75 = 21. Offset needed: 50 - 21 = 29. -->
-                    <g transform="translate(29, 29) scale(0.5)">
-                         <!-- Backing Circle (Behind Lock Body Only) -->
-                         <circle cx="12" cy="16" r="6" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
+                    <!-- 2. Lock Icon Group (Larger & Centered) -->
+                    <!-- Net Scale: 0.6 * 3.5 = 2.1. Center approx (12, 14). 12*2.1=25.2, 14*2.1=29.4. Offsets: 50-25=25, 50-29=21. -->
+                    <g transform="translate(25, 21) scale(0.6)">
+                         <!-- Backing Circle (Behind Lock Body Only - Slightly Larger) -->
+                         <circle cx="12" cy="16" r="7.5" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
                          
                          <!-- Lock Parts -->
                          <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
