@@ -308,14 +308,14 @@ export default function AdminPage() {
 
     if (!isAuthenticated) {
         return (
-            <div style={{ minHeight: '100vh', background: '#080810', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+            <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
                 <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
                         <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
                     </div>
                     <form onSubmit={handleLogin}>
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#161622', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
                         {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
                         <button type="submit" className="btn-primary" style={{ width: '100%' }}>{t.login}</button>
                     </form>
@@ -325,7 +325,7 @@ export default function AdminPage() {
     }
 
     return (
-        <div style={{ minHeight: '100vh', background: '#080810', padding: '2rem' }} onPaste={handlePaste}>
+        <div style={{ minHeight: '100vh', background: '#080808', padding: '2rem' }} onPaste={handlePaste}>
             <div className="container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -362,7 +362,7 @@ export default function AdminPage() {
                 {/* Full Width Grid Layout - Matches User Request */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
                     {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
-                        <div key={signal._id} style={{ background: '#0f0f18', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
+                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
                             <div style={{ position: 'relative' }}>
                                 <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
                             </div>

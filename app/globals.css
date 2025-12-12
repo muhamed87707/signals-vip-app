@@ -12,13 +12,13 @@
     --gold-shine: #FFE566;
     --gold-highlight: #FFF4B8;
 
-    /* Background Colors */
-    --bg-dark: #080810;
-    --bg-darker: #050508;
-    --bg-card: #0f0f18;
-    --bg-card-hover: #161622;
+    /* Background Colors - Pure Black Theme */
+    --bg-dark: #080808;
+    --bg-darker: #040404;
+    --bg-card: #0c0c0c;
+    --bg-card-hover: #141414;
     --text-primary: #ffffff;
-    --text-secondary: #9a9ab0;
+    --text-secondary: #a0a0a0;
 
     /* Realistic Metallic Gold Gradient */
     --gradient-gold-metallic: linear-gradient(110deg,
@@ -54,7 +54,7 @@
             #DAA520 80%,
             #B8860B 100%);
 
-    --gradient-dark: linear-gradient(180deg, #080810 0%, #0f0f18 100%);
+    --gradient-dark: linear-gradient(180deg, #080808 0%, #0c0c0c 100%);
 
     /* Shadows */
     --shadow-gold:

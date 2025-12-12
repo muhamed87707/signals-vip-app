@@ -100,7 +100,7 @@ const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }}
             onClick={onClose}>
-            <div className="bg-[#0f0f18] border border-[rgba(184,134,11,0.3)] rounded-3xl p-8 max-w-md w-full relative"
+            <div className="bg-[#0c0c0c] border border-[rgba(184,134,11,0.3)] rounded-3xl p-8 max-w-md w-full relative"
                 style={{ boxShadow: '0 0 60px rgba(184,134,11,0.2)' }}
                 onClick={e => e.stopPropagation()}
                 dir={isRTL ? 'rtl' : 'ltr'}>

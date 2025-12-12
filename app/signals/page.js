@@ -167,7 +167,7 @@ export default function SignalsPage() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: '#080810',
+            background: '#080808',
             position: 'relative',
             overflow: 'hidden'
         }}>
@@ -381,7 +381,7 @@ export default function SignalsPage() {
                             <div
                                 key={signal._id || index}
                                 style={{
-                                    background: '#0f0f18',
+                                    background: '#0c0c0c',
                                     borderRadius: '24px',
                                     overflow: 'hidden',
                                     border: '1px solid rgba(184, 134, 11, 0.15)',
@@ -471,7 +471,7 @@ export default function SignalsPage() {
                                 {/* Signal Info (Footer) */}
                                 <div style={{
                                     padding: '0.5rem 1rem', // Reduced padding
-                                    background: '#0f0f18',
+                                    background: '#0c0c0c',
                                     borderTop: 'none',
                                     position: 'relative',
                                     zIndex: 2
