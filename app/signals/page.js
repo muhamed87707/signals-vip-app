@@ -461,7 +461,7 @@ export default function SignalsPage() {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '0.6rem',
+                            gap: '0.4rem',
                             background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.2) 0%, rgba(218, 165, 32, 0.1) 100%)',
                             border: '1px solid rgba(218, 165, 32, 0.4)',
                             borderRadius: '50px',
@@ -477,7 +477,7 @@ export default function SignalsPage() {
                             animation: 'pulse 2s infinite',
                             whiteSpace: 'nowrap'
                         }}>
-                            {t.joinVip} <span style={{ fontSize: '1.1rem' }}>🚀</span>
+                            {t.joinVip}<span style={{ fontSize: '1.1rem' }}>🚀</span>
                         </a>
                     )}
 
