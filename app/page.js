@@ -71,25 +71,23 @@ const LockIcon = () => (
 );
 
 const BrandAIcon = () => (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        {/* The 'A' Shape */}
-        <path d="M20 4L8 34H13L20 16L27 34H32L20 4Z" strokeWidth="2" />
-        {/* The Swoosh */}
-        <path d="M6 26C6 26 15 20 20 20C25 20 34 26 34 26" strokeWidth="1.5" />
-        {/* Stars */}
-        <path d="M5 14L6 16L8 16L6.5 17.5L7 19.5L5 18L3 19.5L3.5 17.5L2 16L4 16L5 14Z" fill="url(#gold-gradient-lock)" stroke="none" transform="scale(0.8) translate(0,0)" />
-        <path d="M35 14L36 16L38 16L36.5 17.5L37 19.5L35 18L33 19.5L33.5 17.5L32 16L34 16L35 14Z" fill="url(#gold-gradient-lock)" stroke="none" transform="scale(0.8) translate(10,0)" />
-        <path d="M20 32L21 34L23 34L21.5 35.5L22 37.5L20 36L18 37.5L18.5 35.5L17 34L19 34L20 32Z" fill="url(#gold-gradient-lock)" stroke="none" transform="scale(0.6) translate(14,0)" />
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Main 'A' Shape - Outer */}
+        <path d="M20 3L6 37H12L15 29H25L28 37H34L20 3Z" />
+        {/* Inner horizontal bar */}
+        <path d="M13 24H27" strokeWidth="1.5" />
+        {/* Inner decorative curve (the swoosh) */}
+        <path d="M10 32Q20 22 30 32" strokeWidth="1.5" fill="none" />
     </svg>
 );
 
 const GlobeIcon = () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
+        <ellipse cx="12" cy="12" rx="4" ry="10" />
         <path d="M2 12h20" />
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        <path d="M12 2C8 6 8 18 12 22" />
-        <path d="M12 2C16 6 16 18 12 22" />
+        <path d="M4 7h16" strokeWidth="1.2" />
+        <path d="M4 17h16" strokeWidth="1.2" />
     </svg>
 );
 
