@@ -411,36 +411,25 @@ h6 {
     display: inline-block;
 }
 
-/* Style Option 1: X Mark (on 3-month plan) */
-.pricing-original.style-x::before,
-.pricing-original.style-x::after {
+/* Discount X Mark - Gold Theme */
+.pricing-original::before,
+.pricing-original::after {
     content: '';
     position: absolute;
     left: -5px;
     right: -5px;
     top: 50%;
     height: 1px;
-    background: rgba(239, 68, 68, 0.6);
+    background: var(--gold-medium);
+    opacity: 0.6;
 }
 
-.pricing-original.style-x::before {
+.pricing-original::before {
     transform: translateY(-50%) rotate(8deg);
 }
 
-.pricing-original.style-x::after {
+.pricing-original::after {
     transform: translateY(-50%) rotate(-8deg);
-}
-
-/* Style Option 2: Diagonal Slash (on yearly plan) */
-.pricing-original.style-slash::after {
-    content: '';
-    position: absolute;
-    left: -8px;
-    right: -8px;
-    top: 50%;
-    height: 1px;
-    background: rgba(239, 68, 68, 0.5);
-    transform: translateY(-50%) rotate(-12deg);
 }
 
 .pricing-savings {
