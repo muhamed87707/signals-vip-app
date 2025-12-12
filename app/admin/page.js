@@ -85,7 +85,7 @@ export default function AdminPage() {
         setLoading(false);
     };
 
-    // --- CANVAS LOCK GENERATION (MATCHING SIGNALS PAGE) ---
+    // --- CANVAS LOCK GENERATION (TUNED) ---
     const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -96,61 +96,60 @@ export default function AdminPage() {
                 canvas.width = img.width;
                 canvas.height = img.height;
 
-                // 1. Draw Blurred Image (Reduced scale for teasing effect)
-                // Was 20px, reducing to 10px to be less "boring" and more "teasing"
+                // 1. Draw Reduced Blur Image (10px - not obliterating)
                 ctx.filter = 'blur(10px)';
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 ctx.filter = 'none'; // Reset
 
-                // 2. Full Overlay (Glassmorphism Tint)
-                // Matches rgba(8, 8, 16, 0.4) from Signals Page
-                ctx.fillStyle = 'rgba(8, 8, 16, 0.5)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // 3. Prepare SVG Lock Badge
+                // 2. Prepare SVG Lock Badge (Corrected Radial Gradient)
                 const size = Math.min(canvas.width, canvas.height) * 0.35; // Slightly larger lock
                 const x = (canvas.width - size) / 2;
                 const y = (canvas.height - size) / 2;
 
-                // Replicate the Signals Page Lock:
-                // - No hard background circle
-                // - Subtle Radial Glow behind
-                // - Gold Lock Icon
+                // We simulate the signals page gradient: radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%)
+                // And the SVG lock
                 const svgString = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
                     <defs>
+                        <!-- Glow Gradient -->
+                        <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                            <stop offset="0%" style="stop-color:rgba(184, 134, 11, 0.4);stop-opacity:1" />
+                            <stop offset="70%" style="stop-color:rgba(0, 0, 0, 0);stop-opacity:0" />
+                        </radialGradient>
+
+                        <!-- Glassmorphism BG (Semi-transparent dark with blur simulated by color) -->
+                        <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(30,30,40,0.6)" />
+                            <stop offset="100%" style="stop-color:rgba(10,10,15,0.8)" />
+                        </linearGradient>
+
+                        <!-- Gold Lock Gradient -->
                         <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#FFE566;stop-opacity:1" />
                             <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
                             <stop offset="100%" style="stop-color:#705C0B;stop-opacity:1" />
                         </linearGradient>
-                        <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                            <stop offset="0%" style="stop-color:rgba(184, 134, 11, 0.6)" />
-                            <stop offset="100%" style="stop-color:rgba(184, 134, 11, 0)" />
-                        </radialGradient>
                     </defs>
                     
-                    <!-- Subtle Glow (No hard circle) -->
+                    <!-- 1. Ambient Glow (Large) -->
                     <circle cx="50" cy="50" r="50" fill="url(#glow)" />
+
+                    <!-- 2. Glassy Container (Smaller) -->
+                    <!-- We use a subtle dark overlay to make the lock pop without being a black hole -->
+                    <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#glass)" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
                     
-                    <!-- Lock Body (Gold) -->
-                    <rect x="30" y="45" width="40" height="30" rx="5" fill="none" stroke="url(#gold)" stroke-width="4" />
-                    
-                    <!-- Lock Shackle -->
-                    <path d="M 35 45 L 35 30 A 15 15 0 0 1 65 30 L 65 45" fill="none" stroke="url(#gold)" stroke-width="4" stroke-linecap="round" />
-                    
-                    <!-- Keyhole -->
-                    <circle cx="50" cy="60" r="4" fill="url(#gold)" />
-                    
-                    <!-- Shimmer/Highlight hint (Static) -->
-                    <path d="M 32 47 L 45 47" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
-                </svg>
-                `;
+                    <!-- 3. Lock Icon -->
+                    <g transform="translate(25, 25) scale(0.5)">
+                         <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
+                         <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
+                         <circle cx="12" cy="16" r="1.5" fill="url(#gold)" transform="scale(3.5)" />
+                    </g>
+                </svg>`;
 
                 const badgeImg = new Image();
                 badgeImg.onload = () => {
                     ctx.drawImage(badgeImg, x, y, size, size);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85); // High quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                     URL.revokeObjectURL(url);
                     resolve(dataUrl);
                 };
