@@ -394,6 +394,8 @@ h6 {
     line-height: 1;
     margin: 1rem 0;
     filter: drop-shadow(0 2px 4px rgba(112, 92, 11, 0.4));
+    direction: ltr;
+    unicode-bidi: isolate;
 }
 
 .pricing-price span {
