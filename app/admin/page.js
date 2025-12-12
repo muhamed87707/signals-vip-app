@@ -78,13 +78,23 @@ export default function AdminPage() {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
                 // Draw Lock Emoji Overlay
-                ctx.filter = 'none'; // Reset filter for text
-                const fontSize = Math.min(canvas.width, canvas.height) * 0.3; // Responsive font size
+                ctx.filter = 'none'; // Reset filter
+                const fontSize = Math.min(canvas.width, canvas.height) * 0.3;
                 ctx.font = `${fontSize}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 10;
+
+                // Add Glow/Shadow
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 20;
+
+                // Draw Stroke (Outline)
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#000000';
+                ctx.strokeText('🔒', canvas.width / 2, canvas.height / 2);
+
+                // Draw Fill (Gold)
+                ctx.fillStyle = '#FFD700';
                 ctx.fillText('🔒', canvas.width / 2, canvas.height / 2);
 
                 // Get Base64
