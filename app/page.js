@@ -271,7 +271,6 @@ export default function LandingPage() {
                         </div>
                         {/* Quarterly */}
                         <div className="pricing-card">
-                            <span className="pricing-badge">{t.bestValue}</span>
                             <h3 className="pricing-title">{t.quarterly}</h3>
                             <div className="pricing-price">${quarterlyPrice}<span>{t.perQuarter}</span></div>
                             <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
