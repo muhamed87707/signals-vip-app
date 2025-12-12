@@ -101,10 +101,10 @@ export const translations = {
         telegramError: 'Telegram post failed',
 
         // Lot Size Calculator
-        calcTitle: '📊 Smart Lot Calculator',
+        calcTitle: 'Smart Lot Calculator',
         calcSubtitle: 'Calculate the perfect lot size for safe trading',
         accountBalance: 'Account Balance ($)',
-        riskPercent: 'Risk per Trade (%)',
+        riskPercent: 'Risk per Trade',
         stopLossPips: 'Stop Loss (Pips)',
         calculateBtn: 'Calculate Lot Size',
         recommendedLot: 'Recommended Lot Size',
@@ -113,6 +113,7 @@ export const translations = {
         riskLow: 'Safe',
         riskMedium: 'Moderate',
         riskHigh: 'High Risk',
+        riskFast: 'Fast',
     },
     ar: {
         // Shared
@@ -216,10 +217,10 @@ export const translations = {
         telegramError: 'فشل النشر في تليجرام',
 
         // Lot Size Calculator
-        calcTitle: '📊 حاسبة اللوت الذكية',
+        calcTitle: 'حاسبة اللوت الذكية',
         calcSubtitle: 'احسب حجم اللوت المناسب لتداول آمن',
         accountBalance: 'رصيد الحساب ($)',
-        riskPercent: 'نسبة المخاطرة (%)',
+        riskPercent: 'نسبة المخاطرة',
         stopLossPips: 'وقف الخسارة (نقاط)',
         calculateBtn: 'احسب حجم اللوت',
         recommendedLot: 'حجم اللوت الموصى به',
@@ -228,6 +229,7 @@ export const translations = {
         riskLow: 'آمن',
         riskMedium: 'معتدل',
         riskHigh: 'خطر عالي',
+        riskFast: 'سريع',
     }
 };
 

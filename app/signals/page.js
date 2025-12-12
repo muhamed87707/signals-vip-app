@@ -93,22 +93,22 @@ const getTimeAgo = (dateStr, lang) => {
 const LotSizeCalculator = ({ t, isRTL }) => {
     const [balance, setBalance] = useState(1000);
     const [riskPercent, setRiskPercent] = useState(2);
-    const [stopLoss, setStopLoss] = useState(50);
-    const [showResult, setShowResult] = useState(false);
 
-    // Calculate lot size (assuming $10 per pip for 1 lot on major pairs)
+    // Fixed stop loss at 100 pips
+    const stopLoss = 100;
     const pipValue = 10; // $10 per pip for 1 standard lot
     const riskAmount = (balance * riskPercent) / 100;
     const lotSize = riskAmount / (stopLoss * pipValue);
-    const formattedLot = Math.floor(lotSize * 100) / 100; // Round down to 2 decimals
+    // Minimum lot size is 0.01
+    const formattedLot = Math.max(0.01, Math.floor(lotSize * 100) / 100);
 
-    const getRiskLevel = () => {
-        if (riskPercent <= 1) return { level: t.riskLow, color: '#4ade80', bg: 'rgba(74, 222, 128, 0.1)' };
-        if (riskPercent <= 2) return { level: t.riskMedium, color: '#facc15', bg: 'rgba(250, 204, 21, 0.1)' };
-        return { level: t.riskHigh, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' };
-    };
+    const riskButtons = [
+        { percent: 1, label: t.riskLow || 'آمن', labelEn: 'Safe', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)', border: 'rgba(74, 222, 128, 0.4)' },
+        { percent: 2, label: t.riskMedium || 'معتدل', labelEn: 'Moderate', color: '#facc15', bg: 'rgba(250, 204, 21, 0.15)', border: 'rgba(250, 204, 21, 0.4)' },
+        { percent: 3, label: t.riskFast || 'سريع', labelEn: 'Fast', color: '#f97316', bg: 'rgba(249, 115, 22, 0.15)', border: 'rgba(249, 115, 22, 0.4)' }
+    ];
 
-    const risk = getRiskLevel();
+    const currentRisk = riskButtons.find(r => r.percent === riskPercent) || riskButtons[1];
 
     return (
         <div style={{
@@ -130,7 +130,7 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     marginBottom: '0.5rem'
-                }}>{t.calcTitle}</h3>
+                }}>{(t.calcTitle || 'حاسبة اللوت الذكية').replace('📊 ', '')}</h3>
                 <p style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>{t.calcSubtitle}</p>
             </div>
 
@@ -159,58 +159,38 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                     />
                 </div>
 
-                {/* Risk Percentage Slider */}
+                {/* Risk Percentage Buttons */}
                 <div>
-                    <label style={{ display: 'flex', justifyContent: 'space-between', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
-                        <span>{t.riskPercent}</span>
-                        <span style={{
-                            padding: '0.2rem 0.6rem',
-                            background: risk.bg,
-                            color: risk.color,
-                            borderRadius: '20px',
-                            fontSize: '0.75rem',
-                            fontWeight: '700'
-                        }}>{riskPercent}% - {risk.level}</span>
+                    <label style={{ display: 'block', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: '600' }}>
+                        {t.riskPercent}
                     </label>
-                    <input
-                        type="range"
-                        min="0.5"
-                        max="5"
-                        step="0.5"
-                        value={riskPercent}
-                        onChange={(e) => setRiskPercent(Number(e.target.value))}
-                        style={{
-                            width: '100%',
-                            height: '8px',
-                            borderRadius: '4px',
-                            background: `linear-gradient(to right, #4ade80 0%, #facc15 40%, #ef4444 100%)`,
-                            cursor: 'pointer',
-                            accentColor: '#DAA520'
-                        }}
-                    />
-                </div>
-
-                {/* Stop Loss */}
-                <div>
-                    <label style={{ display: 'block', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
-                        {t.stopLossPips}
-                    </label>
-                    <input
-                        type="number"
-                        value={stopLoss}
-                        onChange={(e) => setStopLoss(Number(e.target.value))}
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem 1rem',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(184, 134, 11, 0.2)',
-                            borderRadius: '12px',
-                            color: '#fff',
-                            fontSize: '1.1rem',
-                            fontWeight: '600',
-                            textAlign: 'center'
-                        }}
-                    />
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        {riskButtons.map((btn) => (
+                            <button
+                                key={btn.percent}
+                                onClick={() => setRiskPercent(btn.percent)}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.75rem 0.5rem',
+                                    background: riskPercent === btn.percent ? btn.bg : 'rgba(255, 255, 255, 0.03)',
+                                    border: `2px solid ${riskPercent === btn.percent ? btn.border : 'rgba(255, 255, 255, 0.1)'}`,
+                                    borderRadius: '12px',
+                                    color: riskPercent === btn.percent ? btn.color : '#9a9ab0',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '0.25rem'
+                                }}
+                            >
+                                <span style={{ fontSize: '1.1rem', fontWeight: '800' }}>{btn.percent}%</span>
+                                <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>{btn.label}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -234,7 +214,7 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                 }}>
                     {formattedLot.toFixed(2)} Lot
                 </div>
-                <p style={{ color: risk.color, fontSize: '0.9rem', fontWeight: '600' }}>
+                <p style={{ color: currentRisk.color, fontSize: '0.9rem', fontWeight: '600' }}>
                     {t.riskAmount}: ${riskAmount.toFixed(2)}
                 </p>
             </div>
@@ -255,6 +235,7 @@ const LotSizeCalculator = ({ t, isRTL }) => {
         </div>
     );
 };
+
 
 export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
