@@ -197,7 +197,9 @@ export default function SignalsPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    maxWidth: '1000px',
+                    margin: '0 auto 4rem auto'
                 }}>
                     <div style={{
                         display: 'flex',
@@ -301,11 +303,12 @@ export default function SignalsPage() {
                     </div>
                 ) : (
                     <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-                        gap: '2.5rem',
+                        display: 'flex',
+                        flexWrap: 'wrap',
                         justifyContent: 'center',
-                        width: '100%'
+                        gap: '2.5rem',
+                        width: '100%',
+                        margin: '0 auto'
                     }}>
                         {signals.map((signal, index) => (
                             <div
@@ -317,7 +320,11 @@ export default function SignalsPage() {
                                     border: '1px solid rgba(184, 134, 11, 0.15)',
                                     transition: 'all 0.4s ease',
                                     boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                                    transform: 'translateY(0)'
+                                    transform: 'translateY(0)',
+                                    flex: '0 1 400px', // Flex basis 400px, but can shrink
+                                    minWidth: '300px',
+                                    maxWidth: '450px', // Prevent becoming too wide
+                                    width: '100%'      // Take full width up to max-width
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-10px)';
