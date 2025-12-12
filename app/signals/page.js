@@ -195,22 +195,22 @@ export default function SignalsPage() {
                 animation: 'pulse 10s ease-in-out infinite reverse'
             }}></div>
 
-            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '0.75rem', paddingBottom: '4rem' }}>
+            <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '2rem', paddingBottom: '4rem', maxWidth: '1600px', margin: '0 auto' }}>
                 {/* Header */}
                 <div className="signals-header-container" style={{
-                    marginBottom: '1.5rem',
+                    marginBottom: '2.5rem',
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.02)',
                     backdropFilter: 'blur(10px)',
-                    padding: '1.25rem 1.5rem', // Maximally reduced padding
+                    padding: '2rem 3rem',
                     borderRadius: '30px',
-                    border: '1px solid rgba(184, 134, 11, 0.1)',
+                    border: '2px solid rgba(184, 134, 11, 0.15)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    maxWidth: '1000px',
-                    margin: '0 auto 1.5rem auto' // Reduced bottom margin
+                    maxWidth: '900px',
+                    margin: '0 auto 2.5rem auto'
                 }}>
                     <div className="signals-nav" style={{
                         display: 'flex',
@@ -373,9 +373,11 @@ export default function SignalsPage() {
                         display: 'flex',
                         flexWrap: 'wrap',
                         justifyContent: 'center',
-                        gap: '2.5rem',
+                        gap: '2rem',
                         width: '100%',
-                        margin: '0 auto'
+                        maxWidth: '1400px',
+                        margin: '0 auto',
+                        padding: '0 2rem'
                     }}>
                         {signals.map((signal, index) => (
                             <div
@@ -384,14 +386,14 @@ export default function SignalsPage() {
                                     background: '#0c0c0c',
                                     borderRadius: '24px',
                                     overflow: 'hidden',
-                                    border: '1px solid rgba(184, 134, 11, 0.15)',
+                                    border: '2px solid rgba(184, 134, 11, 0.2)',
                                     transition: 'all 0.4s ease',
                                     boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
                                     transform: 'translateY(0)',
-                                    flex: '0 1 400px', // Flex basis 400px, but can shrink
-                                    minWidth: '300px',
-                                    maxWidth: '450px', // Prevent becoming too wide
-                                    width: '100%'      // Take full width up to max-width
+                                    flex: '1 1 380px',
+                                    minWidth: '320px',
+                                    maxWidth: '500px',
+                                    width: '100%'
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-10px)';
