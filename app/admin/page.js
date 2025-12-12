@@ -131,8 +131,8 @@ export default function AdminPage() {
                     <!-- 2. Lock Icon Group (Larger & Centered) -->
                     <!-- Net Scale: 0.6 * 3.5 = 2.1. Center approx (12, 14). 12*2.1=25.2, 14*2.1=29.4. Offsets: 50-25=25, 50-29=21. -->
                     <g transform="translate(25, 21) scale(0.6)">
-                         <!-- Backing Circle (Behind Lock Body Only - Slightly Larger) -->
-                         <circle cx="12" cy="16" r="7.5" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
+                         <!-- Backing Circle (Behind Lock Body Only - Slightly Smaller) -->
+                         <circle cx="12" cy="16" r="5.5" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
                          
                          <!-- Lock Parts -->
                          <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
