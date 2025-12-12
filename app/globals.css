@@ -350,7 +350,7 @@ h6 {
     border-color: var(--gold-primary);
     border-width: 2px;
     background: linear-gradient(180deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
-    transform: scale(1.05);
+    padding: 2.5rem 1.75rem;
     box-shadow: var(--shadow-gold);
 }
 
@@ -359,7 +359,7 @@ h6 {
 }
 
 .pricing-card.featured:hover {
-    transform: scale(1.07);
+    transform: translateY(-10px);
 }
 
 .pricing-badge {
