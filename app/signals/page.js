@@ -203,10 +203,12 @@ export default function SignalsPage() {
                 }}>
                     <div style={{
                         display: 'flex',
-                        justifyContent: 'space-between',
+                        justifyContent: 'center',
                         alignItems: 'center',
+                        gap: '1.5rem',
                         marginBottom: '2rem',
-                        width: '100%'
+                        width: '100%',
+                        flexWrap: 'wrap'
                     }}>
                         <a
                             href="/"
@@ -228,12 +230,20 @@ export default function SignalsPage() {
                         <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
                     </div>
 
-                    <div style={{ fontSize: '4rem', marginBottom: '1rem', animation: 'float 6s ease-in-out infinite' }}>💎</div>
+                    <div style={{
+                        fontSize: '4rem',
+                        marginBottom: '1rem',
+                        animation: 'float 6s ease-in-out infinite',
+                        textAlign: 'center',
+                        width: '100%'
+                    }}>💎</div>
                     <h1 className="text-gradient" style={{
                         fontSize: '3rem',
                         fontWeight: '800',
                         marginBottom: '1rem',
-                        letterSpacing: '-1px'
+                        letterSpacing: '-1px',
+                        textAlign: 'center',
+                        width: '100%'
                     }}>
                         {t.signalsTitle}
                     </h1>
@@ -276,7 +286,9 @@ export default function SignalsPage() {
                         fontSize: '1.2rem',
                         maxWidth: '600px',
                         margin: '0 auto',
-                        lineHeight: '1.6'
+                        lineHeight: '1.6',
+                        textAlign: 'center',
+                        width: '100%'
                     }}>{t.signalsSubtitle}</p>
                 </div>
 
