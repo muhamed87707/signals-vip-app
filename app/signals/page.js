@@ -132,9 +132,15 @@ export default function SignalsPage() {
             const res = await fetch(url);
             const data = await res.json();
             setSignals(data.signals || []);
-            if (data.isUserVip) {
-                setIsVip(true);
-                localStorage.setItem('isVip', 'true');
+
+            // Strict VIP Check from Server
+            if (typeof data.isUserVip !== 'undefined') {
+                setIsVip(data.isUserVip);
+                if (data.isUserVip) {
+                    localStorage.setItem('isVip', 'true');
+                } else {
+                    localStorage.removeItem('isVip');
+                }
             }
         } catch (err) {
             console.error('Error fetching signals:', err);

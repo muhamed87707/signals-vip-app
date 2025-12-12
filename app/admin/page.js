@@ -325,7 +325,42 @@ export default function AdminPage() {
                     </div>
                 </div>
 
-                {/* VIP Management - Comprehensive System */}
+                <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
+                    <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                        </div>
+                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
+                    </div>
+
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
+                    <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer' }}>{uploading ? t.uploading : t.chooseImage}</label>
+
+                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold' }}>{successMessage}</p>}
+                    {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
+                </div>
+
+                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
+
+                {/* Full Width Grid Layout - Matches User Request */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem', marginBottom: '4rem' }}>
+                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
+                        <div key={signal._id} style={{ background: '#0f0f18', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
+                            <div style={{ position: 'relative' }}>
+                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                            </div>
+                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
+                                <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* VIP Management - Comprehensive System (Moved to Bottom) */}
                 <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: '#13131d', border: '1px solid #2a2a35' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                         <h2 style={{ color: '#fff', fontSize: '1.5rem' }}>👑 {t.manageVip || 'VIP Members Management'}</h2>
@@ -386,17 +421,21 @@ export default function AdminPage() {
                                     <th style={{ padding: '1rem' }}>Status</th>
                                     <th style={{ padding: '1rem' }}>Start Date</th>
                                     <th style={{ padding: '1rem' }}>Expiry Date</th>
+                                    <th style={{ padding: '1rem' }}>Remaining Time</th>
                                     <th style={{ padding: '1rem', textAlign: 'right' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {users.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No members found.</td>
+                                        <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No members found.</td>
                                     </tr>
                                 ) : users.map((user) => {
                                     const isExpired = user.vipExpiryDate && new Date(user.vipExpiryDate) < new Date();
                                     const isActive = user.isVip && !isExpired;
+
+                                    const remainingText = getRemaining(user.vipExpiryDate);
+
                                     return (
                                         <tr key={user._id} style={{ borderBottom: '1px solid #1f1f2e' }}>
                                             <td style={{ padding: '1rem', fontFamily: 'monospace' }}>{user.telegramId}</td>
@@ -418,6 +457,9 @@ export default function AdminPage() {
                                                 {user.vipExpiryDate ? (
                                                     new Date(user.vipExpiryDate).getFullYear() > 2090 ? 'Lifetime ∞' : new Date(user.vipExpiryDate).toLocaleDateString()
                                                 ) : '-'}
+                                            </td>
+                                            <td style={{ padding: '1rem', color: isActive ? '#fff' : '#ef4444', fontWeight: 'bold' }}>
+                                                {remainingText}
                                             </td>
                                             <td style={{ padding: '1rem', textAlign: 'right' }}>
                                                 {user.isVip && (
@@ -443,41 +485,6 @@ export default function AdminPage() {
                             </tbody>
                         </table>
                     </div>
-                </div>
-
-                <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
-                    <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
-                        </div>
-                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
-                    </div>
-
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                    <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer' }}>{uploading ? t.uploading : t.chooseImage}</label>
-
-                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold' }}>{successMessage}</p>}
-                    {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
-                </div>
-
-                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
-
-                {/* Full Width Grid Layout - Matches User Request */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
-                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
-                        <div key={signal._id} style={{ background: '#0f0f18', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
-                            <div style={{ position: 'relative' }}>
-                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                            </div>
-                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
-                                <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
-                            </div>
-                        </div>
-                    ))}
                 </div>
             </div>
         </div>
