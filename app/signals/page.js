@@ -198,7 +198,7 @@ export default function SignalsPage() {
             <div className="container signals-page-container" style={{ position: 'relative', zIndex: 1, paddingTop: '1rem', paddingBottom: '4rem' }}>
                 {/* Header */}
                 <div className="signals-header-container" style={{
-                    marginBottom: '2.5rem',
+                    marginBottom: '1.5rem',
                     textAlign: 'center',
                     background: 'rgba(255, 255, 255, 0.02)',
                     backdropFilter: 'blur(10px)',
@@ -210,7 +210,7 @@ export default function SignalsPage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     maxWidth: '1000px',
-                    margin: '0 auto 2.5rem auto' // Reduced bottom margin
+                    margin: '0 auto 1.5rem auto' // Reduced bottom margin
                 }}>
                     <div className="signals-nav" style={{
                         display: 'flex',
@@ -539,13 +539,37 @@ export default function SignalsPage() {
                     }
                     .signals-header-container {
                         padding: 1.5rem 1rem !important;
-                        margin-bottom: 2rem !important;
+                        margin-bottom: 1rem !important; /* Reduced margin */
                         border-radius: 20px !important;
                     }
                     .signals-nav {
-                        margin-bottom: 1rem !important;
+                        margin-bottom: 0.8rem !important;
                         gap: 0.8rem !important;
                     }
+                    .signals-diamond {
+                        font-size: 2.5rem !important;
+                        margin-bottom: 0.5rem !important;
+                    }
+                    .signals-title {
+                        font-size: 1.8rem !important;
+                        margin-bottom: 0.5rem !important;
+                    }
+                    .signals-subtitle {
+                        font-size: 0.95rem !important;
+                        line-height: 1.4 !important;
+                    }
+                    .vip-badge-container {
+                        margin-bottom: 1rem !important;
+                        margin-top: 0.5rem !important;
+                        padding: 0.3rem 0.8rem !important;
+                    }
+                    .vip-badge-icon {
+                        font-size: 1rem !important;
+                    }
+                    .vip-badge-text {
+                        font-size: 0.75rem !important;
+                    }
+                }
                     .signals-diamond {
                         font-size: 2.5rem !important;
                         margin-bottom: 0.5rem !important;
