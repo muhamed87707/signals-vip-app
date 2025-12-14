@@ -253,6 +253,22 @@ export default function LandingPage() {
                                 <LockIcon /> <span className="btn-text-shine">{t.loginButton}</span>
                             </button>
                         </div>
+                        <a href="/track-record" className="track-record-link animate-fade-in-up delay-400" style={{
+                            marginTop: '1.5rem',
+                            color: 'var(--gold-medium)',
+                            textDecoration: 'none',
+                            fontSize: '0.95rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            background: 'rgba(184, 134, 11, 0.1)',
+                            borderRadius: '50px',
+                            border: '1px solid rgba(184, 134, 11, 0.2)',
+                            transition: 'all 0.3s ease'
+                        }}>
+                            📊 {t.viewTrackRecord}
+                        </a>
                     </div>
                 </div>
             </section>

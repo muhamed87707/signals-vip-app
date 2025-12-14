@@ -582,6 +582,24 @@ export default function SignalsPage() {
                             >
                                 {/* Signal Image with Auto Height */}
                                 <div style={{ position: 'relative' }}>
+                                    {/* Free Preview Badge for first signal */}
+                                    {!isVip && index === 0 && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '1rem',
+                                            left: '1rem',
+                                            background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+                                            color: 'white',
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '20px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '700',
+                                            zIndex: 5,
+                                            boxShadow: '0 2px 10px rgba(76, 175, 80, 0.4)'
+                                        }}>
+                                            🎁 {t.freeSignalBadge}
+                                        </div>
+                                    )}
                                     <img
                                         src={signal.imageUrl}
                                         alt="Trading Signal"
@@ -589,15 +607,15 @@ export default function SignalsPage() {
                                             width: '100%',
                                             height: 'auto',
                                             display: 'block',
-                                            filter: isVip ? 'none' : 'blur(4px)',
+                                            filter: isVip ? 'none' : (index === 0 ? 'none' : 'blur(4px)'),
                                             transition: 'filter 0.3s ease'
                                         }}
                                     />
 
 
 
-                                    {/* Overlay for non-VIP with Glassmorphism */}
-                                    {!isVip && (
+                                    {/* Overlay for non-VIP with Glassmorphism - Skip first signal */}
+                                    {!isVip && index !== 0 && (
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,
