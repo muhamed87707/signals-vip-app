@@ -132,6 +132,11 @@ export const translations = {
         yourReferralLink: 'Your Referral Link',
         copyLink: 'Copy',
         linkCopied: 'Copied!',
+        simulatorTitle: 'How much did you miss?',
+        enterCapital: 'Enter your trading capital ($)',
+        calculateMissed: 'Calculate Missed Profit',
+        missedResult: 'You missed approximately {amount} last month!',
+        basedOn: 'Based on +1,500 pips performance with 2% risk.',
     },
     ar: {
         // Shared
@@ -266,6 +271,11 @@ export const translations = {
         yourReferralLink: 'رابط الإحالة الخاص بك',
         copyLink: 'نسخ',
         linkCopied: 'تم النسخ!',
+        simulatorTitle: 'كم فوت من الربح؟',
+        enterCapital: 'أدخل رأس مال محفظتك ($)',
+        calculateMissed: 'احسب الأرباح الضائعة',
+        missedResult: 'يا خسارة! لقد فوت ربحاً بقيمة {amount} الشهر الماضي!',
+        basedOn: 'بناءً على نتائجنا (+1,500 نقطة) بمخاطرة 2%.',
     }
 };
 
