@@ -271,8 +271,10 @@ export default function LandingPage() {
                         <div className="pricing-card">
                             <h3 className="pricing-title">{t.quarterly}</h3>
                             <div className="pricing-price">${quarterlyPrice}<span>{t.perQuarter}</span></div>
-                            <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
-                            <div className="pricing-savings">✓ {t.youSave} ${quarterlySavings}</div>
+                            <div className="pricing-discount-wrapper">
+                                <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
+                                <div className="pricing-savings">✓ {t.youSave} ${quarterlySavings}</div>
+                            </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
                                 <li><CheckIcon /> {t.feature_analysis}</li>
@@ -286,8 +288,10 @@ export default function LandingPage() {
                             <span className="pricing-badge">{t.popular}</span>
                             <h3 className="pricing-title">{t.yearly}</h3>
                             <div className="pricing-price">${yearlyPrice}<span>{t.perYear}</span></div>
-                            <p className="pricing-original">{t.originalPrice} ${yearlyOriginal}</p>
-                            <div className="pricing-savings">✓ {t.youSave} ${yearlySavings}</div>
+                            <div className="pricing-discount-wrapper">
+                                <p className="pricing-original">{t.originalPrice} ${yearlyOriginal}</p>
+                                <div className="pricing-savings">✓ {t.youSave} ${yearlySavings}</div>
+                            </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
                                 <li><CheckIcon /> {t.feature_analysis}</li>
