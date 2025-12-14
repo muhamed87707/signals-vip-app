@@ -286,7 +286,7 @@ export default function LandingPage() {
                             <span className="pricing-badge">{t.popular}</span>
                             <h3 className="pricing-title">{t.yearly}</h3>
                             <div className="pricing-price">${yearlyPrice}<span>{t.perYear}</span></div>
-                            <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center' }}>
                                 <p className="pricing-original" style={{ marginTop: 0 }}>{t.originalPrice} ${yearlyOriginal}</p>
                                 <div className="pricing-savings" style={{ marginTop: 0 }}>✓ {t.youSave} ${yearlySavings}</div>
                             </div>
