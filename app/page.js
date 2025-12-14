@@ -155,117 +155,49 @@ const StatsBar = ({ t }) => {
 };
 
 // ===== Profit Simulator Component =====
-const ProfitSimulator = ({ t, isRTL }) => {
-    const [capital, setCapital] = useState('');
-    const [result, setResult] = useState(null);
+const ProfitSimulator = ({ t }) => {
+    const [balance, setBalance] = useState(1000);
+    const growthRate = 0.28; // 28% monthly growth
 
-    const calculate = () => {
-        const val = parseFloat(capital);
-        if (!val || isNaN(val)) return;
-
-        // Logic: 2% risk, 50 pip SL, 1500 pips gain = 60% gain
-        // Formula: (Capital * 0.02 / 500) * 15000 = Capital * 0.6
-        const profit = Math.round(val * 0.60);
-        setResult(profit.toLocaleString());
-    };
+    const projectedBalance = balance * (1 + growthRate);
+    const profit = projectedBalance - balance;
 
     return (
-        <section className="container" style={{ marginBottom: '4rem' }}>
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.1) 0%, rgba(184, 134, 11, 0.05) 100%)',
-                border: '1px solid var(--gold-medium)',
-                borderRadius: '24px',
-                padding: '3rem 2rem',
-                maxWidth: '800px',
-                margin: '0 auto',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-            }}>
-                {/* Background Animation */}
-                <div style={{
-                    position: 'absolute',
-                    top: '-50%',
-                    left: '-50%',
-                    width: '200%',
-                    height: '200%',
-                    background: 'radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 60%)',
-                    animation: 'spin 20s linear infinite',
-                    pointerEvents: 'none'
-                }}></div>
+        <div className="profit-simulator animate-fade-in-up delay-600">
+            <h3 className="simulator-title text-gradient">{t.simulatorTitle}</h3>
+            <p className="simulator-subtitle">{t.simulatorSubtitle}</p>
 
-                <div style={{ position: 'relative', zIndex: 2 }}>
-                    <h2 className="text-gradient" style={{ fontSize: '2rem', marginBottom: '1.5rem', fontWeight: 'bold' }}>
-                        {t.simulatorTitle}
-                    </h2>
-
-                    <div style={{
-                        display: 'flex',
-                        gap: '1rem',
-                        justifyContent: 'center',
-                        flexWrap: 'wrap',
-                        marginBottom: '2rem',
-                        flexDirection: isRTL ? 'row-reverse' : 'row'
-                    }}>
+            <div className="simulator-content">
+                <div className="simulator-input-group">
+                    <label>{t.initialBalance}</label>
+                    <div className="input-wrapper">
+                        <span className="currency-symbol">$</span>
                         <input
                             type="number"
-                            value={capital}
-                            onChange={(e) => setCapital(e.target.value)}
-                            placeholder={t.enterCapital}
-                            style={{
-                                padding: '1rem 1.5rem',
-                                borderRadius: '12px',
-                                border: '1px solid var(--gold-medium)',
-                                background: 'rgba(0,0,0,0.3)',
-                                color: 'white',
-                                fontSize: '1.1rem',
-                                width: '300px',
-                                maxWidth: '100%',
-                                textAlign: 'center',
-                                outline: 'none'
-                            }}
+                            value={balance}
+                            onChange={(e) => setBalance(Number(e.target.value))}
+                            min="100"
+                            className="balance-input"
                         />
-                        <button
-                            onClick={calculate}
-                            className="btn-primary"
-                            style={{
-                                fontSize: '1rem',
-                                padding: '1rem 2rem',
-                                cursor: 'pointer',
-                                minWidth: '200px'
-                            }}
-                        >
-                            {t.calculateMissed}
-                        </button>
                     </div>
+                </div>
 
-                    {result && (
-                        <div className="animate-fade-in-up" style={{
-                            background: 'rgba(184, 134, 11, 0.1)',
-                            border: '1px solid var(--gold-primary)',
-                            borderRadius: '16px',
-                            padding: '1.5rem',
-                            display: 'inline-block',
-                            backdropFilter: 'blur(5px)'
-                        }}>
-                            <div style={{
-                                fontSize: '1.8rem',
-                                color: 'var(--gold-primary)',
-                                fontWeight: 'bold',
-                                marginBottom: '0.5rem',
-                                textShadow: '0 2px 10px rgba(184, 134, 11, 0.3)'
-                            }}>
-                                {t.missedResult.replace('{amount}', `$${result}`)}
-                            </div>
-                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                {t.basedOn}
-                            </div>
-                        </div>
-                    )}
+                <div className="simulator-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                </div>
+
+                <div className="simulator-result">
+                    <div className="result-label">{t.calculateGrowth}</div>
+                    <div className="result-value">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="profit-gain">+{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({t.profitGain}) 📈</div>
                 </div>
             </div>
-        </section>
+
+            <div className="simulator-disclaimer">{t.simulatorDisclaimer}</div>
+        </div>
     );
 };
 
@@ -388,6 +320,11 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* Profit Simulator */}
+            <section className="container" style={{ position: 'relative', zIndex: 2 }}>
+                <ProfitSimulator t={t} />
+            </section>
+
             {/* Features */}
             <section className="features">
                 <div className="container">
@@ -442,9 +379,6 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
-
-            {/* Profit Simulator - Missed Opportunity */}
-            <ProfitSimulator t={t} isRTL={isRTL} />
 
             {/* Pricing */}
             <section id="pricing" className="pricing">

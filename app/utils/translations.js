@@ -131,12 +131,17 @@ export const translations = {
         referralDesc: 'Invite a friend and both get 1 month free!',
         yourReferralLink: 'Your Referral Link',
         copyLink: 'Copy',
+        yourReferralLink: 'Your Referral Link',
+        copyLink: 'Copy',
         linkCopied: 'Copied!',
-        simulatorTitle: 'How much did you miss?',
-        enterCapital: 'Enter your trading capital ($)',
-        calculateMissed: 'Calculate Missed Profit',
-        missedResult: 'You missed approximately {amount} last month!',
-        basedOn: 'Based on +1,500 pips performance with 2% risk.',
+
+        // Profit Simulator
+        simulatorTitle: 'Missed Opportunity Calculator',
+        simulatorSubtitle: 'See what you could have earned last month with our VIP signals',
+        initialBalance: 'If you had started with:',
+        calculateGrowth: 'Your balance could be now:',
+        profitGain: 'Profit Gain',
+        simulatorDisclaimer: 'Disclaimer: Based on last month\'s performance. Past results do not guarantee future returns. Trading involves risk.',
     },
     ar: {
         // Shared
@@ -271,11 +276,14 @@ export const translations = {
         yourReferralLink: 'رابط الإحالة الخاص بك',
         copyLink: 'نسخ',
         linkCopied: 'تم النسخ!',
-        simulatorTitle: 'كم فوت من الربح؟',
-        enterCapital: 'أدخل رأس مال محفظتك ($)',
-        calculateMissed: 'احسب الأرباح الضائعة',
-        missedResult: 'يا خسارة! لقد فوت ربحاً بقيمة {amount} الشهر الماضي!',
-        basedOn: 'بناءً على نتائجنا (+1,500 نقطة) بمخاطرة 2%.',
+
+        // Profit Simulator
+        simulatorTitle: 'حاسبة الفرص الضائعة',
+        simulatorSubtitle: 'شاهد ماذا كنت ستربح الشهر الماضي مع توصياتنا',
+        initialBalance: 'لو بدأت برصيد:',
+        calculateGrowth: 'لكان رصيدك الآن:',
+        profitGain: 'زيادة في الأرباح',
+        simulatorDisclaimer: 'تنويه: الأرقام بناءً على أداء الشهر الماضي. النتائج السابقة لا تضمن المستقبل. التداول ينطوي على مخاطرة.',
     }
 };
 
