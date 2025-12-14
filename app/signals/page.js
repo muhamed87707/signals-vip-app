@@ -232,6 +232,120 @@ const LotSizeCalculator = ({ t, isRTL }) => {
     );
 };
 
+// ===== REFERRAL CARD COMPONENT =====
+const ReferralCard = ({ t, telegramId, isRTL }) => {
+    const [referralData, setReferralData] = useState(null);
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (telegramId) {
+            fetch(`/api/referral?telegramId=${telegramId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) setReferralData(data);
+                })
+                .catch(err => console.error(err));
+        }
+    }, [telegramId]);
+
+    const copyToClipboard = () => {
+        if (referralData?.referralLink) {
+            navigator.clipboard.writeText(referralData.referralLink);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    if (!referralData) return null;
+
+    return (
+        <div style={{
+            background: 'var(--bg-card)',
+            borderRadius: '24px',
+            border: '1px solid rgba(184, 134, 11, 0.2)',
+            padding: '2rem',
+            margin: '2rem auto',
+            maxWidth: '800px',
+            textAlign: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-card)'
+        }}>
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'var(--gradient-gold-metallic)'
+            }}></div>
+
+            <h3 className="text-gradient" style={{ fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                {t.referralTitle}
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                {t.referralDesc}
+            </p>
+
+            <div style={{
+                background: 'rgba(0,0,0,0.3)',
+                padding: '1rem',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                border: '1px solid rgba(255,255,255,0.1)',
+                flexWrap: 'wrap',
+                flexDirection: isRTL ? 'row-reverse' : 'row'
+            }}>
+                <div style={{
+                    flex: 1,
+                    color: 'var(--gold-primary)',
+                    fontFamily: 'monospace',
+                    fontSize: '1.1rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    direction: 'ltr',
+                    textAlign: isRTL ? 'right' : 'left'
+                }}>
+                    {referralData.referralLink}
+                </div>
+                <button
+                    onClick={copyToClipboard}
+                    className="btn-primary"
+                    style={{
+                        padding: '0.5rem 1.5rem',
+                        fontSize: '0.9rem',
+                        minWidth: '100px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    {copied ? t.linkCopied : t.copyLink}
+                </button>
+            </div>
+
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '3rem',
+                marginTop: '1.5rem',
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+                paddingTop: '1.5rem'
+            }}>
+                <div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>
+                        {referralData.referralCount}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        {t.membersCount}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 export default function SignalsPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
@@ -239,6 +353,7 @@ export default function SignalsPage() {
     const [loading, setLoading] = useState(true);
     const [isVip, setIsVip] = useState(false);
     const [expirationDate, setExpirationDate] = useState(null);
+    const [telegramId, setTelegramId] = useState(null);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -269,6 +384,8 @@ export default function SignalsPage() {
                 telegramId = user.id.toString();
             }
         }
+
+        if (telegramId) setTelegramId(telegramId);
 
         fetchSignals(telegramId);
     }, []);
@@ -519,6 +636,9 @@ export default function SignalsPage() {
 
                 {/* Lot Size Calculator */}
                 <LotSizeCalculator t={t} isRTL={isRTL} />
+
+                {/* Referral Program */}
+                <ReferralCard t={t} telegramId={telegramId} isRTL={isRTL} />
 
                 {/* Content */}
                 {loading ? (
