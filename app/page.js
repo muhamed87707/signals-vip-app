@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from './context/LanguageContext';
 
 // ===== Components =====
@@ -90,6 +90,70 @@ const GlobeIcon = () => (
         <path d="M4 17h16" strokeWidth="1.2" />
     </svg>
 );
+
+// ===== Countdown Timer Component =====
+const CountdownTimer = ({ t }) => {
+    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+    useEffect(() => {
+        const calculateTimeLeft = () => {
+            const now = new Date();
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
+            const diff = endOfDay - now;
+
+            if (diff > 0) {
+                setTimeLeft({
+                    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+                    minutes: Math.floor((diff / (1000 * 60)) % 60),
+                    seconds: Math.floor((diff / 1000) % 60)
+                });
+            }
+        };
+
+        calculateTimeLeft();
+        const timer = setInterval(calculateTimeLeft, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    return (
+        <div className="countdown-banner">
+            <span className="countdown-label">{t.limitedOffer} — {t.offerEndsIn}:</span>
+            <div className="countdown-timer">
+                <span className="countdown-segment">{pad(timeLeft.hours)}</span>
+                <span className="countdown-separator">:</span>
+                <span className="countdown-segment">{pad(timeLeft.minutes)}</span>
+                <span className="countdown-separator">:</span>
+                <span className="countdown-segment">{pad(timeLeft.seconds)}</span>
+            </div>
+        </div>
+    );
+};
+
+// ===== Stats Bar Component =====
+const StatsBar = ({ t }) => {
+    return (
+        <div className="stats-bar">
+            <div className="stat-item">
+                <span className="stat-value">87%</span>
+                <span className="stat-label">{t.winRate}</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+                <span className="stat-value">+15,420</span>
+                <span className="stat-label">{t.totalPips}</span>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+                <span className="stat-value">2,500+</span>
+                <span className="stat-label">{t.subscribersCount}</span>
+            </div>
+        </div>
+    );
+};
+
 
 const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
     if (!isOpen) return null;
@@ -182,6 +246,7 @@ export default function LandingPage() {
                             <span className="text-gradient">{t.heroTitleHighlight}</span>
                         </h1>
                         <p className="hero-subtitle animate-fade-in-up delay-200">{t.heroSubtitle}</p>
+                        <StatsBar t={t} />
                         <div className="hero-buttons animate-fade-in-up delay-300">
                             <a href="#pricing" className="btn-primary">{t.ctaButton} →</a>
                             <button onClick={() => setShowLoginModal(true)} className="btn-secondary">
@@ -255,6 +320,7 @@ export default function LandingPage() {
                         <span className="text-gradient">{t.pricingTitle.split(' ').slice(1).join(' ')}</span>
                     </h2>
                     <p className="section-subtitle">{t.pricingSubtitle}</p>
+                    <CountdownTimer t={t} />
                     <div className="pricing-grid">
                         {/* Monthly */}
                         <div className="pricing-card">

@@ -114,6 +114,24 @@ export const translations = {
         riskMedium: 'Moderate',
         riskHigh: 'High Risk',
         riskFast: 'Fast',
+
+        // Conversion Optimization
+        offerEndsIn: 'Offer ends in',
+        limitedOffer: '🔥 Limited Time Offer',
+        subscribersCount: 'Active Traders',
+        winRate: 'Win Rate',
+        totalPips: 'Total Pips',
+        membersCount: 'Members',
+        getInstantAccess: 'Get Instant Access',
+        freeSignalBadge: 'Free Preview (4h Delay)',
+        trackRecord: 'Track Record',
+        trackRecordSubtitle: 'Verified performance history',
+        viewTrackRecord: 'View Our Track Record',
+        referralTitle: 'Refer & Earn',
+        referralDesc: 'Invite a friend and both get 1 month free!',
+        yourReferralLink: 'Your Referral Link',
+        copyLink: 'Copy',
+        linkCopied: 'Copied!',
     },
     ar: {
         // Shared
@@ -230,6 +248,24 @@ export const translations = {
         riskMedium: 'معتدل',
         riskHigh: 'خطر عالي',
         riskFast: 'سريع',
+
+        // Conversion Optimization
+        offerEndsIn: 'العرض ينتهي خلال',
+        limitedOffer: '🔥 عرض محدود',
+        subscribersCount: 'متداول نشط',
+        winRate: 'نسبة النجاح',
+        totalPips: 'إجمالي النقاط',
+        membersCount: 'عضو',
+        getInstantAccess: 'احصل على وصول فوري',
+        freeSignalBadge: 'معاينة مجانية (تأخير 4 ساعات)',
+        trackRecord: 'سجل الأداء',
+        trackRecordSubtitle: 'سجل أداء موثق',
+        viewTrackRecord: 'عرض سجل الأداء',
+        referralTitle: 'ادعُ واربح',
+        referralDesc: 'ادعُ صديقاً واحصلا معاً على شهر مجاني!',
+        yourReferralLink: 'رابط الإحالة الخاص بك',
+        copyLink: 'نسخ',
+        linkCopied: 'تم النسخ!',
     }
 };
 
