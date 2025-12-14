@@ -498,7 +498,7 @@ export default function SignalsPage() {
                             fontWeight: '700',
                             textDecoration: 'none',
                             boxShadow: 'var(--shadow-gold)',
-                            animation: 'goldShine 3s linear infinite, pulse 2s ease-in-out infinite',
+                            animation: 'goldShine 3s linear infinite',
                             whiteSpace: 'nowrap'
                         }}>
                             {t.joinVip}<span style={{ fontSize: '1.2rem' }}>🚀</span>
