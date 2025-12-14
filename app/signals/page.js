@@ -499,6 +499,7 @@ export default function SignalsPage() {
                             textDecoration: 'none',
                             boxShadow: 'var(--shadow-gold)',
                             animation: 'goldShine 3s linear infinite',
+                            animationDirection: isRTL ? 'reverse' : 'normal',
                             whiteSpace: 'nowrap'
                         }}>
                             {t.joinVip}<span style={{ fontSize: '1.2rem' }}>🚀</span>

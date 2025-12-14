@@ -122,6 +122,12 @@ h6 {
     }
 }
 
+/* RTL Animation Support: Reverse direction for Arabic */
+[dir="rtl"] .text-gradient,
+[dir="rtl"] .btn-primary {
+    animation-direction: reverse;
+}
+
 /* ===== Container ===== */
 .container {
     width: 100%;
