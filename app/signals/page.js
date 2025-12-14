@@ -236,15 +236,18 @@ const LotSizeCalculator = ({ t, isRTL }) => {
 const ReferralCard = ({ t, telegramId, isRTL }) => {
     const [referralData, setReferralData] = useState(null);
     const [copied, setCopied] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (telegramId) {
+            setLoading(true);
             fetch(`/api/referral?telegramId=${telegramId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) setReferralData(data);
                 })
-                .catch(err => console.error(err));
+                .catch(err => console.error(err))
+                .finally(() => setLoading(false));
         }
     }, [telegramId]);
 
@@ -256,7 +259,57 @@ const ReferralCard = ({ t, telegramId, isRTL }) => {
         }
     };
 
-    if (!referralData) return null;
+    // Placeholder state for users not connected via Telegram
+    if (!telegramId) {
+        return (
+            <div style={{
+                background: 'var(--bg-card)',
+                borderRadius: '24px',
+                border: '1px solid rgba(184, 134, 11, 0.2)',
+                padding: '2rem',
+                margin: '2rem auto',
+                maxWidth: '800px',
+                textAlign: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-card)',
+                opacity: 0.8
+            }}>
+                <h3 className="text-gradient" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
+                    {t.referralTitle}
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                    {t.referralDesc}
+                </p>
+                <div style={{
+                    padding: '1rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '12px',
+                    border: '1px dashed rgba(184, 134, 11, 0.3)',
+                    color: 'var(--text-secondary)'
+                }}>
+                    ⚠️ Open this page via Telegram Bot to generate your referral link
+                </div>
+            </div>
+        );
+    }
+
+    if (loading || !referralData) {
+        return (
+            <div style={{
+                background: 'var(--bg-card)',
+                borderRadius: '24px',
+                padding: '3rem',
+                margin: '2rem auto',
+                maxWidth: '800px',
+                textAlign: 'center',
+                border: '1px solid rgba(184, 134, 11, 0.1)'
+            }}>
+                <div style={{ animation: 'pulse 1.5s infinite', fontSize: '2rem' }}>💎</div>
+                <p style={{ color: 'var(--text-secondary)', marginTop: '1rem' }}>Loading referral data...</p>
+            </div>
+        );
+    }
 
     return (
         <div style={{
