@@ -141,7 +141,6 @@ export const translations = {
         initialBalance: 'If you had started with:',
         calculateGrowth: 'Your balance could be now:',
         profitGain: 'Profit Gain',
-        simulatorDisclaimer: 'Disclaimer: Based on last month\'s performance. Past results do not guarantee future returns. Trading involves risk.',
     },
     ar: {
         // Shared
@@ -283,7 +282,6 @@ export const translations = {
         initialBalance: 'لو بدأت برصيد:',
         calculateGrowth: 'لكان رصيدك الآن:',
         profitGain: 'زيادة في الأرباح',
-        simulatorDisclaimer: 'تنويه: الأرقام بناءً على أداء الشهر الماضي. النتائج السابقة لا تضمن المستقبل. التداول ينطوي على مخاطرة.',
     }
 };
 

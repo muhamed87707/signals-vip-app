@@ -157,10 +157,17 @@ const StatsBar = ({ t }) => {
 // ===== Profit Simulator Component =====
 const ProfitSimulator = ({ t }) => {
     const [balance, setBalance] = useState(1000);
-    const growthRate = 0.28; // 28% monthly growth
 
-    const projectedBalance = balance * (1 + growthRate);
-    const profit = projectedBalance - balance;
+    // Logic: 450 pips/day avg * 20 days = 9,000 pips/month
+    // Lot Size Strategy: 0.1 lot per $1,000 balance (Standard aggressive signaling risk)
+    // Value: 1 Pip = $1 (at 0.1 lot)
+    const monthlyPips = 9000;
+    // Actually, simply: 9000 pips * ($1 per pip per 0.1 lot) * (Balance/1000)
+    // = 9000 * 1 * (Balance/1000) = Balance * 9
+    // That's 900% ROI. That matches 300-600 pips daily claims.
+    const profit = balance * 9; // Simplified calculation based on the comment
+
+    const projectedBalance = balance + profit;
 
     return (
         <div className="profit-simulator animate-fade-in-up delay-600">
@@ -192,11 +199,36 @@ const ProfitSimulator = ({ t }) => {
                 <div className="simulator-result">
                     <div className="result-label">{t.calculateGrowth}</div>
                     <div className="result-value">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="profit-gain">+{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({t.profitGain}) 📈</div>
+
+                    <div style={{
+                        marginTop: '1rem',
+                        padding: '1rem',
+                        background: 'rgba(76, 175, 80, 0.1)',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(76, 175, 80, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1rem'
+                    }}>
+                        {/* Golden Outline Icon */}
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+
+                        <div style={{ textAlign: 'left' }}>
+                            <div className="profit-gain" style={{ fontSize: '1.2rem', lineHeight: 1 }}>
+                                +${profit.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </div>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                                (+{monthlyPips.toLocaleString()} Pips)
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div className="simulator-disclaimer">{t.simulatorDisclaimer}</div>
+            {/* Disclaimer removed as requested */}
         </div>
     );
 };
