@@ -370,14 +370,14 @@ h6 {
 
 .pricing-badge {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 0.75rem;
+    right: 0.75rem;
     background: var(--gradient-gold-metallic);
     background-size: 200% 100%;
     color: #1a1a1a;
-    padding: 0.4rem 1rem;
+    padding: 0.3rem 0.8rem;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     animation: goldShine 3s linear infinite;
     box-shadow: 0 2px 10px rgba(184, 134, 11, 0.4);
@@ -385,7 +385,7 @@ h6 {
 
 [dir="rtl"] .pricing-badge {
     right: auto;
-    left: 0.5rem;
+    left: 1rem;
 }
 
 .pricing-price {

@@ -271,10 +271,8 @@ export default function LandingPage() {
                         <div className="pricing-card">
                             <h3 className="pricing-title">{t.quarterly}</h3>
                             <div className="pricing-price">${quarterlyPrice}<span>{t.perQuarter}</span></div>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-                                <p className="pricing-original" style={{ margin: 0 }}>{t.originalPrice} ${quarterlyOriginal}</p>
-                                <div className="pricing-savings" style={{ margin: 0 }}>✓ {t.youSave} ${quarterlySavings}</div>
-                            </div>
+                            <p className="pricing-original">{t.originalPrice} ${quarterlyOriginal}</p>
+                            <div className="pricing-savings">✓ {t.youSave} ${quarterlySavings}</div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
                                 <li><CheckIcon /> {t.feature_analysis}</li>
@@ -288,9 +286,9 @@ export default function LandingPage() {
                             <span className="pricing-badge">{t.popular}</span>
                             <h3 className="pricing-title">{t.yearly}</h3>
                             <div className="pricing-price">${yearlyPrice}<span>{t.perYear}</span></div>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-                                <p className="pricing-original" style={{ margin: 0 }}>{t.originalPrice} ${yearlyOriginal}</p>
-                                <div className="pricing-savings" style={{ margin: 0 }}>✓ {t.youSave} ${yearlySavings}</div>
+                            <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                                <p className="pricing-original" style={{ marginTop: 0 }}>{t.originalPrice} ${yearlyOriginal}</p>
+                                <div className="pricing-savings" style={{ marginTop: 0 }}>✓ {t.youSave} ${yearlySavings}</div>
                             </div>
                             <ul className="pricing-features">
                                 <li><CheckIcon /> {t.feature_signals}</li>
