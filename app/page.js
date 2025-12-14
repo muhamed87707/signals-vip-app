@@ -271,7 +271,7 @@ export default function LandingPage() {
                         <div className="pricing-card">
                             <h3 className="pricing-title">{t.quarterly}</h3>
                             <div className="pricing-price">${quarterlyPrice}<span>{t.perQuarter}</span></div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', marginTop: '0.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
                                 <p className="pricing-original" style={{ margin: 0 }}>{t.originalPrice} ${quarterlyOriginal}</p>
                                 <div className="pricing-savings" style={{ margin: 0 }}>✓ {t.youSave} ${quarterlySavings}</div>
                             </div>
@@ -285,10 +285,10 @@ export default function LandingPage() {
                         </div>
                         {/* Yearly */}
                         <div className="pricing-card featured">
-                            <span className="pricing-badge" style={{ insetInlineEnd: '0.5rem', top: '0.5rem' }}>{t.popular}</span>
+                            <span className="pricing-badge">{t.popular}</span>
                             <h3 className="pricing-title">{t.yearly}</h3>
                             <div className="pricing-price">${yearlyPrice}<span>{t.perYear}</span></div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', marginTop: '0.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
                                 <p className="pricing-original" style={{ margin: 0 }}>{t.originalPrice} ${yearlyOriginal}</p>
                                 <div className="pricing-savings" style={{ margin: 0 }}>✓ {t.youSave} ${yearlySavings}</div>
                             </div>
