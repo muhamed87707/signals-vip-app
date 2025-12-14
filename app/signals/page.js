@@ -112,33 +112,31 @@ const LotSizeCalculator = ({ t, isRTL }) => {
 
     return (
         <div style={{
-            background: 'linear-gradient(135deg, rgba(12, 12, 12, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%)',
+            background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-darker) 100%)',
             border: '2px solid rgba(184, 134, 11, 0.3)',
             borderRadius: '24px',
             padding: '2rem',
             marginBottom: '2rem',
             maxWidth: '500px',
             margin: '0 auto 2.5rem auto',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+            boxShadow: 'var(--shadow-gold)'
         }}>
             {/* Header */}
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <h3 style={{
+                <h3 className="text-gradient" style={{
                     fontSize: '1.5rem',
                     fontWeight: '700',
-                    background: 'linear-gradient(90deg, #FFD700, #FFE566, #FFD700)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    marginBottom: '0.5rem'
+                    marginBottom: '0.5rem',
+                    display: 'inline-block' // needed for text-gradient sometimes
                 }}>{t.calcTitle}</h3>
-                <p style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>{t.calcSubtitle}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t.calcSubtitle}</p>
             </div>
 
             {/* Inputs */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {/* Account Balance */}
                 <div>
-                    <label style={{ display: 'block', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
+                    <label style={{ display: 'block', color: 'var(--gold-medium)', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: '600' }}>
                         {t.accountBalance}
                     </label>
                     <input
@@ -148,20 +146,24 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                         style={{
                             width: '100%',
                             padding: '0.75rem 1rem',
-                            background: 'rgba(255, 255, 255, 0.05)',
+                            background: 'rgba(255, 255, 255, 0.03)',
                             border: '1px solid rgba(184, 134, 11, 0.2)',
                             borderRadius: '12px',
-                            color: '#fff',
+                            color: 'var(--text-primary)',
                             fontSize: '1.1rem',
                             fontWeight: '600',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            outline: 'none',
+                            transition: 'border-color 0.3s'
                         }}
+                        onFocus={(e) => e.target.style.borderColor = 'var(--gold-primary)'}
+                        onBlur={(e) => e.target.style.borderColor = 'rgba(184, 134, 11, 0.2)'}
                     />
                 </div>
 
                 {/* Risk Percentage Buttons */}
                 <div>
-                    <label style={{ display: 'block', color: '#DAA520', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: '600' }}>
+                    <label style={{ display: 'block', color: 'var(--gold-medium)', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: '600' }}>
                         {t.riskPercent}
                     </label>
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -175,7 +177,7 @@ const LotSizeCalculator = ({ t, isRTL }) => {
                                     background: riskPercent === btn.percent ? btn.bg : 'rgba(255, 255, 255, 0.03)',
                                     border: `2px solid ${riskPercent === btn.percent ? btn.border : 'rgba(255, 255, 255, 0.1)'}`,
                                     borderRadius: '12px',
-                                    color: riskPercent === btn.percent ? btn.color : '#9a9ab0',
+                                    color: riskPercent === btn.percent ? btn.color : 'var(--text-secondary)',
                                     fontSize: '0.85rem',
                                     fontWeight: '700',
                                     cursor: 'pointer',
@@ -198,18 +200,15 @@ const LotSizeCalculator = ({ t, isRTL }) => {
             <div style={{
                 marginTop: '1.5rem',
                 padding: '1.25rem',
-                background: 'rgba(184, 134, 11, 0.08)',
+                background: 'rgba(184, 134, 11, 0.05)',
                 border: '1px solid rgba(184, 134, 11, 0.2)',
                 borderRadius: '16px',
                 textAlign: 'center'
             }}>
-                <p style={{ color: '#9a9ab0', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{t.recommendedLot}</p>
-                <div style={{
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{t.recommendedLot}</p>
+                <div className="text-gradient" style={{
                     fontSize: '2.5rem',
                     fontWeight: '800',
-                    background: 'linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
                     marginBottom: '0.5rem'
                 }}>
                     {formattedLot.toFixed(2)}
@@ -220,8 +219,8 @@ const LotSizeCalculator = ({ t, isRTL }) => {
             <div style={{
                 marginTop: '1rem',
                 padding: '0.75rem',
-                background: 'rgba(74, 222, 128, 0.08)',
-                border: '1px solid rgba(74, 222, 128, 0.2)',
+                background: 'rgba(74, 222, 128, 0.05)',
+                border: '1px solid rgba(74, 222, 128, 0.15)',
                 borderRadius: '12px',
                 textAlign: 'center',
                 color: '#4ade80',
@@ -312,7 +311,7 @@ export default function SignalsPage() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: '#080808',
+            background: 'var(--bg-dark)',
             position: 'relative',
             overflow: 'hidden'
         }}>
@@ -369,35 +368,61 @@ export default function SignalsPage() {
                         <a
                             href="/"
                             style={{
-                                color: '#DAA520',
+                                color: 'var(--gold-medium)',
                                 textDecoration: 'none',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '0.5rem',
                                 fontSize: '0.95rem',
                                 padding: '0.5rem 1rem',
-                                background: 'rgba(218, 165, 32, 0.1)',
+                                background: 'rgba(218, 165, 32, 0.05)',
                                 borderRadius: '20px',
-                                transition: 'all 0.3s ease'
+                                transition: 'all 0.3s ease',
+                                border: '1px solid transparent'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(218, 165, 32, 0.1)';
+                                e.currentTarget.style.borderColor = 'var(--gold-primary)';
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(218, 165, 32, 0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(218, 165, 32, 0.05)';
+                                e.currentTarget.style.borderColor = 'transparent';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
                             }}
                         >
+                            <span>🏠</span>
                             {t.backToHome}
                         </a>
                         <button
                             onClick={toggleLang}
                             style={{
-                                color: '#DAA520',
-                                border: 'none',
+                                color: 'var(--gold-medium)',
+                                border: '1px solid transparent',
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '0.5rem',
                                 fontSize: '0.95rem',
                                 padding: '0.5rem 1rem',
-                                background: 'rgba(218, 165, 32, 0.1)',
+                                background: 'rgba(218, 165, 32, 0.05)',
                                 borderRadius: '20px',
                                 transition: 'all 0.3s ease',
                                 fontFamily: 'inherit'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(218, 165, 32, 0.1)';
+                                e.currentTarget.style.borderColor = 'var(--gold-primary)';
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(218, 165, 32, 0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(218, 165, 32, 0.05)';
+                                e.currentTarget.style.borderColor = 'transparent';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
                             }}
                         >
                             🌐 {t.langSwitch}
@@ -423,36 +448,35 @@ export default function SignalsPage() {
                     </h1>
 
                     {/* VIP Status Badge or Join CTA */}
+                    {/* VIP Status Badge or Join CTA */}
                     {isVip ? (
                         <div className="vip-badge-container" style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            // Removed gap to control spacing manually for tighter layout
-                            background: 'rgba(218, 165, 32, 0.08)',
-                            border: '1px solid rgba(218, 165, 32, 0.25)',
+                            background: 'rgba(218, 165, 32, 0.1)',
+                            border: '1px solid rgba(218, 165, 32, 0.3)',
                             borderRadius: '50px',
-                            padding: '0.4rem 1rem',
+                            padding: '0.5rem 1.25rem',
                             marginBottom: '2rem',
                             marginTop: '1rem',
-                            color: '#FFD700',
-                            fontSize: '0.8rem',
-                            fontWeight: '500',
+                            color: 'var(--gold-primary)',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
                             backdropFilter: 'blur(10px)',
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                            boxShadow: '0 4px 20px rgba(184, 134, 11, 0.15)',
                             whiteSpace: 'nowrap',
-                            maxWidth: '88vw', // Prevent overflow on small screens
-                            flexWrap: 'nowrap',
+                            maxWidth: '90vw',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
                         }}>
-                            <span className="vip-badge-icon" style={{ fontSize: '1.1rem', lineHeight: 1, marginInlineEnd: '0.4rem' }}>👑</span>
-                            <span className="vip-badge-text" style={{ fontWeight: '700', letterSpacing: '0.5px' }}>{t.vipActive}</span>
+                            <span className="vip-badge-icon" style={{ fontSize: '1.2rem', lineHeight: 1, marginInlineEnd: '0.5rem' }}>👑</span>
+                            <span className="vip-badge-text" style={{ letterSpacing: '0.5px' }}>{t.vipActive}</span>
                             {/* Visible Separator with adjusted spacing */}
-                            <span style={{ width: '1px', height: '16px', background: 'rgba(218, 165, 32, 0.8)', margin: '0 0.35rem' }}></span>
-                            <span className="vip-badge-text" style={{ color: '#fff', opacity: 0.9 }}>
+                            <span style={{ width: '1px', height: '16px', background: 'var(--gold-primary)', margin: '0 0.5rem', opacity: 0.5 }}></span>
+                            <span className="vip-badge-text" style={{ color: 'var(--text-secondary)', opacity: 1, fontSize: '0.85rem' }}>
                                 {expirationDate
-                                    ? `${t.expiresIn} ${Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))} ${t.days || 'Days'}`
+                                    ? <>{t.expiresIn} <span style={{ color: 'var(--gold-medium)', fontWeight: '700' }}>{Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24))}</span> {t.days || 'Days'}</>
                                     : t.lifetime}
                             </span>
                         </div>
@@ -462,27 +486,27 @@ export default function SignalsPage() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '0.4rem',
-                            background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.2) 0%, rgba(218, 165, 32, 0.1) 100%)',
-                            border: '1px solid rgba(218, 165, 32, 0.4)',
+                            background: 'var(--gradient-gold-button)',
+                            backgroundSize: '200% 100%',
+                            border: 'none',
                             borderRadius: '50px',
-                            padding: '0.5rem 1.5rem',
+                            padding: '0.8rem 2.5rem',
                             marginBottom: '2rem',
                             marginTop: '1rem',
-                            color: '#FFD700',
-                            fontSize: '0.9rem',
+                            color: '#1a1a1a',
+                            fontSize: '1rem',
                             fontWeight: '700',
                             textDecoration: 'none',
-                            backdropFilter: 'blur(10px)',
-                            boxShadow: '0 0 20px rgba(218, 165, 32, 0.15)',
-                            animation: 'pulse 2s infinite',
+                            boxShadow: 'var(--shadow-gold)',
+                            animation: 'goldShine 3s linear infinite, pulse 2s ease-in-out infinite',
                             whiteSpace: 'nowrap'
                         }}>
-                            {t.joinVip}<span style={{ fontSize: '1.1rem' }}>🚀</span>
+                            {t.joinVip}<span style={{ fontSize: '1.2rem' }}>🚀</span>
                         </a>
                     )}
 
                     <p className="signals-subtitle" style={{
-                        color: '#9a9ab0',
+                        color: 'var(--text-secondary)',
                         fontSize: '1.2rem',
                         maxWidth: '600px',
                         margin: '0 auto',
@@ -503,18 +527,19 @@ export default function SignalsPage() {
                             marginBottom: '1rem',
                             animation: 'pulse 1.5s ease-in-out infinite'
                         }}>💎</div>
-                        <p style={{ color: '#9a9ab0' }}>{t.loading}</p>
+                        <p style={{ color: 'var(--text-secondary)' }}>{t.loading}</p>
                     </div>
                 ) : signals.length === 0 ? (
                     <div className="card" style={{
                         textAlign: 'center',
                         padding: '4rem',
                         border: '1px solid rgba(184, 134, 11, 0.2)',
-                        background: 'rgba(15, 15, 24, 0.6)',
-                        backdropFilter: 'blur(10px)'
+                        background: 'var(--bg-card)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: '24px'
                     }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
-                        <p style={{ color: '#9a9ab0' }}>{t.noSignals}</p>
+                        <p style={{ color: 'var(--text-secondary)' }}>{t.noSignals}</p>
                     </div>
                 ) : (
                     <div style={{
@@ -531,12 +556,12 @@ export default function SignalsPage() {
                             <div
                                 key={signal._id || index}
                                 style={{
-                                    background: '#0c0c0c',
+                                    background: 'var(--bg-card)',
                                     borderRadius: '24px',
                                     overflow: 'hidden',
-                                    border: '2px solid rgba(184, 134, 11, 0.2)',
+                                    border: '1px solid rgba(184, 134, 11, 0.2)',
                                     transition: 'all 0.4s ease',
-                                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                                    boxShadow: 'var(--shadow-card)',
                                     transform: 'translateY(0)',
                                     flex: '1 1 380px',
                                     minWidth: '320px',
