@@ -356,8 +356,7 @@ h6 {
     border-color: var(--gold-primary);
     border-width: 2px;
     background: linear-gradient(180deg, var(--bg-card-hover) 0%, var(--bg-card) 100%);
-    padding: 4rem 1.75rem 2.5rem;
-    /* Increased top padding for Badge space */
+    padding: 2.5rem 1.75rem;
     box-shadow: var(--shadow-gold);
 }
 
@@ -413,15 +412,9 @@ h6 {
 .pricing-original {
     color: var(--text-secondary);
     font-size: 1rem;
-    margin: 0.5rem auto 0;
-    /* Center block */
+    margin-top: 0.5rem;
     position: relative;
-    display: table;
-    /* Using table to shrink-wrap content while allowing centering, or block with width fit. 
-                       Actually, inline-block with block parent is standard center. 
-                       But user wants consistency. Let's use block + width:fit-content + margin:auto */
-    display: block;
-    width: fit-content;
+    display: inline-block;
 }
 
 /* Discount X Mark - Gold Theme */
@@ -453,9 +446,7 @@ h6 {
     padding: 0.25rem 0.75rem;
     background: rgba(76, 175, 80, 0.1);
     border-radius: 20px;
-    display: block;
-    width: fit-content;
-    margin: 0.5rem auto 0;
+    display: inline-block;
 }
 
 .pricing-features {
