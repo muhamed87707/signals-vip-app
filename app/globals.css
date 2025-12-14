@@ -370,12 +370,12 @@ h6 {
 
 .pricing-badge {
     position: absolute;
-    top: -0.5rem;
+    top: 1rem;
     right: 1rem;
     background: var(--gradient-gold-metallic);
     background-size: 200% 100%;
     color: #1a1a1a;
-    padding: 0.25rem 0.75rem;
+    padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 700;
