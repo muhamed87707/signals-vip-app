@@ -144,6 +144,13 @@ export const translations = {
         estimatedPips: 'Based on ~11,500 Pips gained last month',
         riskExplanation: 'Risk: 2% / Trade (Compounded Daily)',
         gain: 'Gain',
+
+        // Trust & Exit Popup
+        securePayment: 'Guaranteed Safe & Secure Checkout',
+        waitTitle: 'WAIT! ⚠️',
+        waitDesc: 'Don\'t leave empty-handed. Join our FREE Telegram channel for daily market updates and free signals!',
+        joinFree: 'Join Free Channel',
+        noThanks: 'No thanks, I hate money',
     },
     ar: {
         // Shared
@@ -288,6 +295,13 @@ export const translations = {
         estimatedPips: 'بناءً على ~11,500 نقطة ربح الشهر الماضي',
         riskExplanation: 'المخاطرة: 2% / صفقة (تراكمي يومي)',
         gain: 'ربح',
+
+        // Trust & Exit Popup
+        securePayment: 'دفع آمن ومضمون 100%',
+        waitTitle: 'انتظر لحظة! ⚠️',
+        waitDesc: 'لا تخرج خالي الوفاض. انضم لقناتنا العامة على تليجرام واحصل على تحليلات يومية وتوصيات مجانية!',
+        joinFree: 'انضم للقناة المجانية',
+        noThanks: 'شكراً، لا أريد أرباحاً',
     }
 };
 
