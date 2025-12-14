@@ -124,7 +124,8 @@ h6 {
 
 /* RTL Animation Support: Reverse direction for Arabic */
 [dir="rtl"] .text-gradient,
-[dir="rtl"] .btn-primary {
+[dir="rtl"] .btn-primary,
+[dir="rtl"] .pricing-badge {
     animation-direction: reverse;
 }
 
