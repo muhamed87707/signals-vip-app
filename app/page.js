@@ -157,17 +157,10 @@ const StatsBar = ({ t }) => {
 // ===== Profit Simulator Component =====
 const ProfitSimulator = ({ t }) => {
     const [balance, setBalance] = useState(1000);
+    const growthRate = 4.5; // 450% monthly growth (Based on ~11,500 pips @ 0.01 lot/$200)
 
-    // Logic: 450 pips/day avg * 20 days = 9,000 pips/month
-    // Lot Size Strategy: 0.1 lot per $1,000 balance (Standard aggressive signaling risk)
-    // Value: 1 Pip = $1 (at 0.1 lot)
-    const monthlyPips = 9000;
-    // Actually, simply: 9000 pips * ($1 per pip per 0.1 lot) * (Balance/1000)
-    // = 9000 * 1 * (Balance/1000) = Balance * 9
-    // That's 900% ROI. That matches 300-600 pips daily claims.
-    const profit = balance * 9; // Simplified calculation based on the comment
-
-    const projectedBalance = balance + profit;
+    const projectedBalance = balance * (1 + growthRate);
+    const profit = projectedBalance - balance;
 
     return (
         <div className="profit-simulator animate-fade-in-up delay-600">
@@ -199,36 +192,28 @@ const ProfitSimulator = ({ t }) => {
                 <div className="simulator-result">
                     <div className="result-label">{t.calculateGrowth}</div>
                     <div className="result-value">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-
-                    <div style={{
-                        marginTop: '1rem',
-                        padding: '1rem',
-                        background: 'rgba(76, 175, 80, 0.1)',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(76, 175, 80, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '1rem'
-                    }}>
-                        {/* Golden Outline Icon */}
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                                stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <div className="profit-gain" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({t.profitGain})
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M17 6H23V12" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-
-                        <div style={{ textAlign: 'left' }}>
-                            <div className="profit-gain" style={{ fontSize: '1.2rem', lineHeight: 1 }}>
-                                +${profit.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                            </div>
-                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                                (+{monthlyPips.toLocaleString()} Pips)
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
-            {/* Disclaimer removed as requested */}
+
+            <div className="simulator-pips-badge" style={{
+                marginTop: '1.5rem',
+                fontSize: '0.9rem',
+                color: 'var(--gold-medium)',
+                background: 'rgba(184, 134, 11, 0.1)',
+                padding: '0.5rem 1rem',
+                borderRadius: '50px',
+                border: '1px solid rgba(184, 134, 11, 0.3)',
+                display: 'inline-block'
+            }}>
+                ✨ {t.estimatedPips}
+            </div>
         </div>
     );
 };

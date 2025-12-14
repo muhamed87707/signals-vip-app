@@ -141,6 +141,7 @@ export const translations = {
         initialBalance: 'If you had started with:',
         calculateGrowth: 'Your balance could be now:',
         profitGain: 'Profit Gain',
+        estimatedPips: 'Based on ~11,500 Pips gained last month',
     },
     ar: {
         // Shared
@@ -282,6 +283,7 @@ export const translations = {
         initialBalance: 'لو بدأت برصيد:',
         calculateGrowth: 'لكان رصيدك الآن:',
         profitGain: 'زيادة في الأرباح',
+        estimatedPips: 'بناءً على ~11,500 نقطة ربح الشهر الماضي',
     }
 };
 
