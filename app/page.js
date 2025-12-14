@@ -186,42 +186,49 @@ const ProfitSimulator = ({ t }) => {
 
     return (
         <div className="profit-simulator animate-fade-in-up delay-600">
-            <h3 className="simulator-title text-gradient">{t.simulatorTitle}</h3>
-            <p className="simulator-subtitle">{t.simulatorSubtitle}</p>
+            <h3 className="simulator-title text-gold-shine" style={{ fontSize: '2rem' }}>{t.simulatorTitle}</h3>
+            <p className="simulator-subtitle text-gold-shine" style={{ opacity: 0.9 }}>{t.simulatorSubtitle}</p>
 
             <div className="simulator-content">
                 <div className="simulator-input-group">
-                    <label>{t.initialBalance}</label>
+                    <label className="text-gold-shine">{t.initialBalance}</label>
                     <div className="input-wrapper">
-                        <span className="currency-symbol">$</span>
+                        <span className="currency-symbol text-gold-shine">$</span>
                         <input
                             type="number"
                             value={balance}
                             onChange={(e) => setBalance(Number(e.target.value))}
                             min="100"
-                            className="balance-input"
+                            className="balance-input text-gold-shine"
                         />
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'center' }}>
-                        Risk: 2% / Trade (Compounded Daily)
+                    <div className="text-gold-shine" style={{ fontSize: '0.8rem', marginTop: '0.5rem', textAlign: 'center', opacity: 0.8 }}>
+                        {t.simulatorRisk}
                     </div>
                 </div>
 
                 <div className="simulator-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#goldGeneric)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <defs>
+                            <linearGradient id="goldGeneric" x1="0" y1="0" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#BF953F" />
+                                <stop offset="50%" stopColor="#FCF6BA" />
+                                <stop offset="100%" stopColor="#B38728" />
+                            </linearGradient>
+                        </defs>
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <polyline points="19 12 12 19 5 12"></polyline>
                     </svg>
                 </div>
 
                 <div className="simulator-result">
-                    <div className="result-label">{t.calculateGrowth}</div>
-                    <div className="result-value">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="profit-gain" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <div className="result-label text-gold-shine">{t.calculateGrowth}</div>
+                    <div className="result-value text-gold-shine">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="profit-gain text-gold-shine" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                         +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({roi}% Gain)
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M17 6H23V12" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="url(#goldGeneric)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M17 6H23V12" stroke="url(#goldGeneric)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
                 </div>

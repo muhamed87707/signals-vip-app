@@ -1292,3 +1292,20 @@ h6 {
     color: var(--text-secondary);
     opacity: 0.7;
 }
+
+.text-gold-shine {
+    background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #B8860B;
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+    font-weight: bold;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
