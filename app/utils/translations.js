@@ -143,6 +143,7 @@ export const translations = {
         profitGain: 'Profit Gain',
         estimatedPips: 'Based on ~11,500 Pips gained last month',
         riskExplanation: 'Risk: 2% / Trade (Compounded Daily)',
+        gain: 'Gain',
     },
     ar: {
         // Shared
@@ -286,6 +287,7 @@ export const translations = {
         profitGain: 'زيادة في الأرباح',
         estimatedPips: 'بناءً على ~11,500 نقطة ربح الشهر الماضي',
         riskExplanation: 'المخاطرة: 2% / صفقة (تراكمي يومي)',
+        gain: 'ربح',
     }
 };
 

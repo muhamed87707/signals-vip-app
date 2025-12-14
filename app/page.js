@@ -221,7 +221,7 @@ const ProfitSimulator = ({ t }) => {
                         filter: 'drop-shadow(0 0 10px rgba(184, 134, 11, 0.4))'
                     }}>${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                     <div className="profit-gain" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                        +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({roi}% Gain)
+                        +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({roi}% {t.gain})
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             <path d="M17 6H23V12" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
