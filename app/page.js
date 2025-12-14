@@ -157,10 +157,32 @@ const StatsBar = ({ t }) => {
 // ===== Profit Simulator Component =====
 const ProfitSimulator = ({ t }) => {
     const [balance, setBalance] = useState(1000);
-    const growthRate = 4.5; // 450% monthly growth (Based on ~11,500 pips @ 0.01 lot/$200)
 
-    const projectedBalance = balance * (1 + growthRate);
-    const profit = projectedBalance - balance;
+    // Logic: Compounding 2% risk per day
+    // Assumptions:
+    // - 22 Trading Days
+    // - Risk per trade: 2% of current balance
+    // - Average Daily Pips: 300 (Conservative end of 300-600)
+    // - Stop Loss: 100 pips (To calculate reasonable lot size) -> Risk Reward 1:3
+    // - Daily Growth % = 2% risk * 3 (Risk Reward) = 6% daily growth
+
+    // Limit balance input to avoid crashes or unrealistic huge numbers in UI
+    const safeBalance = balance > 1000000 ? 1000000 : balance;
+
+    const calculateProjection = (startBalance) => {
+        let current = startBalance;
+        const dailyGrowthRate = 0.06; // 6% daily (based on 2% risk gaining 300 pips vs 100 pip SL)
+        const days = 22;
+
+        for (let i = 0; i < days; i++) {
+            current = current * (1 + dailyGrowthRate);
+        }
+        return current;
+    };
+
+    const projectedBalance = calculateProjection(safeBalance);
+    const profit = projectedBalance - safeBalance;
+    const roi = ((profit / safeBalance) * 100).toFixed(0);
 
     return (
         <div className="profit-simulator animate-fade-in-up delay-600">
@@ -180,6 +202,9 @@ const ProfitSimulator = ({ t }) => {
                             className="balance-input"
                         />
                     </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'center' }}>
+                        Risk: 2% / Trade (Compounded Daily)
+                    </div>
                 </div>
 
                 <div className="simulator-arrow">
@@ -193,7 +218,7 @@ const ProfitSimulator = ({ t }) => {
                     <div className="result-label">{t.calculateGrowth}</div>
                     <div className="result-value">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                     <div className="profit-gain" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                        +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({t.profitGain})
+                        +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({roi}% Gain)
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             <path d="M17 6H23V12" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
