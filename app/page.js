@@ -247,92 +247,58 @@ const ProfitSimulator = ({ t }) => {
     );
 };
 
-
-// ===== Trust Badges Component =====
-const TrustBadges = ({ t }) => (
-    <div className="trust-badges-container">
-        <p className="trust-text">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            {t.securePayment}
-        </p>
-        <div className="trust-icons">
-            {/* Visa */}
-            <svg className="trust-icon" viewBox="0 0 50 32" width="40" height="25" fill="currentColor">
-                <path d="M18.8 30.5L23.7 1.5H31L26.1 30.5H18.8ZM34.2 30.5L37.8 11.2C38 10.2 39.5 9.4 39.7 9.2C40.7 8.6 43 7.8 45.4 7.5L45.8 6.3H33.1C31.3 6.3 29.7 6.9 29 8.5L24.7 30.5H34.2ZM14.9 21.6C14.9 13.9 5.4 13.4 5.5 9.6C5.5 8.4 6.6 7.1 8.8 6.8C9.9 6.6 12.9 6.4 14.9 7.3L15.3 4.2C13.5 3.5 11.2 3.2 9 3.2C3.8 3.2 0.3 5.9 0.4 10.3C0.4 16.5 9.7 16.9 9.8 20.3C9.8 21.3 8.8 22.8 6.7 22.8C5 22.8 2.3 22.4 0.7 21.6L0.2 24.8C2.1 25.7 5.5 26.2 7.7 26.2C13.2 26.2 14.9 23.5 14.9 21.6ZM50 30.5H44.1C42.7 30.5 41.6 30 41 28.5L35 1.5H41.3L44.2 16.7L47 1.5H50V30.5Z" />
-            </svg>
-            {/* Mastercard */}
-            <svg className="trust-icon" viewBox="0 0 50 32" width="40" height="25" fill="currentColor">
-                <path d="M19.5 16C19.5 22.9 22.3 29.1 26.7 32C21.7 35.5 15.6 37 9.5 37C-0.5 37 0.5 28 0.5 16S-0.5 -5 9.5 -5C15.6 -5 21.7 -3.5 26.7 0C22.3 2.9 19.5 9.1 19.5 16ZM34.5 16C34.5 9.1 31.7 2.9 27.3 0C32.3 -3.5 38.4 -5 44.5 -5C54.5 -5 53.5 4 53.5 16S54.5 37 44.5 37C38.4 37 32.3 35.5 27.3 32C31.7 29.1 34.5 22.9 34.5 16Z" />
-            </svg>
-            {/* Crypto - Generic */}
-            <svg className="trust-icon" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" />
-                <path d="M2 17L12 22L22 17" />
-                <path d="M2 12L12 17L22 12" />
-            </svg>
-        </div>
-    </div>
-);
-
-// ===== Exit Popup Component =====
-const ExitPopup = ({ t, isRTL }) => {
-    const [show, setShow] = useState(false);
-    const [hasSeen, setHasSeen] = useState(false);
-    const [mounted, setMounted] = useState(false);
+// ===== Exit Intent Popup Component =====
+const ExitIntentPopup = ({ t }) => {
+    const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
-        const seen = localStorage.getItem('hasSeenExitPopup');
-        if (seen) setHasSeen(true);
-    }, []);
-
-    useEffect(() => {
-        if (!mounted || hasSeen) return;
+        // Check if already shown in this session (SessionStorage = clears on tab close)
+        // Using localStorage might be too aggressive if they come back later. Session is good for now.
+        if (typeof window !== 'undefined' && sessionStorage.getItem('exitPopupShown')) {
+            return;
+        }
 
         const handleMouseLeave = (e) => {
-            if (e.clientY <= 0) {
-                setShow(true);
-                setHasSeen(true);
-                localStorage.setItem('hasSeenExitPopup', 'true');
+            if (e.clientY <= 0) { // User moved mouse to top (tabs/browser UI)
+                setIsVisible(true);
+                sessionStorage.setItem('exitPopupShown', 'true');
             }
+        };
+
+        const handleBlur = () => { // Fallback for mobile/tab switching primarily
+            // Optional: simple exit intent for mobile is hard. often done via back button intercept or scroll up. 
+            // keeping it simple to desktop mouseleave for now as requested "mouse move".
         };
 
         document.addEventListener('mouseleave', handleMouseLeave);
         return () => document.removeEventListener('mouseleave', handleMouseLeave);
-    }, [hasSeen, mounted]);
+    }, []);
 
-    if (!show) return null;
+    const closePopup = () => setIsVisible(false);
+
+    if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" style={{ zIndex: 9999 }}>
-            <div className="bg-[#111] border border-[#B8860B] rounded-2xl p-8 max-w-md w-full relative shadow-[0_0_50px_rgba(184,134,11,0.3)] animate-scale-up text-center">
-                <button
-                    onClick={() => setShow(false)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
-                    style={{ left: isRTL ? '1rem' : 'auto', right: isRTL ? 'auto' : '1rem' }}
-                >
-                    ✕
-                </button>
-
-                <div className="text-6xl mb-4 animate-bounce">🎁</div>
-                <h3 className="text-2xl font-bold mb-3 text-gradient">{t.waitTitle}</h3>
-                <p className="text-gray-300 mb-6 leading-relaxed">{t.waitDesc}</p>
-
+        <div className={`exit-popup-overlay ${isVisible ? 'active' : ''}`}>
+            <div className="exit-popup-content">
+                <button className="exit-close" onClick={closePopup}>✕</button>
+                <div className="exit-icon">🎁</div>
+                <h3 className="exit-title">{t.exitTitle}</h3>
+                <p className="exit-desc">{t.exitDesc}</p>
                 <a
-                    href="https://t.me/your_free_channel"
+                    href="https://t.me/your_channel_username"
                     target="_blank"
-                    className="btn-primary w-full mb-3 py-3 text-lg font-bold shadow-[0_0_20px_rgba(184,134,11,0.4)]"
-                    style={{ display: 'block' }}
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                    style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }}
+                    onClick={closePopup}
                 >
-                    {t.joinFree}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }}>
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    {t.exitButton}
                 </a>
-
-                <button
-                    onClick={() => setShow(false)}
-                    className="text-sm text-gray-500 hover:text-ray-300 underline mt-2"
-                >
-                    {t.noThanks}
-                </button>
             </div>
         </div>
     );
@@ -537,7 +503,6 @@ export default function LandingPage() {
                                 <li><CheckIcon /> {t.feature_support}</li>
                             </ul>
                             <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
-                            <TrustBadges t={t} />
                         </div>
                         {/* Quarterly */}
                         <div className="pricing-card">
@@ -552,7 +517,6 @@ export default function LandingPage() {
                                 <li><CheckIcon /> {t.feature_community}</li>
                             </ul>
                             <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
-                            <TrustBadges t={t} />
                         </div>
                         {/* Yearly */}
                         <div className="pricing-card featured">
@@ -571,7 +535,6 @@ export default function LandingPage() {
                                 <li><CheckIcon /> {t.feature_education}</li>
                             </ul>
                             <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
-                            <TrustBadges t={t} />
                         </div>
                     </div>
                 </div>
@@ -593,7 +556,7 @@ export default function LandingPage() {
                     <p>© {currentYear} <span className="footer-brand">{t.brand}</span>. {t.footerText}</p>
                 </div>
             </footer>
-            <ExitPopup t={t} isRTL={isRTL} />
+            <ExitIntentPopup t={t} />
         </div>
     );
 }

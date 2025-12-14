@@ -145,12 +145,10 @@ export const translations = {
         riskExplanation: 'Risk: 2% / Trade (Compounded Daily)',
         gain: 'Gain',
 
-        // Trust & Exit Popup
-        securePayment: 'Guaranteed Safe & Secure Checkout',
-        waitTitle: 'WAIT! ⚠️',
-        waitDesc: 'Don\'t leave empty-handed. Join our FREE Telegram channel for daily market updates and free signals!',
-        joinFree: 'Join Free Channel',
-        noThanks: 'No thanks, I hate money',
+        // Exit Popup
+        exitTitle: 'Wait! 🎁',
+        exitDesc: 'Don\'t leave empty handed. Join our free Telegram channel and get a high-accuracy GOLD signal right now.',
+        exitButton: 'Get Free Signal',
     },
     ar: {
         // Shared
@@ -296,12 +294,10 @@ export const translations = {
         riskExplanation: 'المخاطرة: 2% / صفقة (تراكمي يومي)',
         gain: 'ربح',
 
-        // Trust & Exit Popup
-        securePayment: 'دفع آمن ومضمون 100%',
-        waitTitle: 'انتظر لحظة! ⚠️',
-        waitDesc: 'لا تخرج خالي الوفاض. انضم لقناتنا العامة على تليجرام واحصل على تحليلات يومية وتوصيات مجانية!',
-        joinFree: 'انضم للقناة المجانية',
-        noThanks: 'شكراً، لا أريد أرباحاً',
+        // Exit Popup
+        exitTitle: 'انتظر! 🎁',
+        exitDesc: 'لا تخرج خالي الوفاض. انضم لقناتنا المجانية واحصل على توصية ذهب (GOLD) قوية فوراً.',
+        exitButton: 'احصل على التوصية مجاناً',
     }
 };
 
