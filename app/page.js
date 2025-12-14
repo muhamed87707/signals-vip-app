@@ -186,49 +186,45 @@ const ProfitSimulator = ({ t }) => {
 
     return (
         <div className="profit-simulator animate-fade-in-up delay-600">
-            <h3 className="simulator-title text-gold-shine" style={{ fontSize: '2rem' }}>{t.simulatorTitle}</h3>
-            <p className="simulator-subtitle text-gold-shine" style={{ opacity: 0.9 }}>{t.simulatorSubtitle}</p>
+            <h3 className="simulator-title text-gradient">{t.simulatorTitle}</h3>
+            <p className="simulator-subtitle" style={{ color: 'var(--gold-medium)', fontSize: '1.05rem' }}>{t.simulatorSubtitle}</p>
 
             <div className="simulator-content">
                 <div className="simulator-input-group">
-                    <label className="text-gold-shine">{t.initialBalance}</label>
+                    <label className="text-gradient" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '700', fontSize: '1.1rem' }}>{t.initialBalance}</label>
                     <div className="input-wrapper">
-                        <span className="currency-symbol text-gold-shine">$</span>
+                        <span className="currency-symbol">$</span>
                         <input
                             type="number"
                             value={balance}
                             onChange={(e) => setBalance(Number(e.target.value))}
                             min="100"
-                            className="balance-input text-gold-shine"
+                            className="balance-input"
                         />
                     </div>
-                    <div className="text-gold-shine" style={{ fontSize: '0.8rem', marginTop: '0.5rem', textAlign: 'center', opacity: 0.8 }}>
-                        {t.simulatorRisk}
+                    <div style={{ fontSize: '0.8rem', color: 'var(--gold-primary)', marginTop: '0.8rem', textAlign: 'center', fontWeight: '500', letterSpacing: '0.5px' }}>
+                        {t.riskExplanation}
                     </div>
                 </div>
 
                 <div className="simulator-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#goldGeneric)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <defs>
-                            <linearGradient id="goldGeneric" x1="0" y1="0" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#BF953F" />
-                                <stop offset="50%" stopColor="#FCF6BA" />
-                                <stop offset="100%" stopColor="#B38728" />
-                            </linearGradient>
-                        </defs>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <polyline points="19 12 12 19 5 12"></polyline>
                     </svg>
                 </div>
 
                 <div className="simulator-result">
-                    <div className="result-label text-gold-shine">{t.calculateGrowth}</div>
-                    <div className="result-value text-gold-shine">${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="profit-gain text-gold-shine" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <div className="result-label text-gradient" style={{ fontWeight: '600', marginBottom: '0.5rem' }}>{t.calculateGrowth}</div>
+                    <div className="result-value text-gradient" style={{
+                        fontSize: '3rem',
+                        filter: 'drop-shadow(0 0 10px rgba(184, 134, 11, 0.4))'
+                    }}>${projectedBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="profit-gain" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                         +{profit.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({roi}% Gain)
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="url(#goldGeneric)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M17 6H23V12" stroke="url(#goldGeneric)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M23 6L13.5 15.5L8.5 10.5L1 18" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M17 6H23V12" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
                 </div>
@@ -239,10 +235,11 @@ const ProfitSimulator = ({ t }) => {
                 fontSize: '0.9rem',
                 color: 'var(--gold-medium)',
                 background: 'rgba(184, 134, 11, 0.1)',
-                padding: '0.5rem 1rem',
+                padding: '0.5rem 1.5rem',
                 borderRadius: '50px',
                 border: '1px solid rgba(184, 134, 11, 0.3)',
-                display: 'inline-block'
+                display: 'inline-block',
+                boxShadow: '0 0 15px rgba(184, 134, 11, 0.1)'
             }}>
                 ✨ {t.estimatedPips}
             </div>
