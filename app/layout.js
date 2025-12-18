@@ -47,11 +47,16 @@ export const metadata = {
         description: "Elite Gold & Forex signals for serious traders.",
         images: ['/og-image.png'],
     },
-    viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-    themeColor: '#000000',
     alternates: {
         canonical: '/',
     },
+};
+
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    themeColor: '#000000',
 };
 
 export default function RootLayout({ children }) {
