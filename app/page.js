@@ -537,6 +537,23 @@ export default function LandingPage() {
                             <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
                         </div>
                     </div>
+
+                    {/* Trust Badges */}
+                    <div className="trust-badges animate-fade-in-up delay-600" style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.9 }}>
+                        <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '1px' }}>
+                            {lang === 'ar' ? '🔒 مدفوعات آمنة وموثقة عبر:' : '🔒 Secure & Verified Payments via:'}
+                        </p>
+                        <img
+                            src="/payment-trust-badges.png"
+                            alt="Visa MasterCard USDT Binance Bitcoin"
+                            style={{
+                                maxWidth: '300px',
+                                width: '100%',
+                                height: 'auto',
+                                filter: 'brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.1))'
+                            }}
+                        />
+                    </div>
                 </div>
             </section>
 

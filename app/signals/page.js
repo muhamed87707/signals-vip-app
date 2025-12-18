@@ -373,9 +373,18 @@ const ReferralCard = ({ t, telegramId, isRTL }) => {
                         minWidth: '100px',
                         cursor: 'pointer'
                     }}
-                >
-                    {copied ? t.linkCopied : t.copyLink}
                 </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem', textAlign: 'center', direction: isRTL ? 'rtl' : 'ltr' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.3rem' }}>{isRTL ? 'الأصدقاء المدعوين' : 'Invited Friends'}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>{referralData.referralCount}</div>
+                </div>
+                <div style={{ background: 'linear-gradient(135deg, rgba(184,134,11,0.2) 0%, rgba(184,134,11,0.1) 100%)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--gold-primary)' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--gold-medium)', marginBottom: '0.3rem', fontWeight: '600' }}>{isRTL ? 'أيام VIP المكتسبة' : 'VIP Days Earned'}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>+{referralData.referralRewardsEarned * 7} {isRTL ? 'يوم' : 'Days'}</div>
+                </div>
             </div>
 
             <div style={{
