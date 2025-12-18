@@ -418,6 +418,25 @@ export default function SignalsPage() {
     const [isVip, setIsVip] = useState(false);
     const [expirationDate, setExpirationDate] = useState(null);
     const [telegramId, setTelegramId] = useState(null);
+    const [soundEnabled, setSoundEnabled] = useState(false); // Track if audio context is allowed
+
+    // Keep track of the latest signal ID to detect new ones
+    const latestSignalIdRef = useRef(null);
+    const audioRef = useRef(null);
+
+    // Initialize Audio
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            audioRef.current = new Audio('/cash.mp3');
+        }
+    }, []);
+
+    const playNotificationSound = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(e => console.log('Audio autoplay blocked:', e));
+        }
+    };
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -451,17 +470,39 @@ export default function SignalsPage() {
 
         if (telegramId) setTelegramId(telegramId);
 
-        fetchSignals(telegramId);
+        fetchSignals(telegramId, true); // Initial fetch
+
+        // POLLING: Check for new signals every 30 seconds
+        const interval = setInterval(() => {
+            fetchSignals(telegramId, false); // Background fetch
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchSignals = async (telegramId) => {
+    const fetchSignals = async (tid, showLoading = false) => {
+        if (showLoading) setLoading(true);
         try {
-            const url = telegramId
-                ? `/api/signals?telegramId=${telegramId}`
+            const url = tid
+                ? `/api/signals?telegramId=${tid}`
                 : '/api/signals';
             const res = await fetch(url);
             const data = await res.json();
-            setSignals(data.signals || []);
+            const newSignals = data.signals || [];
+
+            setSignals(newSignals);
+
+            // Check for new signals logic
+            if (newSignals.length > 0) {
+                const newestId = newSignals[0]._id;
+                // If we have a previous ID and it's different (and we have signals), it's a new signal
+                if (latestSignalIdRef.current && latestSignalIdRef.current !== newestId) {
+                    playNotificationSound();
+                }
+                latestSignalIdRef.current = newestId;
+            }
+
+            // STRICT VIP SYNC
 
             // STRICT VIP SYNC
             if (data.isUserVip) {
