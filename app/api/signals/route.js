@@ -87,16 +87,11 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-async function sendToTelegram(imageUrl) {
-    if (!imageUrl) return null;
+async function sendToTelegram(imageUrl, caption) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHANNEL_ID) return null;
 
     try {
-        // Updated Caption and Button Text as requested
-        const text = `🔥 *توصية VIP جديدة!* 💎
-تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
-اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
-
-🔥 *New VIP Signal!* 💎
+        const text = caption || `🔥 **New VIP Signal!** 🔥
 A high-potential trade has been posted for premium subscribers! 🚀
 Click below to reveal the signal 👇`;
 
@@ -195,7 +190,7 @@ export async function POST(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
+        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend, isVip, socialPostContent } = body;
 
         // 1. Upload Main Image (Clear)
         const clearImageUrl = await uploadToImgBB(imageUrl);
@@ -203,12 +198,18 @@ export async function POST(request) {
 
         let telegramMessageId = null;
 
-        // 2. Upload Telegram Image (Blurred) if requested
-        if (shouldSend && telegramImage) {
-            const blurredUrl = await uploadToImgBB(telegramImage);
-            if (blurredUrl) {
+        // 2. Upload Telegram Image (Blurred for VIP, Clear for Free) if requested
+        if (shouldSend) {
+            // For VIP, use the provided telegramImage (which should be blurred by frontend)
+            // For Free, default to the clear image if no specific telegram image provided
+            const imageToSend = (isVip && telegramImage) ? telegramImage : imageUrl;
+
+            const uploadedTelegramUrl = await uploadToImgBB(imageToSend);
+            if (uploadedTelegramUrl) {
+                // Determine caption: Use generated social content or default
+                const caption = socialPostContent || `New Signal: ${pair} ${type}`;
                 // Send and capture Message ID
-                telegramMessageId = await sendToTelegram(blurredUrl);
+                telegramMessageId = await sendToTelegram(uploadedTelegramUrl, caption);
             }
         }
 
@@ -217,6 +218,8 @@ export async function POST(request) {
             pair,
             type,
             imageUrl: clearImageUrl,
+            isVip: !!isVip,
+            socialPostContent,
             telegramMessageId: telegramMessageId?.toString()
         });
 

@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 const ADMIN_PASSWORD = '123';
+const DEFAULT_GEMINI_KEY = 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
 
 const getTimeAgo = (dateStr, lang) => {
     const date = new Date(dateStr);
@@ -39,6 +42,15 @@ export default function AdminPage() {
     const [uploading, setUploading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const fileInputRef = useRef(null);
+
+    // New Features State
+    const [isVipSignal, setIsVipSignal] = useState(false);
+    const [geminiApiKey, setGeminiApiKey] = useState(DEFAULT_GEMINI_KEY);
+    const [postPrompt, setPostPrompt] = useState('Create a hype trading signal post for social media. Use emojis. Keep it short and exciting.');
+    const [aiPosts, setAiPosts] = useState([]);
+    const [selectedPost, setSelectedPost] = useState('');
+    const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+    const [showAiModal, setShowAiModal] = useState(false);
 
     // VIP Management State
     const [telegramId, setTelegramId] = useState('');
@@ -171,75 +183,86 @@ export default function AdminPage() {
         });
     };
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files?.[0];
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const file = form.image.files[0];
+        const pair = form.pair.value;
+        const type = form.type.value;
+
         if (!file) return;
-        processFile(file);
-    };
 
-    const handlePaste = async (e) => {
-        const items = e.clipboardData?.items;
-        if (!items) return;
-
-        for (const item of items) {
-            if (item.type.indexOf('image') !== -1) {
-                const file = item.getAsFile();
-                if (file) processFile(file);
-                break;
-            }
-        }
-    };
-
-    const processFile = async (file) => {
         setUploading(true);
         setSuccessMessage('');
-        setError('');
 
         try {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64Image = reader.result;
+            const formData = new FormData();
+            // Convert file to base64 for uploadToImgBB logic (which expects base64 or file? API says input 'image')
+            // Actually, my previous logic in POST used uploadToImgBB which expects base64 string
 
-                let telegramImage = null;
-                if (postToTelegram) {
-                    try {
-                        telegramImage = await createBlurredImage(file);
-                    } catch (blurErr) {
-                        console.error('Blur failed', blurErr);
-                    }
-                }
+            const toBase64 = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]); // Get only base64 data
+                reader.onerror = error => reject(error);
+            });
 
-                const res = await fetch('/api/signals', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        pair: 'GOLD',
-                        type: 'SIGNAL',
-                        imageUrl: base64Image,
-                        telegramImage: telegramImage,
-                        sendToTelegram: postToTelegram
-                    })
-                });
+            const base64Image = await toBase64(file);
 
-                const data = await res.json();
-                if (data.success) {
-                    let msg = t.postSuccess;
-                    if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
-                    setSuccessMessage(msg);
-                    fetchSignals();
-                } else {
-                    setError(t.postError);
-                }
-                setUploading(false);
+            let blurredImageBase64 = null;
+            if (isVipSignal && postToTelegram) {
+                const blurredBlob = await createBlurredImage(file);
+                blurredImageBase64 = await toBase64(blurredBlob);
+            }
+
+            const payload = {
+                pair,
+                type,
+                imageUrl: base64Image,
+                telegramImage: blurredImageBase64, // Pass blurred image if VIP
+                sendToTelegram: postToTelegram,
+                isVip: isVipSignal,
+                socialPostContent: selectedPost
             };
-            reader.readAsDataURL(file);
-        } catch (err) {
-            console.error('Upload error:', err);
-            setError(t.uploadError);
-            setUploading(false);
-        }
 
-        if (fileInputRef.current) fileInputRef.current.value = '';
+            const res = await fetch('/api/signals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                setSuccessMessage(t.uploadSuccess || 'Signal Posted Successfully!');
+                form.reset();
+                setAiPosts([]);
+                setSelectedPost('');
+                fetchSignals();
+            } else {
+                alert('Upload failed: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Upload Error:', error);
+            alert('Upload error');
+        }
+        setUploading(false);
+    };
+
+    const handleDeleteSignal = async (id) => {
+        if (!confirm('Are you sure you want to delete this signal? It will be removed from the site and Telegram.')) return;
+
+        try {
+            const res = await fetch(`/api/signals/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchSignals(); // Refresh list
+            } else {
+                alert('Failed to delete: ' + data.error);
+            }
+        } catch (err) {
+            alert('Delete failed');
+        }
     };
 
     const handleGrantVip = async (e) => {
@@ -343,16 +366,83 @@ export default function AdminPage() {
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
                     <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                    <form onSubmit={handleUpload} style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'left' }}>
+
+                        {/* VIP Toggle & Telegram Option */}
+                        <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: postToTelegram ? '#229ED9' : '#888' }}>
+                                <input type="checkbox" checked={postToTelegram} onChange={(e) => setPostToTelegram(e.target.checked)} />
+                                Post to Telegram Channel
+                            </label>
+
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: isVipSignal ? '#DAA520' : '#888' }}>
+                                <input type="checkbox" checked={isVipSignal} onChange={(e) => setIsVipSignal(e.target.checked)} />
+                                🔒 VIP Signal? (Blurs Telegram Image)
+                            </label>
                         </div>
-                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
-                    </div>
 
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                    <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer' }}>{uploading ? t.uploading : t.chooseImage}</label>
+                        {/* AI Generator Section */}
+                        <div style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #333', borderRadius: '8px', background: '#111' }}>
+                            <h3 style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem' }}>⚡ AI Social Post Generator (Gemini Flash)</h3>
 
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#666', marginBottom: '0.2rem' }}>Gemini API Key:</label>
+                            <input
+                                type="password"
+                                value={geminiApiKey}
+                                onChange={(e) => setGeminiApiKey(e.target.value)}
+                                style={{ width: '100%', padding: '0.5rem', background: '#000', border: '1px solid #333', color: '#fff', marginBottom: '1rem' }}
+                            />
+
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#666', marginBottom: '0.2rem' }}>Prompt:</label>
+                            <textarea
+                                value={postPrompt}
+                                onChange={(e) => setPostPrompt(e.target.value)}
+                                rows={2}
+                                style={{ width: '100%', padding: '0.5rem', background: '#000', border: '1px solid #333', color: '#fff', marginBottom: '0.5rem' }}
+                            />
+
+                            <button type="button" onClick={generateAiPosts} disabled={isGeneratingAi} style={{ width: '100%', padding: '0.5rem', background: isGeneratingAi ? '#444' : '#222', color: '#fff', border: '1px solid #444', cursor: isGeneratingAi ? 'not-allowed' : 'pointer' }}>
+                                {isGeneratingAi ? 'Generating...' : '✨ Generate 50 Variations'}
+                            </button>
+
+                            {aiPosts.length > 0 && (
+                                <div style={{ marginTop: '1rem', maxHeight: '200px', overflowY: 'auto', border: '1px solid #333', padding: '0.5rem' }}>
+                                    {aiPosts.map((post, i) => (
+                                        <div key={i} onClick={() => setSelectedPost(post)} style={{ padding: '0.5rem', borderBottom: '1px solid #222', cursor: 'pointer', background: selectedPost === post ? '#333' : 'transparent', fontSize: '0.85rem', color: '#ccc' }}>
+                                            {post}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#888' }}>Selected Post Content (for Telegram/Social):</label>
+                        <textarea
+                            value={selectedPost}
+                            onChange={(e) => setSelectedPost(e.target.value)}
+                            placeholder="Write your post here or generate one..."
+                            rows={4}
+                            style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', marginBottom: '1.5rem', fontFamily: 'inherit' }}
+                        />
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                            <input name="pair" placeholder="Pair (e.g. XAUUSD)" required style={{ padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff' }} />
+                            <select name="type" required style={{ padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff' }}>
+                                <option value="BUY">🟢 BUY</option>
+                                <option value="SELL">🔴 SELL</option>
+                            </select>
+                        </div>
+
+                        <div style={{ border: '2px dashed #333', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', marginBottom: '1.5rem', position: 'relative' }}
+                            onClick={() => fileInputRef.current.click()}>
+                            <input ref={fileInputRef} type="file" name="image" accept="image/*" style={{ display: 'none' }} />
+                            <p style={{ color: '#888' }}>{t.uploadPlaceholder}</p>
+                        </div>
+
+                        <button type="submit" disabled={uploading} className="btn-primary" style={{ width: '100%', padding: '1rem', opacity: uploading ? 0.7 : 1 }}>
+                            {uploading ? t.uploading : (isVipSignal ? '🚀 Publish VIP Signal' : '🚀 Publish Free Signal')}
+                        </button>
+                    </form>
                     {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold' }}>{successMessage}</p>}
                     {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
                 </div>
@@ -362,13 +452,15 @@ export default function AdminPage() {
                 {/* Full Width Grid Layout - Matches User Request */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
                     {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
-                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
+                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)', position: 'relative' }}>
+                            {signal.isVip && <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#DAA520', color: '#000', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 5 }}>VIP 🔒</div>}
                             <div style={{ position: 'relative' }}>
                                 <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                                {signal.pair && <div style={{ position: 'absolute', bottom: '0', width: '100%', padding: '0.5rem', background: 'rgba(0,0,0,0.7)', color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>{signal.pair} {signal.type}</div>}
                             </div>
                             <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                                 <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
-                                <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                                <button onClick={() => handleDeleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
                             </div>
                         </div>
                     ))}
