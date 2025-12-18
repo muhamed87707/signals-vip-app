@@ -454,27 +454,42 @@ export default function SignalsPage() {
                             const register = await navigator.serviceWorker.register('/sw.js');
                             console.log('SW Registered');
 
+                            // Wait for service worker to be ready
+                            const registration = await navigator.serviceWorker.ready;
+                            console.log('SW Ready');
+
                             // Subscribe to Push
-                            const subscription = await register.pushManager.subscribe({
+                            const subscription = await registration.pushManager.subscribe({
                                 userVisibleOnly: true,
                                 applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFI2iHpeuWixiyvPI58zQaRquTCQkgJrnwHc8W-ZOdYMxCvCM2ZcD3yE5Shs4pgywmCWROFj6xabsjK5QpA-i5Y'
                             });
+                            console.log('Push Subscription created:', subscription);
 
                             // Send Subscription to Server (works for logged in and anonymous users)
-                            await fetch('/api/push/subscribe', {
+                            const response = await fetch('/api/push/subscribe', {
                                 method: 'POST',
                                 body: JSON.stringify({
                                     telegramId: telegramId || null,
-                                    subscription: subscription
+                                    subscription: subscription.toJSON() // Convert to plain object
                                 }),
                                 headers: { 'Content-Type': 'application/json' }
                             });
+
+                            const result = await response.json();
+                            console.log('Server response:', result);
+
+                            if (result.success) {
+                                alert(t.notificationsEnabled || 'Notifications Enabled! ✅');
+                            } else {
+                                alert('Error saving subscription: ' + (result.error || 'Unknown error'));
+                            }
                         } catch (swError) {
                             console.error('SW/Push Error:', swError);
+                            alert('Service Worker Error: ' + swError.message);
                         }
+                    } else {
+                        alert('This browser does not support Service Workers.');
                     }
-
-                    alert(t.notificationsEnabled || 'Notifications Enabled!');
                 } else {
                     alert('Notification permission denied. Please enable them in your browser settings.');
                 }
