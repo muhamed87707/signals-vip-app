@@ -174,6 +174,13 @@ This data is used solely for:
 
 **5. Contact Us**
 For any inquiries, please contact us via email: Sniper.VIP.Support@gmail.com or via our support bot.`,
+
+                // Terms Modal
+                termsModalTitle: 'Terms of Service & Risk Acceptance',
+                termsModalDesc: 'Please read and accept the terms before proceeding.',
+                agreeCheckbox: 'I have read and fully agree to the Terms of Service and Risk Disclosure.',
+                continueToPayment: 'Continue to Payment',
+                cancel: 'Cancel',
                 termsText: `
 **1. Legal Eligibillity**
 By using this application, you confirm that you are at least 18 years of age and legally capable of entering into binding contracts.
@@ -381,6 +388,13 @@ Past performance of any trading system or methodology is not necessarily indicat
 
 **5. اتصل بنا (Contact Us)**
 لأي استفسارات، يرجى التواصل معنا عبر البريد الإلكتروني: Sniper.VIP.Support@gmail.com أو عبر بوت الدعم.`,
+
+                // Terms Modal
+                termsModalTitle: 'الموافقة على الشروط والأحكام',
+                termsModalDesc: 'يرجى قراءة الشروط والموافقة عليها للمتابعة.',
+                agreeCheckbox: 'لقد قرأت الشروط وأوافق عليها بالكامل.',
+                continueToPayment: 'متابعة للدفع',
+                cancel: 'إلغاء',
                 termsText: `
 **1. الأهلية القانونية**
 باستخدامك للتطبيق، تقر بأن عمرك لا يقل عن 18 عاماً وأنك تتمتع بالأهلية القانونية الكاملة لإبرام العقود.

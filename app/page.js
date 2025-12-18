@@ -248,6 +248,138 @@ const ProfitSimulator = ({ t }) => {
 };
 
 
+// ===== Terms & Agreement Modal =====
+const TermsModal = ({ isOpen, onClose, onConfirm, t, isRTL }) => {
+    const [isChecked, setIsChecked] = useState(false);
+
+    if (!isOpen) return null;
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            backdropFilter: 'blur(5px)'
+        }}>
+            <div className="animate-fade-in-up" dir={isRTL ? 'rtl' : 'ltr'} style={{
+                background: 'var(--bg-card)',
+                width: '100%',
+                maxWidth: '600px',
+                borderRadius: '24px',
+                border: '1px solid var(--gold-primary)',
+                boxShadow: '0 0 50px rgba(184, 134, 11, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                maxHeight: '90vh',
+                position: 'relative'
+            }}>
+                {/* Header */}
+                <div style={{
+                    padding: '1.5rem',
+                    borderBottom: '1px solid rgba(184, 134, 11, 0.2)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <h3 className="text-gradient" style={{ margin: 0, fontSize: '1.3rem' }}>{t.termsModalTitle}</h3>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                </div>
+
+                {/* Body - Scrollwrap */}
+                <div style={{
+                    padding: '1.5rem',
+                    overflowY: 'auto',
+                    flex: 1,
+                    background: 'rgba(0,0,0,0.2)'
+                }}>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>{t.termsModalDesc}</p>
+                    <div style={{
+                        background: 'var(--bg-dark)',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        fontSize: '0.85rem',
+                        lineHeight: '1.6',
+                        color: 'var(--text-secondary)',
+                        whiteSpace: 'pre-wrap',
+                        height: '250px',
+                        overflowY: 'auto'
+                    }}>
+                        {t.termsText}
+                        {'\n\n'}
+                        {t.riskText}
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{
+                    padding: '1.5rem',
+                    borderTop: '1px solid rgba(184, 134, 11, 0.2)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                }}>
+                    <label style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.8rem',
+                        cursor: 'pointer',
+                        fontSize: '0.95rem',
+                        userSelect: 'none'
+                    }}>
+                        <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => setIsChecked(e.target.checked)}
+                            style={{ width: '18px', height: '18px', accentColor: 'var(--gold-primary)' }}
+                        />
+                        <span style={{ color: isChecked ? 'white' : 'var(--text-secondary)', transition: 'color 0.3s' }}>{t.agreeCheckbox}</span>
+                    </label>
+
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                flex: 1,
+                                padding: '0.8rem',
+                                borderRadius: '12px',
+                                background: 'transparent',
+                                border: '1px solid var(--text-secondary)',
+                                color: 'var(--text-secondary)',
+                                cursor: 'pointer',
+                                fontWeight: '600'
+                            }}
+                        >
+                            {t.cancel}
+                        </button>
+                        <button
+                            onClick={onConfirm}
+                            disabled={!isChecked}
+                            className="btn-primary"
+                            style={{
+                                flex: 2,
+                                opacity: isChecked ? 1 : 0.5,
+                                cursor: isChecked ? 'pointer' : 'not-allowed',
+                                filter: isChecked ? 'none' : 'grayscale(1)'
+                            }}
+                        >
+                            {t.continueToPayment}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
     if (!isOpen) return null;
 
@@ -300,6 +432,17 @@ const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
 export default function LandingPage() {
     const { t, lang, toggleLang, isRTL, testimonials, mounted } = useLanguage();
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
+    const [targetUrl, setTargetUrl] = useState('');
+
+    const handleSubscribe = (url) => {
+        setTargetUrl(url);
+        setShowTermsModal(true);
+    };
+
+    const confirmSubscription = () => {
+        window.location.href = targetUrl;
+    };
     const currentYear = new Date().getFullYear();
 
     const monthlyPrice = 79;
@@ -315,6 +458,7 @@ export default function LandingPage() {
     return (
         <div>
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} t={t} isRTL={isRTL} />
+            <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} onConfirm={confirmSubscription} t={t} isRTL={isRTL} />
 
             {/* Header */}
             <header className="header">
@@ -445,7 +589,7 @@ export default function LandingPage() {
                                 <li><CheckIcon /> {t.feature_analysis}</li>
                                 <li><CheckIcon /> {t.feature_support}</li>
                             </ul>
-                            <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
+                            <button onClick={() => handleSubscribe('https://t.me/your_bot')} className="btn-primary" style={{ width: '100%', border: 'none', cursor: 'pointer', fontSize: '1rem', fontFamily: 'inherit' }}>{t.subscribe}</button>
                         </div>
                         {/* Quarterly */}
                         <div className="pricing-card">
@@ -459,7 +603,7 @@ export default function LandingPage() {
                                 <li><CheckIcon /> {t.feature_support}</li>
                                 <li><CheckIcon /> {t.feature_community}</li>
                             </ul>
-                            <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
+                            <button onClick={() => handleSubscribe('https://t.me/your_bot')} className="btn-primary" style={{ width: '100%', border: 'none', cursor: 'pointer', fontSize: '1rem', fontFamily: 'inherit' }}>{t.subscribe}</button>
                         </div>
                         {/* Yearly */}
                         <div className="pricing-card featured">
@@ -477,7 +621,7 @@ export default function LandingPage() {
                                 <li><CheckIcon /> {t.feature_community}</li>
                                 <li><CheckIcon /> {t.feature_education}</li>
                             </ul>
-                            <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
+                            <button onClick={() => handleSubscribe('https://t.me/your_bot')} className="btn-primary" style={{ width: '100%', border: 'none', cursor: 'pointer', fontSize: '1rem', fontFamily: 'inherit' }}>{t.subscribe}</button>
                         </div>
                     </div>
                 </div>
