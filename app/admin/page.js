@@ -378,7 +378,8 @@ export default function AdminPage() {
             setError(t.uploadError);
             setUploading(false);
         }
-    }; if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
 };
 
 const handleGrantVip = async (e) => {
