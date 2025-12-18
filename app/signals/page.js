@@ -432,21 +432,59 @@ export default function SignalsPage() {
         if (typeof window === 'undefined') return;
 
         const ua = navigator.userAgent || '';
+        const uaLower = ua.toLowerCase();
+
+        // Comprehensive in-app browser detection
+        const inAppBrowserPatterns = [
+            // Telegram
+            { name: 'Telegram', pattern: /telegram/i, hasProxy: () => !!window.TelegramWebviewProxy },
+            // Facebook/Meta
+            { name: 'Facebook', pattern: /FBAN|FBAV|FB_IAB|FBIOS|FBSS/i },
+            { name: 'Messenger', pattern: /Messenger/i },
+            { name: 'Instagram', pattern: /Instagram/i },
+            // Twitter/X
+            { name: 'Twitter', pattern: /Twitter/i },
+            // LinkedIn
+            { name: 'LinkedIn', pattern: /LinkedInApp/i },
+            // Snapchat
+            { name: 'Snapchat', pattern: /Snapchat/i },
+            // TikTok
+            { name: 'TikTok', pattern: /TikTok|musical_ly/i },
+            // Pinterest
+            { name: 'Pinterest', pattern: /Pinterest/i },
+            // WhatsApp (rarely has webview but check anyway)
+            { name: 'WhatsApp', pattern: /WhatsApp/i },
+            // Line
+            { name: 'Line', pattern: /Line\//i },
+            // WeChat
+            { name: 'WeChat', pattern: /MicroMessenger|WeChat/i },
+            // Generic WebView detection for Android
+            { name: 'WebView', pattern: /wv\)|WebView/i },
+        ];
+
         const isIOS = /iPad|iPhone|iPod/.test(ua);
-        const isAndroid = /Android/.test(ua);
-        const isTelegramWebView = /TelegramWebview|Telegram/.test(ua) || window.TelegramWebviewProxy;
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         const hasPushManager = 'PushManager' in window;
         const hasServiceWorker = 'serviceWorker' in navigator;
         const hasNotification = 'Notification' in window;
 
-        if (isTelegramWebView) {
+        // Check for in-app browsers
+        let detectedApp = null;
+        for (const app of inAppBrowserPatterns) {
+            if (app.pattern.test(ua) || (app.hasProxy && app.hasProxy())) {
+                detectedApp = app.name;
+                break;
+            }
+        }
+
+        if (detectedApp) {
             setBrowserInfo({
                 supported: false,
-                reason: 'telegram',
+                reason: 'inapp',
+                appName: detectedApp,
                 message: lang === 'ar'
-                    ? 'لتفعيل الإشعارات، افتح الموقع من متصفح Chrome أو Safari'
-                    : 'To enable notifications, open the site in Chrome or Safari browser'
+                    ? `أنت تستخدم متصفح ${detectedApp} المدمج.\n\nلتفعيل الإشعارات:\n1. انسخ رابط الموقع\n2. افتحه في متصفح Chrome أو Safari`
+                    : `You are using ${detectedApp}'s built-in browser.\n\nTo enable notifications:\n1. Copy the website link\n2. Open it in Chrome or Safari`
             });
         } else if (isIOS && !isStandalone) {
             setBrowserInfo({
