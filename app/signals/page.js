@@ -441,12 +441,22 @@ export default function SignalsPage() {
     const handleEnableSound = async () => {
         // 1. Request Notification Permission
         if (typeof Notification !== 'undefined') {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                setNotificationsEnabled(true);
-                // 2. Unlock Audio Context by playing silently or short
-                playNotificationSound();
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    setNotificationsEnabled(true);
+                    // 2. Unlock Audio Context by playing silently or short
+                    playNotificationSound();
+                    alert(t.notificationsEnabled || 'Notifications Enabled! Sound test playing...');
+                } else {
+                    alert('Notification permission denied. Please enable them in your browser settings.');
+                }
+            } catch (error) {
+                console.error('Permission request failed', error);
+                alert('Error requesting permission: ' + error.message);
             }
+        } else {
+            alert('This browser does not support notifications.');
         }
     };
 
