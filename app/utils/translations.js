@@ -70,6 +70,7 @@ export const translations = {
                 alertsOn: 'On',
                 alertsOff: 'Enable Alerts',
                 notificationsEnabled: 'Notifications Enabled!',
+                notificationsDisabled: 'Notifications Disabled 🔕',
                 newSignalTitle: 'New Signal Alert! 💰',
                 newSignalBody: 'A new trading signal has been posted.',
 
@@ -289,6 +290,7 @@ Past performance of any trading system or methodology is not necessarily indicat
                 alertsOn: 'مفعلة',
                 alertsOff: 'تفعيل التنبيهات',
                 notificationsEnabled: 'تم تفعيل التنبيهات!',
+                notificationsDisabled: 'تم إيقاف التنبيهات 🔕',
                 newSignalTitle: 'توصية تداول جديدة! 💰',
                 newSignalBody: 'تم نشر توصية جديدة، تفقدها الآن.',
 

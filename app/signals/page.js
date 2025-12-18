@@ -439,53 +439,72 @@ export default function SignalsPage() {
     }, []);
 
     const handleEnableSound = async () => {
-        // 1. Request Notification Permission
+        // If already enabled, DISABLE notifications
+        if (notificationsEnabled) {
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+
+                    if (subscription) {
+                        // Unsubscribe from browser
+                        await subscription.unsubscribe();
+
+                        // Remove from server
+                        await fetch('/api/push/unsubscribe', {
+                            method: 'POST',
+                            body: JSON.stringify({ endpoint: subscription.endpoint }),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    }
+                }
+                setNotificationsEnabled(false);
+                alert(t.notificationsDisabled || 'Notifications Disabled 🔕');
+            } catch (error) {
+                console.error('Error disabling notifications:', error);
+                alert('Error: ' + error.message);
+            }
+            return;
+        }
+
+        // ENABLE notifications
         if (typeof Notification !== 'undefined') {
             try {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
-                    setNotificationsEnabled(true);
-                    // 2. Unlock Audio Context by playing silently or short
-                    playNotificationSound();
-
-                    // 3. Register Service Worker and Subscribe to Push
+                    // Register Service Worker and Subscribe to Push
                     if ('serviceWorker' in navigator) {
                         try {
-                            const register = await navigator.serviceWorker.register('/sw.js');
-                            console.log('SW Registered');
-
-                            // Wait for service worker to be ready
+                            await navigator.serviceWorker.register('/sw.js');
                             const registration = await navigator.serviceWorker.ready;
-                            console.log('SW Ready');
 
                             // Subscribe to Push
                             const subscription = await registration.pushManager.subscribe({
                                 userVisibleOnly: true,
                                 applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFI2iHpeuWixiyvPI58zQaRquTCQkgJrnwHc8W-ZOdYMxCvCM2ZcD3yE5Shs4pgywmCWROFj6xabsjK5QpA-i5Y'
                             });
-                            console.log('Push Subscription created:', subscription);
 
-                            // Send Subscription to Server (works for logged in and anonymous users)
+                            // Send Subscription to Server
                             const response = await fetch('/api/push/subscribe', {
                                 method: 'POST',
                                 body: JSON.stringify({
                                     telegramId: telegramId || null,
-                                    subscription: subscription.toJSON() // Convert to plain object
+                                    subscription: subscription.toJSON()
                                 }),
                                 headers: { 'Content-Type': 'application/json' }
                             });
 
                             const result = await response.json();
-                            console.log('Server response:', result);
 
                             if (result.success) {
+                                setNotificationsEnabled(true);
                                 alert(t.notificationsEnabled || 'Notifications Enabled! ✅');
                             } else {
-                                alert('Error saving subscription: ' + (result.error || 'Unknown error'));
+                                alert('Error: ' + (result.error || 'Unknown error'));
                             }
                         } catch (swError) {
                             console.error('SW/Push Error:', swError);
-                            alert('Service Worker Error: ' + swError.message);
+                            alert('Error: ' + swError.message);
                         }
                     } else {
                         alert('This browser does not support Service Workers.');
@@ -495,7 +514,7 @@ export default function SignalsPage() {
                 }
             } catch (error) {
                 console.error('Permission request failed', error);
-                alert('Error requesting permission: ' + error.message);
+                alert('Error: ' + error.message);
             }
         } else {
             alert('This browser does not support notifications.');
