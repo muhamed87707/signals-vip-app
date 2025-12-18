@@ -424,19 +424,48 @@ export default function SignalsPage() {
     const latestSignalIdRef = useRef(null);
     const audioRef = useRef(null);
 
+    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
     // Initialize Audio
     useEffect(() => {
         if (typeof window !== 'undefined') {
             audioRef.current = new Audio('/cash.wav');
+
+            // Check if notifications are already granted
+            if (Notification.permission === 'granted') {
+                setNotificationsEnabled(true);
+            }
         }
     }, []);
+
+    const handleEnableSound = async () => {
+        // 1. Request Notification Permission
+        if (typeof Notification !== 'undefined') {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                setNotificationsEnabled(true);
+                // 2. Unlock Audio Context by playing silently or short
+                playNotificationSound();
+            }
+        }
+    };
 
     const playNotificationSound = () => {
         if (audioRef.current) {
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch(e => console.log('Audio autoplay blocked:', e));
         }
+
+        // fire system notification
+        if (Notification.permission === 'granted') {
+            new Notification(t.newSignalTitle || 'New Signal Alert! 💰', {
+                body: t.newSignalBody || 'A new trading signal has been posted.',
+                icon: '/og-image.png' // consistent with site branding
+            });
+        }
     };
+
+
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -648,6 +677,27 @@ export default function SignalsPage() {
                             }}
                         >
                             🌐 {t.langSwitch}
+                        </button>
+
+                        <button
+                            onClick={handleEnableSound}
+                            style={{
+                                color: notificationsEnabled ? 'var(--gold-primary)' : 'var(--text-secondary)',
+                                border: '1px solid transparent',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                fontSize: '0.95rem',
+                                padding: '0.5rem 1rem',
+                                background: notificationsEnabled ? 'rgba(218, 165, 32, 0.15)' : 'rgba(218, 165, 32, 0.05)',
+                                borderRadius: '20px',
+                                transition: 'all 0.3s ease',
+                                fontFamily: 'inherit'
+                            }}
+                            title={notificationsEnabled ? "Alerts Enabled" : "Enable Sound Alerts"}
+                        >
+                            {notificationsEnabled ? '🔔' : '🔕'} {notificationsEnabled ? (t.alertsOn || "On") : (t.alertsOff || "Enable Alerts")}
                         </button>
                     </div>
 
