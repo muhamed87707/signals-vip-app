@@ -612,7 +612,11 @@ export default function SignalsPage() {
                         alert(t.swNotSupported || 'This browser does not support background notifications.');
                     }
                 } else {
-                    alert(t.notificationPermissionDenied || 'Notifications blocked. Please enable them from browser settings.');
+                    // Permission is 'denied' - show detailed reset instructions
+                    const resetMessage = lang === 'ar'
+                        ? `الإشعارات محظورة حالياً.\n\nلإعادة التفعيل في Chrome:\n1. اضغط على ⋮ (ثلاث نقاط) أعلى المتصفح\n2. اختر "الإعدادات"\n3. اختر "إعدادات الموقع"\n4. اختر "الإشعارات"\n5. ابحث عن هذا الموقع واحذفه\n6. عد للموقع واضغط تفعيل مجدداً`
+                        : `Notifications are currently blocked.\n\nTo reset in Chrome:\n1. Tap ⋮ (three dots) at top\n2. Choose "Settings"\n3. Choose "Site settings"\n4. Choose "Notifications"\n5. Find this site and remove it\n6. Return and try enabling again`;
+                    alert(resetMessage);
                 }
             } catch (error) {
                 console.error('Permission request failed', error);
