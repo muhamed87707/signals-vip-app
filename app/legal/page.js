@@ -5,6 +5,27 @@ import Link from 'next/link';
 export default function LegalPage() {
     const { t, isRTL } = useLanguage();
 
+    // Helper to render formatted text with titles
+    const renderContent = (text) => {
+        if (!text) return null;
+        return text.split('\n').map((line, index) => {
+            if (!line.trim()) return <div key={index} style={{ height: '0.5rem' }}></div>;
+
+            if (line.includes('**')) {
+                // Remove ** and render as bold header
+                const cleanLine = line.replace(/\*\*/g, '');
+                return <h3 key={index} style={{
+                    color: 'var(--text-primary)',
+                    fontWeight: '700',
+                    fontSize: '1.1rem',
+                    marginTop: '1.5rem',
+                    marginBottom: '0.5rem'
+                }}>{cleanLine}</h3>;
+            }
+            return <p key={index} style={{ marginBottom: '0.5rem', opacity: 0.8, lineHeight: '1.6' }}>{line}</p>;
+        });
+    };
+
     return (
         <div style={{
             minHeight: '100vh',
@@ -43,8 +64,10 @@ export default function LegalPage() {
                         padding: '2rem',
                         boxShadow: 'var(--shadow-card)'
                     }}>
-                        <h2 style={{ color: 'var(--gold-medium)', marginBottom: '1rem', fontSize: '1.5rem' }}>{t.privacyPolicy}</h2>
-                        <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>{t.privacyText}</p>
+                        <h2 style={{ color: 'var(--gold-medium)', marginBottom: '1.5rem', fontSize: '1.8rem', borderBottom: '1px solid rgba(184, 134, 11, 0.1)', paddingBottom: '1rem' }}>{t.privacyPolicy}</h2>
+                        <div style={{ color: 'var(--text-secondary)' }}>
+                            {renderContent(t.privacyText)}
+                        </div>
                     </section>
 
                     {/* Terms of Service */}
@@ -55,8 +78,10 @@ export default function LegalPage() {
                         padding: '2rem',
                         boxShadow: 'var(--shadow-card)'
                     }}>
-                        <h2 style={{ color: 'var(--gold-medium)', marginBottom: '1rem', fontSize: '1.5rem' }}>{t.termsOfService}</h2>
-                        <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>{t.termsText}</p>
+                        <h2 style={{ color: 'var(--gold-medium)', marginBottom: '1.5rem', fontSize: '1.8rem', borderBottom: '1px solid rgba(184, 134, 11, 0.1)', paddingBottom: '1rem' }}>{t.termsOfService}</h2>
+                        <div style={{ color: 'var(--text-secondary)' }}>
+                            {renderContent(t.termsText)}
+                        </div>
                     </section>
 
                     {/* Risk Disclaimer */}
@@ -77,10 +102,12 @@ export default function LegalPage() {
                             width: '4px',
                             background: '#ef4444'
                         }}></div>
-                        <h2 style={{ color: '#f87171', marginBottom: '1rem', fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h2 style={{ color: '#f87171', marginBottom: '1.5rem', fontSize: '1.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255, 0, 0, 0.1)', paddingBottom: '1rem' }}>
                             ⚠️ {t.riskDisclaimer}
                         </h2>
-                        <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', opacity: 0.9 }}>{t.riskText}</p>
+                        <div style={{ color: 'var(--text-secondary)' }}>
+                            {renderContent(t.riskText)}
+                        </div>
                     </section>
                 </div>
 

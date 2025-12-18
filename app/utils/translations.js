@@ -152,9 +152,51 @@ export const translations = {
         riskDisclaimer: 'Risk Disclaimer',
         legalFooterLink: 'Legal & Risk Disclaimer',
 
-        privacyText: 'We respect your privacy. We do not share your personal data with third parties. Your Telegram ID is used solely for authentication and service delivery.',
-        termsText: 'By using our signals, you agree that you are solely responsible for your trading decisions. Subscription fees are non-refundable once the service period has started.',
-        riskText: 'Trading Forex, Commodities, and Crypto involves a high level of risk and may not be suitable for all investors. Past performance is not indicative of future results. You could lose some or all of your invested capital.',
+        // Privacy Policy Detail
+        privacyText: `
+**1. Information We Collect**
+We collect the following information when you authenticate via Telegram:
+- Telegram ID (unique identifier)
+- First Name and Last Name
+- Username (if available)
+- Profile Picture URL
+
+**2. Purpose of Collection**
+This data is used solely for:
+- Authenticating your identity and managing your session.
+- Determining your VIP status and access rights.
+- Ensuring the security of the application.
+
+**3. Data Storage and Third Parties**
+- Your data is stored securely in our MongoDB database.
+- We do not sell your personal data to advertisers or third parties.
+- We use Vercel for hosting and infrastructure services.
+
+**4. User Rights (GDPR & Data Deletion)**
+You have the right to request the deletion of your data at any time. To request deletion, please contact us via our Telegram support bot. Upon request, all your stored personal data will be permanently removed from our servers.`,
+        termsText: `
+**1. Nature of Service**
+The signals provided are for educational and informational purposes only. They represent technical analysis and personal opinions of our analysts, not financial advice.
+
+**2. No Refund Policy**
+All subscription sales are final. We do not offer refunds once the service period has commenced or if you fail to use the service. Refunds are only considered in cases of proven technical failure on our end preventing access for >48 hours.
+
+**3. User Responsibility**
+You acknowledge that you are solely responsible for your trading decisions. We are not liable for any generated losses or damages resulting from reliance on our information.
+
+**4. Termination**
+We reserve the right to terminate or suspend your access immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms (e.g., resharing signals).`,
+
+        riskText: `
+**Risk Warning: High Risk Investment**
+
+Trading Foreign Exchange (Forex) and Contracts for Differences (CFDs) on margin carries a high level of risk and may not be suitable for all investors. The high degree of leverage can work against you as well as for you. Before deciding to trade Forex, you should carefully consider your investment objectives, level of experience, and risk appetite.
+
+**Possibility of Loss**
+The possibility exists that you could sustain a loss of some or all of your initial investment and therefore you should not invest money that you cannot afford to lose. You should be aware of all the risks associated with foreign exchange trading and seek advice from an independent financial advisor if you have any doubts.
+
+**Past Performance**
+Past performance of any trading system or methodology is not necessarily indicative of future results. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown.`,
         backToHome: 'Back to Home',
     },
     ar: {
@@ -308,9 +350,50 @@ export const translations = {
         riskDisclaimer: 'تحذير المخاطر',
         legalFooterLink: 'المعلومات القانونية والمخاطر',
 
-        privacyText: 'نحن نحترم خصوصيتك. لا نشارك بياناتك الشخصية مع أطراف ثالثة. يتم استخدام معرف تليجرام الخاص بك فقط للمصادقة وتقديم الخدمة.',
-        termsText: 'باستخدامك لتوصياتنا، أنت تقر بأنك المسؤول الوحيد عن قراراتك الاستثمارية. رسوم الاشتراك غير قابلة للاسترداد بمجرد بدء فترة الخدمة.',
-        riskText: 'تداول الفوركس والسلع والعملات الرقمية ينطوي على مخاطر عالية وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق ليس مؤشراً للنتائج المستقبلية. قد تخسر جزءاً أو كل رأس مالك المستثمر.',
+        privacyText: `
+**1. المعلومات التي نجمعها**
+نحن نجمع المعلومات التالية عند قيامك بتسجيل الدخول عبر تليجرام:
+- معرف تليجرام (Telegram ID - معرف فريد)
+- الاسم الأول واسم العائلة
+- اسم المستخدم (Username - إن وجد)
+- صورة الملف الشخصي
+
+**2. الغرض من جمع البيانات**
+تستخدم هذه البيانات حصرياً للأغراض التالية:
+- التحقق من هويتك وإدارة جلستك في الموقع.
+- تحديد حالة اشتراكك (VIP) وصلاحيات الوصول.
+- ضمان أمن التطبيق ومنع الاحتيال.
+
+**3. تخزين البيانات والأطراف الثالثة**
+- يتم تخزين بياناتك بشكل آمن في قواعد بياناتنا (MongoDB).
+- نحن لا نبيع ولا نؤجر بياناتك الشخصية لأي معلنين أو أطراف ثالثة.
+- نستخدم خدمات Vercel للاستضافة والبنية التحتية.
+
+**4. حقوق المستخدم (الامتثال لـ GDPR)**
+لديك الحق في طلب حذف بياناتك بالكامل في أي وقت. لطلب الحذف، يرجى التواصل معنا عبر بوت الدعم الفني. عند الطلب، سيتم محو جميع بياناتك الشخصية المخزنة من خوادمنا بشكل دائم.`,
+        termsText: `
+**1. طبيعة الخدمة**
+التوصيات والإشارات المقدمة هي لأغراض تعليمية وإعلامية فقط. هي تمثل تحليلاً فنياً وآراءً شخصية لمحللينا، ولا تعتبر نصيحة مالية ملزمة.
+
+**2. سياسة عدم الاسترداد (No Refund Policy)**
+جميع مبيعات الاشتراكات نهائية. نحن لا نقدم استرداداً للأموال بمجرد بدء فترة الخدمة أو في حال فشلك في استخدام الخدمة. يتم النظر في طلبات الاسترداد فقط في حالات الأعطال التقنية المثبتة من جانبنا والتي تمنع الوصول للخدمة لأكثر من 48 ساعة.
+
+**3. مسؤولية المستخدم**
+أنت تقر وتوافق على أنك المسؤول الوحيد عن جميع قراراتك الاستثمارية والتداولية. نحن غير مسؤولين عن أي خسائر أو أضرار قد تنشأ نتيجة الاعتماد على المعلومات المقدمة في التطبيق.
+
+**4. إنهاء الخدمة**
+نحتفظ بالحق في إنهاء أو تعليق وصولك للخدمة فوراً، دون سابق إنذار أو مسؤولية، لأي سبب كان، بما في ذلك ودون حصر انتهاك شروط الاستخدام (مثل إعادة نشر التوصيات).`,
+
+        riskText: `
+**تحذير الهيئات الرقابية: استثمار عالي المخاطر**
+
+تداول العملات الأجنبية (Forex) وعقود الفروقات (CFDs) باستخدام الرافعة المالية ينطوي على مخاطر عالية وقد لا يكون مناسباً لجميع المستثمرين. الرافعة المالية العالية يمكن أن تعمل ضدك كما تعمل لصالحك. قبل اتخاذ قرار بتداول الفوركس، يجب عليك النظر بعناية في أهدافك الاستثمارية، مستوى خبرتك، وقدرتك على تحمل المخاطر.
+
+**احتمالية الخسارة**
+هناك احتمالية أن تتكبد خسارة لجزء من أو كل استثمارك الأولي، ولذلك يجب ألا تستثمر أموالاً لا يمكنك تحمل خسارتها. يجب أن تكون على دراية بجميع المخاطر المصاحبة لتداول العملات الأجنبية وطلب المشورة من مستشار مالي مستقل إذا كانت لديك أي شكوك.
+
+**الأداء السابق**
+النتائج والأداء السابق لأي نظام تداول أو منهجية ليست بالضرورة مؤشراً للنتائج المستقبلية. لا يتم تقديم أي تعهد بأن أي حساب سيحقق أو من المرجح أن يحقق أرباحاً أو خسائر مماثلة لتلك المعروضة.`,
         backToHome: 'العودة للرئيسية',
     }
 };
