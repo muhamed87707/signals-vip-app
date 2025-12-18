@@ -87,16 +87,39 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
+// Helper to delete from Telegram
+async function deleteTelegramMessage(messageId) {
+    if (!messageId) return;
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                message_id: messageId
+            })
+        });
+    } catch (error) {
+        console.error('Telegram Delete Failed:', error);
+    }
+}
+
+// Helper to send to Telegram (Updated for AI Content)
 async function sendToTelegram(imageUrl, caption) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHANNEL_ID) return null;
+    if (!imageUrl) return null;
 
     try {
-        const text = caption || `🔥 **New VIP Signal!** 🔥
+        // Use AI content if provided, otherwise default caption
+        const text = caption || `🔥 *توصية VIP جديدة!* 💎
+تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
+اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
+
+🔥 *New VIP Signal!* 💎
 A high-potential trade has been posted for premium subscribers! 🚀
-Click below to reveal the signal 👇`;
+Click below to reveal the signal details 👇`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
-
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -104,7 +127,7 @@ Click below to reveal the signal 👇`;
                 chat_id: TELEGRAM_CHANNEL_ID,
                 photo: imageUrl,
                 caption: text,
-                parse_mode: 'Markdown',
+                parse_mode: 'Markdown', // OR 'HTML' if AI generates HTML, but Markdown is safer usually
                 reply_markup: {
                     inline_keyboard: [[
                         { text: "💎 Show Signal | إظهار التوصية 💎", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
@@ -121,23 +144,6 @@ Click below to reveal the signal 👇`;
     } catch (error) {
         console.error('Telegram Post Failed:', error);
         return null;
-    }
-}
-
-async function deleteTelegramMessage(messageId) {
-    if (!messageId) return;
-    try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
-        await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHANNEL_ID,
-                message_id: messageId
-            })
-        });
-    } catch (error) {
-        console.error('Telegram Delete Failed:', error);
     }
 }
 
@@ -190,7 +196,7 @@ export async function POST(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend, isVip, socialPostContent } = body;
+        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
 
         // 1. Upload Main Image (Clear)
         const clearImageUrl = await uploadToImgBB(imageUrl);
@@ -198,18 +204,12 @@ export async function POST(request) {
 
         let telegramMessageId = null;
 
-        // 2. Upload Telegram Image (Blurred for VIP, Clear for Free) if requested
-        if (shouldSend) {
-            // For VIP, use the provided telegramImage (which should be blurred by frontend)
-            // For Free, default to the clear image if no specific telegram image provided
-            const imageToSend = (isVip && telegramImage) ? telegramImage : imageUrl;
-
-            const uploadedTelegramUrl = await uploadToImgBB(imageToSend);
-            if (uploadedTelegramUrl) {
-                // Determine caption: Use generated social content or default
-                const caption = socialPostContent || `New Signal: ${pair} ${type}`;
+        // 2. Upload Telegram Image (Blurred) if requested
+        if (shouldSend && telegramImage) {
+            const blurredUrl = await uploadToImgBB(telegramImage);
+            if (blurredUrl) {
                 // Send and capture Message ID
-                telegramMessageId = await sendToTelegram(uploadedTelegramUrl, caption);
+                telegramMessageId = await sendToTelegram(blurredUrl);
             }
         }
 
@@ -218,8 +218,6 @@ export async function POST(request) {
             pair,
             type,
             imageUrl: clearImageUrl,
-            isVip: !!isVip,
-            socialPostContent,
             telegramMessageId: telegramMessageId?.toString()
         });
 

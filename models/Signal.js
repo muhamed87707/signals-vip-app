@@ -5,8 +5,8 @@ const SignalSchema = new mongoose.Schema({
   type: { type: String, required: true }, // بيع او شراء
   imageUrl: { type: String, required: true }, // رابط الصورة
   telegramMessageId: { type: String }, // معرف رسالة تليجرام للحذف
-  isVip: { type: Boolean, default: false }, // هل التوصية VIP؟
-  socialPostContent: { type: String }, // نص المنشور للسوشيال ميديا
+  isVip: { type: Boolean, default: false }, // هل التوصية حصرية للـ VIP
+  aiContent: { type: String }, // النص الذي تم توليده بواسطة AI
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,40 +1,43 @@
+
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export async function POST(request) {
+export async function POST(req) {
     try {
-        const { apiKey, prompt } = await request.json();
+        const { apiKey, model, prompt, baseText } = await req.json();
 
-        if (!apiKey) {
-            return NextResponse.json({ success: false, error: 'API Key is required' }, { status: 400 });
+        if (!apiKey || !prompt || !baseText) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // User requested 'gemini-3-flash', but we need to fallback if it doesn't exist yet, 
+        // however, we will try to use the model string provided by user.
+        // If it fails, the error will be caught.
+        const modelName = model || 'gemini-1.5-flash';
+        const generativeModel = genAI.getGenerativeModel({ model: modelName });
 
-        const fullPrompt = `Generate 50 distinct, short, high-energy, and professional social media posts (Twitter/Telegram style) for a trading signal. 
-        Context: ${prompt}
-        Output MUST be a JSON array of strings. Example: ["Post 1", "Post 2"]`;
+        const finalPrompt = `${prompt}\n\nHere is the base text to rewrite/enhance:\n${baseText}\n\nPlease generate exactly 50 distinct variations of this post. Return them as a JSON array of strings, without any markdown formatting outside the JSON.`;
 
-        const result = await model.generateContent(fullPrompt);
+        const result = await generativeModel.generateContent(finalPrompt);
         const response = await result.response;
         const text = response.text();
 
-        // Clean up markdown code blocks if present
-        const cleanText = text.replace(/```json|```/g, '').trim();
-
-        let posts = [];
+        // Attempt to parse JSON
+        let variations = [];
         try {
-            posts = JSON.parse(cleanText);
+            // Clean up code blocks if present
+            const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            variations = JSON.parse(cleanText);
         } catch (e) {
-            console.error("JSON Parse Error:", e);
-            // Fallback: try to split by newlines if JSON fails, or return single item
-            posts = [cleanText];
+            // Fallback: split by newlines if not JSON
+            variations = text.split('\n').filter(line => line.trim().length > 0).slice(0, 50);
         }
 
-        return NextResponse.json({ success: true, posts });
+        return NextResponse.json({ variations });
+
     } catch (error) {
-        console.error("AI Generation API Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        console.error('AI Generation Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
