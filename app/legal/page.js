@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import Link from 'next/link';
 
 export default function LegalPage() {
-    const { t, isRTL } = useLanguage();
+    const { t, isRTL, toggleLang } = useLanguage();
 
     // Helper to render formatted text with titles
     const renderContent = (text) => {
@@ -43,19 +43,40 @@ export default function LegalPage() {
             fontFamily: isRTL ? 'var(--font-cairo)' : 'var(--font-inter)'
         }}>
             <div className="container" style={{ maxWidth: '850px', margin: '0 auto' }}>
-                <Link href="/" style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    color: 'var(--gold-primary)',
-                    textDecoration: 'none',
-                    marginBottom: '3rem',
-                    fontWeight: '600',
-                    fontSize: '1.1rem',
-                    transition: 'opacity 0.2s'
-                }} className="hover:opacity-80">
-                    {isRTL ? '→' : '←'} {t.backToHome}
-                </Link>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+                    <Link href="/" style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        color: 'var(--gold-primary)',
+                        textDecoration: 'none',
+                        fontWeight: '600',
+                        fontSize: '1.1rem',
+                        transition: 'opacity 0.2s'
+                    }} className="hover:opacity-80">
+                        {isRTL ? '→' : '←'} {t.backToHome}
+                    </Link>
+
+                    <button
+                        onClick={toggleLang}
+                        style={{
+                            background: 'rgba(184, 134, 11, 0.1)',
+                            border: '1px solid rgba(184, 134, 11, 0.3)',
+                            borderRadius: '50px',
+                            padding: '0.5rem 1.2rem',
+                            color: 'var(--gold-primary)',
+                            fontSize: '0.95rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            transition: 'all 0.3s ease'
+                        }}
+                        className="hover:bg-[rgba(184,134,11,0.2)]"
+                    >
+                        🌐 {t.langSwitch}
+                    </button>
+                </div>
 
                 <h1 className="text-gradient" style={{
                     fontSize: '3rem',
