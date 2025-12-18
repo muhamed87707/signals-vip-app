@@ -48,8 +48,6 @@ export const translations = {
                 disclaimerTitle: '⚠️ Risk Disclaimer',
                 disclaimerText: 'Trading in financial markets involves substantial risk and may not be suitable for all investors. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before trading. Never invest money you cannot afford to lose. The signals provided are for educational purposes only and do not constitute financial advice.',
                 footerText: 'All Rights Reserved',
-                faqTitle: 'Frequently Asked Questions',
-                faqSubtitle: 'Everything you need to know about our service',
 
                 // Signals Page
                 signalsTitle: 'Trading Signals',
@@ -146,6 +144,10 @@ export const translations = {
                 estimatedPips: 'Based on ~11,500 Pips gained last month',
                 riskExplanation: 'Risk: 2% / Trade (Compounded Daily)',
                 gain: 'Gain',
+
+                // FAQ
+                faqTitle: 'Frequently Asked Questions',
+                faqSubtitle: 'Got questions? We have answers.',
 
                 // Legal
                 legalTitle: 'Legal Information',
@@ -264,8 +266,6 @@ Past performance of any trading system or methodology is not necessarily indicat
                 disclaimerTitle: '⚠️ إخلاء المسؤولية',
                 disclaimerText: 'التداول في الأسواق المالية ينطوي على مخاطر كبيرة وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق لا يضمن النتائج المستقبلية. يجب أن تدرس بعناية أهدافك الاستثمارية ومستوى خبرتك ومدى تحملك للمخاطر قبل التداول. لا تستثمر أبداً أموالاً لا يمكنك تحمل خسارتها. التوصيات المقدمة هي لأغراض تعليمية فقط ولا تمثل نصيحة مالية.',
                 footerText: 'جميع الحقوق محفوظة',
-                faqTitle: 'الأسئلة الشائعة',
-                faqSubtitle: 'كل ما تحتاج معرفته عن خدماتنا',
 
                 // Signals Page
                 signalsTitle: 'توصيات التداول',
@@ -361,6 +361,10 @@ Past performance of any trading system or methodology is not necessarily indicat
                 riskExplanation: 'المخاطرة: 2% / صفقة (تراكمي يومي)',
                 gain: 'ربح',
 
+                // FAQ
+                faqTitle: 'الأسئلة الشائعة',
+                faqSubtitle: 'لديك استفسارات؟ لدينا الإجابات.',
+
                 // Legal
                 legalTitle: 'المعلومات القانونية',
                 privacyPolicy: 'سياسة الخصوصية',
@@ -450,18 +454,18 @@ export const englishTestimonials = [
         { name: 'Daniel Brown', title: 'Investment Analyst', text: 'As a professional, I appreciate the depth of analysis. Consistently profitable signals.', initial: 'D' }
 ];
 
-export const arabicFAQ = [
-        { q: 'كيف أحصل على التوصيات؟', a: 'ستصلك تنبيهات فورية عبر قناتنا الخاصة على تليجرام وبوت VIP، مما يضمن عدم تفويتك لأي فرصة تداول.' },
-        { q: 'ما هو رأس المال المطلوب للبدء؟', a: 'ننصح بالبدء برصيد لا يقل عن 100-300 دولار لتمكينك من إدارة المخاطر بشكل صحيح وتوزيع العقود.' },
-        { q: 'هل الخدمة مناسبة للمبتدئين؟', a: 'نعم بالتأكيد! كل توصية تأتي بتفاصيل كاملة (دخول، وقف خسارة، جني أرباح) مع شروحات تعليمية لمساعدتك على الفهم.' },
-        { q: 'ما هي نسبة نجاح التوصيات؟', a: 'نحافظ على نسبة نجاح تتراوح بين 75% إلى 85% شهرياً، مع تركيزنا الأساسي على إدارة المخاطر للحفاظ على رأس المال.' },
-        { q: 'هل يمكنني إلغاء اشتراكي؟', a: 'نعم، يمكنك إلغاء التجديد التلقائي في أي وقت. ومع ذلك، الاشتراكات المدفوعة للفترة الحالية غير قابلة للاسترداد.' }
+export const englishFAQ = [
+        { q: 'How do I receive the signals?', a: 'Once you subscribe, you will get instant access to our private VIP Telegram channel where all signals are posted in real-time.' },
+        { q: 'Do I need trading experience?', a: 'Not necessarily. Our signals include clear Entry, Stop Loss, and Take Profit levels. We also provide a guide on how to place trades.' },
+        { q: 'What is the required capital?', a: 'You can start with as little as $100, but we recommend $500+ for better risk management.' },
+        { q: 'What is your win rate?', a: 'We maintain a consistent win rate of 85-90%, focusing on quality over quantity to ensure profitability.' },
+        { q: 'Can I cancel my subscription?', a: 'Yes, you can cancel your automated renewal at any time through our support bot.' }
 ];
 
-export const englishFAQ = [
-        { q: 'How do I receive the signals?', a: 'You will receive instant notifications via our private Telegram channel and VIP bot, ensuring you never miss a trading opportunity.' },
-        { q: 'How much capital do I need to start?', a: 'We recommend starting with at least $100-$300. This allows for proper risk management and position sizing.' },
-        { q: 'Is this service suitable for beginners?', a: 'Absolutely! Every signal includes full details (Entry, SL, TP) along with educational notes to help you understand the market.' },
-        { q: 'What is the success rate?', a: 'We maintain a consistent win rate of 75%-85% monthly, with our primary focus on strict risk management to protect your capital.' },
-        { q: 'Can I cancel my subscription?', a: 'Yes, you can cancel auto-renewal at any time. However, active subscriptions for the current period are non-refundable.' }
+export const arabicFAQ = [
+        { q: 'كيف أستلم التوصيات؟', a: 'بمجرد الاشتراك، ستحصل على رابط دعوة لقناتنا الخاصة على تليجرام حيث يتم نشر جميع التوصيات بشكل فوري.' },
+        { q: 'هل أحتاج لخبرة سابقة في التداول؟', a: 'لا يشترط وجود خبرة كبيرة. توصياتنا واضحة جداً (سعر الدخول، وقف الخسارة، جني الأرباح)، ونوفر دليلاً لكيفية تنفيذ الصفقات.' },
+        { q: 'كم أحتاج من رأس المال للبدء؟', a: 'يمكنك البدء بمبلغ بسيط مثل 100 دولار، ولكننا ننصح بمبلغ 500 دولار فأكثر لإدارة رأس المال بشكل أفضل.' },
+        { q: 'ما هي نسبة نجاح التوصيات؟', a: 'نحافظ على نسبة نجاح تتراوح بين 85% و 90%، حيث نركز على جودة الصفقات وليس عددها لضمان الربح.' },
+        { q: 'هل يمكنني إلغاء الاشتراك؟', a: 'نعم، يمكنك إلغاء التجديد التلقائي في أي وقت من خلال التواصل مع الدعم الفني.' }
 ];
