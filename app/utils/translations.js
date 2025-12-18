@@ -69,7 +69,9 @@ export const translations = {
                 joinVip: 'Activate VIP Status',
                 alertsOn: 'On',
                 alertsOff: 'Enable Alerts',
-                notificationsEnabled: 'Notifications Enabled! Sound test playing...',
+                notificationsEnabled: 'Notifications Enabled!',
+                newSignalTitle: 'New Signal Alert! 💰',
+                newSignalBody: 'A new trading signal has been posted.',
 
                 // Admin Page
                 adminTitle: 'Admin Dashboard',
@@ -286,7 +288,9 @@ Past performance of any trading system or methodology is not necessarily indicat
                 joinVip: 'فعل عضوية VIP الآن',
                 alertsOn: 'مفعلة',
                 alertsOff: 'تفعيل التنبيهات',
-                notificationsEnabled: 'تم تفعيل التنبيهات! جاري تجربة الصوت...',
+                notificationsEnabled: 'تم تفعيل التنبيهات!',
+                newSignalTitle: 'توصية تداول جديدة! 💰',
+                newSignalBody: 'تم نشر توصية جديدة، تفقدها الآن.',
 
                 // Admin Page
                 adminTitle: 'لوحة تحكم الإدمن',
