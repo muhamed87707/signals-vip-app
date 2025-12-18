@@ -426,7 +426,7 @@ export default function SignalsPage() {
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-    // Initialize Audio
+    // Initialize Audio and check notification status
     useEffect(() => {
         if (typeof window !== 'undefined') {
             audioRef.current = new Audio('/cash.wav');
@@ -437,6 +437,21 @@ export default function SignalsPage() {
             }
         }
     }, []);
+
+    // Auto-prompt for notification permission after 3 seconds
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (typeof Notification === 'undefined') return;
+
+        // Only prompt if permission is 'default' (not yet asked)
+        if (Notification.permission === 'default') {
+            const timer = setTimeout(() => {
+                handleEnableSound();
+            }, 3000); // 3 second delay for better UX
+
+            return () => clearTimeout(timer);
+        }
+    }, [mounted]); // Run after component mounts
 
     const handleEnableSound = async () => {
         // If already enabled, DISABLE notifications
