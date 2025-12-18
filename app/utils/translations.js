@@ -149,6 +149,9 @@ export const translations = {
         exitTitle: 'Wait! 🎁',
         exitDesc: 'Don\'t leave empty handed. Join our free Telegram channel and get a high-accuracy GOLD signal right now.',
         exitButton: 'Get Free Signal',
+
+        // Legal
+        legalBox: 'Legal & Risk',
     },
     ar: {
         // Shared
@@ -298,6 +301,9 @@ export const translations = {
         exitTitle: 'انتظر! 🎁',
         exitDesc: 'لا تخرج خالي الوفاض. انضم لقناتنا المجانية واحصل على توصية ذهب (GOLD) قوية فوراً.',
         exitButton: 'احصل على التوصية مجاناً',
+
+        // Legal
+        legalBox: 'قانوني وإخلاء مسؤولية',
     }
 };
 

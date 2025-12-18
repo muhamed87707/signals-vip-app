@@ -571,6 +571,17 @@ export default function LandingPage() {
             <footer className="footer">
                 <div className="container footer-content">
                     <p>© {currentYear} <span className="footer-brand">{t.brand}</span>. {t.footerText}</p>
+                    <a href="/legal" style={{
+                        color: 'var(--text-secondary)',
+                        fontSize: '0.85rem',
+                        textDecoration: 'none',
+                        marginTop: '0.5rem',
+                        display: 'inline-block',
+                        opacity: 0.7,
+                        borderBottom: '1px dotted var(--text-secondary)'
+                    }}>
+                        {t.legalBox}
+                    </a>
                 </div>
             </footer>
             <ExitIntentPopup t={t} />
