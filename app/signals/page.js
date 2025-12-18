@@ -522,17 +522,17 @@ export default function SignalsPage() {
                             alert('Error: ' + swError.message);
                         }
                     } else {
-                        alert('This browser does not support Service Workers.');
+                        alert(t.swNotSupported || 'This browser does not support background notifications.');
                     }
                 } else {
-                    alert('Notification permission denied. Please enable them in your browser settings.');
+                    alert(t.notificationPermissionDenied || 'Notifications blocked. Please enable them from browser settings.');
                 }
             } catch (error) {
                 console.error('Permission request failed', error);
                 alert('Error: ' + error.message);
             }
         } else {
-            alert('This browser does not support notifications.');
+            alert(t.browserNotSupported || 'This browser does not support notifications.');
         }
     };
 

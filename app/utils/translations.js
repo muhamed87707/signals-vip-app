@@ -71,6 +71,9 @@ export const translations = {
                 alertsOff: 'Enable Alerts',
                 notificationsEnabled: 'Notifications Enabled!',
                 notificationsDisabled: 'Notifications Disabled 🔕',
+                notificationPermissionDenied: 'Notifications blocked. Please enable them from browser settings.',
+                browserNotSupported: 'This browser does not support notifications.',
+                swNotSupported: 'This browser does not support background notifications.',
                 newSignalTitle: 'New Signal Alert! 💰',
                 newSignalBody: 'A new trading signal has been posted.',
 
@@ -291,6 +294,9 @@ Past performance of any trading system or methodology is not necessarily indicat
                 alertsOff: 'تفعيل التنبيهات',
                 notificationsEnabled: 'تم تفعيل التنبيهات!',
                 notificationsDisabled: 'تم إيقاف التنبيهات 🔕',
+                notificationPermissionDenied: 'تم رفض الإشعارات. يرجى تفعيلها من إعدادات المتصفح.',
+                browserNotSupported: 'هذا المتصفح لا يدعم الإشعارات.',
+                swNotSupported: 'هذا المتصفح لا يدعم الإشعارات في الخلفية.',
                 newSignalTitle: 'توصية تداول جديدة! 💰',
                 newSignalBody: 'تم نشر توصية جديدة، تفقدها الآن.',
 
