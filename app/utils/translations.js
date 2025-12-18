@@ -188,7 +188,10 @@ All subscription sales are final. We do not offer refunds once the service perio
 You acknowledge that you are solely responsible for your trading decisions. We are not liable for any generated losses or damages resulting from reliance on our information.
 
 **5. Termination**
-We reserve the right to terminate or suspend your access immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms (e.g., resharing signals).`,
+We reserve the right to terminate or suspend your access immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms (e.g., resharing signals).
+
+**6. Governing Law and Jurisdiction**
+These Terms shall be governed by and construed in accordance with the laws of the Arab Republic of Egypt, and any disputes shall be subject to the exclusive jurisdiction of its courts.`,
 
 
                 riskText: `
@@ -392,7 +395,10 @@ Past performance of any trading system or methodology is not necessarily indicat
 أنت تقر وتوافق على أنك المسؤول الوحيد عن جميع قراراتك الاستثمارية والتداولية. نحن غير مسؤولين عن أي خسائر أو أضرار قد تنشأ نتيجة الاعتماد على المعلومات المقدمة في التطبيق.
 
 **5. إنهاء الخدمة**
-نحتفظ بالحق في إنهاء أو تعليق وصولك للخدمة فوراً، دون سابق إنذار أو مسؤولية، لأي سبب كان، بما في ذلك ودون حصر انتهاك شروط الاستخدام (مثل إعادة نشر التوصيات).`,
+نحتفظ بالحق في إنهاء أو تعليق وصولك للخدمة فوراً، دون سابق إنذار أو مسؤولية، لأي سبب كان، بما في ذلك ودون حصر انتهاك شروط الاستخدام (مثل إعادة نشر التوصيات).
+
+**6. القانون الواجب التطبيق والاختصاص القضائي**
+تخضع هذه الشروط وتفسر وفقاً لقوانين جمهورية مصر العربية، وتخضع أي نزاعات للاختصاص القضائي الحصري لمحاكمها.`,
 
                 riskText: `
 **تحذير الهيئات الرقابية: استثمار عالي المخاطر**
