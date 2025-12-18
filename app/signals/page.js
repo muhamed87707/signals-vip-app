@@ -425,6 +425,49 @@ export default function SignalsPage() {
     const audioRef = useRef(null);
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+    const [browserInfo, setBrowserInfo] = useState({ supported: true, reason: '' });
+
+    // Detect browser capabilities on mount
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPad|iPhone|iPod/.test(ua);
+        const isAndroid = /Android/.test(ua);
+        const isTelegramWebView = /TelegramWebview|Telegram/.test(ua) || window.TelegramWebviewProxy;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const hasPushManager = 'PushManager' in window;
+        const hasServiceWorker = 'serviceWorker' in navigator;
+        const hasNotification = 'Notification' in window;
+
+        if (isTelegramWebView) {
+            setBrowserInfo({
+                supported: false,
+                reason: 'telegram',
+                message: lang === 'ar'
+                    ? 'لتفعيل الإشعارات، افتح الموقع من متصفح Chrome أو Safari'
+                    : 'To enable notifications, open the site in Chrome or Safari browser'
+            });
+        } else if (isIOS && !isStandalone) {
+            setBrowserInfo({
+                supported: false,
+                reason: 'ios',
+                message: lang === 'ar'
+                    ? 'لتفعيل الإشعارات على iPhone:\n1. اضغط على زر المشاركة ⬆️\n2. اختر "إضافة إلى الشاشة الرئيسية"\n3. افتح التطبيق من الشاشة الرئيسية'
+                    : 'To enable notifications on iPhone:\n1. Tap the Share button ⬆️\n2. Choose "Add to Home Screen"\n3. Open the app from Home Screen'
+            });
+        } else if (!hasNotification || !hasServiceWorker || !hasPushManager) {
+            setBrowserInfo({
+                supported: false,
+                reason: 'browser',
+                message: lang === 'ar'
+                    ? 'هذا المتصفح لا يدعم الإشعارات. جرب Chrome أو Edge.'
+                    : 'This browser does not support notifications. Try Chrome or Edge.'
+            });
+        } else {
+            setBrowserInfo({ supported: true, reason: '' });
+        }
+    }, [lang, mounted]);
 
     // Initialize Audio and check notification status
     useEffect(() => {
@@ -454,6 +497,12 @@ export default function SignalsPage() {
     }, [mounted]); // Run after component mounts
 
     const handleEnableSound = async () => {
+        // Check if browser supports notifications
+        if (!browserInfo.supported) {
+            alert(browserInfo.message);
+            return;
+        }
+
         // If already enabled, DISABLE notifications
         if (notificationsEnabled) {
             try {
