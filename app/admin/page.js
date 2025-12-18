@@ -61,6 +61,7 @@ export default function AdminPage() {
     const [selectedVariationIndex, setSelectedVariationIndex] = useState(-1);
     const [generatingAi, setGeneratingAi] = useState(false);
     const [aiError, setAiError] = useState('');
+    const [availableModels, setAvailableModels] = useState([]); // New state for dynamic models
 
     useEffect(() => {
         const auth = sessionStorage.getItem('admin-auth');
@@ -198,6 +199,27 @@ export default function AdminPage() {
                 if (file) processFile(file);
                 break;
             }
+        }
+    };
+
+    const fetchModels = async (key) => {
+        if (!key) return;
+        try {
+            const res = await fetch('/api/ai/models', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: key })
+            });
+            const data = await res.json();
+            if (data.models) {
+                setAvailableModels(data.models);
+                // If current selection is not in list, default to first found
+                if (data.models.length > 0 && !data.models.find(m => m.name === aiModel)) {
+                    setAiModel(data.models[0].name);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch models:', err);
         }
     };
 
@@ -414,105 +436,6 @@ export default function AdminPage() {
                 <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
 
                 {/* Full Width Grid Layout - Matches User Request */}
-                {/* AI Content Generator Section */}
-                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
-                    <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', fontSize: '1.5rem' }}>✨ AI Content Generator</h2>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                        <div>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Gemini API Key</label>
-                            <input
-                                type="password"
-                                value={apiKey}
-                                onChange={(e) => setApiKey(e.target.value)}
-                                style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}
-                            />
-                        </div>
-                        <div>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>AI Model</label>
-                            <select
-                                value={aiModel}
-                                onChange={(e) => setAiModel(e.target.value)}
-                                style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}
-                            >
-                                <option value="gemini-3-flash">gemini-3-flash</option>
-                                <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
-                                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Base Post (Draft)</label>
-                        <textarea
-                            value={basePost}
-                            onChange={(e) => setBasePost(e.target.value)}
-                            placeholder="Write your raw signal details here..."
-                            style={{ width: '100%', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff', minHeight: '100px' }}
-                        />
-                    </div>
-
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Refinement Prompt</label>
-                        <textarea
-                            value={aiPrompt}
-                            onChange={(e) => setAiPrompt(e.target.value)}
-                            style={{ width: '100%', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff', minHeight: '80px' }}
-                        />
-                    </div>
-
-                    <button
-                        onClick={handleGenerateContent}
-                        disabled={generatingAi}
-                        className="btn-primary"
-                        style={{ width: '100%', padding: '1rem', marginBottom: '1.5rem', opacity: generatingAi ? 0.7 : 1 }}
-                    >
-                        {generatingAi ? 'Generating 50 Variations... 🔮' : 'Generate 50 Variations 🚀'}
-                    </button>
-
-                    {aiError && <p style={{ color: '#ef4444', marginBottom: '1rem' }}>{aiError}</p>}
-
-                    {/* Variations Carousel/List */}
-                    {generatedVariations.length > 0 && (
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <h3 style={{ color: '#fff', marginBottom: '1rem' }}>Select Best Variation ({generatedVariations.length}):</h3>
-                            <div style={{
-                                display: 'flex',
-                                overflowX: 'auto',
-                                gap: '1rem',
-                                padding: '1rem 0',
-                                borderTop: '1px solid #333',
-                                borderBottom: '1px solid #333'
-                            }}>
-                                {generatedVariations.map((variation, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setSelectedVariationIndex(idx)}
-                                        style={{
-                                            minWidth: '300px',
-                                            maxWidth: '300px',
-                                            padding: '1rem',
-                                            background: selectedVariationIndex === idx ? 'rgba(218, 165, 32, 0.2)' : '#1a1a24',
-                                            border: selectedVariationIndex === idx ? '1px solid #DAA520' : '1px solid #333',
-                                            borderRadius: '12px',
-                                            cursor: 'pointer',
-                                            fontSize: '0.9rem',
-                                            color: '#ddd',
-                                            whiteSpace: 'pre-wrap',
-                                            maxHeight: '300px',
-                                            overflowY: 'auto'
-                                        }}
-                                    >
-                                        <div style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: '#888' }}>#{idx + 1}</div>
-                                        {variation}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
                 {/* Upload Section */}
                 <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '3rem' }}>
                     <input
@@ -566,12 +489,124 @@ export default function AdminPage() {
                             {uploading ? t.uploading : t.dropZone}
                         </p>
                         {selectedVariationIndex >= 0 && (
-                            <p style={{ color: '#4caf50', marginTop: '1rem' }}>✅ Text Selected for Post</p>
+                            <p style={{ color: '#4caf50', marginTop: '1rem' }}>✅ {t.aiTextSelected}</p>
                         )}
                     </div>
 
                     {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
                     {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem' }}>{successMessage}</p>}
+                </div>
+
+                {/* AI Content Generator Section - Moved Below Upload */}
+                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
+                    <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', fontSize: '1.5rem' }}>{t.aiGeneratorTitle}</h2>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.aiApiKey}</label>
+                            <input
+                                type="password"
+                                value={apiKey}
+                                onChange={(e) => {
+                                    setApiKey(e.target.value);
+                                    if (e.target.value.length > 20) fetchModels(e.target.value);
+                                }}
+                                onBlur={() => fetchModels(apiKey)}
+                                style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.aiModel}</label>
+                            <select
+                                value={aiModel}
+                                onChange={(e) => setAiModel(e.target.value)}
+                                style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}
+                            >
+                                {availableModels.length > 0 ? (
+                                    availableModels.map(m => (
+                                        <option key={m.name} value={m.name}>{m.displayName || m.name}</option>
+                                    ))
+                                ) : (
+                                    <>
+                                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                                        <option value="gemini-3-flash">gemini-3-flash</option>
+                                    </>
+                                )}
+                            </select>
+                            <div style={{ fontSize: '0.8rem', color: '#DAA520', marginTop: '0.3rem', cursor: 'pointer', textAlign: 'right' }} onClick={() => fetchModels(apiKey)}>
+                                🔄 Update Models List
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.aiBasePost}</label>
+                        <textarea
+                            value={basePost}
+                            onChange={(e) => setBasePost(e.target.value)}
+                            placeholder={t.aiBasePostPlaceholder}
+                            style={{ width: '100%', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff', minHeight: '100px' }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.aiPrompt}</label>
+                        <textarea
+                            value={aiPrompt}
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                            style={{ width: '100%', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff', minHeight: '80px' }}
+                        />
+                    </div>
+
+                    <button
+                        onClick={handleGenerateContent}
+                        disabled={generatingAi}
+                        className="btn-primary"
+                        style={{ width: '100%', padding: '1rem', marginBottom: '1.5rem', opacity: generatingAi ? 0.7 : 1 }}
+                    >
+                        {generatingAi ? t.aiGeneratingBtn : t.aiGenerateBtn}
+                    </button>
+
+                    {aiError && <p style={{ color: '#ef4444', marginBottom: '1rem' }}>{aiError}</p>}
+
+                    {/* Variations Carousel/List */}
+                    {generatedVariations.length > 0 && (
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <h3 style={{ color: '#fff', marginBottom: '1rem' }}>{t.aiSelectVariation} ({generatedVariations.length}):</h3>
+                            <div style={{
+                                display: 'flex',
+                                overflowX: 'auto',
+                                gap: '1rem',
+                                padding: '1rem 0',
+                                borderTop: '1px solid #333',
+                                borderBottom: '1px solid #333'
+                            }}>
+                                {generatedVariations.map((variation, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => setSelectedVariationIndex(idx)}
+                                        style={{
+                                            minWidth: '300px',
+                                            maxWidth: '300px',
+                                            padding: '1rem',
+                                            background: selectedVariationIndex === idx ? 'rgba(218, 165, 32, 0.2)' : '#1a1a24',
+                                            border: selectedVariationIndex === idx ? '1px solid #DAA520' : '1px solid #333',
+                                            borderRadius: '12px',
+                                            cursor: 'pointer',
+                                            fontSize: '0.9rem',
+                                            color: '#ddd',
+                                            whiteSpace: 'pre-wrap',
+                                            maxHeight: '300px',
+                                            overflowY: 'auto'
+                                        }}
+                                    >
+                                        <div style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: '#888' }}>#{idx + 1}</div>
+                                        {variation}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Signals List */}
