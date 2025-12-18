@@ -67,6 +67,9 @@ export const translations = {
                 lifetime: 'Lifetime Access ♾️',
                 days: 'Days',
                 joinVip: 'Activate VIP Status',
+                alertsOn: 'On',
+                alertsOff: 'Enable Alerts',
+                notificationsEnabled: 'Notifications Enabled! Sound test playing...',
 
                 // Admin Page
                 adminTitle: 'Admin Dashboard',
@@ -281,6 +284,9 @@ Past performance of any trading system or methodology is not necessarily indicat
                 lifetime: 'مدى الحياة ♾️',
                 days: 'يوماً',
                 joinVip: 'فعل عضوية VIP الآن',
+                alertsOn: 'مفعلة',
+                alertsOff: 'تفعيل التنبيهات',
+                notificationsEnabled: 'تم تفعيل التنبيهات! جاري تجربة الصوت...',
 
                 // Admin Page
                 adminTitle: 'لوحة تحكم الإدمن',
