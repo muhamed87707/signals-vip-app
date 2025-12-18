@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
-import dbConnect from '../../../../lib/mongodb';
-import User from '../../../../models/User';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 import webpush from 'web-push';
 
 // Configure Web Push
@@ -18,6 +18,29 @@ if (vapidPublicKey && vapidPrivateKey) {
         );
     } catch (err) {
         console.error('VAPID Configuration Error:', err);
+    }
+}
+
+// GET: Diagnostic endpoint to check push notification status
+export async function GET(req) {
+    try {
+        await dbConnect();
+
+        const subscribedUsers = await User.countDocuments({ pushSubscription: { $ne: null } });
+        const totalUsers = await User.countDocuments({});
+
+        return NextResponse.json({
+            status: 'ok',
+            vapidConfigured: !!(vapidPublicKey && vapidPrivateKey),
+            vapidPublicKeyPreview: vapidPublicKey ? vapidPublicKey.substring(0, 20) + '...' : 'NOT SET',
+            subscribedUsersCount: subscribedUsers,
+            totalUsersCount: totalUsers,
+            message: subscribedUsers === 0
+                ? 'No users have subscribed to push notifications yet. Users need to click "Enable Alerts" on the signals page.'
+                : `${subscribedUsers} user(s) are subscribed to push notifications.`
+        });
+    } catch (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
