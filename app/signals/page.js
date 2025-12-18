@@ -463,12 +463,26 @@ export default function SignalsPage() {
         ];
 
         const isIOS = /iPad|iPhone|iPod/.test(ua);
+        const isAndroid = /Android/.test(ua);
+        const isMobile = isIOS || isAndroid; // Simple mobile detection
+
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
         const hasPushManager = 'PushManager' in window;
         const hasServiceWorker = 'serviceWorker' in navigator;
         const hasNotification = 'Notification' in window;
 
-        // Check for in-app browsers
+        // Hide/Disable for Mobile Devices as per user request
+        if (isMobile) {
+            setBrowserInfo({
+                supported: false,
+                reason: 'mobile_disabled',
+                isHidden: true, // New flag to completely hide the button
+                message: ''
+            });
+            return;
+        }
+
+        // Check for in-app browsers (Desktop apps rarely have this issue, but good to keep)
         let detectedApp = null;
         for (const app of inAppBrowserPatterns) {
             if (app.pattern.test(ua) || (app.hasProxy && app.hasProxy())) {
@@ -856,26 +870,29 @@ export default function SignalsPage() {
                             🌐 {t.langSwitch}
                         </button>
 
-                        <button
-                            onClick={handleEnableSound}
-                            style={{
-                                color: notificationsEnabled ? 'var(--gold-primary)' : 'var(--text-secondary)',
-                                border: '1px solid transparent',
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                fontSize: '0.95rem',
-                                padding: '0.5rem 1rem',
-                                background: notificationsEnabled ? 'rgba(218, 165, 32, 0.15)' : 'rgba(218, 165, 32, 0.05)',
-                                borderRadius: '20px',
-                                transition: 'all 0.3s ease',
-                                fontFamily: 'inherit'
-                            }}
-                            title={notificationsEnabled ? "Alerts Enabled" : "Enable Sound Alerts"}
-                        >
-                            {notificationsEnabled ? '🔔' : '🔕'} {notificationsEnabled ? (t.alertsOn || "On") : (t.alertsOff || "Enable Alerts")}
-                        </button>
+                        {/* Notifications Toggle - Hide on Mobile */}
+                        {!browserInfo.isHidden && (
+                            <button
+                                onClick={handleEnableSound}
+                                style={{
+                                    border: '1px solid rgba(218, 165, 32, 0.3)',
+                                    color: 'var(--gold-primary)',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    fontSize: '0.95rem',
+                                    padding: '0.5rem 1rem',
+                                    background: notificationsEnabled ? 'rgba(218, 165, 32, 0.15)' : 'rgba(218, 165, 32, 0.05)',
+                                    borderRadius: '20px',
+                                    transition: 'all 0.3s ease',
+                                    fontFamily: 'inherit'
+                                }}
+                                title={notificationsEnabled ? "Alerts Enabled" : "Enable Sound Alerts"}
+                            >
+                                {notificationsEnabled ? '🔔' : '🔕'} {notificationsEnabled ? (t.alertsOn || "On") : (t.alertsOff || "Enable Alerts")}
+                            </button>
+                        )}
                     </div>
 
                     <div className="signals-diamond" style={{
