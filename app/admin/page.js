@@ -70,7 +70,24 @@ export default function AdminPage() {
             fetchSignals();
             fetchUsers();
         }
+
+        // Load saved preferences
+        const savedApiKey = localStorage.getItem('ai_apiKey');
+        const savedModel = localStorage.getItem('ai_model');
+        const savedPrompt = localStorage.getItem('ai_prompt');
+        const savedBasePost = localStorage.getItem('ai_basePost');
+
+        if (savedApiKey) setApiKey(savedApiKey);
+        if (savedModel) setAiModel(savedModel);
+        if (savedPrompt) setAiPrompt(savedPrompt);
+        if (savedBasePost) setBasePost(savedBasePost);
     }, []);
+
+    // Save preferences on change
+    useEffect(() => { localStorage.setItem('ai_apiKey', apiKey); }, [apiKey]);
+    useEffect(() => { localStorage.setItem('ai_model', aiModel); }, [aiModel]);
+    useEffect(() => { localStorage.setItem('ai_prompt', aiPrompt); }, [aiPrompt]);
+    useEffect(() => { localStorage.setItem('ai_basePost', basePost); }, [basePost]);
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -586,21 +603,28 @@ export default function AdminPage() {
                                         key={idx}
                                         onClick={() => setSelectedVariationIndex(idx)}
                                         style={{
-                                            minWidth: '300px',
-                                            maxWidth: '300px',
-                                            padding: '1rem',
+                                            minWidth: '350px',
+                                            maxWidth: '350px',
+                                            padding: '1.5rem',
                                             background: selectedVariationIndex === idx ? 'rgba(218, 165, 32, 0.2)' : '#1a1a24',
                                             border: selectedVariationIndex === idx ? '1px solid #DAA520' : '1px solid #333',
                                             borderRadius: '12px',
                                             cursor: 'pointer',
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.95rem',
                                             color: '#ddd',
                                             whiteSpace: 'pre-wrap',
-                                            maxHeight: '300px',
-                                            overflowY: 'auto'
+                                            maxHeight: '400px',
+                                            overflowY: 'auto',
+                                            lineHeight: '1.6',
+                                            direction: 'auto', // Handle mixed Arabic/English
+                                            boxShadow: selectedVariationIndex === idx ? '0 0 15px rgba(218, 165, 32, 0.1)' : 'none',
+                                            transition: 'all 0.2s ease'
                                         }}
                                     >
-                                        <div style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: '#888' }}>#{idx + 1}</div>
+                                        <div style={{ fontWeight: 'bold', marginBottom: '0.8rem', color: '#DAA520', display: 'flex', justifyContent: 'space-between' }}>
+                                            <span>#{idx + 1}</span>
+                                            {selectedVariationIndex === idx && <span>✅ Selected</span>}
+                                        </div>
                                         {variation}
                                     </div>
                                 ))}
