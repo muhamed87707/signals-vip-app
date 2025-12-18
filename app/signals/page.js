@@ -447,7 +447,36 @@ export default function SignalsPage() {
                     setNotificationsEnabled(true);
                     // 2. Unlock Audio Context by playing silently or short
                     playNotificationSound();
-                    alert(t.notificationsEnabled || 'Notifications Enabled! Sound test playing...');
+
+                    // 3. Register Service Worker and Subscribe to Push
+                    if ('serviceWorker' in navigator) {
+                        try {
+                            const register = await navigator.serviceWorker.register('/sw.js');
+                            console.log('SW Registered');
+
+                            // Subscribe to Push
+                            const subscription = await register.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFI2iHpeuWixiyvPI58zQaRquTCQkgJrnwHc8W-ZOdYMxCvCM2ZcD3yE5Shs4pgywmCWROFj6xabsjK5QpA-i5Y'
+                            });
+
+                            // Send Subscription to Server
+                            if (telegramId) {
+                                await fetch('/api/push/subscribe', {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        telegramId: telegramId,
+                                        subscription: subscription
+                                    }),
+                                    headers: { 'Content-Type': 'application/json' }
+                                });
+                            }
+                        } catch (swError) {
+                            console.error('SW/Push Error:', swError);
+                        }
+                    }
+
+                    alert(t.notificationsEnabled || 'Notifications Enabled!');
                 } else {
                     alert('Notification permission denied. Please enable them in your browser settings.');
                 }

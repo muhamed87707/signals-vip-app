@@ -6,6 +6,58 @@ import { NextResponse } from 'next/server';
 const IMGBB_API_KEY = 'b22927160ecad0d183ebc9a28d05ce9c';
 const TELEGRAM_BOT_TOKEN = '8540134514:AAFFTwFEniwPQriXqFpdkl0CNBhqCk7Daak';
 const TELEGRAM_CHANNEL_ID = '@mjhgkhg254';
+import webpush from 'web-push';
+
+// Configure Web Push (using env credentials or fallbacks if not yet loaded)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:admin@example.com';
+
+if (vapidPublicKey && vapidPrivateKey) {
+    webpush.setVapidDetails(
+        vapidSubject,
+        vapidPublicKey,
+        vapidPrivateKey
+    );
+}
+
+async function broadcastVipSignal(signalTitle) {
+    if (!vapidPublicKey || !vapidPrivateKey) {
+        console.warn('VAPID keys not configured, skipping push notifications.');
+        return;
+    }
+
+    try {
+        // Find users with a subscription
+        // Optimization: In real app, only fetch VIPs or all depending on logic.
+        // Assuming we notify everyone or just VIPs? Let's notify everyone to drive FOMO.
+        const users = await User.find({ pushSubscription: { $ne: null } });
+
+        const payload = JSON.stringify({
+            title: '🔥 New VIP Signal Posted!',
+            body: signalTitle || 'Check the app now for details.',
+            icon: '/og-image.png',
+            url: '/'
+        });
+
+        const promises = users.map(user => {
+            return webpush.sendNotification(user.pushSubscription, payload)
+                .catch(err => {
+                    if (err.statusCode === 410 || err.statusCode === 404) {
+                        // Subscription expired/invalid
+                        user.pushSubscription = null;
+                        return user.save();
+                    }
+                    console.error('Push failed for user', user.telegramId, err.message);
+                });
+        });
+
+        await Promise.all(promises);
+        console.log(`Push notification sent to ${users.length} users.`);
+    } catch (error) {
+        console.error('Broadcast Error:', error);
+    }
+}
 
 async function uploadToImgBB(base64Image) {
     if (!base64Image || !base64Image.startsWith('data:image')) return null;
@@ -160,6 +212,10 @@ export async function POST(request) {
             imageUrl: clearImageUrl,
             telegramMessageId: telegramMessageId?.toString()
         });
+
+        // 4. Send Web Push Notification
+        // You can customize title based on Pair/Type if available, e.g., "New Signal: XAUUSD BUY"
+        await broadcastVipSignal(`New Signal: ${pair || 'VIP'} ${type || ''}`);
 
         return NextResponse.json({ success: true, signal });
     } catch (error) {
