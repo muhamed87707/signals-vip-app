@@ -166,13 +166,11 @@ export default function AdminPage() {
                 const svgString = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
                     <defs>
-                        <!-- Glow Gradient -->
                         <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
                             <stop offset="0%" style="stop-color:rgba(184, 134, 11, 0.4);stop-opacity:1" />
                             <stop offset="70%" style="stop-color:rgba(0, 0, 0, 0);stop-opacity:0" />
                         </radialGradient>
 
-                        <!-- Gold Lock Gradient -->
                         <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#FFE566;stop-opacity:1" />
                             <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
@@ -180,15 +178,9 @@ export default function AdminPage() {
                         </linearGradient>
                     </defs>
                     
-                    <!-- 1. Ambient Glow REMOVED as requested -->
-                    
-                    <!-- 2. Lock Icon Group (Larger & Centered) -->
-                    <!-- Net Scale: 0.6 * 3.5 = 2.1. Center approx (12, 14). 12*2.1=25.2, 14*2.1=29.4. Offsets: 50-25=25, 50-29=21. -->
                     <g transform="translate(25, 21) scale(0.6)">
-                         <!-- Backing Circle (Behind Lock Body Only - Slightly Smaller) -->
                          <circle cx="12" cy="16" r="5.5" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
                          
-                         <!-- Lock Parts -->
                          <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
                          <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
                          <circle cx="12" cy="16" r="1.5" fill="url(#gold)" transform="scale(3.5)" />
