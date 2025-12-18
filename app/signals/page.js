@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 // Modern Lock Icon Component with Shimmer
@@ -418,248 +418,6 @@ export default function SignalsPage() {
     const [isVip, setIsVip] = useState(false);
     const [expirationDate, setExpirationDate] = useState(null);
     const [telegramId, setTelegramId] = useState(null);
-    const [soundEnabled, setSoundEnabled] = useState(false); // Track if audio context is allowed
-
-    // Keep track of the latest signal ID to detect new ones
-    const latestSignalIdRef = useRef(null);
-    const audioRef = useRef(null);
-
-    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-    const [browserInfo, setBrowserInfo] = useState({ supported: true, reason: '' });
-
-    // Detect browser capabilities on mount
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const ua = navigator.userAgent || '';
-        const uaLower = ua.toLowerCase();
-
-        // Comprehensive in-app browser detection
-        const inAppBrowserPatterns = [
-            // Telegram
-            { name: 'Telegram', pattern: /telegram/i, hasProxy: () => !!window.TelegramWebviewProxy },
-            // Facebook/Meta
-            { name: 'Facebook', pattern: /FBAN|FBAV|FB_IAB|FBIOS|FBSS/i },
-            { name: 'Messenger', pattern: /Messenger/i },
-            { name: 'Instagram', pattern: /Instagram/i },
-            // Twitter/X
-            { name: 'Twitter', pattern: /Twitter/i },
-            // LinkedIn
-            { name: 'LinkedIn', pattern: /LinkedInApp/i },
-            // Snapchat
-            { name: 'Snapchat', pattern: /Snapchat/i },
-            // TikTok
-            { name: 'TikTok', pattern: /TikTok|musical_ly/i },
-            // Pinterest
-            { name: 'Pinterest', pattern: /Pinterest/i },
-            // WhatsApp (rarely has webview but check anyway)
-            { name: 'WhatsApp', pattern: /WhatsApp/i },
-            // Line
-            { name: 'Line', pattern: /Line\//i },
-            // WeChat
-            { name: 'WeChat', pattern: /MicroMessenger|WeChat/i },
-            // Generic WebView detection for Android
-            { name: 'WebView', pattern: /wv\)|WebView/i },
-        ];
-
-        const isIOS = /iPad|iPhone|iPod/.test(ua);
-        const isAndroid = /Android/.test(ua);
-        const isMobile = isIOS || isAndroid; // Simple mobile detection
-
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        const hasPushManager = 'PushManager' in window;
-        const hasServiceWorker = 'serviceWorker' in navigator;
-        const hasNotification = 'Notification' in window;
-
-        // Hide/Disable for Mobile Devices as per user request
-        if (isMobile) {
-            setBrowserInfo({
-                supported: false,
-                reason: 'mobile_disabled',
-                isHidden: true, // New flag to completely hide the button
-                message: ''
-            });
-            return;
-        }
-
-        // Check for in-app browsers (Desktop apps rarely have this issue, but good to keep)
-        let detectedApp = null;
-        for (const app of inAppBrowserPatterns) {
-            if (app.pattern.test(ua) || (app.hasProxy && app.hasProxy())) {
-                detectedApp = app.name;
-                break;
-            }
-        }
-
-        if (detectedApp) {
-            setBrowserInfo({
-                supported: false,
-                reason: 'inapp',
-                appName: detectedApp,
-                message: lang === 'ar'
-                    ? `أنت تستخدم متصفح ${detectedApp} المدمج.\n\nلتفعيل الإشعارات:\n1. انسخ رابط الموقع\n2. افتحه في متصفح Chrome أو Safari`
-                    : `You are using ${detectedApp}'s built-in browser.\n\nTo enable notifications:\n1. Copy the website link\n2. Open it in Chrome or Safari`
-            });
-        } else if (isIOS && !isStandalone) {
-            setBrowserInfo({
-                supported: false,
-                reason: 'ios',
-                message: lang === 'ar'
-                    ? 'لتفعيل الإشعارات على iPhone:\n1. اضغط على زر المشاركة ⬆️\n2. اختر "إضافة إلى الشاشة الرئيسية"\n3. افتح التطبيق من الشاشة الرئيسية'
-                    : 'To enable notifications on iPhone:\n1. Tap the Share button ⬆️\n2. Choose "Add to Home Screen"\n3. Open the app from Home Screen'
-            });
-        } else if (!hasNotification || !hasServiceWorker || !hasPushManager) {
-            setBrowserInfo({
-                supported: false,
-                reason: 'browser',
-                message: lang === 'ar'
-                    ? 'هذا المتصفح لا يدعم الإشعارات. جرب Chrome أو Edge.'
-                    : 'This browser does not support notifications. Try Chrome or Edge.'
-            });
-        } else {
-            setBrowserInfo({ supported: true, reason: '' });
-        }
-    }, [lang, mounted]);
-
-    // Initialize Audio and check notification status
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            audioRef.current = new Audio('/cash.wav');
-
-            // Check if notifications are already granted
-            if (Notification.permission === 'granted') {
-                setNotificationsEnabled(true);
-            }
-        }
-    }, []);
-
-    // Auto-prompt for notification permission after 3 seconds
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        if (typeof Notification === 'undefined') return;
-
-        // Only prompt if permission is 'default' (not yet asked)
-        if (Notification.permission === 'default') {
-            const timer = setTimeout(() => {
-                handleEnableSound();
-            }, 3000); // 3 second delay for better UX
-
-            return () => clearTimeout(timer);
-        }
-    }, [mounted]); // Run after component mounts
-
-    const handleEnableSound = async () => {
-        // If hidden (e.g. mobile), do nothing and show no alerts
-        if (browserInfo.isHidden) return;
-
-        // Check if browser supports notifications
-        if (!browserInfo.supported) {
-            if (browserInfo.message) alert(browserInfo.message);
-            return;
-        }
-
-        // If already enabled, DISABLE notifications
-        if (notificationsEnabled) {
-            try {
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-                    const subscription = await registration.pushManager.getSubscription();
-
-                    if (subscription) {
-                        // Unsubscribe from browser
-                        await subscription.unsubscribe();
-
-                        // Remove from server
-                        await fetch('/api/push/unsubscribe', {
-                            method: 'POST',
-                            body: JSON.stringify({ endpoint: subscription.endpoint }),
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-                    }
-                }
-                setNotificationsEnabled(false);
-                alert(t.notificationsDisabled || 'Notifications Disabled 🔕');
-            } catch (error) {
-                console.error('Error disabling notifications:', error);
-                alert('Error: ' + error.message);
-            }
-            return;
-        }
-
-        // ENABLE notifications
-        if (typeof Notification !== 'undefined') {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    // Register Service Worker and Subscribe to Push
-                    if ('serviceWorker' in navigator) {
-                        try {
-                            await navigator.serviceWorker.register('/sw.js');
-                            const registration = await navigator.serviceWorker.ready;
-
-                            // Subscribe to Push
-                            const subscription = await registration.pushManager.subscribe({
-                                userVisibleOnly: true,
-                                applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFI2iHpeuWixiyvPI58zQaRquTCQkgJrnwHc8W-ZOdYMxCvCM2ZcD3yE5Shs4pgywmCWROFj6xabsjK5QpA-i5Y'
-                            });
-
-                            // Send Subscription to Server
-                            const response = await fetch('/api/push/subscribe', {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    telegramId: telegramId || null,
-                                    subscription: subscription.toJSON()
-                                }),
-                                headers: { 'Content-Type': 'application/json' }
-                            });
-
-                            const result = await response.json();
-
-                            if (result.success) {
-                                setNotificationsEnabled(true);
-                                alert(t.notificationsEnabled || 'Notifications Enabled! ✅');
-                            } else {
-                                alert('Error: ' + (result.error || 'Unknown error'));
-                            }
-                        } catch (swError) {
-                            console.error('SW/Push Error:', swError);
-                            alert('Error: ' + swError.message);
-                        }
-                    } else {
-                        alert(t.swNotSupported || 'This browser does not support background notifications.');
-                    }
-                } else {
-                    // Permission is 'denied' - show detailed reset instructions
-                    const resetMessage = lang === 'ar'
-                        ? `الإشعارات محظورة حالياً.\n\nلإعادة التفعيل في Chrome:\n1. اضغط على ⋮ (ثلاث نقاط) أعلى المتصفح\n2. اختر "الإعدادات"\n3. اختر "إعدادات الموقع"\n4. اختر "الإشعارات"\n5. ابحث عن هذا الموقع واحذفه\n6. عد للموقع واضغط تفعيل مجدداً`
-                        : `Notifications are currently blocked.\n\nTo reset in Chrome:\n1. Tap ⋮ (three dots) at top\n2. Choose "Settings"\n3. Choose "Site settings"\n4. Choose "Notifications"\n5. Find this site and remove it\n6. Return and try enabling again`;
-                    alert(resetMessage);
-                }
-            } catch (error) {
-                console.error('Permission request failed', error);
-                alert('Error: ' + error.message);
-            }
-        } else {
-            alert(t.browserNotSupported || 'This browser does not support notifications.');
-        }
-    };
-
-    const playNotificationSound = () => {
-        if (audioRef.current) {
-            audioRef.current.currentTime = 0;
-            audioRef.current.play().catch(e => console.log('Audio autoplay blocked:', e));
-        }
-
-        // fire system notification
-        if (Notification.permission === 'granted') {
-            new Notification(t.newSignalTitle || 'New Signal Alert! 💰', {
-                body: t.newSignalBody || 'A new trading signal has been posted.',
-                icon: '/og-image.png' // consistent with site branding
-            });
-        }
-    };
-
-
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -693,39 +451,17 @@ export default function SignalsPage() {
 
         if (telegramId) setTelegramId(telegramId);
 
-        fetchSignals(telegramId, true); // Initial fetch
-
-        // POLLING: Check for new signals every 30 seconds
-        const interval = setInterval(() => {
-            fetchSignals(telegramId, false); // Background fetch
-        }, 30000);
-
-        return () => clearInterval(interval);
+        fetchSignals(telegramId);
     }, []);
 
-    const fetchSignals = async (tid, showLoading = false) => {
-        if (showLoading) setLoading(true);
+    const fetchSignals = async (telegramId) => {
         try {
-            const url = tid
-                ? `/api/signals?telegramId=${tid}`
+            const url = telegramId
+                ? `/api/signals?telegramId=${telegramId}`
                 : '/api/signals';
             const res = await fetch(url);
             const data = await res.json();
-            const newSignals = data.signals || [];
-
-            setSignals(newSignals);
-
-            // Check for new signals logic
-            if (newSignals.length > 0) {
-                const newestId = newSignals[0]._id;
-                // If we have a previous ID and it's different (and we have signals), it's a new signal
-                if (latestSignalIdRef.current && latestSignalIdRef.current !== newestId) {
-                    playNotificationSound();
-                }
-                latestSignalIdRef.current = newestId;
-            }
-
-            // STRICT VIP SYNC
+            setSignals(data.signals || []);
 
             // STRICT VIP SYNC
             if (data.isUserVip) {
@@ -872,30 +608,6 @@ export default function SignalsPage() {
                         >
                             🌐 {t.langSwitch}
                         </button>
-
-                        {/* Notifications Toggle - Hide on Mobile */}
-                        {!browserInfo.isHidden && (
-                            <button
-                                onClick={handleEnableSound}
-                                style={{
-                                    border: '1px solid rgba(218, 165, 32, 0.3)',
-                                    color: 'var(--gold-primary)',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    fontSize: '0.95rem',
-                                    padding: '0.5rem 1rem',
-                                    background: notificationsEnabled ? 'rgba(218, 165, 32, 0.15)' : 'rgba(218, 165, 32, 0.05)',
-                                    borderRadius: '20px',
-                                    transition: 'all 0.3s ease',
-                                    fontFamily: 'inherit'
-                                }}
-                                title={notificationsEnabled ? "Alerts Enabled" : "Enable Sound Alerts"}
-                            >
-                                {notificationsEnabled ? '🔔' : '🔕'} {notificationsEnabled ? (t.alertsOn || "On") : (t.alertsOff || "Enable Alerts")}
-                            </button>
-                        )}
                     </div>
 
                     <div className="signals-diamond" style={{

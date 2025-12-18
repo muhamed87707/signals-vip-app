@@ -67,15 +67,6 @@ export const translations = {
                 lifetime: 'Lifetime Access ♾️',
                 days: 'Days',
                 joinVip: 'Activate VIP Status',
-                alertsOn: 'Alerts On',
-                alertsOff: 'Enable Alerts',
-                notificationsEnabled: 'Notifications Enabled!',
-                notificationsDisabled: 'Notifications Disabled 🔕',
-                notificationPermissionDenied: 'Notifications blocked. Please enable them from browser settings.',
-                browserNotSupported: 'This browser does not support notifications.',
-                swNotSupported: 'This browser does not support background notifications.',
-                newSignalTitle: 'New Signal Alert! 💰',
-                newSignalBody: 'A new trading signal has been posted.',
 
                 // Admin Page
                 adminTitle: 'Admin Dashboard',
@@ -143,18 +134,6 @@ export const translations = {
                 yourReferralLink: 'Your Referral Link',
                 copyLink: 'Copy',
                 linkCopied: 'Copied!',
-
-                // AI Generator
-                aiGeneratorTitle: '✨ AI Content Generator',
-                aiApiKey: 'Gemini API Key',
-                aiModel: 'AI Model',
-                aiBasePost: 'Base Post (Draft)',
-                aiBasePostPlaceholder: 'Write your raw signal details here...',
-                aiPrompt: 'Refinement Prompt',
-                aiGenerateBtn: 'Generate 50 Variations 🚀',
-                aiGeneratingBtn: 'Generating 50 Variations... 🔮',
-                aiSelectVariation: 'Select Best Variation',
-                aiTextSelected: '✅ Text Selected for Post',
 
                 // Profit Simulator
                 simulatorTitle: 'Missed Opportunity Calculator',
@@ -302,15 +281,6 @@ Past performance of any trading system or methodology is not necessarily indicat
                 lifetime: 'مدى الحياة ♾️',
                 days: 'يوماً',
                 joinVip: 'فعل عضوية VIP الآن',
-                alertsOn: 'الإشعارات مفعلة',
-                alertsOff: 'تفعيل التنبيهات',
-                notificationsEnabled: 'تم تفعيل التنبيهات!',
-                notificationsDisabled: 'تم إيقاف التنبيهات 🔕',
-                notificationPermissionDenied: 'تم رفض الإشعارات. يرجى تفعيلها من إعدادات المتصفح.',
-                browserNotSupported: 'هذا المتصفح لا يدعم الإشعارات.',
-                swNotSupported: 'هذا المتصفح لا يدعم الإشعارات في الخلفية.',
-                newSignalTitle: 'توصية تداول جديدة! 💰',
-                newSignalBody: 'تم نشر توصية جديدة، تفقدها الآن.',
 
                 // Admin Page
                 adminTitle: 'لوحة تحكم الإدمن',
@@ -338,19 +308,6 @@ Past performance of any trading system or methodology is not necessarily indicat
                 grantVip: 'منح عضوية VIP',
                 vipSuccess: 'تم تحديث حالة العضو بنجاح! ✓',
                 vipError: 'حدث خطأ في تحديث البيانات',
-                noVipMembers: 'لا يوجد أعضاء VIP حالياً',
-
-                // AI Generator
-                aiGeneratorTitle: '✨ منشئ المحتوى بالذكاء الاصطناعي',
-                aiApiKey: 'مفتاح API Gemini',
-                aiModel: 'نموذج الذكاء الاصطناعي',
-                aiBasePost: 'مسودة التوصية (الخام)',
-                aiBasePostPlaceholder: 'اكتب تفاصيل التوصية هنا بشكل مبسط...',
-                aiPrompt: 'تعليمات الصياغة (Prompt)',
-                aiGenerateBtn: 'توليد 50 نسخة مختلفة 🚀',
-                aiGeneratingBtn: 'جاري توليد 50 نسخة... 🔮',
-                aiSelectVariation: 'اختر أفضل صياغة',
-                aiTextSelected: '✅ تم اختيار النص للنشر',
 
                 // Telegram
                 postToTelegram: 'نشر تلقائي في قناة تليجرام',

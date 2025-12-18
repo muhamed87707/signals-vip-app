@@ -20,7 +20,6 @@ const UserSchema = new mongoose.Schema({
   referredBy: { type: String, default: null }, // referralCode of the person who referred this user
   referralCount: { type: Number, default: 0 }, // Number of successful referrals
   referralRewardsEarned: { type: Number, default: 0 }, // Total free months earned
-  pushSubscription: { type: Object, default: null }, // Store endpoint and keys
 });
 
 // Auto-generate referral code before saving if not exists

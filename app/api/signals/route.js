@@ -1,70 +1,11 @@
 import dbConnect from '@/lib/mongodb';
 import Signal from '@/models/Signal';
 import User from '@/models/User';
-import PushSubscription from '@/models/PushSubscription';
 import { NextResponse } from 'next/server';
 
 const IMGBB_API_KEY = 'b22927160ecad0d183ebc9a28d05ce9c';
 const TELEGRAM_BOT_TOKEN = '8540134514:AAFFTwFEniwPQriXqFpdkl0CNBhqCk7Daak';
 const TELEGRAM_CHANNEL_ID = '@mjhgkhg254';
-import webpush from 'web-push';
-
-// Configure Web Push (using env credentials or fallbacks if not yet loaded)
-const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:admin@example.com';
-
-if (vapidPublicKey && vapidPrivateKey) {
-    webpush.setVapidDetails(
-        vapidSubject,
-        vapidPublicKey,
-        vapidPrivateKey
-    );
-}
-
-async function broadcastVipSignal(signalTitle) {
-    if (!vapidPublicKey || !vapidPrivateKey) {
-        console.warn('VAPID keys not configured, skipping push notifications.');
-        return;
-    }
-
-    try {
-        // Find all push subscriptions (independent of user login)
-        const subscriptions = await PushSubscription.find({});
-
-        if (subscriptions.length === 0) {
-            console.log('No push subscriptions found to broadcast to.');
-            return;
-        }
-
-        const payload = JSON.stringify({
-            title: '🔥 New VIP Signal Posted!',
-            body: signalTitle || 'Check the app now for details.',
-            icon: '/og-image.png',
-            url: '/'
-        });
-
-        const promises = subscriptions.map(sub => {
-            const pushSubscription = {
-                endpoint: sub.endpoint,
-                keys: sub.keys
-            };
-            return webpush.sendNotification(pushSubscription, payload)
-                .catch(err => {
-                    if (err.statusCode === 410 || err.statusCode === 404) {
-                        // Subscription expired/invalid - remove it
-                        return PushSubscription.deleteOne({ endpoint: sub.endpoint });
-                    }
-                    console.error('Push failed:', err.message);
-                });
-        });
-
-        await Promise.all(promises);
-        console.log(`Push notification sent to ${subscriptions.length} device(s).`);
-    } catch (error) {
-        console.error('Broadcast Error:', error);
-    }
-}
 
 async function uploadToImgBB(base64Image) {
     if (!base64Image || !base64Image.startsWith('data:image')) return null;
@@ -87,39 +28,21 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-// Helper to delete from Telegram
-async function deleteTelegramMessage(messageId) {
-    if (!messageId) return;
-    try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
-        await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHANNEL_ID,
-                message_id: messageId
-            })
-        });
-    } catch (error) {
-        console.error('Telegram Delete Failed:', error);
-    }
-}
-
-// Helper to send to Telegram (Updated for AI Content)
 async function sendToTelegram(imageUrl, caption) {
     if (!imageUrl) return null;
 
     try {
-        // Use AI content if provided, otherwise default caption
+        // Updated Caption and Button Text as requested
         const text = caption || `🔥 *توصية VIP جديدة!* 💎
 تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
 اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
 
 🔥 *New VIP Signal!* 💎
 A high-potential trade has been posted for premium subscribers! 🚀
-Click below to reveal the signal details 👇`;
+Click below to reveal the signal 👇`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -127,7 +50,7 @@ Click below to reveal the signal details 👇`;
                 chat_id: TELEGRAM_CHANNEL_ID,
                 photo: imageUrl,
                 caption: text,
-                parse_mode: 'Markdown', // OR 'HTML' if AI generates HTML, but Markdown is safer usually
+                parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [[
                         { text: "💎 Show Signal | إظهار التوصية 💎", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
@@ -144,6 +67,23 @@ Click below to reveal the signal details 👇`;
     } catch (error) {
         console.error('Telegram Post Failed:', error);
         return null;
+    }
+}
+
+async function deleteTelegramMessage(messageId) {
+    if (!messageId) return;
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                message_id: messageId
+            })
+        });
+    } catch (error) {
+        console.error('Telegram Delete Failed:', error);
     }
 }
 
@@ -196,7 +136,7 @@ export async function POST(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
+        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend, isVip, socialPostContent } = body;
 
         // 1. Upload Main Image (Clear)
         const clearImageUrl = await uploadToImgBB(imageUrl);
@@ -204,12 +144,21 @@ export async function POST(request) {
 
         let telegramMessageId = null;
 
-        // 2. Upload Telegram Image (Blurred) if requested
-        if (shouldSend && telegramImage) {
-            const blurredUrl = await uploadToImgBB(telegramImage);
-            if (blurredUrl) {
+        // 2. Handle Social Media Posting
+        if (shouldSend) {
+            let socialImageUrl = null;
+
+            // If VIP and a blurred image is provided, use it for social media
+            if (isVip && telegramImage) {
+                socialImageUrl = await uploadToImgBB(telegramImage);
+            } else {
+                // Otherwise use the clear image (Free signal or no blur provided)
+                socialImageUrl = clearImageUrl;
+            }
+
+            if (socialImageUrl) {
                 // Send and capture Message ID
-                telegramMessageId = await sendToTelegram(blurredUrl);
+                telegramMessageId = await sendToTelegram(socialImageUrl, socialPostContent);
             }
         }
 
@@ -218,12 +167,10 @@ export async function POST(request) {
             pair,
             type,
             imageUrl: clearImageUrl,
-            telegramMessageId: telegramMessageId?.toString()
+            isVip: !!isVip,
+            socialPostContent,
+            telegramMessageId: telegramMessageId?.toString(),
         });
-
-        // 4. Send Web Push Notification
-        // You can customize title based on Pair/Type if available, e.g., "New Signal: XAUUSD BUY"
-        await broadcastVipSignal(`New Signal: ${pair || 'VIP'} ${type || ''}`);
 
         return NextResponse.json({ success: true, signal });
     } catch (error) {
