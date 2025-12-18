@@ -460,17 +460,15 @@ export default function SignalsPage() {
                                 applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFI2iHpeuWixiyvPI58zQaRquTCQkgJrnwHc8W-ZOdYMxCvCM2ZcD3yE5Shs4pgywmCWROFj6xabsjK5QpA-i5Y'
                             });
 
-                            // Send Subscription to Server
-                            if (telegramId) {
-                                await fetch('/api/push/subscribe', {
-                                    method: 'POST',
-                                    body: JSON.stringify({
-                                        telegramId: telegramId,
-                                        subscription: subscription
-                                    }),
-                                    headers: { 'Content-Type': 'application/json' }
-                                });
-                            }
+                            // Send Subscription to Server (works for logged in and anonymous users)
+                            await fetch('/api/push/subscribe', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    telegramId: telegramId || null,
+                                    subscription: subscription
+                                }),
+                                headers: { 'Content-Type': 'application/json' }
+                            });
                         } catch (swError) {
                             console.error('SW/Push Error:', swError);
                         }

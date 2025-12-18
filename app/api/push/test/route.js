@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import User from '@/models/User';
+import PushSubscription from '@/models/PushSubscription';
 import webpush from 'web-push';
 
 // Configure Web Push
@@ -26,18 +26,16 @@ export async function GET(req) {
     try {
         await dbConnect();
 
-        const subscribedUsers = await User.countDocuments({ pushSubscription: { $ne: null } });
-        const totalUsers = await User.countDocuments({});
+        const subscribedCount = await PushSubscription.countDocuments({});
 
         return NextResponse.json({
             status: 'ok',
             vapidConfigured: !!(vapidPublicKey && vapidPrivateKey),
             vapidPublicKeyPreview: vapidPublicKey ? vapidPublicKey.substring(0, 20) + '...' : 'NOT SET',
-            subscribedUsersCount: subscribedUsers,
-            totalUsersCount: totalUsers,
-            message: subscribedUsers === 0
-                ? 'No users have subscribed to push notifications yet. Users need to click "Enable Alerts" on the signals page.'
-                : `${subscribedUsers} user(s) are subscribed to push notifications.`
+            subscribedDevicesCount: subscribedCount,
+            message: subscribedCount === 0
+                ? 'No devices have subscribed to push notifications yet. Users need to click "Enable Alerts" on the signals page.'
+                : `${subscribedCount} device(s) are subscribed to push notifications.`
         });
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -52,11 +50,11 @@ export async function POST(req) {
 
         await dbConnect();
 
-        // Find users with a subscription
-        const users = await User.find({ pushSubscription: { $ne: null } });
+        // Find all push subscriptions
+        const subscriptions = await PushSubscription.find({});
 
-        if (users.length === 0) {
-            return NextResponse.json({ message: 'No subscribed users found' });
+        if (subscriptions.length === 0) {
+            return NextResponse.json({ message: 'No subscribed devices found. Click "Enable Alerts" on signals page first.' });
         }
 
         const payload = JSON.stringify({
@@ -69,15 +67,19 @@ export async function POST(req) {
         let successCount = 0;
         let failCount = 0;
 
-        const promises = users.map(user => {
-            return webpush.sendNotification(user.pushSubscription, payload)
+        const promises = subscriptions.map(sub => {
+            const pushSubscription = {
+                endpoint: sub.endpoint,
+                keys: sub.keys
+            };
+            return webpush.sendNotification(pushSubscription, payload)
                 .then(() => successCount++)
                 .catch(err => {
                     failCount++;
-                    console.error(`Push failed for ${user.telegramId}:`, err.message);
+                    console.error(`Push failed:`, err.message);
                     if (err.statusCode === 410 || err.statusCode === 404) {
-                        user.pushSubscription = null;
-                        return user.save();
+                        // Subscription expired, remove it
+                        return PushSubscription.deleteOne({ endpoint: sub.endpoint });
                     }
                 });
         });
@@ -86,8 +88,8 @@ export async function POST(req) {
 
         return NextResponse.json({
             success: true,
-            message: `Sent to ${successCount} users. Failed for ${failCount}.`,
-            total: users.length
+            message: `Sent to ${successCount} device(s). Failed: ${failCount}.`,
+            total: subscriptions.length
         });
     } catch (error) {
         console.error('Test Push Error:', error);

@@ -1,6 +1,7 @@
 import dbConnect from '@/lib/mongodb';
 import Signal from '@/models/Signal';
 import User from '@/models/User';
+import PushSubscription from '@/models/PushSubscription';
 import { NextResponse } from 'next/server';
 
 const IMGBB_API_KEY = 'b22927160ecad0d183ebc9a28d05ce9c';
@@ -28,10 +29,13 @@ async function broadcastVipSignal(signalTitle) {
     }
 
     try {
-        // Find users with a subscription
-        // Optimization: In real app, only fetch VIPs or all depending on logic.
-        // Assuming we notify everyone or just VIPs? Let's notify everyone to drive FOMO.
-        const users = await User.find({ pushSubscription: { $ne: null } });
+        // Find all push subscriptions (independent of user login)
+        const subscriptions = await PushSubscription.find({});
+
+        if (subscriptions.length === 0) {
+            console.log('No push subscriptions found to broadcast to.');
+            return;
+        }
 
         const payload = JSON.stringify({
             title: '🔥 New VIP Signal Posted!',
@@ -40,20 +44,23 @@ async function broadcastVipSignal(signalTitle) {
             url: '/'
         });
 
-        const promises = users.map(user => {
-            return webpush.sendNotification(user.pushSubscription, payload)
+        const promises = subscriptions.map(sub => {
+            const pushSubscription = {
+                endpoint: sub.endpoint,
+                keys: sub.keys
+            };
+            return webpush.sendNotification(pushSubscription, payload)
                 .catch(err => {
                     if (err.statusCode === 410 || err.statusCode === 404) {
-                        // Subscription expired/invalid
-                        user.pushSubscription = null;
-                        return user.save();
+                        // Subscription expired/invalid - remove it
+                        return PushSubscription.deleteOne({ endpoint: sub.endpoint });
                     }
-                    console.error('Push failed for user', user.telegramId, err.message);
+                    console.error('Push failed:', err.message);
                 });
         });
 
         await Promise.all(promises);
-        console.log(`Push notification sent to ${users.length} users.`);
+        console.log(`Push notification sent to ${subscriptions.length} device(s).`);
     } catch (error) {
         console.error('Broadcast Error:', error);
     }
