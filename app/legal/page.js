@@ -9,7 +9,7 @@ export default function LegalPage() {
     const renderContent = (text) => {
         if (!text) return null;
         return text.split('\n').map((line, index) => {
-            if (!line.trim()) return <div key={index} style={{ height: '0.5rem' }}></div>;
+            if (!line.trim()) return <div key={index} style={{ height: '1rem' }}></div>;
 
             if (line.includes('**')) {
                 // Remove ** and render as bold header
@@ -17,12 +17,19 @@ export default function LegalPage() {
                 return <h3 key={index} style={{
                     color: 'var(--text-primary)',
                     fontWeight: '700',
-                    fontSize: '1.1rem',
-                    marginTop: '1.5rem',
-                    marginBottom: '0.5rem'
+                    fontSize: '1.15rem',
+                    marginTop: '2rem',
+                    marginBottom: '0.75rem',
+                    lineHeight: '1.4'
                 }}>{cleanLine}</h3>;
             }
-            return <p key={index} style={{ marginBottom: '0.5rem', opacity: 0.8, lineHeight: '1.6' }}>{line}</p>;
+            return <p key={index} style={{
+                marginBottom: '0.75rem',
+                opacity: 0.9,
+                lineHeight: '1.8',
+                fontSize: '1rem',
+                color: 'var(--text-secondary)'
+            }}>{line}</p>;
         });
     };
 
@@ -31,41 +38,50 @@ export default function LegalPage() {
             minHeight: '100vh',
             background: 'var(--bg-dark)',
             color: 'var(--text-primary)',
-            padding: '2rem 1rem',
-            direction: isRTL ? 'rtl' : 'ltr'
+            padding: '3rem 1.5rem',
+            direction: isRTL ? 'rtl' : 'ltr',
+            fontFamily: isRTL ? 'var(--font-cairo)' : 'var(--font-inter)'
         }}>
-            <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="container" style={{ maxWidth: '850px', margin: '0 auto' }}>
                 <Link href="/" style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.5rem',
                     color: 'var(--gold-primary)',
                     textDecoration: 'none',
-                    marginBottom: '2rem',
+                    marginBottom: '3rem',
                     fontWeight: '600',
-                    fontSize: '1.1rem'
-                }}>
+                    fontSize: '1.1rem',
+                    transition: 'opacity 0.2s'
+                }} className="hover:opacity-80">
                     {isRTL ? '→' : '←'} {t.backToHome}
                 </Link>
 
                 <h1 className="text-gradient" style={{
-                    fontSize: '2.5rem',
+                    fontSize: '3rem',
                     fontWeight: '800',
-                    marginBottom: '3rem',
-                    textAlign: 'center'
+                    marginBottom: '4rem',
+                    textAlign: 'center',
+                    lineHeight: '1.2'
                 }}>{t.legalTitle}</h1>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                     {/* Privacy Policy */}
                     <section style={{
                         background: 'var(--bg-card)',
-                        border: '1px solid rgba(184, 134, 11, 0.2)',
+                        border: '1px solid rgba(184, 134, 11, 0.15)',
                         borderRadius: '24px',
-                        padding: '2rem',
+                        padding: '2.5rem',
                         boxShadow: 'var(--shadow-card)'
                     }}>
-                        <h2 style={{ color: 'var(--gold-medium)', marginBottom: '1.5rem', fontSize: '1.8rem', borderBottom: '1px solid rgba(184, 134, 11, 0.1)', paddingBottom: '1rem' }}>{t.privacyPolicy}</h2>
-                        <div style={{ color: 'var(--text-secondary)' }}>
+                        <h2 style={{
+                            color: 'var(--gold-medium)',
+                            marginBottom: '1.5rem',
+                            fontSize: '2rem',
+                            borderBottom: '1px solid rgba(184, 134, 11, 0.1)',
+                            paddingBottom: '1rem'
+                        }}>{t.privacyPolicy}</h2>
+                        <div>
                             {renderContent(t.privacyText)}
                         </div>
                     </section>
@@ -73,23 +89,29 @@ export default function LegalPage() {
                     {/* Terms of Service */}
                     <section style={{
                         background: 'var(--bg-card)',
-                        border: '1px solid rgba(184, 134, 11, 0.2)',
+                        border: '1px solid rgba(184, 134, 11, 0.15)',
                         borderRadius: '24px',
-                        padding: '2rem',
+                        padding: '2.5rem',
                         boxShadow: 'var(--shadow-card)'
                     }}>
-                        <h2 style={{ color: 'var(--gold-medium)', marginBottom: '1.5rem', fontSize: '1.8rem', borderBottom: '1px solid rgba(184, 134, 11, 0.1)', paddingBottom: '1rem' }}>{t.termsOfService}</h2>
-                        <div style={{ color: 'var(--text-secondary)' }}>
+                        <h2 style={{
+                            color: 'var(--gold-medium)',
+                            marginBottom: '1.5rem',
+                            fontSize: '2rem',
+                            borderBottom: '1px solid rgba(184, 134, 11, 0.1)',
+                            paddingBottom: '1rem'
+                        }}>{t.termsOfService}</h2>
+                        <div>
                             {renderContent(t.termsText)}
                         </div>
                     </section>
 
                     {/* Risk Disclaimer */}
                     <section style={{
-                        background: 'rgba(255, 0, 0, 0.05)',
-                        border: '1px solid rgba(255, 0, 0, 0.2)',
+                        background: 'rgba(255, 0, 0, 0.04)',
+                        border: '1px solid rgba(255, 60, 60, 0.2)',
                         borderRadius: '24px',
-                        padding: '2rem',
+                        padding: '2.5rem',
                         position: 'relative',
                         overflow: 'hidden'
                     }}>
@@ -99,20 +121,30 @@ export default function LegalPage() {
                             right: isRTL ? 0 : 'auto',
                             top: 0,
                             bottom: 0,
-                            width: '4px',
-                            background: '#ef4444'
+                            width: '6px',
+                            background: '#ef4444',
+                            opacity: 0.8
                         }}></div>
-                        <h2 style={{ color: '#f87171', marginBottom: '1.5rem', fontSize: '1.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255, 0, 0, 0.1)', paddingBottom: '1rem' }}>
+                        <h2 style={{
+                            color: '#fca5a5',
+                            marginBottom: '1.5rem',
+                            fontSize: '2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            borderBottom: '1px solid rgba(255, 60, 60, 0.1)',
+                            paddingBottom: '1rem'
+                        }}>
                             ⚠️ {t.riskDisclaimer}
                         </h2>
-                        <div style={{ color: 'var(--text-secondary)' }}>
+                        <div>
                             {renderContent(t.riskText)}
                         </div>
                     </section>
                 </div>
 
-                <div style={{ marginTop: '4rem', textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.5, fontSize: '0.9rem' }}>
-                    &copy; {new Date().getFullYear()} {t.brand}. All rights reserved.
+                <div style={{ marginTop: '5rem', textAlign: 'center', color: 'var(--text-secondary)', opacity: 0.6, fontSize: '0.95rem' }}>
+                    &copy; {new Date().getFullYear()} {t.brand}. All rights reserved. • <a href="mailto:Sniper.VIP.Support@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>Sniper.VIP.Support@gmail.com</a>
                 </div>
             </div>
         </div>
