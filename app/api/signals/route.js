@@ -28,18 +28,18 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-async function sendToTelegram(imageUrl, customCaption) {
+async function sendToTelegram(imageUrl) {
     if (!imageUrl) return null;
 
     try {
-        // Use custom caption if provided, otherwise use default template
-        const text = customCaption || `🔥 *توصية VIP جديدة!* 💎
- تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
- اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
+        // Updated Caption and Button Text as requested
+        const text = `🔥 *توصية VIP جديدة!* 💎
+تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
+اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
 
- 🔥 *New VIP Signal!* 💎
- A high-potential trade has been posted for premium subscribers! 🚀
- Click below to reveal the signal 👇`;
+🔥 *New VIP Signal!* 💎
+A high-potential trade has been posted for premium subscribers! 🚀
+Click below to reveal the signal 👇`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
@@ -70,13 +70,73 @@ async function sendToTelegram(imageUrl, customCaption) {
     }
 }
 
-// ... inside POST ...
+async function deleteTelegramMessage(messageId) {
+    if (!messageId) return;
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteMessage`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                message_id: messageId
+            })
+        });
+    } catch (error) {
+        console.error('Telegram Delete Failed:', error);
+    }
+}
+
+export async function GET(request) {
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const telegramId = searchParams.get('telegramId');
+
+        const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(10);
+        let isVip = false;
+        let subscriptionEndDate = null;
+
+        if (telegramId && telegramId !== 'null' && telegramId !== 'undefined') {
+            const idString = String(telegramId);
+            const user = await User.findOne({ telegramId: idString });
+
+            if (user && user.isVip) {
+                // Check if expired
+                if (user.subscriptionEndDate) {
+                    const now = new Date();
+                    const end = new Date(user.subscriptionEndDate);
+                    if (now > end) {
+                        // Expired
+                        user.isVip = false;
+                        user.subscriptionEndDate = null;
+                        await user.save();
+                        isVip = false;
+                    } else {
+                        // Active with end date
+                        isVip = true;
+                        subscriptionEndDate = user.subscriptionEndDate;
+                    }
+                } else {
+                    // Active Lifetime (isVip=true, date=null)
+                    isVip = true;
+                    subscriptionEndDate = null;
+                }
+            }
+        }
+
+        return NextResponse.json({ signals, isUserVip: isVip, subscriptionEndDate });
+    } catch (error) {
+        console.error("Database Error:", error);
+        return NextResponse.json({ signals: [], isUserVip: false }, { status: 500 });
+    }
+}
 
 export async function POST(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend, isVip, caption } = body;
+        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
 
         // 1. Upload Main Image (Clear)
         const clearImageUrl = await uploadToImgBB(imageUrl);
@@ -89,7 +149,7 @@ export async function POST(request) {
             const blurredUrl = await uploadToImgBB(telegramImage);
             if (blurredUrl) {
                 // Send and capture Message ID
-                telegramMessageId = await sendToTelegram(blurredUrl, caption);
+                telegramMessageId = await sendToTelegram(blurredUrl);
             }
         }
 
@@ -98,8 +158,7 @@ export async function POST(request) {
             pair,
             type,
             imageUrl: clearImageUrl,
-            telegramMessageId: telegramMessageId?.toString(),
-            isVip: isVip || false
+            telegramMessageId: telegramMessageId?.toString()
         });
 
         return NextResponse.json({ success: true, signal });

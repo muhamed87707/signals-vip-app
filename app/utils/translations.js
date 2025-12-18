@@ -48,6 +48,8 @@ export const translations = {
                 disclaimerTitle: '⚠️ Risk Disclaimer',
                 disclaimerText: 'Trading in financial markets involves substantial risk and may not be suitable for all investors. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before trading. Never invest money you cannot afford to lose. The signals provided are for educational purposes only and do not constitute financial advice.',
                 footerText: 'All Rights Reserved',
+                faqTitle: 'Frequently Asked Questions',
+                faqSubtitle: 'Everything you need to know about our service',
 
                 // Signals Page
                 signalsTitle: 'Trading Signals',
@@ -262,6 +264,8 @@ Past performance of any trading system or methodology is not necessarily indicat
                 disclaimerTitle: '⚠️ إخلاء المسؤولية',
                 disclaimerText: 'التداول في الأسواق المالية ينطوي على مخاطر كبيرة وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق لا يضمن النتائج المستقبلية. يجب أن تدرس بعناية أهدافك الاستثمارية ومستوى خبرتك ومدى تحملك للمخاطر قبل التداول. لا تستثمر أبداً أموالاً لا يمكنك تحمل خسارتها. التوصيات المقدمة هي لأغراض تعليمية فقط ولا تمثل نصيحة مالية.',
                 footerText: 'جميع الحقوق محفوظة',
+                faqTitle: 'الأسئلة الشائعة',
+                faqSubtitle: 'كل ما تحتاج معرفته عن خدماتنا',
 
                 // Signals Page
                 signalsTitle: 'توصيات التداول',
@@ -444,4 +448,20 @@ export const englishTestimonials = [
         { name: 'Robert Williams', title: 'Part-time Trader', text: 'Perfect for a busy schedule. I follow the signals and results speak for themselves.', initial: 'R' },
         { name: 'Chris Johnson', title: 'Beginner Trader', text: 'Started with zero experience. The resources helped me understand the market quickly.', initial: 'C' },
         { name: 'Daniel Brown', title: 'Investment Analyst', text: 'As a professional, I appreciate the depth of analysis. Consistently profitable signals.', initial: 'D' }
+];
+
+export const arabicFAQ = [
+        { q: 'كيف أحصل على التوصيات؟', a: 'ستصلك تنبيهات فورية عبر قناتنا الخاصة على تليجرام وبوت VIP، مما يضمن عدم تفويتك لأي فرصة تداول.' },
+        { q: 'ما هو رأس المال المطلوب للبدء؟', a: 'ننصح بالبدء برصيد لا يقل عن 100-300 دولار لتمكينك من إدارة المخاطر بشكل صحيح وتوزيع العقود.' },
+        { q: 'هل الخدمة مناسبة للمبتدئين؟', a: 'نعم بالتأكيد! كل توصية تأتي بتفاصيل كاملة (دخول، وقف خسارة، جني أرباح) مع شروحات تعليمية لمساعدتك على الفهم.' },
+        { q: 'ما هي نسبة نجاح التوصيات؟', a: 'نحافظ على نسبة نجاح تتراوح بين 75% إلى 85% شهرياً، مع تركيزنا الأساسي على إدارة المخاطر للحفاظ على رأس المال.' },
+        { q: 'هل يمكنني إلغاء اشتراكي؟', a: 'نعم، يمكنك إلغاء التجديد التلقائي في أي وقت. ومع ذلك، الاشتراكات المدفوعة للفترة الحالية غير قابلة للاسترداد.' }
+];
+
+export const englishFAQ = [
+        { q: 'How do I receive the signals?', a: 'You will receive instant notifications via our private Telegram channel and VIP bot, ensuring you never miss a trading opportunity.' },
+        { q: 'How much capital do I need to start?', a: 'We recommend starting with at least $100-$300. This allows for proper risk management and position sizing.' },
+        { q: 'Is this service suitable for beginners?', a: 'Absolutely! Every signal includes full details (Entry, SL, TP) along with educational notes to help you understand the market.' },
+        { q: 'What is the success rate?', a: 'We maintain a consistent win rate of 75%-85% monthly, with our primary focus on strict risk management to protect your capital.' },
+        { q: 'Can I cancel my subscription?', a: 'Yes, you can cancel auto-renewal at any time. However, active subscriptions for the current period are non-refundable.' }
 ];

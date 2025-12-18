@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { translations, arabicTestimonials, englishTestimonials } from '../utils/translations';
+import { translations, arabicTestimonials, englishTestimonials, arabicFAQ, englishFAQ } from '../utils/translations';
 
 const LanguageContext = createContext();
 
@@ -40,6 +40,7 @@ export function LanguageProvider({ children }) {
 
     const t = translations[lang] || translations['en'];
     const testimonials = lang === 'ar' ? arabicTestimonials : englishTestimonials;
+    const faqs = lang === 'ar' ? arabicFAQ : englishFAQ;
     const isRTL = lang === 'ar';
 
     // Prevent hydration mismatch by not rendering until mounted? 
@@ -48,7 +49,7 @@ export function LanguageProvider({ children }) {
     // We suppressHydrationWarning in layout.js already.
 
     return (
-        <LanguageContext.Provider value={{ lang, setLang, toggleLang, t, testimonials, isRTL, mounted }}>
+        <LanguageContext.Provider value={{ lang, setLang, toggleLang, t, testimonials, faqs, isRTL, mounted }}>
             {children}
         </LanguageContext.Provider>
     );

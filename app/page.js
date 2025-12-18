@@ -248,6 +248,81 @@ const ProfitSimulator = ({ t }) => {
 };
 
 
+// ===== FAQ Accordion Component =====
+const FAQAccordion = ({ faqs, t }) => {
+    const [openIndex, setOpenIndex] = useState(null);
+
+    const toggle = (index) => {
+        setOpenIndex(openIndex === index ? null : index);
+    };
+
+    return (
+        <section className="container" style={{ marginBottom: '4rem', marginTop: '4rem' }}>
+            <h2 className="section-title">
+                {t.faqTitle}
+            </h2>
+            <p className="section-subtitle">{t.faqSubtitle}</p>
+
+            <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {faqs.map((item, index) => (
+                    <div key={index} style={{
+                        background: 'var(--bg-card)',
+                        border: '1px solid rgba(184, 134, 11, 0.2)',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        transition: 'all 0.3s ease'
+                    }}>
+                        <button
+                            onClick={() => toggle(index)}
+                            style={{
+                                width: '100%',
+                                padding: '1.5rem',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text-primary)',
+                                fontSize: '1.1rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                textAlign: 'inherit'
+                            }}
+                        >
+                            <span>{item.q}</span>
+                            <span style={{
+                                color: 'var(--gold-primary)',
+                                transform: openIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s ease',
+                                fontSize: '1.2rem'
+                            }}>
+                                ▼
+                            </span>
+                        </button>
+
+                        <div style={{
+                            maxHeight: openIndex === index ? '500px' : '0',
+                            overflow: 'hidden',
+                            transition: 'max-height 0.3s ease-in-out',
+                            opacity: openIndex === index ? 1 : 0.5
+                        }}>
+                            <div style={{
+                                padding: '0 1.5rem 1.5rem 1.5rem',
+                                color: 'var(--text-secondary)',
+                                lineHeight: '1.6',
+                                borderTop: '1px solid rgba(184, 134, 11, 0.1)',
+                                paddingTop: '1rem'
+                            }}>
+                                {item.a}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+};
+
 // ===== Terms & Agreement Modal =====
 const TermsModal = ({ isOpen, onClose, onConfirm, t, isRTL }) => {
     const [isChecked, setIsChecked] = useState(false);
@@ -430,7 +505,7 @@ const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
 
 // ===== Main Page =====
 export default function LandingPage() {
-    const { t, lang, toggleLang, isRTL, testimonials, mounted } = useLanguage();
+    const { t, lang, toggleLang, isRTL, testimonials, mounted, faqs } = useLanguage();
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [targetUrl, setTargetUrl] = useState('');
@@ -626,6 +701,9 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            {/* FAQ */}
+            <FAQAccordion faqs={faqs} t={t} />
 
             {/* Disclaimer */}
             <section className="disclaimer">
