@@ -1,502 +1,623 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
 
-const DEFAULT_API_KEY = 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
-const DEFAULT_MODEL = 'gemini-1.5-flash';
-const DEFAULT_PROMPT = `You are an expert Social Media Manager for a Premium Gold & Forex Trading Signal service.
-Write a highly engaging, professional, and exciting post text for the following trading signal.
-Use emojis, hashtags (#Gold #Forex #Trading), and persuasive language to encourage people to join our VIP channel.
-Keep it concise but powerful.
-Signal Details:
-{DRAFT}
-`;
+import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+
+const ADMIN_PASSWORD = '123';
+const DEFAULT_GEMINI_KEY = 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
+
+const getTimeAgo = (dateStr, lang) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (lang === 'ar') {
+        if (seconds < 60) return 'منذ لحظات';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `منذ ${minutes} دقيقة`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        const days = Math.floor(hours / 24);
+        return `منذ ${days} يوم`;
+    } else {
+        if (seconds < 60) return 'Just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+    }
+};
 
 export default function AdminPage() {
+    const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState('');
-
-    // Signal State
-    const [formData, setFormData] = useState({
-        pair: 'GOLD',
-        type: 'BUY',
-        image: null,
-        imgPreview: null,
-        isVip: false
-    });
-
-    // AI State
-    const [aiConfig, setAiConfig] = useState({
-        apiKey: DEFAULT_API_KEY,
-        model: DEFAULT_MODEL,
-        availableModels: [],
-        draft: 'GOLD BUY NOW @ 2030\nSL: 2025\nTP: 2040',
-        prompt: DEFAULT_PROMPT,
-        variations: [],
-        selectedVariationIndex: -1
-    });
-
+    const [error, setError] = useState('');
     const [signals, setSignals] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const fileInputRef = useRef(null);
 
-    // Persistence
+    // New Features State
+    const [isVipSignal, setIsVipSignal] = useState(false);
+    const [geminiApiKey, setGeminiApiKey] = useState(DEFAULT_GEMINI_KEY);
+    const [postPrompt, setPostPrompt] = useState('Create a hype trading signal post for social media. Use emojis. Keep it short and exciting.');
+    const [aiPosts, setAiPosts] = useState([]);
+    const [selectedPost, setSelectedPost] = useState('');
+    const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+    const [showAiModal, setShowAiModal] = useState(false);
+
+    // VIP Management State
+    const [telegramId, setTelegramId] = useState('');
+    const [durationMonths, setDurationMonths] = useState('');
+    const [isLifetime, setIsLifetime] = useState(false);
+    const [vipLoading, setVipLoading] = useState(false);
+    const [vipMessage, setVipMessage] = useState({ type: '', text: '' });
+    const [users, setUsers] = useState([]);
+
+    // Telegram Auto-Post State
+    const [postToTelegram, setPostToTelegram] = useState(true);
+
     useEffect(() => {
-        const savedApi = localStorage.getItem('admin_apiKey');
-        const savedModel = localStorage.getItem('admin_model');
-        const savedDraft = localStorage.getItem('admin_draft');
-        const savedPrompt = localStorage.getItem('admin_prompt');
-
-        setAiConfig(prev => ({
-            ...prev,
-            apiKey: savedApi || DEFAULT_API_KEY,
-            model: savedModel || DEFAULT_MODEL,
-            draft: savedDraft || prev.draft,
-            prompt: savedPrompt || DEFAULT_PROMPT
-        }));
-
-        fetchSignals();
+        const auth = sessionStorage.getItem('admin-auth');
+        if (auth === 'true') {
+            setIsAuthenticated(true);
+            fetchSignals();
+            fetchUsers();
+        }
     }, []);
 
-    // Save on Change
-    useEffect(() => {
-        localStorage.setItem('admin_apiKey', aiConfig.apiKey);
-        localStorage.setItem('admin_model', aiConfig.model);
-        localStorage.setItem('admin_draft', aiConfig.draft);
-        localStorage.setItem('admin_prompt', aiConfig.prompt);
-    }, [aiConfig]);
+    const handleLogin = (e) => {
+        e.preventDefault();
+        if (password === ADMIN_PASSWORD) {
+            setIsAuthenticated(true);
+            sessionStorage.setItem('admin-auth', 'true');
+            setError('');
+            fetchSignals();
+            fetchUsers();
+        } else {
+            setError(t.loginError);
+        }
+    };
 
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        sessionStorage.removeItem('admin-auth');
+    };
 
     const fetchSignals = async () => {
-        try {
-            const res = await fetch('/api/signals?telegramId=admin');
-            const data = await res.json();
-            if (data.signals) setSignals(data.signals);
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    const fetchModels = async () => {
-        if (!aiConfig.apiKey) return alert('Enter API Key');
         setLoading(true);
         try {
-            const res = await fetch(`/api/gemini/models?key=${aiConfig.apiKey}`);
+            const res = await fetch('/api/signals');
             const data = await res.json();
-            if (data.models) {
-                setAiConfig(prev => ({ ...prev, availableModels: data.models }));
-                setStatus('Models fetched!');
-            } else {
-                alert('Failed to fetch models: ' + (data.error || 'Unknown error'));
+            setSignals(data.signals || []);
+        } catch (err) {
+            console.error('Error fetching signals:', err);
+        }
+        setLoading(false);
+    };
+
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch('/api/users');
+            const data = await res.json();
+            if (data.success) {
+                setUsers(data.users || []);
             }
-        } catch (e) {
-            alert(e.message);
-        } finally {
-            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching users:', err);
         }
     };
 
-    const generateVariations = async () => {
-        if (!aiConfig.apiKey || !aiConfig.draft) return alert('API Key and Draft are required');
-        setLoading(true);
-        setStatus('Generating 50 variations... this may take a moment...');
-
-        const finalPrompt = aiConfig.prompt.replace('{DRAFT}', aiConfig.draft);
-
+    // AI Generation Logic (Updated to use Server API)
+    const generateAiPosts = async () => {
+        if (!geminiApiKey) {
+            alert('Please enter a Valid Gemini API Key');
+            return;
+        }
+        setIsGeneratingAi(true);
         try {
-            const res = await fetch('/api/gemini/generate', {
+            const res = await fetch('/api/ai/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    apiKey: aiConfig.apiKey,
-                    model: aiConfig.model,
-                    prompt: finalPrompt,
-                    count: 50
-                })
+                body: JSON.stringify({ apiKey: geminiApiKey, prompt: postPrompt })
             });
             const data = await res.json();
-            if (data.variations) {
-                setAiConfig(prev => ({ ...prev, variations: data.variations }));
-                setStatus(`Generated ${data.variations.length} variations!`);
+
+            if (data.success && Array.isArray(data.posts)) {
+                setAiPosts(data.posts);
             } else {
-                alert('Error: ' + (data.error || 'No variations returned'));
+                alert('AI Error: ' + (data.error || 'Failed to generate'));
             }
-        } catch (e) {
-            alert(e.message);
-        } finally {
-            setLoading(false);
+        } catch (error) {
+            console.error("AI Request Error:", error);
+            alert("Error generating posts");
         }
+        setIsGeneratingAi(false);
     };
 
-    // Canvas Logic for Blurring
-    const blurImage = async (imageFile) => {
+    // --- CANVAS LOCK GENERATION (TUNED) ---
+    const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
+            const url = URL.createObjectURL(file);
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = img.width;
                 canvas.height = img.height;
 
-                // Draw blurred
-                ctx.filter = 'blur(40px)'; // Strong blur
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                // 1. Draw Reduced Blur Image (10px) - Overdraw to prevent black edges
+                ctx.filter = 'blur(10px)';
+                // Draw image slightly larger (-20px offset) to ensure blur doesn't pull transparency from edges
+                ctx.drawImage(img, -20, -20, canvas.width + 40, canvas.height + 40);
+                ctx.filter = 'none'; // Reset
 
-                // Overlay text
-                ctx.filter = 'none';
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // 2. Prepare SVG Lock Badge (Corrected Radial Gradient)
+                const size = Math.min(canvas.width, canvas.height) * 0.35; // Slightly larger lock
+                const x = (canvas.width - size) / 2;
+                const y = (canvas.height - size) / 2;
 
-                ctx.font = `bold ${canvas.width / 10}px Arial`;
-                ctx.fillStyle = '#FFD700';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('VIP ONLY 🔒', canvas.width / 2, canvas.height / 2);
+                // We simulate the signals page gradient: radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%)
+                // And the SVG lock
+                const svgString = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
+                    <defs>
+                        <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                            <stop offset="0%" style="stop-color:rgba(184, 134, 11, 0.4);stop-opacity:1" />
+                            <stop offset="70%" style="stop-color:rgba(0, 0, 0, 0);stop-opacity:0" />
+                        </radialGradient>
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                resolve(dataUrl);
+                        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE566;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#705C0B;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <g transform="translate(25, 21) scale(0.6)">
+                         <circle cx="12" cy="16" r="5.5" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
+                         
+                         <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
+                         <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
+                         <circle cx="12" cy="16" r="1.5" fill="url(#gold)" transform="scale(3.5)" />
+                    </g>
+                </svg>`;
+
+                const badgeImg = new Image();
+                badgeImg.onload = () => {
+                    ctx.drawImage(badgeImg, x, y, size, size);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    URL.revokeObjectURL(url);
+                    resolve(dataUrl);
+                };
+                badgeImg.src = 'data:image/svg+xml;base64,' + btoa(svgString);
             };
-            img.src = URL.createObjectURL(imageFile);
+            img.src = url;
         });
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, image: reader.result, imgPreview: reader.result }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    const handleUpload = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const file = form.image.files[0];
+        const pair = form.pair.value;
+        const type = form.type.value;
 
-    const handleSubmit = async () => {
-        if (!formData.image) return alert('Please select an image');
-        setLoading(true);
-        setStatus('Publishing...');
+        if (!file) return;
+
+        setUploading(true);
+        setSuccessMessage('');
 
         try {
-            let telegramImage = null;
+            const formData = new FormData();
+            // Convert file to base64 for uploadToImgBB logic (which expects base64 or file? API says input 'image')
+            // Actually, my previous logic in POST used uploadToImgBB which expects base64 string
 
-            // If VIP, generate blurred image for Telegram
-            if (formData.isVip) {
-                // We need the file object to create blob? No, we have base64 in formData.image
-                // But blurImage logic used createObjectURL on file.
-                // Let's refactor blurImage to take base64 string
-                const img = new Image();
-                img.src = formData.image;
-                await img.decode(); // Wait for load
+            const toBase64 = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]); // Get only base64 data
+                reader.onerror = error => reject(error);
+            });
 
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
+            const base64Image = await toBase64(file);
 
-                ctx.filter = 'blur(50px)';
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                ctx.filter = 'none';
-                ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.font = `bold ${canvas.width / 8}px sans-serif`;
-                ctx.fillStyle = '#FFD700'; // Gold
-                ctx.textAlign = 'center';
-                ctx.fillText('VIP SIGNAL 🔒', canvas.width / 2, canvas.height / 2);
-
-                telegramImage = canvas.toDataURL('image/jpeg', 0.85); // Base64 Blurred
+            let blurredImageBase64 = null;
+            if (isVipSignal && postToTelegram) {
+                const blurredBlob = await createBlurredImage(file);
+                blurredImageBase64 = await toBase64(blurredBlob);
             }
 
-            const selectedCaption = aiConfig.selectedVariationIndex >= 0
-                ? aiConfig.variations[aiConfig.selectedVariationIndex]
-                : null;
+            const payload = {
+                pair,
+                type,
+                imageUrl: base64Image,
+                telegramImage: blurredImageBase64, // Pass blurred image if VIP
+                sendToTelegram: postToTelegram,
+                isVip: isVipSignal,
+                socialPostContent: selectedPost
+            };
 
             const res = await fetch('/api/signals', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    pair: formData.pair,
-                    type: formData.type,
-                    imageUrl: formData.image, // Clear image for DB/Website
-                    telegramImage: telegramImage, // Blurred (or null if not VIP? No, existing logic needs it to post to TG. If Public, we send clear image to TG too?)
-                    // Logic check: If Public, telegramImage should be same as imageUrl?
-                    // User request: "Tumwih if VIP". If public, post normally.
-                    // Existing route logic: if (telegramImage) sendToTelegram(telegramImage). 
-                    // So for Public, we must pass imageUrl as telegramImage too.
-                    telegramImage: formData.isVip ? telegramImage : formData.image,
-                    sendToTelegram: true,
-                    isVip: formData.isVip,
-                    caption: selectedCaption
-                })
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();
+
             if (data.success) {
-                setStatus('Success! Signal Posted.');
-                setFormData(prev => ({ ...prev, image: null, imgPreview: null }));
+                setSuccessMessage(t.uploadSuccess || 'Signal Posted Successfully!');
+                form.reset();
+                setAiPosts([]);
+                setSelectedPost('');
                 fetchSignals();
             } else {
-                alert('Error: ' + data.error);
+                alert('Upload failed: ' + data.error);
             }
-
-        } catch (e) {
-            console.error(e);
-            alert('Error: ' + e.message);
-        } finally {
-            setLoading(false);
+        } catch (error) {
+            console.error('Upload Error:', error);
+            alert('Upload error');
         }
+        setUploading(false);
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm('Are you sure? This will delete from Website AND Social Media.')) return;
-        setLoading(true);
+    const handleDeleteSignal = async (id) => {
+        if (!confirm('Are you sure you want to delete this signal? It will be removed from the site and Telegram.')) return;
+
         try {
-            await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
-            fetchSignals();
-            setStatus('Signal Deleted.');
-        } catch (e) {
+            const res = await fetch(`/api/signals/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchSignals(); // Refresh list
+            } else {
+                alert('Failed to delete: ' + data.error);
+            }
+        } catch (err) {
             alert('Delete failed');
-        } finally {
-            setLoading(false);
         }
     };
+
+    const handleGrantVip = async (e) => {
+        e.preventDefault();
+        if (!telegramId) return;
+        setVipLoading(true);
+        setVipMessage({ type: '', text: '' });
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegramId,
+                    isVip: true,
+                    durationMonths,
+                    isLifetime
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setVipMessage({ type: 'success', text: t.vipSuccess });
+                setTelegramId('');
+                setDurationMonths('');
+                setIsLifetime(false);
+                fetchUsers();
+            } else {
+                setVipMessage({ type: 'error', text: t.vipError });
+            }
+        } catch (err) {
+            setVipMessage({ type: 'error', text: t.vipError });
+        }
+        setVipLoading(false);
+    };
+
+    const handleRemoveUser = async (tid) => {
+        if (!confirm('Are you sure you want to remove this user from the VIP list?')) return;
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId: tid, removeUser: true })
+            });
+            const data = await res.json();
+            if (data.success) {
+                fetchUsers();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const deleteSignal = async (id) => {
+        if (!confirm(t.deleteConfirm)) return;
+        try {
+            const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchSignals();
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+        }
+    };
+
+    if (!mounted) return null;
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-black text-white">
-                <div className="p-8 border border-white/10 rounded-xl">
-                    <h1 className="text-2xl mb-4 text-gold">Admin Login</h1>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="bg-gray-900 border border-gray-700 p-2 rounded w-full mb-4"
-                        placeholder="Password"
-                    />
-                    <button
-                        onClick={() => password === 'admin123' ? setIsAuthenticated(true) : alert('Wrong')}
-                        className="bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full"
-                    >
-                        Login
-                    </button>
-                    <p className="mt-2 text-xs text-gray-500">Hint: admin123</p>
+            <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
+                    </div>
+                    <form onSubmit={handleLogin}>
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
+                        {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
+                        <button type="submit" className="btn-primary" style={{ width: '100%' }}>{t.login}</button>
+                    </form>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-6 font-sans">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-                {/* LEFT COLUMN: Signal & Config */}
-                <div className="space-y-8">
-                    {/* 1. Signal Creator */}
-                    <div className="bg-[#111] p-6 rounded-2xl border border-white/5">
-                        <h2 className="text-2xl font-bold text-yellow-500 mb-6 flex items-center gap-2">
-                            🚀 Post New Signal
-                        </h2>
-
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label className="block text-gray-400 text-sm mb-1">Pair</label>
-                                <input
-                                    value={formData.pair}
-                                    onChange={e => setFormData({ ...formData, pair: e.target.value })}
-                                    className="w-full bg-black border border-gray-700 p-3 rounded-lg focus:border-yellow-500 outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-gray-400 text-sm mb-1">Type</label>
-                                <select
-                                    value={formData.type}
-                                    onChange={e => setFormData({ ...formData, type: e.target.value })}
-                                    className="w-full bg-black border border-gray-700 p-3 rounded-lg focus:border-yellow-500 outline-none"
-                                >
-                                    <option>BUY</option>
-                                    <option>SELL</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="mb-6">
-                            <label className="flex items-center gap-3 cursor-pointer bg-black p-4 rounded-lg border border-gray-700 hover:border-yellow-500 transition-colors">
-                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.isVip ? 'border-yellow-500' : 'border-gray-500'}`}>
-                                    {formData.isVip && <div className="w-3 h-3 bg-yellow-500 rounded-full" />}
-                                </div>
-                                <input
-                                    type="checkbox"
-                                    className="hidden"
-                                    checked={formData.isVip}
-                                    onChange={e => setFormData({ ...formData, isVip: e.target.checked })}
-                                />
-                                <div>
-                                    <span className={`block font-bold ${formData.isVip ? 'text-yellow-500' : 'text-gray-300'}`}>
-                                        VIP Signal 🔒
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                        Will be blurred on Social Media automatically
-                                    </span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div className="mb-6">
-                            <label className="block w-full p-8 border-2 border-dashed border-gray-700 rounded-xl text-center cursor-pointer hover:border-yellow-500 transition-colors bg-black/50">
-                                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                                {formData.imgPreview ? (
-                                    <img src={formData.imgPreview} className="max-h-64 mx-auto rounded-lg shadow-2xl" />
-                                ) : (
-                                    <span className="text-gray-400">Click to Upload Chart Image</span>
-                                )}
-                            </label>
-                        </div>
-
-                        <button
-                            onClick={handleSubmit}
-                            disabled={loading}
-                            className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-[1.02] ${loading ? 'bg-gray-700 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-500 hover:to-yellow-700'
-                                }`}
-                        >
-                            {loading ? status : '📢 Publish Signal Now'}
-                        </button>
+        <div style={{ minHeight: '100vh', background: '#080808', padding: '2rem' }} onPaste={handlePaste}>
+            <div className="container">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsDashboard}</h1>
                     </div>
-
-                    {/* 2. Previous Signals */}
-                    <div className="bg-[#111] p-6 rounded-2xl border border-white/5">
-                        <h3 className="text-xl font-bold text-gray-200 mb-4">Recent Signals</h3>
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-                            {signals.length === 0 && <p className="text-gray-500 text-center py-4">No signals yet.</p>}
-                            {signals.map(s => (
-                                <div key={s._id} className="flex items-center justify-between bg-black p-3 rounded-lg border border-gray-800">
-                                    <div className="flex items-center gap-3">
-                                        <img src={s.imageUrl} className="w-12 h-12 object-cover rounded" />
-                                        <div>
-                                            <div className="font-bold">{s.pair} <span className={`text-xs px-2 py-0.5 rounded ${s.type === 'BUY' ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'}`}>{s.type}</span></div>
-                                            <div className="text-xs text-gray-500">
-                                                {s.isVip && <span className="text-yellow-500 mr-2">🔒 VIP</span>}
-                                                {new Date(s.createdAt).toLocaleDateString()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => handleDelete(s._id)}
-                                        disabled={loading}
-                                        className="text-red-500 hover:bg-red-900/30 p-2 rounded transition-colors"
-                                        title="Delete from Website & Social"
-                                    >
-                                        🗑️
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                        <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', borderRadius: '50px', color: '#ef4444', cursor: 'pointer' }}>{t.logout}</button>
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: AI Content Studio */}
-                <div className="bg-[#111] p-6 rounded-2xl border border-white/5 flex flex-col h-full">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-blue-400 flex items-center gap-2">
-                            🤖 AI Content Studio
-                        </h2>
-                        <div className="text-xs text-gray-500 bg-black px-3 py-1 rounded-full border border-gray-800">
-                            Powered by Google Gemini
-                        </div>
-                    </div>
+                {/* Old VIP Section Removed - Moved to Bottom */}
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label className="text-xs text-gray-500 mb-1 block">API Key</label>
+                <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
+                    <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
+
+                    <form onSubmit={handleUpload} style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'left' }}>
+
+                        {/* VIP Toggle & Telegram Option */}
+                        <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: postToTelegram ? '#229ED9' : '#888' }}>
+                                <input type="checkbox" checked={postToTelegram} onChange={(e) => setPostToTelegram(e.target.checked)} />
+                                Post to Telegram Channel
+                            </label>
+
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: isVipSignal ? '#DAA520' : '#888' }}>
+                                <input type="checkbox" checked={isVipSignal} onChange={(e) => setIsVipSignal(e.target.checked)} />
+                                🔒 VIP Signal? (Blurs Telegram Image)
+                            </label>
+                        </div>
+
+                        {/* AI Generator Section */}
+                        <div style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #333', borderRadius: '8px', background: '#111' }}>
+                            <h3 style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem' }}>⚡ AI Social Post Generator (Gemini Flash)</h3>
+
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#666', marginBottom: '0.2rem' }}>Gemini API Key:</label>
                             <input
                                 type="password"
-                                value={aiConfig.apiKey}
-                                onChange={e => setAiConfig({ ...aiConfig, apiKey: e.target.value })}
-                                className="w-full bg-black border border-gray-800 p-2 rounded text-xs text-gray-300 focus:border-blue-500 outline-none"
+                                value={geminiApiKey}
+                                onChange={(e) => setGeminiApiKey(e.target.value)}
+                                style={{ width: '100%', padding: '0.5rem', background: '#000', border: '1px solid #333', color: '#fff', marginBottom: '1rem' }}
                             />
-                        </div>
-                        <div>
-                            <label className="text-xs text-gray-500 mb-1 block">Model</label>
-                            <div className="flex gap-2">
-                                <select
-                                    value={aiConfig.model}
-                                    onChange={e => setAiConfig({ ...aiConfig, model: e.target.value })}
-                                    className="flex-1 bg-black border border-gray-800 p-2 rounded text-xs text-gray-300 focus:border-blue-500 outline-none"
-                                >
-                                    <option value="gemini-1.5-flash">Default (Flash 1.5)</option>
-                                    {aiConfig.availableModels.map(m => <option key={m} value={m}>{m}</option>)}
-                                </select>
-                                <button onClick={fetchModels} className="bg-gray-800 text-gray-300 px-3 rounded hover:bg-gray-700 text-xs">↻</button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="space-y-4 mb-6">
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-1">Raw Signal Data (Draft)</label>
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: '#666', marginBottom: '0.2rem' }}>Prompt:</label>
                             <textarea
-                                value={aiConfig.draft}
-                                onChange={e => setAiConfig({ ...aiConfig, draft: e.target.value })}
-                                rows={3}
-                                className="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm font-mono text-green-400 focus:border-blue-500 outline-none"
+                                value={postPrompt}
+                                onChange={(e) => setPostPrompt(e.target.value)}
+                                rows={2}
+                                style={{ width: '100%', padding: '0.5rem', background: '#000', border: '1px solid #333', color: '#fff', marginBottom: '0.5rem' }}
                             />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-1">AI Prompt Instruction</label>
-                            <textarea
-                                value={aiConfig.prompt}
-                                onChange={e => setAiConfig({ ...aiConfig, prompt: e.target.value })}
-                                rows={3}
-                                className="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm text-gray-300 focus:border-blue-500 outline-none"
-                            />
-                        </div>
-                        <button
-                            onClick={generateVariations}
-                            disabled={loading}
-                            className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transition-all"
-                        >
-                            ✨ Generate 50 Variations
-                        </button>
-                    </div>
 
-                    {/* Results Grid */}
-                    <div className="flex-1 bg-black rounded-xl border border-gray-800 p-4 overflow-y-auto max-h-[600px]">
-                        {aiConfig.variations.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-50">
-                                <div className="text-4xl mb-2">📄</div>
-                                <p>Generated content will appear here</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-3">
-                                <p className="text-gray-400 text-xs mb-2">Click a variation to select it for the post:</p>
-                                {aiConfig.variations.map((text, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setAiConfig(prev => ({ ...prev, selectedVariationIndex: idx }))}
-                                        className={`p-4 rounded-lg cursor-pointer border transition-all text-sm whitespace-pre-wrap ${aiConfig.selectedVariationIndex === idx
-                                                ? 'bg-blue-900/30 border-blue-500 ring-1 ring-blue-500'
-                                                : 'bg-[#1a1a1a] border-gray-800 hover:border-gray-600 hover:bg-[#222]'
-                                            }`}
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="text-xs font-bold text-gray-500">#{idx + 1}</span>
-                                            {aiConfig.selectedVariationIndex === idx && <span className="text-blue-400 text-xs">● Selected</span>}
+                            <button type="button" onClick={generateAiPosts} disabled={isGeneratingAi} style={{ width: '100%', padding: '0.5rem', background: isGeneratingAi ? '#444' : '#222', color: '#fff', border: '1px solid #444', cursor: isGeneratingAi ? 'not-allowed' : 'pointer' }}>
+                                {isGeneratingAi ? 'Generating...' : '✨ Generate 50 Variations'}
+                            </button>
+
+                            {aiPosts.length > 0 && (
+                                <div style={{ marginTop: '1rem', maxHeight: '200px', overflowY: 'auto', border: '1px solid #333', padding: '0.5rem' }}>
+                                    {aiPosts.map((post, i) => (
+                                        <div key={i} onClick={() => setSelectedPost(post)} style={{ padding: '0.5rem', borderBottom: '1px solid #222', cursor: 'pointer', background: selectedPost === post ? '#333' : 'transparent', fontSize: '0.85rem', color: '#ccc' }}>
+                                            {post}
                                         </div>
-                                        {text}
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#888' }}>Selected Post Content (for Telegram/Social):</label>
+                        <textarea
+                            value={selectedPost}
+                            onChange={(e) => setSelectedPost(e.target.value)}
+                            placeholder="Write your post here or generate one..."
+                            rows={4}
+                            style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', marginBottom: '1.5rem', fontFamily: 'inherit' }}
+                        />
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                            <input name="pair" placeholder="Pair (e.g. XAUUSD)" required style={{ padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff' }} />
+                            <select name="type" required style={{ padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff' }}>
+                                <option value="BUY">🟢 BUY</option>
+                                <option value="SELL">🔴 SELL</option>
+                            </select>
+                        </div>
+
+                        <div style={{ border: '2px dashed #333', borderRadius: '12px', padding: '2rem', textAlign: 'center', cursor: 'pointer', marginBottom: '1.5rem', position: 'relative' }}
+                            onClick={() => fileInputRef.current.click()}>
+                            <input ref={fileInputRef} type="file" name="image" accept="image/*" style={{ display: 'none' }} />
+                            <p style={{ color: '#888' }}>{t.uploadPlaceholder}</p>
+                        </div>
+
+                        <button type="submit" disabled={uploading} className="btn-primary" style={{ width: '100%', padding: '1rem', opacity: uploading ? 0.7 : 1 }}>
+                            {uploading ? t.uploading : (isVipSignal ? '🚀 Publish VIP Signal' : '🚀 Publish Free Signal')}
+                        </button>
+                    </form>
+                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold' }}>{successMessage}</p>}
+                    {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
+                </div>
+
+                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
+
+                {/* Full Width Grid Layout - Matches User Request */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
+                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
+                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)', position: 'relative' }}>
+                            {signal.isVip && <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#DAA520', color: '#000', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 5 }}>VIP 🔒</div>}
+                            <div style={{ position: 'relative' }}>
+                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                                {signal.pair && <div style={{ position: 'absolute', bottom: '0', width: '100%', padding: '0.5rem', background: 'rgba(0,0,0,0.7)', color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>{signal.pair} {signal.type}</div>}
                             </div>
-                        )}
+                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
+                                <button onClick={() => handleDeleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* VIP Management Section - Moved to Bottom */}
+                <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
+                    <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
+
+                    {/* Add VIP Form */}
+                    <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
+                        <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.2rem' }}>{t.addNewVip}</h3>
+                        <form onSubmit={handleGrantVip} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'end' }}>
+                            <div style={{ flex: 1, minWidth: '200px' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.telegramIdPlaceholder}</label>
+                                <input
+                                    type="text"
+                                    value={telegramId}
+                                    onChange={(e) => setTelegramId(e.target.value)}
+                                    placeholder="e.g. 123456789"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        background: '#13131d',
+                                        border: '1px solid #2a2a35',
+                                        borderRadius: '8px',
+                                        color: '#fff'
+                                    }}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{ minWidth: '150px' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.durationMonths || 'Duration (Months)'}</label>
+                                <input
+                                    type="number"
+                                    value={durationMonths}
+                                    onChange={(e) => setDurationMonths(e.target.value)}
+                                    placeholder="e.g. 1, 3, 12"
+                                    disabled={isLifetime}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        background: isLifetime ? '#0f0f15' : '#13131d',
+                                        border: '1px solid #2a2a35',
+                                        borderRadius: '8px',
+                                        color: isLifetime ? '#555' : '#fff'
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', height: '45px', padding: '0 1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px' }}>
+                                <input
+                                    type="checkbox"
+                                    id="lifetime"
+                                    checked={isLifetime}
+                                    onChange={(e) => setIsLifetime(e.target.checked)}
+                                    style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                                <label htmlFor="lifetime" style={{ color: '#fff', cursor: 'pointer', userSelect: 'none' }}>{t.lifetime || 'Lifetime'}</label>
+                            </div>
+
+                            <button type="submit" className="btn-primary" style={{ height: '45px', padding: '0 2rem' }}>
+                                {vipLoading ? '...' : t.grantVip}
+                            </button>
+                        </form>
+                        {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
+                    </div>
+
+                    {/* Active Users Table */}
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.filter(u => u.isVip).length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>{t.noVipMembers || 'No active VIP members'}</td>
+                                    </tr>
+                                ) : (
+                                    users.filter(u => u.isVip).map(user => {
+                                        const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
+                                        const now = new Date();
+                                        const isExpired = expiry && now > expiry;
+                                        // This filter effectively hides expired users, per request "Active members only"
+                                        // If backend update didn't run yet, front-end check helps
+                                        if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
+
+                                        let timeLeft = 'Lifetime ♾️';
+                                        if (expiry) {
+                                            const diff = expiry - now;
+                                            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                            timeLeft = `${days} Days`;
+                                        }
+
+                                        return (
+                                            <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                                                <td style={{ padding: '1rem' }}>{user.telegramId}</td>
+                                                <td style={{ padding: '1rem' }}>
+                                                    <span style={{
+                                                        background: 'rgba(76, 175, 80, 0.1)',
+                                                        color: '#4caf50',
+                                                        padding: '0.2rem 0.6rem',
+                                                        borderRadius: '4px',
+                                                        fontSize: '0.85rem'
+                                                    }}>Active</span>
+                                                </td>
+                                                <td style={{ padding: '1rem' }}>{timeLeft}</td>
+                                                <td style={{ padding: '1rem' }}>
+                                                    <button
+                                                        onClick={() => handleRemoveUser(user.telegramId)}
+                                                        style={{
+                                                            background: 'transparent',
+                                                            border: '1px solid #ef4444',
+                                                            color: '#ef4444',
+                                                            padding: '0.3rem 0.8rem',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                            fontSize: '0.85rem'
+                                                        }}
+                                                    >
+                                                        {t.remove || 'Remove'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
 
-            {/* Status Bar */}
-            {status && (
-                <div className="fixed bottom-6 right-6 bg-gray-900 border border-gray-700 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-fade-in-up z-50">
-                    {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                    {status}
-                </div>
-            )}
+            </div>
         </div>
     );
 }
