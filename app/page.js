@@ -247,63 +247,6 @@ const ProfitSimulator = ({ t }) => {
     );
 };
 
-// ===== Exit Intent Popup Component =====
-const ExitIntentPopup = ({ t }) => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        // Check if already shown in this session (SessionStorage = clears on tab close)
-        // Using localStorage might be too aggressive if they come back later. Session is good for now.
-        if (typeof window !== 'undefined' && sessionStorage.getItem('exitPopupShown')) {
-            return;
-        }
-
-        const handleMouseLeave = (e) => {
-            if (e.clientY <= 0) { // User moved mouse to top (tabs/browser UI)
-                setIsVisible(true);
-                sessionStorage.setItem('exitPopupShown', 'true');
-            }
-        };
-
-        const handleBlur = () => { // Fallback for mobile/tab switching primarily
-            // Optional: simple exit intent for mobile is hard. often done via back button intercept or scroll up. 
-            // keeping it simple to desktop mouseleave for now as requested "mouse move".
-        };
-
-        document.addEventListener('mouseleave', handleMouseLeave);
-        return () => document.removeEventListener('mouseleave', handleMouseLeave);
-    }, []);
-
-    const closePopup = () => setIsVisible(false);
-
-    if (!isVisible) return null;
-
-    return (
-        <div className={`exit-popup-overlay ${isVisible ? 'active' : ''}`}>
-            <div className="exit-popup-content">
-                <button className="exit-close" onClick={closePopup}>✕</button>
-                <div className="exit-icon">🎁</div>
-                <h3 className="exit-title">{t.exitTitle}</h3>
-                <p className="exit-desc">{t.exitDesc}</p>
-                <a
-                    href="https://t.me/your_channel_username"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary"
-                    style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }}
-                    onClick={closePopup}
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }}>
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                    {t.exitButton}
-                </a>
-            </div>
-        </div>
-    );
-};
-
 
 const LoginModal = ({ isOpen, onClose, t, isRTL }) => {
     if (!isOpen) return null;
@@ -537,23 +480,6 @@ export default function LandingPage() {
                             <a href="https://t.me/your_bot" className="btn-primary" style={{ width: '100%' }}>{t.subscribe}</a>
                         </div>
                     </div>
-
-                    {/* Trust Badges */}
-                    <div className="trust-badges animate-fade-in-up delay-600" style={{ marginTop: '3rem', textAlign: 'center', opacity: 0.9 }}>
-                        <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '1px' }}>
-                            {lang === 'ar' ? '🔒 مدفوعات آمنة وموثقة عبر:' : '🔒 Secure & Verified Payments via:'}
-                        </p>
-                        <img
-                            src="/payment-trust-badges.png"
-                            alt="Visa MasterCard USDT Binance Bitcoin"
-                            style={{
-                                maxWidth: '300px',
-                                width: '100%',
-                                height: 'auto',
-                                filter: 'brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.1))'
-                            }}
-                        />
-                    </div>
                 </div>
             </section>
 
@@ -569,22 +495,20 @@ export default function LandingPage() {
 
             {/* Footer */}
             <footer className="footer">
-                <div className="container footer-content">
+                <div className="container footer-content" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', textAlign: 'center' }}>
                     <p>© {currentYear} <span className="footer-brand">{t.brand}</span>. {t.footerText}</p>
                     <a href="/legal" style={{
                         color: 'var(--text-secondary)',
-                        fontSize: '0.85rem',
+                        fontSize: '0.9rem',
                         textDecoration: 'none',
-                        marginTop: '0.5rem',
-                        display: 'inline-block',
-                        opacity: 0.7,
-                        borderBottom: '1px dotted var(--text-secondary)'
-                    }}>
-                        {t.legalBox}
+                        borderBottom: '1px dotted var(--text-secondary)',
+                        paddingBottom: '2px',
+                        transition: 'all 0.3s ease'
+                    }} className="legal-link">
+                        {t.legalFooterLink}
                     </a>
                 </div>
             </footer>
-            <ExitIntentPopup t={t} />
         </div>
     );
 }

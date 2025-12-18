@@ -145,13 +145,17 @@ export const translations = {
         riskExplanation: 'Risk: 2% / Trade (Compounded Daily)',
         gain: 'Gain',
 
-        // Exit Popup
-        exitTitle: 'Wait! 🎁',
-        exitDesc: 'Don\'t leave empty handed. Join our free Telegram channel and get a high-accuracy GOLD signal right now.',
-        exitButton: 'Get Free Signal',
-
         // Legal
-        legalBox: 'Legal & Risk',
+        legalTitle: 'Legal Information',
+        privacyPolicy: 'Privacy Policy',
+        termsOfService: 'Terms of Service',
+        riskDisclaimer: 'Risk Disclaimer',
+        legalFooterLink: 'Legal & Risk Disclaimer',
+
+        privacyText: 'We respect your privacy. We do not share your personal data with third parties. Your Telegram ID is used solely for authentication and service delivery.',
+        termsText: 'By using our signals, you agree that you are solely responsible for your trading decisions. Subscription fees are non-refundable once the service period has started.',
+        riskText: 'Trading Forex, Commodities, and Crypto involves a high level of risk and may not be suitable for all investors. Past performance is not indicative of future results. You could lose some or all of your invested capital.',
+        backToHome: 'Back to Home',
     },
     ar: {
         // Shared
@@ -297,13 +301,17 @@ export const translations = {
         riskExplanation: 'المخاطرة: 2% / صفقة (تراكمي يومي)',
         gain: 'ربح',
 
-        // Exit Popup
-        exitTitle: 'انتظر! 🎁',
-        exitDesc: 'لا تخرج خالي الوفاض. انضم لقناتنا المجانية واحصل على توصية ذهب (GOLD) قوية فوراً.',
-        exitButton: 'احصل على التوصية مجاناً',
-
         // Legal
-        legalBox: 'قانوني وإخلاء مسؤولية',
+        legalTitle: 'المعلومات القانونية',
+        privacyPolicy: 'سياسة الخصوصية',
+        termsOfService: 'شروط الخدمة',
+        riskDisclaimer: 'تحذير المخاطر',
+        legalFooterLink: 'المعلومات القانونية والمخاطر',
+
+        privacyText: 'نحن نحترم خصوصيتك. لا نشارك بياناتك الشخصية مع أطراف ثالثة. يتم استخدام معرف تليجرام الخاص بك فقط للمصادقة وتقديم الخدمة.',
+        termsText: 'باستخدامك لتوصياتنا، أنت تقر بأنك المسؤول الوحيد عن قراراتك الاستثمارية. رسوم الاشتراك غير قابلة للاسترداد بمجرد بدء فترة الخدمة.',
+        riskText: 'تداول الفوركس والسلع والعملات الرقمية ينطوي على مخاطر عالية وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق ليس مؤشراً للنتائج المستقبلية. قد تخسر جزءاً أو كل رأس مالك المستثمر.',
+        backToHome: 'العودة للرئيسية',
     }
 };
 
