@@ -216,6 +216,17 @@ The possibility exists that you could sustain a loss of some or all of your init
 **Past Performance**
 Past performance of any trading system or methodology is not necessarily indicative of future results. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown.`,
                 backToHome: 'Back to Home',
+
+                // Blog
+                blogTitle: 'Educational Blog',
+                blogSubtitle: 'Master the art of trading with our expert guides',
+                readMore: 'Read More',
+                backToBlog: '← Back to Blog',
+                publishedOn: 'Published on',
+                readTime: 'Read Time',
+                minRead: 'min read',
+                blogHeroTitle: 'Forex Education Hub',
+                blogHeroSubtitle: 'From zero to hero – everything you need to know about trading.',
         },
         ar: {
                 // Shared
@@ -433,6 +444,17 @@ Past performance of any trading system or methodology is not necessarily indicat
 **الأداء السابق**
 النتائج والأداء السابق لأي نظام تداول أو منهجية ليست بالضرورة مؤشراً للنتائج المستقبلية. لا يتم تقديم أي تعهد بأن أي حساب سيحقق أو من المرجح أن يحقق أرباحاً أو خسائر مماثلة لتلك المعروضة.`,
                 backToHome: 'العودة للرئيسية',
+
+                // Blog
+                blogTitle: 'المدونة التعليمية',
+                blogSubtitle: 'أتقن فن التداول مع دلائلنا التعليمية الشاملة',
+                readMore: 'اقرأ المزيد',
+                backToBlog: '→ العودة للمدونة',
+                publishedOn: 'نُشر في',
+                readTime: 'وقت القراءة',
+                minRead: 'دقيقة قراءة',
+                blogHeroTitle: 'مركز تعليم الفوركس',
+                blogHeroSubtitle: 'من الصفر للاحتراف – كل ما تحتاج معرفته عن التداول.',
         }
 };
 

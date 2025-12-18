@@ -3,6 +3,8 @@ import Signal from '@/models/Signal';
 import User from '@/models/User';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const IMGBB_API_KEY = 'b22927160ecad0d183ebc9a28d05ce9c';
 const TELEGRAM_BOT_TOKEN = '8540134514:AAFFTwFEniwPQriXqFpdkl0CNBhqCk7Daak';
 const TELEGRAM_CHANNEL_ID = '@mjhgkhg254';

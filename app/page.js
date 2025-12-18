@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useLanguage } from './context/LanguageContext';
 
 // ===== Components =====
@@ -472,6 +473,20 @@ export default function LandingPage() {
                         <span className="logo-icon"><BrandAIcon /></span>
                         <span className="btn-text-shine">{t.brand}</span>
                     </a>
+
+                    <Link href="/blog" className="btn-text-shine" style={{
+                        textDecoration: 'none',
+                        color: 'var(--gold-primary)',
+                        fontWeight: '600',
+                        fontSize: '1rem',
+                        margin: '0 auto', // Centered if flex allows, or just spacing
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}>
+                        🎓 <span style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.3)' }}>{t.blogTitle}</span>
+                    </Link>
+
                     <button onClick={toggleLang} className="lang-toggle">
                         <GlobeIcon /> <span className="btn-text-shine">{t.langSwitch}</span>
                     </button>
