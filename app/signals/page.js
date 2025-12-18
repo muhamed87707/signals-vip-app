@@ -549,9 +549,12 @@ export default function SignalsPage() {
     }, [mounted]); // Run after component mounts
 
     const handleEnableSound = async () => {
+        // If hidden (e.g. mobile), do nothing and show no alerts
+        if (browserInfo.isHidden) return;
+
         // Check if browser supports notifications
         if (!browserInfo.supported) {
-            alert(browserInfo.message);
+            if (browserInfo.message) alert(browserInfo.message);
             return;
         }
 
