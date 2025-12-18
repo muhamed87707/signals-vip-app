@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 const ADMIN_PASSWORD = '123';
 const DEFAULT_GEMINI_KEY = 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
 
@@ -112,6 +110,33 @@ export default function AdminPage() {
         } catch (err) {
             console.error('Error fetching users:', err);
         }
+    };
+
+    // AI Generation Logic (Updated to use Server API)
+    const generateAiPosts = async () => {
+        if (!geminiApiKey) {
+            alert('Please enter a Valid Gemini API Key');
+            return;
+        }
+        setIsGeneratingAi(true);
+        try {
+            const res = await fetch('/api/ai/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: geminiApiKey, prompt: postPrompt })
+            });
+            const data = await res.json();
+
+            if (data.success && Array.isArray(data.posts)) {
+                setAiPosts(data.posts);
+            } else {
+                alert('AI Error: ' + (data.error || 'Failed to generate'));
+            }
+        } catch (error) {
+            console.error("AI Request Error:", error);
+            alert("Error generating posts");
+        }
+        setIsGeneratingAi(false);
     };
 
     // --- CANVAS LOCK GENERATION (TUNED) ---
