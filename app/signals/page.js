@@ -373,6 +373,8 @@ const ReferralCard = ({ t, telegramId, isRTL }) => {
                         minWidth: '100px',
                         cursor: 'pointer'
                     }}
+                >
+                    {copied ? t.linkCopied : t.copyLink}
                 </button>
             </div>
 
