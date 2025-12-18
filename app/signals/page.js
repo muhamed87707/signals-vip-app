@@ -427,7 +427,7 @@ export default function SignalsPage() {
     // Initialize Audio
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            audioRef.current = new Audio('/cash.mp3');
+            audioRef.current = new Audio('/cash.wav');
         }
     }, []);
 
