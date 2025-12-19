@@ -25,13 +25,9 @@ export default function AINewsAnalysis({ data, onRefresh, isLoading }) {
         );
     }
 
-    // Extract sentiment data from the unified response with safety checks
-    const analysisData = data?.market_sentiment || {
-        sentiment: t.loading,
-        color: '#888',
-        summary: t.loading
-    };
-    const topNews = data?.top_news || [];
+    // Extract sentiment data from the unified response
+    const analysisData = data.market_sentiment;
+    const topNews = data.top_news;
 
     return (
         <div className="ai-analysis-card animate-fade-in-up">
