@@ -1824,15 +1824,16 @@ h6 {
 
 @media (max-width: 768px) {
     .floating-chat-container {
-        bottom: 1.5rem;
-        right: 1.5rem;
+        bottom: 1rem;
+        right: 1rem;
         left: auto !important;
         /* Force side pinning */
         align-items: flex-end;
     }
 
     [dir="rtl"] .floating-chat-container {
-        left: 1.5rem !important;
+        left: 1rem !important;
+        bottom: 1rem;
         right: auto !important;
         /* Force side pinning */
         align-items: flex-start;
