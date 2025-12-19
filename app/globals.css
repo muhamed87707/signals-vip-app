@@ -1832,7 +1832,7 @@ h6 {
     }
 
     [dir="rtl"] .floating-chat-container {
-        left: 1.5rem;
+        left: 1.5rem !important;
         right: auto !important;
         /* Force side pinning */
         align-items: flex-start;
