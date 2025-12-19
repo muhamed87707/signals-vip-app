@@ -42,8 +42,26 @@ export async function GET(request) {
         const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
         const prompt = lang === 'ar'
-            ? "قم بتحليل سوق الذهب والفوركس (العملات الرئيسية) حالياً بناءً على ما تعرفه عن تاريخ ديسمبر 2025. أعطني النتيجة بتنسيق JSON حصراً يحتوي على: sentiment (كلمة واحدة), sentimentColor (كود هيكس), summary (فقرة من 3 أسطر), topNews (مصفوفة من 3 عناصر تحتوي title, impact, desc). اللغة يجب أن تكون العربية."
-            : "Analyze the current Gold and Forex (Majors) market for December 2025. Provide a JSON response only with: sentiment (one phrase), sentimentColor (hex code), summary (3-line paragraph), topNews (array of 3 objects with title, impact, desc). Language: English.";
+            ? `أنت الآن "المخطط الاستراتيجي العالمي" لموقع أبو الذهب. قم بتحليل سوق الذهب والفوركس (العملات الرئيسية) بناءً على:
+              1. تقارير COT (تمركز الحيتان وصناع السوق).
+              2. توقعات البنوك الاستثمارية الكبرى (Goldman Sachs, JPM).
+              3. الأحداث الاقتصادية العالمية لعام 2025.
+              أعطني النتيجة بتنسيق JSON حصراً يحتوي على: 
+              - sentiment (عبارة قوية ومختصرة مثل "تفاؤل مؤسسي حذر")
+              - sentimentColor (كود هيكس ذهبي أو أخضر أو أحمر)
+              - summary (3 أسطر عميقة تربط بين تمركز الحيتان وتوقعات البنوك)
+              - topNews (مصفوفة من 3 عناصر استخباراتية تحتوي title, impact, desc).
+              اللغة: العربية.`
+            : `You are the "AI Master Strategist" for Abu Al-Dahab. Analyze Gold and Forex markets by synthesizing:
+              1. COT Reports (Whale and Institutional positioning).
+              2. Major Bank Forecasts (Goldman, JPM price targets).
+              3. Current 2025 global economic landscape.
+              Provide a JSON-only response with:
+              - sentiment (Institutional-grade phrase like "Cautious Institutional Bullishness")
+              - sentimentColor (Hex code for Gold, Green, or Red)
+              - summary (3 deep lines correlating whale positioning with bank targets)
+              - topNews (Array of 3 intelligence items with title, impact, desc).
+              Language: English.`;
 
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
