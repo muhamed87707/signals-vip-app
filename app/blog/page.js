@@ -47,11 +47,7 @@ export default function BlogIndex() {
                         return (
                             <Link href={`/blog/${post.slug}`} key={post.id} className="blog-card">
                                 <div className="blog-card-image">
-                                    {/* Placeholder for real images. Using a gradient or pattern if image load fails or is generic */}
-                                    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(45deg, #111, #222)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
-                                        <span>Image</span>
-                                    </div>
-                                    {/* <img src={post.image} alt={postContent.title} /> */}
+                                    <img src={post.image} alt={postContent.title} />
                                 </div>
                                 <div className="blog-card-content">
                                     <div className="blog-meta">

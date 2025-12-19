@@ -96,11 +96,7 @@ export default function BlogPost({ params }) {
                 </div>
 
                 <div className="article-image-wrapper">
-                    {/* Placeholder */}
-                    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a1a, #2a2a2a)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#444' }}>
-                        <span>Article Image</span>
-                    </div>
-                    {/* <img src={post.image} alt={postContent.title} className="article-featured-image" /> */}
+                    <img src={post.image} alt={postContent.title} className="article-featured-image" />
                 </div>
 
                 <MarkdownRenderer content={postContent.content} />

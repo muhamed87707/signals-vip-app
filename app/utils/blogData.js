@@ -1,280 +1,433 @@
-
 export const blogPosts = [
     {
-        id: '1',
+        id: 1,
         slug: 'what-is-forex',
-        image: '/images/blog/forex-basics.jpg', // Placeholder, reusing existing images or generic ones until real ones exist
-        date: '2025-12-18',
-        readingTime: '5 min',
+        date: '2024-03-20',
+        readingTime: '5',
+        image: '/images/blog/forex-basics.png',
         en: {
-            title: 'What is Forex? A Beginner’s Guide to Currency Trading',
-            excerpt: 'Discover the world of Forex trading. Learn what the foreign exchange market is, how it works, and why it is the largest financial market in the globe.',
+            title: 'What is Forex? A Beginner\'s Guide',
+            author: 'Abu Al-Dahab Experts',
+            excerpt: 'Learn the fundamentals of the foreign exchange market, the largest financial market in the world.',
             content: `
-### What is Forex?
-
-Forex, or Foreign Exchange, is a decentralized global market where all the world's currencies trade. With an average daily trading volume exceeding $6 trillion, it is by far the largest and most liquid financial market in the world.
+## What is Forex Trading?
+Forex, or foreign exchange, is the global marketplace for exchanging national currencies against one another. It is the largest and most liquid financial market in the world, with trillions of dollars traded daily.
 
 ### How Does it Work?
+In Forex, you always trade in pairs. For example, if you trade the **EUR/USD**, you are betting on the value of the Euro against the US Dollar.
 
-Forex trading involves buying one currency while simultaneously selling another. Currencies are always traded in pairs, such as:
-- **EUR/USD** (Euro / US Dollar)
-- **GBP/USD** (British Pound / US Dollar)
-- **XAU/USD** (Gold / US Dollar) - *Our Specialty!*
+- **Major Pairs**: EUR/USD, GBP/USD, USD/JPY.
+- **Leverage**: This allows you to control large positions with a small amount of capital.
+- **24/5 Market**: Forex is open 24 hours a day, five days a week.
 
 ### Why Trade Forex?
-
-1.  **High Liquidity**: You can enter and exit trades partly instantaneously.
-2.  **24/5 Market**: The market is open 24 hours a day, 5 days a week.
-3.  **Leverage**: Brokers offer leverage, allowing you to control large positions with a small deposit.
-4.  **Profit Opportunity in Both Directions**: You can profit whether the market goes up (Long) or down (Short).
-
-### Getting Started
-
-To start trading, you need a reliable broker, a trading platform (like MetaTrader 4 or 5), and most importantly, **education** and **reliable signals**. That's where **Abu Al-Dahab** comes in to guide your journey.
-            `,
-            author: 'Abu Al-Dahab'
+Many traders are attracted to Forex due to its high liquidity, low transaction costs, and the ability to profit in both rising and falling markets.`
         },
         ar: {
-            title: 'ما هو الفوركس؟ دليلك الشامل لتداول العملات للمبتدئين',
-            excerpt: 'اكتشف عالم تداول الفوركس. تعلم ما هو سوق الصرف الأجنبي، كيف يعمل، ولماذا يعتبر أكبر سوق مالي في العالم من حيث السيولة.',
+            title: 'ما هو الفوركس؟ دليلك الشامل للمبتدئين',
+            author: 'خبراء مؤسسة أبو الذهب',
+            excerpt: 'تعرف على أساسيات سوق العملات الأجنبية، أكبر سوق مالي في العالم وكيفية البدء فيه.',
             content: `
-### ما هو الفوركس؟
+## ما هو تداول الفوركس؟
+الفوركس، أو سوق تبادل العملات الأجنبية، هو السوق العالمي لتداول العملات الوطنية مقابل بعضها البعض. يعتبر أكبر سوق مالي في العالم من حيث السيولة، حيث يتم تداول تريليونات الدولارات يومياً.
 
-الفوركس (Forex) أو سوق الصرف الأجنبي هو سوق عالمي لا مركزي يتم فيه تداول عملات العالم. بمتوسط حجم تداول يومي يتجاوز 6 تريليون دولار، فهو يعتبر بلا منازع أكبر الأسواق المالية وأكثرها سيولة على مستوى العالم.
+### كيف يعمل السوق؟
+في الفوركس، يتم التداول دائماً في أزواج. على سبيل المثال، إذا تداولت **EUR/USD**، فأنت تراهن على قيمة اليورو مقابل الدولار الأمريكي.
 
-### كيف يعمل الفوركس؟
+- **الأزواج الرئيسية**: EUR/USD, GBP/USD, USD/JPY.
+- **الرافعة المالية**: تتيح لك التحكم في مراكز كبيرة برأس مال صغير.
+- **سوق متاح 24/5**: يعمل سوق الفوركس على مدار الساعة، خمسة أيام في الأسبوع.
 
-يعتمد تداول الفوركس على شراء عملة وبيع أخرى في نفس الوقت. يتم تداول العملات دائمًا في شكل أزواج، مثل:
-- **EUR/USD** (اليورو / الدولار الأمريكي)
-- **GBP/USD** (الجنيه الإسترليني / الدولار الأمريكي)
-- **XAU/USD** (الذهب / الدولار الأمريكي) - *تخصصنا الأول!*
-
-### لماذا تتداول في الفوركس؟
-
-1.  **سيولة عالية**: يمكنك دخول وخروج الصفقات بشكل فوري.
-2.  **سوق يعمل 24/5**: السوق مفتوح 24 ساعة في اليوم، 5 أيام في الأسبوع.
-3.  **الرافعة المالية**: تتيح لك شركات الوساطة التحكم في مراكز مالية كبيرة بمبلغ إيداع صغير.
-4.  **فرص الربح في الاتجاهين**: يمكنك تحقيق الأرباح سواء صعد السوق (شراء) أو هبط (بيع).
-
-### كيف تبدأ؟
-
-للبدء، تحتاج إلى وسيط موثوق، ومنصة تداول (مثل MetaTrader 4 أو 5)، والأهم من ذلك **التعليم** و **التوصيات الموثوقة**. هنا يأتي دور **أبو الذهب** ليكون دليلك في هذه الرحلة.
-            `,
-            author: 'أبو الذهب'
+### لماذا نتداول الفوركس؟
+ينجذب الكثير من المتداولين للفوركس بسبب السيولة العالية، انخفاض تكاليف المعاملات، والقدرة على الربح في الأسواق الصاعدة والهابطة على حد سواء.`
         }
     },
     {
-        id: '2',
+        id: 2,
         slug: 'risk-management-strategies',
-        image: '/images/blog/risk-management.jpg',
-        date: '2025-12-17',
-        readingTime: '7 min',
+        date: '2024-03-21',
+        readingTime: '7',
+        image: '/images/blog/risk-management.png',
         en: {
-            title: 'Mastering Risk Management: The Key to Survival in Forex',
-            excerpt: 'Trading is not just about making profits; it\'s about keeping them. Learn essential risk management strategies to protect your capital.',
+            title: 'Mastering Risk Management',
+            author: 'Abu Al-Dahab Analysts',
+            excerpt: 'Protect your capital with proven risk management techniques that every professional trader uses.',
             content: `
-### The Importance of Risk Management
+## The Golden Rule of Trading
+The most important part of trading isn't finding the perfect entry; it's protecting your capital. Without money, you can't trade.
 
-Many beginners focus solely on how much money they can make, ignoring how much they can lose. **Risk management** is the single most important skill for a profitable trader.
+### Key Strategies
+- **The 1% Rule**: Never risk more than 1% or 2% of your total account balance on a single trade.
+- **Stop Loss (SL)**: Always use a stop loss to automatically close a losing trade before it wipes out your account.
+- **Risk/Reward Ratio (RRR)**: Aim for at least a 1:2 ratio. Risking 1$ to make 2$.
 
-### Golden Rules of Risk Management
-
-1.  **Never Risk More Than 1-2% per Trade**: This ensures that a string of losses won't wipe out your account.
-2.  **Always Use a Stop Loss (SL)**: A Stop Loss is your safety net. It automatically closes your trade if the market moves against you by a specific amount.
-3.  **Use Proper Position Sizing**: Calculate your lot size based on your Stop Loss distance and account size. Do not guess!
-4.  **Risk/Reward Ratio**: Aim for trades where the potential profit is at least 1.5x or 2x the potential risk.
-
-### The Psychology of Loss
-
-Accept that losses are part of the game. Even the best traders in the world lose trades. The goal is to have your wins fundamentally outweigh your losses over time.
-
-> "Don't focus on making money; focus on protecting what you have." - Paul Tudor Jones
-            `,
-            author: 'Abu Al-Dahab Team'
+### Diversification
+Don't put all your eggs in one basket. Avoid having too many open trades in correlated pairs (e.g., EUR/USD and GBP/USD often move together).`
         },
         ar: {
-            title: 'إتقان إدارة المخاطر: مفتاح البقاء والنجاح في سوق الفوركس',
-            excerpt: 'التداول لا يقتصر فقط على جني الأرباح، بل الحفاظ عليها. تعلم استراتيجيات إدارة المخاطر الأساسية لحماية رأس مالك من تقلبات السوق.',
+            title: 'احتراف إدارة المخاطر في التداول',
+            author: 'محللو مؤسسة أبو الذهب',
+            excerpt: 'احمِ رأس مالك باستخدام تقنيات إدارة مخاطر مثبتة يستخدمها كل متداول محترف.',
             content: `
-### أهمية إدارة المخاطر
+## القاعدة الذهبية للتداول
+أهم جزء في التداول ليس العثور على نقطة الدخول المثالية، بل حماية رأس مالك. بدون مال، لا يمكنك التداول.
 
-يركز العديد من المبتدئين فقط على مقدار المال الذي يمكنهم ربحه، متجاهلين مقدار ما يمكنهم خسارته. **إدارة المخاطر** هي المهارة الأهم للمتداول الناجح.
+### الاستراتيجيات الرئيسية
+- **قاعدة الـ 1%**: لا تخاطر أبداً بأكثر من 1% أو 2% من إجمالي رصيد حسابك في صفقة واحدة.
+- **وقف الخسارة (SL)**: استخدم دائماً أمر وقف الخسارة لإغلاق الصفقة الخاسرة تلقائياً قبل أن تستنزف حسابك.
+- **نسبة المخاطرة إلى الربح (RRR)**: استهدف نسبة 1:2 على الأقل. المخاطرة بـ 1 دولار لربح 2 دولار.
 
-### القواعد الذهبية لإدارة المخاطر
-
-1.  **لا تخاطر بأكثر من 1-2% في الصفقة الواحدة**: هذا يضمن أن سلسلة من الخسائر لن تمحو حسابك بالكامل.
-2.  **استخدم دائمًا وقف الخسارة (Stop Loss)**: وقف الخسارة هو صمام الأمان الخاص بك. يغلق الصفقة تلقائيًا إذا تحرك السوق ضدك بمقدار محدد.
-3.  **تحديد حجم العقد (Lot Size) المناسب**: احسب حجم العقد بناءً على مسافة وقف الخسارة وحجم حسابك. لا تعتمد على التخمين!
-4.  **نسبة العائد للمخاطرة (Risk/Reward)**: ابحث عن الصفقات التي يكون فيها الربح المحتمل 1.5 ضعف أو ضعفي المخاطرة المحتملة على الأقل.
-
-### سيكولوجية الخسارة
-
-تقبل أن الخسارة جزء من اللعبة. حتى أفضل المتداولين في العالم يخسرون صفقات. الهدف هو أن تفوق أرباحك خسائرك بشكل جوهري مع مرور الوقت.
-
-> "لا تركز على جني المال، بل ركز على حماية ما تملك." - بول تيودور جونز
-            `,
-            author: 'فريق أبو الذهب'
+### التنويع
+لا تضع كل بيضك في سلة واحدة. تجنب فتح الكثير من الصفقات في أزواج مرتبطة ببعضها (مثل اليورو/دولار والباوند/دولار اللذان يتحركان غالباً معاً).`
         }
     },
     {
-        id: '3',
+        id: 3,
         slug: 'technical-analysis-basics',
-        image: '/images/blog/technical-analysis.jpg',
-        date: '2025-12-16',
-        readingTime: '10 min',
+        date: '2024-03-22',
+        readingTime: '6',
+        image: '/images/blog/technical-analysis.png',
         en: {
-            title: 'Technical Analysis 101: Reading the Language of the Market',
-            excerpt: 'Unlock the secrets of price charts. Learn about support, resistance, trends, and key indicators that professional traders use.',
+            title: 'Basics of Technical Analysis',
+            author: 'Forex Team',
+            excerpt: 'How to read charts, identify patterns, and use indicators to predict future price movements.',
             content: `
-### What is Technical Analysis?
+## Understanding Price Action
+Technical analysis is the study of historical price movements to identify patterns and trends that could forecast future behavior.
 
-Technical Analysis is the study of historical price action to identify patterns and predict future market movements. It relies on the belief that "history repeats itself."
+### Essential Tools
+- **Support and Resistance**: Horizontal levels where price historically tends to bounce or reverse.
+- **Trendlines**: Diagonals that connect price highs or lows to show the market direction.
+- **Indicators**: RSI, MACD, and Moving Averages are tools that help confirm trends.
 
-### Key Concepts
-
-#### 1. Support and Resistance
-- **Support**: A price level where a downtrend tends to pause due to a concentration of demand (buying interest).
-- **Resistance**: A price level where an uptrend tends to pause due to a concentration of supply (selling interest).
-
-#### 2. Trend Lines
-- **Uptrend**: A series of higher highs and higher lows.
-- **Downtrend**: A series of lower highs and lower lows.
-
-#### 3. Candlestick Patterns
-Japanese Candlesticks provide visual information about price movement. Common patterns include:
-- **Doji**: Indecision.
-- **Hammer**: Bullish reversal.
-- **Engulfing**: Strong reversal signal.
-
-#### 4. Indicators
-Tools like moving averages (MA), RSI, and MACD help confirm trends and entry points. However, price action should always be your primary guide.
-            `,
-            author: 'Market Analyst'
+### Candlestick Patterns
+Candlesticks show the open, close, high, and low of price. Patterns like the "Hammer" or "Engulfing" can signal a potential reversal.`
         },
         ar: {
-            title: 'أساسيات التحليل الفني: قراءة لغة السوق والشارت',
-            excerpt: 'افك شفرة الرسوم البيانية. تعلم عن الدعم والمقاومة، الاتجاهات (الترند)، والمؤشرات الرئيسية التي يستخدمها المتداولون المحترفون.',
+            title: 'أساسيات التحليل الفني',
+            author: 'فريق الفوركس',
+            excerpt: 'تعلم كيفية قراءة الشموع اليابانية، تحديد الأنماط، واستخدام المؤشرات لتوقع حركة السعر.',
             content: `
-### ما هو التحليل الفني؟
+## فهم حركة السعر
+التحليل الفني هو دراسة حركات الأسعار التاريخية لتحديد الأنماط والاتجاهات التي يمكن أن تتنبأ بالسلوك المستقبلي للسوق.
 
-التحليل الفني هو دراسة حركة السعر التاريخية لتحديد الأنماط وتوقع تحركات السوق المستقبلية. يعتمد على مبدأ أن "التاريخ يعيد نفسه".
+### الأدوات الأساسية
+- **الدعم والمقاومة**: مستويات أفقية يميل السعر تاريخياً للارتداد منها.
+- **خطوط الاتجاه (Trendlines)**: خطوط مائلة تربط بين قمم أو قيعان السعر لتوضيح اتجاه السوق.
+- **المؤشرات**: مثل RSI و MACD والمتوسطات المتحركة، وهي أدوات تساعد في تأكيد الاتجاه.
 
-### مفاهيم رئيسية
-
-#### 1. الدعم والمقاومة
-- **الدعم**: مستوى سعري يميل عنده الاتجاه الهابط للتوقف بسبب تركيز الطلب (قوة الشراء).
-- **المقاومة**: مستوى سعري يميل عنده الاتجاه الصاعد للتوقف بسبب تركيز العرض (قوة البيع).
-
-#### 2. خطوط الاتجاه (الترند)
-- **اتجاه صاعد (Uptrend)**: سلسلة من القمم والقيعان الصاعدة.
-- **اتجاه هابط (Downtrend)**: سلسلة من القمم والقيعان الهابطة.
-
-#### 3. أنماط الشموع اليابانية
-توفر الشموع اليابانية معلومات مرئية حول حركة السعر. الأنماط الشائعة تشمل:
-- **دوجي (Doji)**: تشير للحيرة.
-- **المطرقة (Hammer)**: إشارة انعكاسية صعودية.
-- **الابتلاع (Engulfing)**: إشارة انعكاسية قوية.
-
-#### 4. المؤشرات الفنية
-أدوات مثل المتوسطات المتحركة (MA)، ومؤشر القوة النسبية (RSI)، والماكد (MACD) تساعد في تأكيد الاتجاهات ونقاط الدخول. ومع ذلك، يجب أن تكون حركة السعر دائمًا دليلك الأساسي.
-            `,
-            author: 'محلل الأسواق'
+### أنماط الشموع اليابانية
+توضح الشموع سعر الافتتاح، الإغلاق، وأعلى وأدنى سعر. أنماط مثل "المطرقة" أو "الابتلاعية" يمكن أن تشير إلى انعكاس محتمل.`
         }
     },
     {
-        id: '4',
+        id: 4,
         slug: 'trading-psychology',
-        image: '/images/blog/psychology.jpg',
-        date: '2025-12-15',
-        readingTime: '6 min',
+        date: '2024-03-23',
+        readingTime: '5',
+        image: '/images/blog/trading-psychology.png',
         en: {
-            title: 'Trading Psychology: The Hidden Factor of Success',
-            excerpt: 'Why do 90% of traders fail? It’s not the strategy, it’s the mindset. Learn how to control emotions like fear and greed.',
+            title: 'Psychology of a Winning Trader',
+            author: 'Mindset Coach',
+            excerpt: 'Why mindset matters more than your strategy. Overcoming fear, greed, and emotional trading.',
             content: `
-### The 80/20 Rule
-Trading is 20% strategy and 80% psychology. You can have the best strategy in the world, but if you cannot control your emotions, you will fail.
+## Mindset is Everything
+Even the best strategy will fail if you can't control your emotions. Trading is 20% strategy and 80% psychology.
 
-### Common Psychological Traps
-1.  **FOMO (Fear Of Missing Out)**: Jumping into a trade just because you see price moving fast. This usually leads to buying at the top.
-2.  **Revenge Trading**: Trying to win back lost money immediately after a loss. This often leads to bigger losses.
-3.  **Greed**: Moving your Take Profit too far or adding to a losing position hoping it will turn around.
+### Common Pitfalls
+- **FOMO (Fear Of Missing Out)**: Jumping into a trade late because you don't want to miss the move.
+- **Revenge Trading**: Trying to "win back" losses immediately, leading to bigger mistakes.
+- **Overtrading**: Trading too frequently out of boredom or excitement.
 
-### How to Master Your Mind
-- **Have a Plan**: Stick to your checklist. If a setup doesn't meet your rules, don't take it.
-- **Accept Uncertainty**: You deal in probabilities, not certainties.
-- **Keep a Journal**: Record how you felt during each trade to identify emotional triggers.
-            `,
-            author: 'Abu Al-Dahab'
+### Staying Disciplined
+Stick to your plan regardless of your emotions. Treat trading like a business, not a hobby.`
         },
         ar: {
-            title: 'سيكولوجية التداول: العامل الخفي وراء النجاح',
-            excerpt: 'لماذا يفشل 90% من المتداولين؟ السبب ليس الاستراتيجية، بل العقلية. تعلم كيف تسيطر على مشاعر الخوف والطمع أثناء التداول.',
+            title: 'سيكولوجية المتداول الناجح',
+            author: 'مدرب العقلية',
+            excerpt: 'لماذا تعتبر العقلية أهم من الاستراتيجية؟ التغلب على الخوف والطمع والتداول العاطفي.',
             content: `
-### قاعدة 80/20
-التداول هو 20% استراتيجية و 80% نفسية. يمكنك امتلاك أفضل استراتيجية في العالم، ولكن إذا لم تستطع التحكم في عواطفك، فسوف تفشل.
+## العقلية هي كل شيء
+حتى أفضل الاستراتيجيات ستفشل إذا لم تستطع التحكم في عواطفك. التداول هو 20% استراتيجية و 80% عقلية وسلوك.
 
-### الفخاخ النفسية الشائعة
-1.  **الفومو (FOMO)**: الخوف من فوات الفرصة، والدخول في صفقة فقط لأنك ترى السعر يتحرك بسرعة. هذا يؤدي عادة للشراء في القمة.
-2.  **التداول الانتقامي**: محاولة استعادة المال المفقود فورًا بعد الخسارة. هذا يؤدي غالبًا إلى خسائر أكبر.
-3.  **الطمع**: تحريك هدف الربح بعيدًا جدًا أو زيادة حجم العقود في صفقة خاسرة على أمل أن تنعكس.
+### العثرات الشائعة
+- **FOMO (الخوف من ضياع الفرصة)**: الدخول المتأخر في صفقة لأنك لا تريد تفويت الحركة.
+- **تداول الانتقام**: محاولة "استعادة" الخسائر فوراً، مما يؤدي إلى أخطاء أكبر.
+- **الإفراط في التداول**: التداول بشكل متكرر بدافع الملل أو الحماس الزائد.
 
-### كيف تسيطر على عقلك؟
-- **امتلك خطة**: التزم بقائمة التحقق الخاصة بك. إذا لم تستوفِ الفرصة شروطك، لا تدخلها.
-- **تقبل عدم اليقين**: أنت تتعامل مع احتمالات، وليس يقينيات.
-- **اكتب يومياتك**: سجل كيف شعرت أثناء كل صفقة لتحديد محفزاتك العاطفية.
-            `,
-            author: 'أبو الذهب'
+### البقاء منضبطاً
+التزم بخطتك بغض النظر عن مشاعرك. تعامل مع التداول كعمل تجاري (Business) وليس كهواية.`
         }
     },
     {
-        id: '5',
+        id: 5,
         slug: 'fundamental-analysis',
-        image: '/images/blog/fundamental.jpg',
-        date: '2025-12-14',
-        readingTime: '8 min',
+        date: '2024-03-24',
+        readingTime: '6',
+        image: '/images/blog/fundamental-analysis.png',
         en: {
-            title: 'Fundamental Analysis: Trading the News',
-            excerpt: 'Understanding how economic events like interest rates, NFP, and GDP affect currency prices is crucial for every VIP trader.',
+            title: 'Introduction to Fundamental Analysis',
+            author: 'Economic Analyst',
+            excerpt: 'Understanding economic indicators, interest rates, and geopolitical events that drive currency values.',
             content: `
-### What drives the market?
-While technical analysis looks at charts, fundamental analysis looks at the economic engines driving the prices.
+## Trading the News
+Fundamental analysis looks at the economic, social, and political forces that influence currency supply and demand.
 
-### Key Economic Indicators
-1.  **Interest Rates (Central Banks)**: Higher interest rates generally strengthen a currency. The Federal Reserve (Fed) is the most watched institution.
-2.  **NFP (Non-Farm Payrolls)**: A monthly report on US job creation. It causes massive volatility in Gold and Dollar pairs.
-3.  **CPI (Inflation)**: High inflation often forces central banks to raise rates.
-4.  **GDP**: Measures the overall health of an economy.
+### High-Impact Factors
+- **Interest Rates**: Set by Central Banks (like the FED). Higher rates usually strengthen a currency.
+- **GDP (Gross Domestic Product)**: A measure of a country's economic health.
+- **Employment Data (NFP)**: News about job growth has a massive impact on the USD.
 
-### How to Trade News?
-Trading news can be dangerous due to high volatility (slippage).
-- **Conservative**: Wait for the news release, let the market settle, then trade the trend.
-- **Aggressive**: Trade the immediate reaction (Recommended only for experienced traders).
-
-Our **VIP Signals** combine both technical layouts and fundamental catalysts to give high-probability setups.
-            `,
-            author: 'Global Macro Desk'
+### Geopolitics
+Elections, trade wars, and conflicts can cause sudden and sharp movements in the market.`
         },
         ar: {
-            title: 'التحليل الأساسي: كيف تتداول مع الأخبار الاقتصادية؟',
-            excerpt: 'فهم كيف تؤثر الأحداث الاقتصادية مثل أسعار الفائدة وتقارير التوظيف (NFP) على أسعار العملات هو أمر حاسم لكل متداول VIP.',
+            title: 'مقدمة في التحليل الأساسي',
+            author: 'محلل اقتصادي',
+            excerpt: 'فهم المؤشرات الاقتصادية، أسعار الفائدة، والأحداث الجيوسياسية التي تحرك قيم العملات.',
             content: `
-### ما الذي يحرك السوق؟
-بينما ينظر التحليل الفني إلى الرسوم البيانية، ينظر التحليل الأساسي إلى المحركات الاقتصادية التي تدفع الأسعار.
+## التداول بناءً على الأخبار
+التحليل الأساسي ينظر إلى القوى الاقتصادية والاجتماعية والسياسية التي تؤثر على عرض وطلب العملات.
 
-### المؤشرات الاقتصادية الرئيسية
-1.  **أسعار الفائدة (البنوك المركزية)**: رفع أسعار الفائدة يقوي العملة بشكل عام. الاحتياطي الفيدرالي الأمريكي (Fed) هو المؤسسة الأكثر متابعة.
-2.  **NFP (الوظائف غير الزراعية)**: تقرير شهري عن الوظائف الأمريكية. يسبب تقلبات هائلة في أزواج الذهب والدولار.
-3.  **CPI (التضخم)**: التضخم المرتفع يجبر البنوك المركزية غالبًا على رفع الفائدة.
-4.  **GDP (الناتج المحلي الإجمالي)**: يقيس الصحة العامة للاقتصاد.
+### العوامل عالية التأثير
+- **أسعار الفائدة**: تحددها البنوك المركزية (مثل الفيدرالي). أسعار الفائدة المرتفعة تقوي العملة عادةً.
+- **الناتج المحلي الإجمالي (GDP)**: مقياس للمكانة الاقتصادية للدولة.
+- **بيانات التوظيف (NFP)**: للأخبار عن نمو الوظائف تأثير هائل على الدولار الأمريكي.
 
-### كيف تتداول الأخبار؟
-تداول الأخبار قد يكون خطيرًا بسبب التقلبات العالية والانزلاقات السعرية.
-- **النهج المحافظ**: انتظر صدور الخبر، دع السوق يستقر، ثم تداول مع الاتجاه.
-- **النهج الهجومي**: تداول رد الفعل الفوري (يوصى به فقط للمحترفين).
+### الجيوسياسة
+الانتخابات، الحروب التجارية، والصراعات يمكن أن تسبب حركات مفاجئة وحادة في السوق.`
+        }
+    },
+    {
+        id: 6,
+        slug: 'japanese-candlesticks-guide',
+        date: '2024-03-25',
+        readingTime: '8',
+        image: '/images/blog/candlestick-patterns.png',
+        en: {
+            title: 'Japanese Candlesticks: The complete guide',
+            author: 'Abu Al-Dahab Experts',
+            excerpt: 'Understand how to read Japanese candlestick charts and identify the most powerful patterns.',
+            content: `
+## The Anatomy of a Candlestick
+Each candle tells a story of the battle between buyers and sellers during a specific timeframe.
 
-توصياتنا في **VIP** تجمع بين التحليل الفني والمحفزات الأساسية لتقديم فرص عالية الاحتمالية.
-            `,
-            author: 'قسم الاقتصاد الكلي'
+### Key Components
+- **Body**: The range between open and close.
+- **Wick (Shadow)**: The price extremes (Highest and Lowest).
+
+### Powerful Patterns
+1. **The Hammer**: Signals a potential bottom and bullish reversal.
+2. **Shooting Star**: Signals a potential top and bearish reversal.
+3. **Engulfing**: When one candle completely swallows the previous one, showing a shift in momentum.`
+        },
+        ar: {
+            title: 'الشموع اليابانية: الدليل الشامل',
+            author: 'خبراء مؤسسة أبو الذهب',
+            excerpt: 'افهم كيفية قراءة رسوم الشموع اليابانية وتحديد أقوى الأنماط الانعكاسية والاستمرارية.',
+            content: `
+## تشريح الشمعة اليابانية
+كل شمعة تحكي قصة المعركة بين المشترين والبائعين خلال إطار زمني محدد.
+
+### المكونات الرئيسية
+- **جسم الشمعة**: النطاق بين سعر الافتتاح والإغلاق.
+- **الذيل (Shadow)**: يمثل أعلى وأدنى سعر وصل إليه السوق.
+
+### أنماط قوية
+1. **المطرقة (Hammer)**: تشير إلى قاع محتمل وانعكاس صعودي.
+2. **الشهاب (Shooting Star)**: تشير إلى قمة محتملة وانعكاس هبوطي.
+3. **الابتلاع (Engulfing)**: عندما تبتلع شمعة واحدة الشمعة السابقة بالكامل، مما يظهر تحولاً في الزخم.`
+        }
+    },
+    {
+        id: 7,
+        slug: 'support-resistance-mastery',
+        date: '2024-03-26',
+        readingTime: '6',
+        image: '/images/blog/support-resistance.png',
+        en: {
+            title: 'Mastering Support & Resistance',
+            author: 'Abu Al-Dahab Analysts',
+            excerpt: 'Learn why these invisible lines are the backbone of every successful trading strategy.',
+            content: `
+## Floor and Ceiling
+Support and Resistance are the most basic and effective concepts in technical analysis.
+
+### What is support?
+Support is a price level where a downtrend tends to pause due to a concentration of demand (buying power).
+
+### What is resistance?
+Resistance is a level where an uptrend tends to pause as sellers step in to take profits or short the market.
+
+### Role Reversal
+Once a support level is broken, it often becomes resistance. Likewise, when resistance is broken, it often becomes support.`
+        },
+        ar: {
+            title: 'احتراف مستويات الدعم والمقاومة',
+            author: 'محللو مؤسسة أبو الذهب',
+            excerpt: 'تعلم لماذا تعتبر هذه الخطوط غير المرئية العمود الفقري لكل استراتيجية تداول ناجحة.',
+            content: `
+## السقف والأرضية
+الدعم والمقاومة هما أكثر المفاهيم أساسية وفعالية في التحليل الفني.
+
+### ما هو الدعم؟
+مستوى سعري يميل فيه الاتجاه الهابط للتوقف بسبب تمركز الطلب (قوة الشراء).
+
+### ما هي المقاومة؟
+مستوى يميل فيه الاتجاه الصاعد للتوقف مع دخول البائعين لجني الأرباح أو البيع.
+
+### تبادل الأدوار
+بمجرد كسر مستوى الدعم، فإنه غالباً ما يتحول إلى مقاومة. وبالمثل، عندما يتم اختراق المقاومة، فإنها تصبح دعماً.`
+        }
+    },
+    {
+        id: 8,
+        slug: 'moving-averages-strategy',
+        date: '2024-03-27',
+        readingTime: '5',
+        image: '/images/blog/moving-averages.png',
+        en: {
+            title: 'Trading with Moving Averages',
+            author: 'Trading Team',
+            excerpt: 'Filter market noise and follow trends with one of the most popular indicators in the world.',
+            content: `
+## Smoothing Out the Market
+Moving Averages (MA) smooth out price fluctuations to show the underlying trend.
+
+### EMA vs SMA
+- **SMA (Simple Moving Average)**: Calculates the average price over a specific number of periods.
+- **EMA (Exponential Moving Average)**: Gives more weight to recent prices, making it faster to react.
+
+### The Golden Cross
+A powerful signal occurs when a short-term MA (like 50) crosses above a long-term MA (like 200). This indicates a strong bullish trend.`
+        },
+        ar: {
+            title: 'التداول باستخدام المتوسطات المتحركة',
+            author: 'فريق التداول',
+            excerpt: 'صفي ضجيج السوق واتبع الاتجاه باستخدام أحد أكثر المؤشرات شعبية في العالم.',
+            content: `
+## تنعيم حركة السوق
+المتوسطات المتحركة (MA) تعمل على تنعيم تقلبات الأسعار لإظهار الاتجاه الأساسي.
+
+### الفرق بين EMA و SMA
+- **SMA (البسيط)**: يحسب متوسط السعر على مدار عدد محدد من الفترات.
+- **EMA (الأسي)**: يعطي وزناً أكبر للأسعار الأخيرة، مما يجعله أسرع في التفاعل.
+
+### التقاطع الذهبي
+تحدث إشارة قوية عندما يتقاطع متوسط قصير الأمد (مثل 50) فوق متوسط طويل الأمد (مثل 200). هذا يشير إلى اتجاه صعودي قوي.`
+        }
+    },
+    {
+        id: 9,
+        slug: 'fibonacci-levels-trading',
+        date: '2024-03-28',
+        readingTime: '7',
+        image: '/images/blog/fibonacci.png',
+        en: {
+            title: 'The Power of Fibonacci Retracement',
+            author: 'Abu Al-Dahab Analysts',
+            excerpt: 'Use mathematical golden ratios to find perfect entry points in trending markets.',
+            content: `
+## Mathematical Precision
+Fibonacci levels are derived from the Fibo sequence found in nature. In trading, they identify potential areas of support and resistance.
+
+### Key Levels
+- **61.8% (Golden Ratio)**: The most critical level for deep pullbacks.
+- **38.2% and 50%**: Common levels for shallow or healthy corrections.
+
+### How to use it?
+Draw the tool from the swing low to the swing high in an uptrend, and look for price to bounce off these levels to rejoin the trend.`
+        },
+        ar: {
+            title: 'قوة مستويات فيبوناتشي في التداول',
+            author: 'محللو مؤسسة أبو الذهب',
+            excerpt: 'استخدم النسب الرياضية الذهبية للعثور على نقاط دخول مثالية في الأسواق ذات الاتجاهات الواضحة.',
+            content: `
+## الدقة الرياضية
+مستويات فيبوناتشي مشتقة من متوالية حسابية توجد في الطبيعة. في التداول، تحدد هذه المستويات مناطق الدعم والمقاومة المحتملة.
+
+### المستويات الرئيسية
+- **61.8% (النسبة الذهبية)**: المستوى الأكثر أهمية للتصحيحات العميقة.
+- **38.2% و 50%**: مستويات شائعة للتصحيحات الصحية أو البسيطة.
+
+### كيف تستخدمها؟
+ارسم الأداة من أدنى قاع إلى أعلى قمة في الاتجاه الصاعد، وابحث عن ارتداد السعر من هذه المستويات للانضمام إلى الاتجاه مجدداً.`
+        }
+    },
+    {
+        id: 10,
+        slug: 'central-banks-impact',
+        date: '2024-03-29',
+        readingTime: '6',
+        image: '/images/blog/central-banks.png',
+        en: {
+            title: 'Central Banks & Interest Rates',
+            author: 'Economic Team',
+            excerpt: 'Why the FED and other central banks are the real masters of the Forex market.',
+            content: `
+## The Controllers of Money
+Central banks control a nation's monetary policy, and their decisions dictate currency values.
+
+### The Power of Interest Rates
+When a central bank raises interest rates, it usually attracts foreign capital, leading to a stronger currency.
+
+### Hawkish vs Dovish
+- **Hawkish**: A bank signaling rate hikes to fight inflation (Bullish for currency).
+- **Dovish**: A bank signaling rate cuts to stimulate the economy (Bearish for currency).`
+        },
+        ar: {
+            title: 'البنوك المركزية وتأثيرها على العملات',
+            author: 'الفريق الاقتصادي',
+            excerpt: 'لماذا يعتبر الفيدرالي والبنوك المركزية الأخرى هم المحركون الحقيقيون لسوق الفوركس.',
+            content: `
+## المتحكمون في المال
+تتحكم البنوك المركزية في السياسة النقدية للدولة، وقراراتها تملي قيم العملات.
+
+### قوة أسعار الفائدة
+عندما يرفع البنك المركزي أسعار الفائدة، فإنه عادة ما يجذب رؤوس الأموال الأجنبية، مما يؤدي إلى تقوية العملة.
+
+### التشدد (Hawkish) مقابل التيسير (Dovish)
+- **Hawkish**: بنك يلمح لرفع الفائدة لمحاربة التضخم (إيجابي للعملة).
+- **Dovish**: بنك يلمح لخفض الفائدة لتحفيز الاقتصاد (سلبي للعملة).`
+        }
+    },
+    {
+        id: 11,
+        slug: 'trading-gold-tips',
+        date: '2024-03-30',
+        readingTime: '7',
+        image: '/images/blog/gold-trading.png',
+        en: {
+            title: 'How to Trade Gold (XAUUSD)',
+            author: 'Metal Expert',
+            excerpt: 'Secrets of trading the world\'s most popular safe-haven asset: Gold.',
+            content: `
+## The Safe Haven
+Gold (XAU/USD) is unique. It acts as both a commodity and a currency, and it's highly volatile.
+
+### Drives of Gold Price
+- **USD Strength**: Usually moves inversely to the US Dollar.
+- **Geopolitical Uncertainty**: Gold rises when investors are scared during wars or crises.
+- **Inflation Hedge**: Investors buy gold to protect their purchasing power.
+
+### Advice for Gold Traders
+Use tight risk management. Gold can move 100-200 pips in minutes during high-impact news.`
+        },
+        ar: {
+            title: 'كيفية تداول الذهب (XAUUSD)',
+            author: 'خبير المعادن',
+            excerpt: 'أسرار تداول أكثر الأصول ملاذاً آمناً شعبية في العالم: الذهب.',
+            content: `
+## الملاذ الآمن
+الذهب (XAU/USD) فريد من نوعه. يعمل كسلعة وعملة في نفس الوقت، وهو شديد التقلب.
+
+### محركات سعر الذهب
+- **قوة الدولار**: يتحرك عادة بشكل عكسي مع الدولار الأمريكي.
+- **الشكوك الجيوسياسية**: يرتفع الذهب عندما يشعر المستثمرون بالخوف أثناء الحروب أو الأزمات.
+- **التحوط من التضخم**: يشتري المستثمرون الذهب لحماية قوتهم الشرائية.
+
+### نصيحة لمتداولي الذهب
+استخدم إدارة مخاطر صارمة. يمكن للذهب أن يتحرك 100-200 نقطة في دقائق أثناء الأخبار عالية التأثير.`
         }
     }
 ];
