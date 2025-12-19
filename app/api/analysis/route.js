@@ -39,7 +39,7 @@ export async function GET(request) {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // Inject Current Live Date
         const today = new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
