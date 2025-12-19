@@ -1739,3 +1739,263 @@ h6 {
     border-radius: 12px 0 0 12px;
 }
 
+
+/* ===== Floating Chat Button ===== */
+.floating-chat-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+[dir="rtl"] .floating-chat-container {
+    right: auto;
+    left: 2rem;
+    align-items: flex-start;
+}
+
+.floating-chat-btn {
+    width: 60px;
+    height: 60px;
+    background: var(--gold-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 0 rgba(184, 134, 11, 0.7);
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: ripple 2s infinite;
+    text-decoration: none;
+    position: relative;
+}
+
+.floating-chat-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    background: var(--gold-medium);
+    box-shadow: 0 8px 25px rgba(184, 134, 11, 0.6);
+}
+
+.chat-tooltip {
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--gold-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    border: 1px solid rgba(184, 134, 11, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+.floating-chat-container:hover .chat-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes ripple {
+    0% {
+        box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 0 rgba(184, 134, 11, 0.7);
+    }
+    70% {
+        box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 15px rgba(184, 134, 11, 0);
+    }
+    100% {
+        box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 0 rgba(184, 134, 11, 0);
+    }
+}
+
+@media (max-width: 768px) {
+    .floating-chat-container {
+        bottom: 1.5rem;
+        right: 1.5rem;
+    }
+    [dir="rtl"] .floating-chat-container {
+        left: 1.5rem;
+    }
+    .floating-chat-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+
+
+/* ===== Market Analysis Hub ===== */
+.analysis-page {
+    min-height: 100vh;
+    background: var(--bg-dark);
+}
+
+.analysis-hero {
+    padding: 6rem 0 3rem 0;
+    text-align: center;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+    padding-bottom: 4rem;
+}
+
+@media (max-width: 1100px) {
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.economic-calendar-wrapper {
+    background: var(--bg-card);
+    border: 1px solid rgba(184, 134, 11, 0.15);
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+}
+
+.ai-analysis-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(184, 134, 11, 0.2);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), var(--shadow-gold);
+    height: fit-content;
+}
+
+.ai-analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(184, 134, 11, 0.1);
+    padding-bottom: 1.5rem;
+}
+
+.ai-pulse-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(184, 134, 11, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    position: relative;
+    border: 1px solid rgba(184, 134, 11, 0.3);
+}
+
+.pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--gold-primary);
+    border-radius: 50%;
+    animation: ripple 2s infinite;
+}
+
+.ai-analysis-title {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.sentiment-badge {
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+    opacity: 0.9;
+}
+
+.ai-summary-box {
+    margin-bottom: 2.5rem;
+}
+
+.ai-summary-box h4, .top-news-section h4 {
+    color: var(--gold-medium);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ai-summary-box p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+.news-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.news-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.news-item:hover {
+    background: rgba(184, 134, 11, 0.05);
+    border-color: rgba(184, 134, 11, 0.2);
+    transform: translateX(5px);
+}
+
+[dir="rtl"] .news-item:hover {
+    transform: translateX(-5px);
+}
+
+.news-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.news-item-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.impact-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 50px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.impact-high {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.impact-medium {
+    background: rgba(184, 134, 11, 0.1);
+    color: var(--gold-primary);
+    border: 1px solid rgba(184, 134, 11, 0.3);
+}
+
+.news-item-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+

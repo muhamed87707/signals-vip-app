@@ -78,6 +78,14 @@ export default function BlogPost({ params }) {
                         <a href="/" className="logo">
                             <span className="btn-text-shine">{t.brand}</span>
                         </a>
+                        <Link href="/analysis" style={{
+                            color: 'var(--gold-primary)',
+                            textDecoration: 'none',
+                            fontSize: '0.9rem',
+                            fontWeight: '600'
+                        }} className="hover:opacity-80">
+                            📊 {t.analysisTitle}
+                        </Link>
                         <button
                             onClick={toggleLang}
                             className="lang-toggle-blog"

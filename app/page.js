@@ -474,18 +474,31 @@ export default function LandingPage() {
                         <span className="btn-text-shine">{t.brand}</span>
                     </a>
 
-                    <Link href="/blog" className="btn-text-shine" style={{
-                        textDecoration: 'none',
-                        color: 'var(--gold-primary)',
-                        fontWeight: '600',
-                        fontSize: '1rem',
-                        margin: '0 auto', // Centered if flex allows, or just spacing
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                    }}>
-                        🎓 <span style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.3)' }}>{t.blogTitle}</span>
-                    </Link>
+                    <div style={{ display: 'flex', gap: '1.5rem', margin: '0 auto' }}>
+                        <Link href="/analysis" className="btn-text-shine" style={{
+                            textDecoration: 'none',
+                            color: 'var(--gold-primary)',
+                            fontWeight: '600',
+                            fontSize: '1rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem'
+                        }}>
+                            📊 <span style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.3)' }}>{t.analysisTitle}</span>
+                        </Link>
+
+                        <Link href="/blog" className="btn-text-shine" style={{
+                            textDecoration: 'none',
+                            color: 'var(--gold-primary)',
+                            fontWeight: '600',
+                            fontSize: '1rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem'
+                        }}>
+                            🎓 <span style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.3)' }}>{t.blogTitle}</span>
+                        </Link>
+                    </div>
 
                     <button onClick={toggleLang} className="lang-toggle">
                         <GlobeIcon /> <span className="btn-text-shine">{t.langSwitch}</span>

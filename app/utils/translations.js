@@ -48,6 +48,7 @@ export const translations = {
                 disclaimerTitle: '⚠️ Risk Disclaimer',
                 disclaimerText: 'Trading in financial markets involves substantial risk and may not be suitable for all investors. Past performance is not indicative of future results. You should carefully consider your investment objectives, level of experience, and risk appetite before trading. Never invest money you cannot afford to lose. The signals provided are for educational purposes only and do not constitute financial advice.',
                 footerText: 'All Rights Reserved',
+                chatSupport: 'Support & Help',
 
                 // Signals Page
                 signalsTitle: 'Trading Signals',
@@ -217,6 +218,25 @@ The possibility exists that you could sustain a loss of some or all of your init
 Past performance of any trading system or methodology is not necessarily indicative of future results. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown.`,
                 backToHome: 'Back to Home',
 
+                // Market Analysis Hub
+                analysisTitle: 'Market Analysis Hub',
+                analysisSubtitle: 'Institutional-grade tools and AI-driven insights',
+                economicCalendar: 'Economic Calendar',
+                aiInsights: 'AI Market Pulse',
+                marketSentiment: 'Market Sentiment',
+                topNews: 'Top Market News',
+                aiSummary: 'AI Analysis Summary',
+                bullish: 'Bullish',
+                bearish: 'Bearish',
+                neutral: 'Neutral',
+                impact: 'Impact',
+                high: 'High',
+                medium: 'Medium',
+                low: 'Low',
+                backToAnalysis: '← Back to Analysis',
+                analysisHeroTitle: 'Power Your Trading with AI',
+                analysisHeroSubtitle: 'Real-time global events and expert-level AI summaries to keep you ahead of the curve.',
+
                 // Blog
                 blogTitle: 'Educational Blog',
                 blogSubtitle: 'Master the art of trading with our expert guides',
@@ -277,6 +297,7 @@ Past performance of any trading system or methodology is not necessarily indicat
                 disclaimerTitle: '⚠️ إخلاء المسؤولية',
                 disclaimerText: 'التداول في الأسواق المالية ينطوي على مخاطر كبيرة وقد لا يكون مناسباً لجميع المستثمرين. الأداء السابق لا يضمن النتائج المستقبلية. يجب أن تدرس بعناية أهدافك الاستثمارية ومستوى خبرتك ومدى تحملك للمخاطر قبل التداول. لا تستثمر أبداً أموالاً لا يمكنك تحمل خسارتها. التوصيات المقدمة هي لأغراض تعليمية فقط ولا تمثل نصيحة مالية.',
                 footerText: 'جميع الحقوق محفوظة',
+                chatSupport: 'الدعم والمساعدة',
 
                 // Signals Page
                 signalsTitle: 'توصيات التداول',
@@ -444,6 +465,25 @@ Past performance of any trading system or methodology is not necessarily indicat
 **الأداء السابق**
 النتائج والأداء السابق لأي نظام تداول أو منهجية ليست بالضرورة مؤشراً للنتائج المستقبلية. لا يتم تقديم أي تعهد بأن أي حساب سيحقق أو من المرجح أن يحقق أرباحاً أو خسائر مماثلة لتلك المعروضة.`,
                 backToHome: 'العودة للرئيسية',
+
+                // Market Analysis Hub
+                analysisTitle: 'مركز تحليل السوق',
+                analysisSubtitle: 'أدوات احترافية وتحليلات مدعومة بالذكاء الاصطناعي',
+                economicCalendar: 'التقويم الاقتصادي',
+                aiInsights: 'نبض السوق بالذكاء الاصطناعي',
+                marketSentiment: 'اتجاه السوق الحالي',
+                topNews: 'أهم أخبار السوق',
+                aiSummary: 'ملخص تحليل الذكاء الاصطناعي',
+                bullish: 'صعودي',
+                bearish: 'هبوطي',
+                neutral: 'حيادي',
+                impact: 'التأثير',
+                high: 'مرتفع',
+                medium: 'متوسط',
+                low: 'منخفض',
+                backToAnalysis: '← العودة للتحليل',
+                analysisHeroTitle: 'عزز تداولك بالذكاء الاصطناعي',
+                analysisHeroSubtitle: 'أحداث عالمية فورية وملخصات احترافية من الذكاء الاصطناعي لتبقيك في المقدمة.',
 
                 // Blog
                 blogTitle: 'المدونة التعليمية',

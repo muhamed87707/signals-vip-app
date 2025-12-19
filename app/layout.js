@@ -1,6 +1,7 @@
 import { Inter, Cairo } from 'next/font/google';
 import Script from 'next/script';
 import { LanguageProvider } from './context/LanguageContext';
+import FloatingChat from './components/FloatingChat';
 import "./globals.css";
 
 const inter = Inter({
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
                 <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
                 <LanguageProvider>
                     {children}
+                    <FloatingChat />
                 </LanguageProvider>
             </body>
         </html>
