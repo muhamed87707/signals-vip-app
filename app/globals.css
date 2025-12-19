@@ -1752,6 +1752,7 @@ h6 {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    width: fit-content;
     gap: 0.5rem;
     transition: all 0.3s ease;
 }
@@ -1759,7 +1760,8 @@ h6 {
 [dir="rtl"] .floating-chat-container {
     right: auto;
     left: 2rem;
-    align-items: flex-start;
+    align-items: flex-end;
+    /* Pins to left in RTL */
 }
 
 .floating-chat-btn {
@@ -1829,6 +1831,7 @@ h6 {
         left: auto !important;
         /* Force side pinning */
         align-items: flex-end;
+        width: fit-content !important;
     }
 
     [dir="rtl"] .floating-chat-container {
@@ -1836,7 +1839,9 @@ h6 {
         bottom: 1rem;
         right: auto !important;
         /* Force side pinning */
-        align-items: flex-start;
+        align-items: flex-end;
+        /* Pins to left in RTL */
+        width: fit-content !important;
     }
 
     .floating-chat-btn {
