@@ -1,73 +1,74 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function AINewsAnalysis() {
     const { t, lang, mounted } = useLanguage();
+    const [analysisData, setAnalysisData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    if (!mounted) return null;
-
-    // Updated with high-impact only (Intensity 3) data
-    const analysisData = {
-        en: {
-            sentiment: 'Bullish (Gold Focus)',
-            sentimentColor: '#ffd700',
-            summary: "Today's high-impact landscape is dominated by the US CPI release (2.7%), confirming a downward inflation trend. This significantly boosts the case for Gold (XAUUSD) as the market anticipates interest rate cuts. The Bank of Japan's rate hike to 0.75% has shifted the dynamic for USDJPY and major yen pairs, creating prime volatility for our VIP signals.",
-            topNews: [
-                {
-                    title: "CRITICAL: US CPI Drops to 2.7%",
-                    impact: "High",
-                    desc: "Lower inflation increases expectations for Fed easing, directly supporting XAUUSD prices."
-                },
-                {
-                    title: "BoJ Shock: Rates at 0.75%",
-                    impact: "High",
-                    desc: "Historic rate hike by Japan triggers massive volatility in JPY pairs. Monitor USDJPY levels."
-                },
-                {
-                    title: "Gold Breakout Imminent?",
-                    impact: "High",
-                    desc: "Technical analysis shows XAUUSD testing major resistance after CPI data. Upside potential remains high."
-                }
-            ]
-        },
-        ar: {
-            sentiment: 'صعودي (تركيز على الذهب)',
-            sentimentColor: '#ffd700',
-            summary: "نظرة اليوم للأخبار عالية التأثير يهيمن عليها صدور بيانات التضخم الأمريكية (2.7٪)، مما يؤكد اتجاه التضخم النزولي. هذا يعزز بشكل كبير قوة الذهب (XAUUSD) حيث يترقب السوق خفض أسعار الفائدة. رفع البنك الياباني للفائدة لـ 0.75٪ غير ديناميكية زوج USDJPY وأزواج الين الرئيسية، مما خلق تقلبات قوية لتوصياتنا.",
-            topNews: [
-                {
-                    title: "عاجل: التضخم الأمريكي ينخفض لـ 2.7٪",
-                    impact: "عالي",
-                    desc: "انخفاض التضخم يزيد من توقعات تيسير الفيدرالي، مما يدعم أسعار الذهب بشكل مباشر."
-                },
-                {
-                    title: "صدمة المركزي الياباني: الفائدة 0.75٪",
-                    impact: "عالي",
-                    desc: "رفع تاريخي للفائدة يطلق تقلبات ضخمة في أزواج الين. راقب مستويات USDJPY."
-                },
-                {
-                    title: "هل يقترب اختراق الذهب؟",
-                    impact: "عالي",
-                    desc: "التحليل الفني يظهر اختبار الذهب لمقاومات كبرى بعد بيانات التضخم. فرص الصعود تظل قوية."
-                }
-            ]
+    const fetchAnalysis = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/analysis?lang=${lang}`);
+            const data = await res.json();
+            setAnalysisData(data);
+        } catch (error) {
+            console.error("Failed to fetch analysis:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const data = analysisData[lang] || analysisData['en'];
+    useEffect(() => {
+        if (mounted) {
+            fetchAnalysis();
+        }
+    }, [lang, mounted]);
+
+    if (!mounted) return null;
+
+    if (loading) {
+        return (
+            <div className="ai-analysis-card shimmer" style={{ minHeight: '400px' }}>
+                <div className="ai-analysis-header">
+                    <div className="ai-pulse-icon loading-skeleton" style={{ width: '60px', height: '60px' }}></div>
+                    <div style={{ flex: 1 }}>
+                        <div className="loading-skeleton" style={{ height: '24px', width: '60%' }}></div>
+                        <div className="loading-skeleton" style={{ height: '16px', width: '40%' }}></div>
+                    </div>
+                </div>
+                <div className="ai-content-body">
+                    <div className="loading-skeleton" style={{ height: '100px', width: '100%' }}></div>
+                    <div className="loading-skeleton" style={{ height: '150px', width: '100%' }}></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!analysisData) return null;
 
     return (
-        <div className="ai-analysis-card animate-fade-in-up delay-100">
+        <div className="ai-analysis-card animate-fade-in-up">
             <div className="ai-analysis-header">
                 <div className="ai-pulse-icon">
                     <div className="pulse-ring"></div>
                     <span className="brain-icon">🧠</span>
                 </div>
-                <div>
-                    <h3 className="ai-analysis-title">{t.aiInsights}</h3>
-                    <div className="sentiment-badge" style={{ color: data.sentimentColor }}>
-                        {t.marketSentiment}: <strong>{data.sentiment}</strong>
+                <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <h3 className="ai-analysis-title">{t.aiInsights}</h3>
+                        <button
+                            onClick={fetchAnalysis}
+                            className="refresh-ai-btn"
+                            title="Refresh Analysis"
+                        >
+                            🔄
+                        </button>
+                    </div>
+                    <div className="sentiment-badge" style={{ color: analysisData.sentimentColor || '#ffd700' }}>
+                        {t.marketSentiment}: <strong>{analysisData.sentiment}</strong>
                     </div>
                 </div>
             </div>
@@ -75,13 +76,13 @@ export default function AINewsAnalysis() {
             <div className="ai-content-body">
                 <div className="ai-summary-box">
                     <h4>{t.aiSummary}</h4>
-                    <p>{data.summary}</p>
+                    <p>{analysisData.summary}</p>
                 </div>
 
                 <div className="top-news-section">
                     <h4>{t.topNews}</h4>
                     <div className="news-grid">
-                        {data.topNews.map((item, idx) => (
+                        {(analysisData.topNews || []).map((item, idx) => (
                             <div key={idx} className="news-item">
                                 <div className="news-item-top">
                                     <span className="news-item-title">{item.title}</span>
@@ -95,6 +96,21 @@ export default function AINewsAnalysis() {
                     </div>
                 </div>
             </div>
+
+            <style jsx>{`
+                .refresh-ai-btn {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 1.2rem;
+                    opacity: 0.6;
+                    transition: all 0.3s ease;
+                }
+                .refresh-ai-btn:hover {
+                    opacity: 1;
+                    transform: rotate(180deg);
+                }
+            `}</style>
         </div>
     );
 }
