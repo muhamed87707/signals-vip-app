@@ -1693,7 +1693,8 @@ h6 {
     margin-bottom: 1.5rem;
 }
 
-.article-content ul, .article-content ol {
+.article-content ul,
+.article-content ol {
     margin-bottom: 1.5rem;
     padding-left: 1.5rem;
 }
@@ -1745,6 +1746,8 @@ h6 {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
+    left: auto;
+    /* Explicitly reset */
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -1809,9 +1812,11 @@ h6 {
     0% {
         box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 0 rgba(184, 134, 11, 0.7);
     }
+
     70% {
         box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 15px rgba(184, 134, 11, 0);
     }
+
     100% {
         box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4), 0 0 0 0 rgba(184, 134, 11, 0);
     }
@@ -1819,16 +1824,29 @@ h6 {
 
 @media (max-width: 768px) {
     .floating-chat-container {
-        bottom: 1rem;
-        right: 1rem;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        left: auto !important;
+        /* Force side pinning */
+        align-items: flex-end;
     }
+
     [dir="rtl"] .floating-chat-container {
-        left: 1rem;
+        left: 1.5rem;
+        right: auto !important;
+        /* Force side pinning */
+        align-items: flex-start;
     }
+
     .floating-chat-btn {
-        width: 56px;
-        height: 56px;
-        font-size: 1.25rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+
+    .chat-tooltip {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
     }
 }
 
@@ -1871,7 +1889,7 @@ h6 {
     border: 1px solid rgba(184, 134, 11, 0.2);
     border-radius: 24px;
     padding: 2rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5), var(--shadow-gold);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), var(--shadow-gold);
     height: fit-content;
 }
 
@@ -1922,7 +1940,8 @@ h6 {
     margin-bottom: 2.5rem;
 }
 
-.ai-summary-box h4, .top-news-section h4 {
+.ai-summary-box h4,
+.top-news-section h4 {
     color: var(--gold-medium);
     font-size: 1.1rem;
     margin-bottom: 1rem;
@@ -1943,8 +1962,8 @@ h6 {
 }
 
 .news-item {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     padding: 1.25rem;
     transition: all 0.3s ease;
@@ -2002,19 +2021,22 @@ h6 {
 
 /* ===== Shimmer Loading Effect ===== */
 .shimmer {
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0) 100%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
 
 .loading-skeleton {
@@ -2022,4 +2044,3 @@ h6 {
     border-radius: 8px;
     margin-bottom: 1rem;
 }
-
