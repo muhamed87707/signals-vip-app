@@ -10,7 +10,7 @@ export async function GET(request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     // Fallback Mock Data if API Key is missing
-    if (!apiKey || apiKey === 'your_key_here') {
+    if (!apiKey || apiKey === 'your_key_here' || apiKey === '') {
         const mockData = {
             en: {
                 sentiment: 'Neutral (Waiting for API)',
@@ -19,7 +19,8 @@ export async function GET(request) {
                 topNews: [
                     { title: "System Ready", impact: "High", desc: "Backend infrastructure for AI analysis is live." },
                     { title: "Gemini Integration", impact: "High", desc: "Waiting for API credentials to enable live market scanning." }
-                ]
+                ],
+                lastUpdated: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
             },
             ar: {
                 sentiment: 'حيادي (بانتظار المفتاح)',
@@ -28,7 +29,8 @@ export async function GET(request) {
                 topNews: [
                     { title: "النظام جاهز", impact: "عالي", desc: "البنية التحتية لتحليل الذكاء الاصطناعي جاهزة للعمل." },
                     { title: "دمج Gemini", impact: "عالي", desc: "بانتظار بيانات الاعتماد لتفعيل مسح السوق المباشر." }
-                ]
+                ],
+                lastUpdated: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
             }
         };
 
@@ -50,7 +52,13 @@ export async function GET(request) {
         const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const data = JSON.parse(cleanJson);
 
-        return NextResponse.json(data);
+        return NextResponse.json({
+            ...data,
+            lastUpdated: new Date().toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        });
     } catch (error) {
         console.error("Gemini Error:", error);
         return NextResponse.json({ error: "Failed to generate AI analysis" }, { status: 500 });

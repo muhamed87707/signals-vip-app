@@ -69,6 +69,7 @@ export default function AINewsAnalysis() {
                     </div>
                     <div className="sentiment-badge" style={{ color: analysisData.sentimentColor || '#ffd700' }}>
                         {t.marketSentiment}: <strong>{analysisData.sentiment}</strong>
+                        {analysisData.lastUpdated && <span style={{ marginLeft: '1rem', fontSize: '0.8rem', opacity: 0.6 }}>({analysisData.lastUpdated})</span>}
                     </div>
                 </div>
             </div>
