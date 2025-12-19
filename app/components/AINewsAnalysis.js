@@ -3,52 +3,53 @@
 import { useLanguage } from '../context/LanguageContext';
 
 export default function AINewsAnalysis() {
-    const { t, lang, isRTL } = useLanguage();
+    const { t, lang, mounted } = useLanguage();
 
-    // In a real app, this would be fetched from an API
-    // Updated with real market data from Dec 19, 2025
+    if (!mounted) return null;
+
+    // Updated with high-impact only (Intensity 3) data
     const analysisData = {
         en: {
-            sentiment: 'Bullish Tilt',
-            sentimentColor: '#ffd700', // Gold
-            summary: "Today's market is defined by a cool down in US inflation (CPI at 2.7%), which has solidified expectations for Fed rate cuts in 2026. While Gold (XAUUSD) is seeing a temporary pull-back due to profit-taking, the long-term fundamentals remain exceptionally strong. The Bank of Japan's historic rate hike to 0.75% is adding volatility to JPY pairs.",
+            sentiment: 'Bullish (Gold Focus)',
+            sentimentColor: '#ffd700',
+            summary: "Today's high-impact landscape is dominated by the US CPI release (2.7%), confirming a downward inflation trend. This significantly boosts the case for Gold (XAUUSD) as the market anticipates interest rate cuts. The Bank of Japan's rate hike to 0.75% has shifted the dynamic for USDJPY and major yen pairs, creating prime volatility for our VIP signals.",
             topNews: [
                 {
-                    title: "US CPI Softer Than Expected",
+                    title: "CRITICAL: US CPI Drops to 2.7%",
                     impact: "High",
-                    desc: "Inflation dropped to 2.7%, boosting late-2025 rate cut bets."
+                    desc: "Lower inflation increases expectations for Fed easing, directly supporting XAUUSD prices."
                 },
                 {
-                    title: "BoJ Hikes Rates to 0.75%",
+                    title: "BoJ Shock: Rates at 0.75%",
                     impact: "High",
-                    desc: "Highest rates in 30 years for Japan, causing Yen volatility."
+                    desc: "Historic rate hike by Japan triggers massive volatility in JPY pairs. Monitor USDJPY levels."
                 },
                 {
-                    title: "Gold Resistance at $4,355",
-                    impact: "Medium",
-                    desc: "XAUUSD faces technical resistance but remains in an ascending triangle."
+                    title: "Gold Breakout Imminent?",
+                    impact: "High",
+                    desc: "Technical analysis shows XAUUSD testing major resistance after CPI data. Upside potential remains high."
                 }
             ]
         },
         ar: {
-            sentiment: 'ميل صعودي',
+            sentiment: 'صعودي (تركيز على الذهب)',
             sentimentColor: '#ffd700',
-            summary: "يتحدد سوق اليوم بتباطؤ التضخم الأمريكي (CPI عند 2.7٪)، مما عزز التوقعات بخفض أسعار الفائدة الفيدرالية في عام 2026. وبينما يشهد الذهب (XAUUSD) تراجعاً مؤقتاً بسبب جني الأرباح، تظل الأساسيات طويلة المدى قوية بشكل استثنائي. رفع البنك المركزي الياباني لأسعار الفائدة إلى 0.75٪ يضيف تقلبات كبيرة لأزواج الين.",
+            summary: "نظرة اليوم للأخبار عالية التأثير يهيمن عليها صدور بيانات التضخم الأمريكية (2.7٪)، مما يؤكد اتجاه التضخم النزولي. هذا يعزز بشكل كبير قوة الذهب (XAUUSD) حيث يترقب السوق خفض أسعار الفائدة. رفع البنك الياباني للفائدة لـ 0.75٪ غير ديناميكية زوج USDJPY وأزواج الين الرئيسية، مما خلق تقلبات قوية لتوصياتنا.",
             topNews: [
                 {
-                    title: "التضخم الأمريكي أقل من المتوقع",
+                    title: "عاجل: التضخم الأمريكي ينخفض لـ 2.7٪",
                     impact: "عالي",
-                    desc: "انخفاض التضخم إلى 2.7٪ يعزز رهانات خفض الفائدة."
+                    desc: "انخفاض التضخم يزيد من توقعات تيسير الفيدرالي، مما يدعم أسعار الذهب بشكل مباشر."
                 },
                 {
-                    title: "المركزي الياباني يرفع الفائدة لـ 0.75٪",
+                    title: "صدمة المركزي الياباني: الفائدة 0.75٪",
                     impact: "عالي",
-                    desc: "أعلى مستوى للفائدة في اليابان منذ 30 عاماً."
+                    desc: "رفع تاريخي للفائدة يطلق تقلبات ضخمة في أزواج الين. راقب مستويات USDJPY."
                 },
                 {
-                    title: "مقاومة الذهب عند 4,355 دولار",
-                    impact: "متوسط",
-                    desc: "يواجه الذهب مقاومة فنية لكنه لا يزال في مسار صاعد."
+                    title: "هل يقترب اختراق الذهب؟",
+                    impact: "عالي",
+                    desc: "التحليل الفني يظهر اختبار الذهب لمقاومات كبرى بعد بيانات التضخم. فرص الصعود تظل قوية."
                 }
             ]
         }
@@ -84,7 +85,7 @@ export default function AINewsAnalysis() {
                             <div key={idx} className="news-item">
                                 <div className="news-item-top">
                                     <span className="news-item-title">{item.title}</span>
-                                    <span className={`impact-badge impact-${item.impact === 'High' || item.impact === 'عالي' ? 'high' : 'medium'}`}>
+                                    <span className={`impact-badge impact-high`}>
                                         {t.impact}: {item.impact}
                                     </span>
                                 </div>
