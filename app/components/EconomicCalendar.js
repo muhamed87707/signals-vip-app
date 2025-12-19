@@ -36,7 +36,6 @@ export default function EconomicCalendar() {
                         width="100%"
                         height="700"
                         frameBorder="0"
-                        allowTransparency="true"
                         marginWidth="0"
                         marginHeight="0"
                         title="Investing.com Economic Calendar"

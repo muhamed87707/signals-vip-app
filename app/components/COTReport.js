@@ -2,18 +2,27 @@
 
 import { useLanguage } from '../context/LanguageContext';
 
-export default function COTReport() {
+export default function COTReport({ data }) {
     const { lang, mounted } = useLanguage();
 
     if (!mounted) return <div style={{ minHeight: '400px' }}></div>;
 
-    // Mock/Sample COT Data - Ideally fetched from a specialized financial API or curated manually
-    const cotData = [
-        { asset: lang === 'ar' ? 'الذهب (XAU)' : 'Gold (XAU)', long: 72, short: 28, trend: 'bullish' },
-        { asset: lang === 'ar' ? 'اليورو (EUR)' : 'Euro (EUR)', long: 45, short: 55, trend: 'bearish' },
-        { asset: lang === 'ar' ? 'الجنيه الإسترليني (GBP)' : 'GB Pound (GBP)', long: 60, short: 40, trend: 'bullish' },
-        { asset: lang === 'ar' ? 'ين ياباني (JPY)' : 'Yen (JPY)', long: 30, short: 70, trend: 'bearish' },
-    ];
+    // Skeleton Loading State
+    if (!data) return (
+        <div className="cot-report-card shimmer" style={{ minHeight: '300px' }}>
+            <div className="cot-header">
+                <div className="cot-icon">📊</div>
+                <div className="loading-skeleton" style={{ width: '150px', height: '24px' }}></div>
+            </div>
+            <div className="cot-content">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="loading-skeleton" style={{ height: '50px', width: '100%', marginBottom: '1rem' }}></div>
+                ))}
+            </div>
+        </div>
+    );
+
+    const cotData = data;
 
     return (
         <div className="cot-report-card animate-fade-in-up">

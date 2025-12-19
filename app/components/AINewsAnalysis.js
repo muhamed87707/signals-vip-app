@@ -3,40 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function AINewsAnalysis() {
+export default function AINewsAnalysis({ data, onRefresh, isLoading }) {
     const { t, lang, mounted } = useLanguage();
-    const [analysisData, setAnalysisData] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    const fetchAnalysis = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`/api/analysis?lang=${lang}`);
-            const data = await res.json();
-            setAnalysisData(data);
-        } catch (error) {
-            console.error("Failed to fetch analysis:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        if (mounted) {
-            fetchAnalysis();
-        }
-    }, [lang, mounted]);
 
     if (!mounted) return null;
 
-    if (loading) {
+    if (isLoading || !data) {
         return (
             <div className="ai-analysis-card shimmer" style={{ minHeight: '400px' }}>
                 <div className="ai-analysis-header">
                     <div className="ai-pulse-icon loading-skeleton" style={{ width: '60px', height: '60px' }}></div>
                     <div style={{ flex: 1 }}>
                         <div className="loading-skeleton" style={{ height: '24px', width: '60%' }}></div>
-                        <div className="loading-skeleton" style={{ height: '16px', width: '40%' }}></div>
                     </div>
                 </div>
                 <div className="ai-content-body">
@@ -47,7 +25,9 @@ export default function AINewsAnalysis() {
         );
     }
 
-    if (!analysisData) return null;
+    // Extract sentiment data from the unified response
+    const analysisData = data.market_sentiment;
+    const topNews = data.top_news;
 
     return (
         <div className="ai-analysis-card animate-fade-in-up">
@@ -60,9 +40,10 @@ export default function AINewsAnalysis() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <h3 className="ai-analysis-title">{t.aiInsights}</h3>
                         <button
-                            onClick={fetchAnalysis}
-                            className="refresh-ai-btn"
-                            title="Refresh Analysis"
+                            onClick={onRefresh}
+                            className={`refresh-ai-btn ${isLoading ? 'spinning' : ''}`}
+                            title="Refresh Dashboard"
+                            disabled={isLoading}
                         >
                             🔄
                         </button>
@@ -83,7 +64,7 @@ export default function AINewsAnalysis() {
                 <div className="top-news-section">
                     <h4>{t.topNews}</h4>
                     <div className="news-grid">
-                        {(analysisData.topNews || []).map((item, idx) => (
+                        {(topNews || []).map((item, idx) => (
                             <div key={idx} className="news-item">
                                 <div className="news-item-top">
                                     <span className="news-item-title">{item.title}</span>
@@ -111,6 +92,10 @@ export default function AINewsAnalysis() {
                     opacity: 1;
                     transform: rotate(180deg);
                 }
+                .refresh-ai-btn.spinning {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin { 100% { transform: rotate(360deg); } }
             `}</style>
         </div>
     );

@@ -2,17 +2,23 @@
 
 import { useLanguage } from '../context/LanguageContext';
 
-export default function BankAnalysis() {
+export default function BankAnalysis({ data }) {
     const { lang, mounted } = useLanguage();
 
     if (!mounted) return <div style={{ minHeight: '400px' }}></div>;
 
-    const bankForecasts = [
-        { bank: 'Goldman Sachs', target: '2850', bias: 'Bullish', asset: 'Gold' },
-        { bank: 'JP Morgan', target: '1.14', bias: 'Bearish', asset: 'EUR/USD' },
-        { bank: 'Morgan Stanley', target: '1.35', bias: 'Bullish', asset: 'GBP/USD' },
-        { bank: 'UBS', target: '2900', bias: 'Bullish', asset: 'Gold' },
-    ];
+    // Skeleton Loading State
+    if (!data) return (
+        <div className="bank-analysis-card shimmer" style={{ minHeight: '300px' }}>
+            <div className="bank-header">
+                <div className="bank-icon-seal">🏦</div>
+                <div className="loading-skeleton" style={{ width: '180px', height: '24px' }}></div>
+            </div>
+            <div className="loading-skeleton" style={{ height: '200px', width: '100%', marginTop: '1rem' }}></div>
+        </div>
+    );
+
+    const bankForecasts = data;
 
     const translations = {
         title: lang === 'ar' ? 'توقعات البنوك العالمية' : 'Global Bank Forecasts',

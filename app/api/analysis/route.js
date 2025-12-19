@@ -41,34 +41,58 @@ export async function GET(request) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
+        // Inject Current Live Date
+        const today = new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
         const prompt = lang === 'ar'
-            ? `أنت الآن "المخطط الاستراتيجي العالمي" لموقع أبو الذهب. قم بتحليل سوق الذهب والفوركس (العملات الرئيسية) بناءً على:
-              1. تقارير COT (تمركز الحيتان وصناع السوق).
-              2. توقعات البنوك الاستثمارية الكبرى (Goldman Sachs, JPM).
-              3. الأحداث الاقتصادية العالمية لعام 2025.
-              أعطني النتيجة بتنسيق JSON حصراً يحتوي على: 
-              - sentiment (عبارة قوية ومختصرة مثل "تفاؤل مؤسسي حذر")
-              - sentimentColor (كود هيكس ذهبي أو أخضر أو أحمر)
-              - summary (3 أسطر عميقة تربط بين تمركز الحيتان وتوقعات البنوك)
-              - topNews (مصفوفة من 3 عناصر استخباراتية تحتوي title, impact, desc).
-              اللغة: العربية.`
-            : `You are the "AI Master Strategist" for Abu Al-Dahab. Analyze Gold and Forex markets by synthesizing:
-              1. COT Reports (Whale and Institutional positioning).
-              2. Major Bank Forecasts (Goldman, JPM price targets).
-              3. Current 2025 global economic landscape.
-              Provide a JSON-only response with:
-              - sentiment (Institutional-grade phrase like "Cautious Institutional Bullishness")
-              - sentimentColor (Hex code for Gold, Green, or Red)
-              - summary (3 deep lines correlating whale positioning with bank targets)
-              - topNews (Array of 3 intelligence items with title, impact, desc).
-              Language: English.`;
+            ? `أنت المحلل الاستراتيجي الأول. التاريخ اليوم هو: ${today}.
+              المهمة: قم بتوليد (استنتاج) بيانات حية لسوق الذهب (XAU) والفوركس بناءً على آخر ما تعرفه عن الوضع الحالي.
+              
+              المطلوب: رد بصيغة JSON فقط يحتوي على:
+              1. market_sentiment: { sentiment: "كلمة واحدة", color: "كود لون", summary: "ملخص 3 أسطر يربط الأحداث ببعضها" }
+              2. cot_data: مصفوفة من 4 عناصر (Gold, EUR, GBP, JPY) كل عنصر يحتوي: { asset: "الاسم", long: رقم%, short: رقم%, trend: "bullish/bearish" }. (اجعل الأرقام تقديرية بناءً على تحيز السوق الحالي).
+              3. bank_forecasts: مصفوفة من 4 بنوك كبرى (مثل Goldman, JPM) تحتوي: { bank: "اسم البنك", asset: "الأصل", target: "السعر المتوقع", bias: "Bullish/Bearish" }.
+              4. top_news: مصفوفة من 3 أخبار عاجلة وحقيقية لهذا الأسبوع { title: "العنوان", impact: "High/Medium", desc: "الوصف" }.
+              
+              تأكد أن البيانات متناسقة مع تاريخ اليوم (${today}).`
+            : `You are the Lead Market Strategist. Today is: ${today}.
+              Task: Generate (estimate) live data for Gold (XAU) and Forex based on the current real-time market situation.
+              
+              Output: JSON only containing:
+              1. market_sentiment: { sentiment: "One phrase", color: "Hex Code", summary: "3-line synthesis of events" }
+              2. cot_data: Array of 4 items (Gold, EUR, GBP, JPY) each with: { asset: "Name", long: Number%, short: Number%, trend: "bullish/bearish" }. (Estimate these based on current institutional bias).
+              3. bank_forecasts: Array of 4 major banks (e.g., Goldman, JPM) with: { bank: "Name", asset: "Asset", target: "Price Target", bias: "Bullish/Bearish" }.
+              4. top_news: Array of 3 real breaking news items for this week: { title: "Title", impact: "High/Medium", desc: "Description" }.
+              
+              Ensure data is consistent with today's date (${today}).`;
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
+        let data;
+        try {
+            const result = await model.generateContent(prompt);
+            const responseText = result.response.text();
 
-        // Clean the response from markdown if necessary
-        const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-        const data = JSON.parse(cleanJson);
+            // Clean the response
+            const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+            data = JSON.parse(cleanJson);
+        } catch (error) {
+            console.error("AI Generation/Parsing Error:", error);
+            // Fallback Data if AI fails
+            data = {
+                market_sentiment: {
+                    sentiment: lang === 'ar' ? "تحليل مؤقت (جاري التحديث)" : "Temporary Analysis (Updating...)",
+                    color: "#ffd700",
+                    summary: lang === 'ar' ? "حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى." : "AI connection error. Please refresh."
+                },
+                cot_data: [],
+                bank_forecasts: [],
+                top_news: []
+            };
+        }
 
         return NextResponse.json({
             ...data,
