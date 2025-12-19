@@ -3,56 +3,179 @@
 import { useLanguage } from '../context/LanguageContext';
 
 export default function EconomicCalendar() {
-    const { lang, mounted } = useLanguage();
+    const { t, lang, mounted } = useLanguage();
 
-    if (!mounted) return <div style={{ minHeight: '500px' }}></div>;
+    if (!mounted) return <div style={{ minHeight: '600px' }}></div>;
 
-    // The user's exact snippet for Arabic
-    const arabicSnippet = `
-        <iframe src="https://sslecal2.investing.com?ecoDayBackground=%23000000&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&importance=3&features=datepicker,timezone,timeselector,filters&countries=25,17,26,10,37,5,35,4,12,22,193,6,72,43&calType=day&timeZone=65&lang=3" width="650" height="467" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0"></iframe>
-        <div class="poweredBy" style="font-family: Arial, Helvetica, sans-serif; text-align:right; direction:rtl;">
-            <span style="font-size: 11px;color: #ffffff;text-decoration: none; opacity: 0.7;">
-                التقويم الاقتصادي المباشر مقدم من المنفذ المالي الرائد 
-                <a href="https://sa.investing.com/" rel="nofollow" target="_blank" style="font-size: 11px;color: #b8860b; font-weight: bold;" class="underline_link">Investing.com السعودية</a> .
-            </span>
-        </div>
-    `;
+    // The user's exact snippet logic for Arabic (3) and English (1)
+    const investingLang = lang === 'ar' ? '3' : '1';
 
-    // English version of the same snippet (lang=1)
-    const englishSnippet = `
-        <iframe src="https://sslecal2.investing.com?ecoDayBackground=%23000000&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&importance=3&features=datepicker,timezone,timeselector,filters&countries=25,17,26,10,37,5,35,4,12,22,193,6,72,43&calType=day&timeZone=65&lang=1" width="650" height="467" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0"></iframe>
-        <div class="poweredBy" style="font-family: Arial, Helvetica, sans-serif; text-align:left; direction:ltr;">
-            <span style="font-size: 11px;color: #ffffff;text-decoration: none; opacity: 0.7;">
-                Real-time Economic Calendar provided by  
-                <a href="https://www.investing.com/" rel="nofollow" target="_blank" style="font-size: 11px;color: #b8860b; font-weight: bold;" class="underline_link">Investing.com</a> .
-            </span>
-        </div>
-    `;
+    // Constructing the URL with the user's preferred importance and countries
+    const iframeSrc = `https://sslecal2.investing.com?ecoDayBackground=%230a0a0a&columns=exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous&importance=3&features=datepicker,timezone,timeselector,filters&countries=25,17,26,10,37,5,35,4,12,22,193,6,72,43&calType=day&timeZone=65&lang=${investingLang}`;
 
     return (
-        <div className="economic-calendar-wrapper animate-fade-in-up" style={{
-            minHeight: '550px',
-            background: '#000000',
-            borderRadius: '24px',
-            padding: '2rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-        }}>
-            <div
-                className="investing-widget-container"
-                dangerouslySetInnerHTML={{ __html: lang === 'ar' ? arabicSnippet : englishSnippet }}
-                style={{ width: '100%', maxWidth: '650px', position: 'relative' }}
-            />
-
-            <div className="calendar-note" style={{ marginTop: '1.5rem', fontSize: '12px', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
-                {lang === 'ar' ?
-                    "* إذا لم يظهر التقويم، يرجى التأكد من تشغيل الموقع على دومين حقيقي حيث أن Investing.com قد يحظر العرض على localhost لأسباب أمنية." :
-                    "* If the calendar doesn't appear, please ensure you're on a live domain as Investing.com may block localhost for security reasons."
-                }
+        <div className="premium-calendar-card animate-fade-in-up">
+            <div className="calendar-card-header">
+                <div className="calendar-icon-wrapper">
+                    <span className="calendar-emoji">📅</span>
+                </div>
+                <div className="calendar-header-text">
+                    <h3 className="calendar-title">{t.economicCalendar}</h3>
+                    <p className="calendar-subtitle">
+                        {lang === 'ar' ? 'متابعة الأحداث الاقتصادية العالمية المؤثرة' : 'Track major global economic drivers'}
+                    </p>
+                </div>
             </div>
+
+            <div className="calendar-iframe-wrapper">
+                <div className="dark-mode-filter-container">
+                    <iframe
+                        src={iframeSrc}
+                        width="100%"
+                        height="480"
+                        frameBorder="0"
+                        allowTransparency="true"
+                        marginWidth="0"
+                        marginHeight="0"
+                        title="Investing.com Economic Calendar"
+                        className="investing-iframe"
+                    ></iframe>
+                </div>
+            </div>
+
+            <div className="calendar-card-footer">
+                <div className="powered-by-wrapper">
+                    <span className="powered-text">
+                        {lang === 'ar' ? 'بيانات حصرية مقدمة من' : 'Exclusively provided by'}
+                    </span>
+                    <a href="https://sa.investing.com/" rel="nofollow" target="_blank" className="gold-link">
+                        Investing.com {lang === 'ar' && 'السعودية'}
+                    </a>
+                </div>
+                <p className="localhost-notice">
+                    {lang === 'ar'
+                        ? '* في حال عدم ظهور البيانات، يرجى تفعيل الموقع على النطاق الرسمي.'
+                        : '* Data might be blocked on localhost for security; check on live domain.'}
+                </p>
+            </div>
+
+            <style jsx>{`
+                .premium-calendar-card {
+                    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
+                    border: 1px solid rgba(184, 134, 11, 0.2);
+                    border-radius: 24px;
+                    padding: 2rem;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(10px);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .premium-calendar-card::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -50%;
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(circle, rgba(184, 134, 11, 0.05) 0%, transparent 70%);
+                    pointer-events: none;
+                }
+
+                .calendar-card-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+
+                .calendar-icon-wrapper {
+                    width: 50px;
+                    height: 50px;
+                    background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.5rem;
+                    box-shadow: 0 5px 15px rgba(184, 134, 11, 0.3);
+                }
+
+                .calendar-title {
+                    font-size: 1.5rem;
+                    color: var(--white);
+                    margin: 0;
+                    font-weight: 700;
+                }
+
+                .calendar-subtitle {
+                    font-size: 0.9rem;
+                    color: var(--text-secondary);
+                    margin: 0.2rem 0 0 0;
+                }
+
+                .calendar-iframe-wrapper {
+                    border-radius: 16px;
+                    overflow: hidden;
+                    background: #000;
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+                .dark-mode-filter-container {
+                    /* Advanced Filter to make Investing.com look natively dark */
+                    filter: invert(90%) hue-rotate(180deg) brightness(1.1) contrast(1.1);
+                    mix-blend-mode: lighten;
+                }
+
+                .investing-iframe {
+                    border: none;
+                }
+
+                .calendar-card-footer {
+                    margin-top: 1.5rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                }
+
+                .powered-text {
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    margin-right: 5px;
+                }
+
+                .gold-link {
+                    font-size: 11px;
+                    color: var(--gold-primary);
+                    font-weight: 700;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+
+                .gold-link:hover {
+                    color: var(--white);
+                }
+
+                .localhost-notice {
+                    font-size: 10px;
+                    color: rgba(255, 255, 255, 0.3);
+                    margin: 0;
+                    font-style: italic;
+                }
+
+                @media (max-width: 768px) {
+                    .premium-calendar-card {
+                        padding: 1.5rem;
+                    }
+                    .calendar-card-footer {
+                        flex-direction: column;
+                        align-items: center;
+                        text-align: center;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
