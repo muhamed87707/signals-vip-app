@@ -477,27 +477,17 @@ export const englishTestimonials = [
 ];
 
 export const englishFAQ = [
-        { q: 'How do I receive the signals?', a: 'Once you subscribe, you will get instant access to our private VIP Telegram channel where all signals are posted in real-time with precise Entry, SL, and TP levels.' },
-        { q: 'Is my capital safe with you?', a: 'Absolutely. We never touch your money. Your trading capital stays in your own brokerage account. We only provide the analysis and signals; you maintain 100% control over your funds at all times.' },
-        { q: 'What happens if a trade loses?', a: 'Losses are part of trading, but our professional risk management ensures they are kept small. We use tight Stop-Losses and a high reward-to-risk ratio, so a few winning trades easily cover any minor losses.' },
-        { q: 'How much time do I need daily?', a: 'Very little. Following our signals takes less than 5 minutes a day. You simply copy the parameters we send into your trading platform. We do the hours of analysis; you just execute.' },
-        { q: 'Do I need trading experience?', a: 'Not at all. We provide a "Getting Started" guide for absolute beginners that shows you step-by-step how to set up your account and place your first trade using our signals.' },
-        { q: 'Why choose VIP over free channels?', a: 'Free channels often provide low-quality, unverified signals. Our VIP room is a professional environment with 90%+ accuracy, deep technical analysis, and 24/7 support to ensure your long-term success.' },
-        { q: 'What instruments do you trade?', a: 'We specialize in Gold (XAUUSD), US Oil (WTI), and major Forex pairs like EURUSD, GBPUSD, and USDJPY, focusing on the most liquid and profitable setups.' },
-        { q: 'What is the required capital?', a: 'You can start with as little as $100, but we recommend $500+ for better risk management and to see more significant growth in your account.' },
-        { q: 'Is there support if I get stuck?', a: 'Yes! Our dedicated support team is available 24/7 via the Telegram bot to answer any technical or trading questions you might have. You are never alone in your journey.' },
-        { q: 'Can I cancel my subscription?', a: 'Yes, you can cancel your automated renewal at any time through our support bot. There are no hidden fees or long-term commitments.' }
+        { q: 'How do I receive the signals?', a: 'Once you subscribe, you will get instant access to our private VIP Telegram channel where all signals are posted in real-time.' },
+        { q: 'Do I need trading experience?', a: 'Not necessarily. Our signals include clear Entry, Stop Loss, and Take Profit levels. We also provide a guide on how to place trades.' },
+        { q: 'What is the required capital?', a: 'You can start with as little as $100, but we recommend $500+ for better risk management.' },
+        { q: 'What is your win rate?', a: 'We maintain a consistent win rate of 85-90%, focusing on quality over quantity to ensure profitability.' },
+        { q: 'Can I cancel my subscription?', a: 'Yes, you can cancel your automated renewal at any time through our support bot.' }
 ];
 
 export const arabicFAQ = [
-        { q: 'كيف أستلم التوصيات؟', a: 'بمجرد الاشتراك، ستحصل على رابط دعوة فوري لقناتنا الخاصة على تليجرام حيث يتم نشر جميع التوصيات مباشرة مع نقاط دخول (Entry) ووقف خسارة (SL) وجني أرباح (TP) دقيقة.' },
-        { q: 'هل رأس مالي في أمان معكم؟', a: 'بكل تأكيد. نحن لا نلمس أموالك أبداً. رأس مال التداول الخاص بك يبقى في حسابك الشخصي لدى شركة الوساطة (البروكر). نحن نقدم التحليل والتوصيات فقط، وأنت تمتلك السيطرة الكاملة بنسبة 100% على أموالك في كل وقت.' },
-        { q: 'ماذا يحدث إذا خسرنا إحدى الصفقات؟', a: 'الخسارة جزء طبيعي من التداول، لكن إدارتنا الاحترافية للمخاطر تضمن بقاء الخسائر صغيرة جداً. نستخدم وقف خسارة ضيق ونسبة ربح إلى مخاطرة عالية، بحيث تغطي بضع صفقات ناجحة أي خسائر بسيطة بسهولة.' },
-        { q: 'كم من الوقت أحتاج يومياً؟', a: 'وقت قليل جداً. متابعة توصياتنا تستغرق أقل من 5 دقائق في اليوم. كل ما عليك فعله هو نسخ الأرقام التي نرسلها إلى منصة التداول الخاصة بك. نحن نقوم بساعات من التحليل، وأنت فقط تقوم بالتنفيذ.' },
-        { q: 'هل أحتاج لخبرة سابقة في التداول؟', a: 'لا على الإطلاق. نوفر دليلاً شاملاً للمبتدئين يوضح لك خطوة بخطوة كيفية إعداد حسابك وتنفيذ أول صفقة لك باستخدام توصياتنا بنجاح.' },
-        { q: 'لماذا أختار VIP بدلاً من القنوات المجانية؟', a: 'القنوات المجانية غالباً ما تقدم توصيات عشوائية وغير موثقة. غرفتنا الخاصة هي بيئة احترافية بنسبة نجاح تتجاوز 90%، مع تحليل فني عميق ودعم مباشر لضمان نجاحك على المدى الطويل.' },
-        { q: 'ما هي الأصول التي يتم تداولها؟', a: 'نحن متخصصون في الذهب (XAUUSD)، زيت النفط (WTI)، وأهم أزواج العملات مثل EURUSD و GBPUSD و USDJPY، حيث نركز على الصفقات الأكثر سيولة وربحية.' },
-        { q: 'كم أحتاج من رأس المال للبدء؟', a: 'يمكنك البدء بمبلغ بسيط مثل 100 دولار، ولكننا ننصح بمبلغ 500 دولار فأكثر لإدارة المخاطر بشكل سليم ولرؤية نمو ملموس في حسابك.' },
-        { q: 'هل هناك دعم فني إذا واجهت مشكلة؟', a: 'نعم! فريق الدعم المتخصص لدينا متاح 24/7 عبر بوت تليجرام للإجابة على أي استفسارات تقنية أو تداولية. لست وحدك في هذه الرحلة.' },
-        { q: 'هل يمكنني إلغاء الاشتراك؟', a: 'نعم، يمكنك إلغاء التجديد التلقائي في أي وقت من خلال البوت بكل سهولة. لا توجد رسوم خفية أو التزامات طويلة الأمد.' }
+        { q: 'كيف أستلم التوصيات؟', a: 'بمجرد الاشتراك، ستحصل على رابط دعوة لقناتنا الخاصة على تليجرام حيث يتم نشر جميع التوصيات بشكل فوري.' },
+        { q: 'هل أحتاج لخبرة سابقة في التداول؟', a: 'لا يشترط وجود خبرة كبيرة. توصياتنا واضحة جداً (سعر الدخول، وقف الخسارة، جني الأرباح)، ونوفر دليلاً لكيفية تنفيذ الصفقات.' },
+        { q: 'كم أحتاج من رأس المال للبدء؟', a: 'يمكنك البدء بمبلغ بسيط مثل 100 دولار، ولكننا ننصح بمبلغ 500 دولار فأكثر لإدارة رأس المال بشكل أفضل.' },
+        { q: 'ما هي نسبة نجاح التوصيات؟', a: 'نحافظ على نسبة نجاح تتراوح بين 85% و 90%، حيث نركز على جودة الصفقات وليس عددها لضمان الربح.' },
+        { q: 'هل يمكنني إلغاء الاشتراك؟', a: 'نعم، يمكنك إلغاء التجديد التلقائي في أي وقت من خلال التواصل مع الدعم الفني.' }
 ];

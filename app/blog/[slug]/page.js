@@ -57,7 +57,7 @@ const MarkdownRenderer = ({ content }) => {
 };
 
 export default function BlogPost({ params }) {
-    const { t, lang, isRTL, mounted } = useLanguage();
+    const { t, lang, isRTL, mounted, toggleLang } = useLanguage();
     const { slug } = use(params);
 
     const post = blogPosts.find(p => p.slug === slug);
@@ -71,12 +71,33 @@ export default function BlogPost({ params }) {
     if (!mounted) return null;
 
     return (
-        <div className="blog-post-page">
+        <div className="blog-post-page" dir={isRTL ? 'rtl' : 'ltr'}>
             <header className="header">
                 <div className="container header-content">
-                    <a href="/" className="logo">
-                        <span className="btn-text-shine">{t.brand}</span>
-                    </a>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                        <a href="/" className="logo">
+                            <span className="btn-text-shine">{t.brand}</span>
+                        </a>
+                        <button
+                            onClick={toggleLang}
+                            className="lang-toggle-blog"
+                            style={{
+                                background: 'rgba(184, 134, 11, 0.1)',
+                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                borderRadius: '50px',
+                                padding: '0.4rem 1rem',
+                                color: 'var(--gold-primary)',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            🌐 {t.langSwitch}
+                        </button>
+                    </div>
                     <Link href="/blog" className="back-link">
                         {t.backToBlog}
                     </Link>

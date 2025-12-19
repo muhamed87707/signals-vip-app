@@ -744,7 +744,7 @@ Gold is the "Safe Haven." When there is a war, a pandemic, or a financial crisis
 يتم تسعير الذهب بالدولار. لذلك، عادة ما يكون بينهما **علاقة عكسية**. إذا قوي الدولار، يميل الذهب للهبوط. وإذا انهار الدولار، يرتفع الذهب بشكل صاروخي.
 
 #### 2. أسعار الفائدة الحقيقية
-هذا هو "السر الكبير". الذهب لا يدفع فائدة. إذا كانت فوائد البنوك عالية، يفضل الناس وضع أموالهم في البنك. أما إذا كانت الفوائد منخفضة أو سلبية (بعد خصم التضخم)، يهرع الناس لشراء الذهب.
+هذا هو "السر الكبير". الذهب لا يدفع فائدة. إذا كانت فوائد البنوك عالية، يفضل الناس وضع أموالهم في البنك. أما إذا كانت الفوائد منخفضة أو سلبية (بعد خصم التضخم) ، يهرع الناس لشراء الذهب.
 
 #### 3. الخوف الجيوسياسي
 الذهب هو "الملاذ الآمن". عند حدوث حرب، جائحة، أو أزمة مالية، يبيع المستثمرون أسهمهم ويشترون الذهب. إنه بوليصة التأمين النهائية ضد انهيار النظام المالي.
@@ -758,6 +758,152 @@ Gold is the "Safe Haven." When there is a war, a pandemic, or a financial crisis
 1. **احترم الاتجاه**: اتجاهات الذهب قد تكون طويلة جداً وعنيفة جداً. لا تحاول أبداً "توقع القمة" في رالي صعود الذهب.
 2. **راقب الأخبار**: انتبه بشدة لبيانات التضخم الأمريكية (CPI) واجتماعات الفيدرالي.
 3. **الصبر مع التصحيحات**: الذهب يحب القيام بـ "اصتياد الستوبات" (Stop Hunts)، حيث يهبط فجأة لضرب أوامر وقف الخسارة للجميع قبل أن يكمل صعوده. ضع وقف الخسارة بعيداً قليلاً عما تفعله في زوج اليورو-دولار.`
+        }
+    },
+    {
+        id: 12,
+        slug: 'how-to-calculate-lot-size',
+        date: '2024-04-01',
+        readingTime: '12',
+        image: '/images/blog/technical-analysis.png',
+        en: {
+            title: 'How to Calculate Lot Size? Step-by-Step Guide',
+            author: 'Abu Al-Dahab Analysts',
+            excerpt: 'The most important mathematical skill for any trader. Learn how to calculate your position size accurately to avoid blowing your account.',
+            content: `
+## Why Lot Size Calculation is Critical
+Most beginner traders enter the market by guessing their lot size. This is a recipe for disaster. If your lot size is too big, a small movement against you can wipe out your account. If it's too small, you won't make enough profit to justify your effort.
+
+### What is a Lot?
+In Forex, we trade in standardized units called lots:
+- **Standard Lot (1.00)**: 100,000 units of the base currency (Approx $10 per pip in EURUSD).
+- **Mini Lot (0.10)**: 10,000 units ($1 per pip).
+- **Micro Lot (0.01)**: 1,000 units ($0.10 per pip).
+
+### The 4 Step Calculation Process
+
+#### Step 1: Determine Your Risk Percentage
+How much of your account are you willing to lose on this trade? Professionals usually risk **1% to 2%**. 
+*Example*: On a $1,000 account, a 1% risk is **$10**.
+
+#### Step 2: Measure Your Stop Loss in Pips
+Based on your technical analysis, how many pips away is your stop loss from your entry price?
+*Example*: Stop loss is **20 pips** away.
+
+#### Step 3: Determine the Pip Value
+For most USD pairs (EURUSD, GBPUSD), 0.01 lots = $0.10 per pip.
+
+#### Step 4: Use the Formula
+**Lot Size = Risk Amount ($) / (Stop Loss in Pips * Value per Pip)**
+
+Using our example ($10 risk / 20 pips): 
+$10 / (20 * 0.10) = 5 Micro Lots (**0.05 Lots**).
+
+### Tools and Calculators
+While doing the math manually is good for learning, most professional traders use a **Position Size Calculator** or an MT4/MT5 plugin to do it in seconds. This ensures accuracy and saves time during fast market movements.
+
+### Important Tip
+Always calculate your lot size *before* you open the trade. Never open a trade and then check how much you might lose!`
+        },
+        ar: {
+            title: 'كيف تحسب اللوت؟ دليل خطوة بخطوة',
+            author: 'محللو مؤسسة أبو الذهب',
+            excerpt: 'أهم مهارة رياضية لأي متداول. تعلم كيفية حساب حجم صفقتك بدقة لتجنب مرجنة حسابك.',
+            content: `
+## لماذا يعتبر حساب حجم اللوت أمراً حيوياً؟
+يدخل معظم المتداولين المبتدئين السوق بالتخمين في حجم اللوت. هذه وصفة لكارثة. إذا كان حجم اللوت كبيراً جداً، فإن حركة صغيرة ضدك يمكن أن تمحو حسابك. وإذا كان صغيراً جداً، فلن تحقق أرباحاً كافية تبرر جهدك.
+
+### ما هو اللوت (Lot)؟
+في الفوركس، نتداول بوحدات قياسية تسمى "عقود" أو "لوتات":
+- **العقد القياسي (1.00)**: 100,000 وحدة من عملة الأساس (حوالي 10 دولار لكل نقطة في EURUSD).
+- **العقد الميني (0.10)**: 10,000 وحدة (1 دولار لكل نقطة).
+- **العقد الميكرو (0.01)**: 1,000 وحدة (0.10 دولار لكل نقطة).
+
+### عملية الحساب في 4 خطوات
+
+#### الخطوة 1: حدد نسبة المخاطرة
+ما هو المبلغ الذي ترغب في خسارته من حسابك في هذه الصفقة؟ المحترفون عادة ما يخاطرون بـ **1% إلى 2%**.
+*مثال*: في حساب بقيمة 1,000 دولار، نسبة مخاطرة 1% تعادل **10 دولار**.
+
+#### الخطوة 2: قياس وقف الخسارة بالنقاط
+بناءً على تحليلك الفني، كم نقطة يبعد وقف الخسارة عن سعر الدخول؟
+*مثال*: وقف الخسارة يبعد **20 نقطة**.
+
+#### الخطوة 3: تحديد قيمة النقطة
+لمعظم الأزواج التي يكون الدولار فيها عملة مقابلة (EURUSD, GBPUSD)، فإن 0.01 لوت = 0.10 دولار لكل نقطة.
+
+#### الخطوة 4: استخدم المعادلة
+**حجم اللوت = مبلغ المخاطرة ($) / (وقف الخسارة بالنقاط * قيمة النقطة)**
+
+باستخدام مثالنا (مخاطرة 10 دولار / 20 نقطة):
+10 / (20 * 0.10) = 5 ميكرو لوت (**0.05 لوت**).
+
+### الأدوات والحاسبات
+بينما يعد إجراء الحسابات يدوياً أمراً جيداً للتعلم، يستخدم معظم المتداولين المحترفين **حاسبة حجم العقود** (Position Size Calculator) لإتمام ذلك في ثوانٍ. هذا يضمن الدقة ويوفر الوقت أثناء تحركات السوق السريعة.
+
+### نصيحة هامة
+احسب حجم اللوت دائماً *قبل* فتح الصفقة. لا تفتح صفقة أبداً ثم تبحث بعدها عن كم قد تخسر!`
+        }
+    },
+    {
+        id: 13,
+        slug: 'basic-risk-management',
+        date: '2024-04-02',
+        readingTime: '14',
+        image: '/images/blog/risk-management.png',
+        en: {
+            title: 'What is Risk Management? The Trader\'s Safety Net',
+            author: 'Abu Al-Dahab Experts',
+            excerpt: 'Understand why managing risk is the true secret to long-term profitability, regardless of your strategy.',
+            content: `
+## Introduction to Risk Management
+Ask 100 successful traders about their secret, and 99 will say "Risk Management." It is not about how much money you make; it's about how much money you *keep*. Even with a 40% win rate, you can be a millionaire if your risk management is solid.
+
+### The Foundation: Capital Preservation
+The market is a chaotic environment. Your capital is your "soldiers." If you lose all your soldiers, you are out of the game. Risk management is the strategy you use to keep your soldiers alive so they can fight tomorrow.
+
+### The Core Components
+1. **Position Sizing**: Determining exactly how much of your account is at stake in every trade.
+2. **Stop Loss (The Emergency Brake)**: An automatic order that says "I was wrong, and I'm getting out now before it gets worse."
+3. **Diversification**: Not putting all your capital into the same currency or the same type of trade.
+
+### The 2% Rule Explained
+The 2% rule is simple: You never risk more than 2% of your account balance on any single trade.
+- If you have $10,000, you never lose more than $200.
+To blow this account, you would need to lose **50 trades in a row**! Statistics prove that losing 50 times in a row with a basic strategy is almost impossible.
+
+### Emotional Control
+Risk management is also a psychological tool. When you know that a loss will only cost you 1%, you don't feel fear. You can sleep peacefully while your trades are open. High risk leads to high stress, and stress leads to bad decisions.
+
+### Summary
+Trading without risk management is gambling. Trading with risk management is a business. Decide today which one you want to be.`
+        },
+        ar: {
+            title: 'ما هي إدارة المخاطر؟ شبكة الأمان للمتداول',
+            author: 'خبراء مؤسسة أبو الذهب',
+            excerpt: 'افهم لماذا تعتبر إدارة المخاطر هي السر الحقيقي للربحية طويلة الأمد، بغض النظر عن استراتيجيتك.',
+            content: `
+## مقدمة في إدارة المخاطر
+اسأل 100 متداول ناجح عن سر نجاحهم، وسيجيب 99 منهم: "إدارة المخاطر". الأمر لا يتعلق بكمية المال التي تجنيها، بل بكمية المال التي *تحافظ عليها*. حتى مع نسبة نجاح صفقة تبلغ 40%، يمكنك أن تصبح مديراً للأموال إذا كانت إدارة مخاطرك قوية.
+
+### الأساس: الحفاظ على رأس المال
+السوق بيئة عشوائية. رأس مالك هو "جنودك". إذا فقدت كل جنودك، فأنت خارج اللعبة. إدارة المخاطر هي الاستراتيجية التي تستخدمها لإبقاء جنودك أحياء حتى يتمكنوا من القتال غداً.
+
+### المكونات الأساسية
+1. **تحديد حجم الصفقة**: تحديد مقدار المخاطرة الدقيق من حسابك في كل صفقة.
+2. **وقف الخسارة (فرامل الطوارئ)**: أمر تلقائي يقول "لقد كنت مخطئاً، وسأخرج الآن قبل أن يزداد الأمر سوءاً".
+3. **التنويع**: عدم وضع كل رأس مالك في نفس العملة أو نفس النوع من الصفقات.
+
+### شرح قاعدة الـ 2%
+قاعدة الـ 2% بسيطة: لا تخاطر أبداً بأكثر من 2% من رصيد حسابك في أي صفقة واحدة.
+- إذا كان لديك 10,000 دولار، فلن تخسر أبداً أكثر من 200 دولار.
+لتصفير هذا الحساب، ستحتاج لخسارة **50 صفقة متتالية**! تثبت الإحصائيات أن خسارة 50 مرة متتالية باستخدام استراتيجية بسيطة هو أمر شبه مستحيل.
+
+### التحكم العاطفي
+إدارة المخاطر هي أيضاً أداة نفسية. عندما تعلم أن الخسارة لن تكلفك سوى 1%، فلن تشعر بالخوف. يمكنك النوم بسلام بينما صفقاتك مفتوحة. المخاطرة العالية تؤدي لتوتر عالٍ، والتوتر يؤدي لقرارات خاطئة.
+
+### الخلاصة
+التداول بدون إدارة مخاطر هو مقامرة. التداول بإدارة مخاطر هو عمل تجاري. قرر اليوم أي نوع تريد أن تكون.`
         }
     }
 ];

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 export default function BlogIndex() {
-    const { t, lang, isRTL, mounted } = useLanguage();
+    const { t, lang, isRTL, mounted, toggleLang } = useLanguage();
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
@@ -16,12 +16,33 @@ export default function BlogIndex() {
     if (!mounted) return null;
 
     return (
-        <div className="blog-page">
+        <div className="blog-page" dir={isRTL ? 'rtl' : 'ltr'}>
             <header className="header">
                 <div className="container header-content">
-                    <a href="/" className="logo">
-                        <span className="btn-text-shine">{t.brand}</span>
-                    </a>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                        <a href="/" className="logo">
+                            <span className="btn-text-shine">{t.brand}</span>
+                        </a>
+                        <button
+                            onClick={toggleLang}
+                            className="lang-toggle-blog"
+                            style={{
+                                background: 'rgba(184, 134, 11, 0.1)',
+                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                borderRadius: '50px',
+                                padding: '0.4rem 1rem',
+                                color: 'var(--gold-primary)',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            🌐 {t.langSwitch}
+                        </button>
+                    </div>
                     <a href="/" className="back-link">
                         {t.backToHome}
                     </a>
