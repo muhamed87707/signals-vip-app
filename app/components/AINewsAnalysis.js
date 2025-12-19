@@ -25,9 +25,13 @@ export default function AINewsAnalysis({ data, onRefresh, isLoading }) {
         );
     }
 
-    // Extract sentiment data from the unified response
-    const analysisData = data.market_sentiment;
-    const topNews = data.top_news;
+    // Extract sentiment data from the unified response with safety
+    const analysisData = data?.market_sentiment || {
+        sentiment: lang === 'ar' ? 'جاري التحميل...' : 'Loading...',
+        color: '#ffd700',
+        summary: lang === 'ar' ? 'يتم الآن تحليل البيانات...' : 'Analyzing data...'
+    };
+    const topNews = Array.isArray(data?.top_news) ? data.top_news : [];
 
     return (
         <div className="ai-analysis-card animate-fade-in-up">
@@ -48,9 +52,9 @@ export default function AINewsAnalysis({ data, onRefresh, isLoading }) {
                             🔄
                         </button>
                     </div>
-                    <div className="sentiment-badge" style={{ color: analysisData.sentimentColor || '#ffd700' }}>
+                    <div className="sentiment-badge" style={{ color: analysisData.color || analysisData.sentimentColor || '#ffd700' }}>
                         {t.marketSentiment}: <strong>{analysisData.sentiment}</strong>
-                        {analysisData.lastUpdated && <span style={{ marginLeft: '1rem', fontSize: '0.8rem', opacity: 0.6 }}>({analysisData.lastUpdated})</span>}
+                        {data?.lastUpdated && <span style={{ marginLeft: '1rem', fontSize: '0.8rem', opacity: 0.6 }}>({data.lastUpdated})</span>}
                     </div>
                 </div>
             </div>

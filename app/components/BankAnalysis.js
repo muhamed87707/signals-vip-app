@@ -8,7 +8,7 @@ export default function BankAnalysis({ data }) {
     if (!mounted) return <div style={{ minHeight: '400px' }}></div>;
 
     // Skeleton Loading State
-    if (!data) return (
+    if (!data || !Array.isArray(data)) return (
         <div className="bank-analysis-card shimmer" style={{ minHeight: '300px' }}>
             <div className="bank-header">
                 <div className="bank-icon-seal">🏦</div>

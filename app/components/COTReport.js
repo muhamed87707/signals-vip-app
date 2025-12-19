@@ -8,7 +8,7 @@ export default function COTReport({ data }) {
     if (!mounted) return <div style={{ minHeight: '400px' }}></div>;
 
     // Skeleton Loading State
-    if (!data) return (
+    if (!data || !Array.isArray(data)) return (
         <div className="cot-report-card shimmer" style={{ minHeight: '300px' }}>
             <div className="cot-header">
                 <div className="cot-icon">📊</div>

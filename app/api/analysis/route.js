@@ -9,32 +9,34 @@ export async function GET(request) {
 
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // Fallback Mock Data if API Key is missing
+    // Fallback Mock Data if API Key is missing or invalid
     if (!apiKey || apiKey === 'your_key_here' || apiKey === '') {
         const mockData = {
-            en: {
-                sentiment: 'Neutral (Waiting for API)',
-                sentimentColor: '#888',
-                summary: "The AI is currently in 'Training Mode'. Once the Gemini API key is configured, you will receive real-time, dynamic market pulse summaries for Gold and Forex.",
-                topNews: [
-                    { title: "System Ready", impact: "High", desc: "Backend infrastructure for AI analysis is live." },
-                    { title: "Gemini Integration", impact: "High", desc: "Waiting for API credentials to enable live market scanning." }
-                ],
-                lastUpdated: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            market_sentiment: {
+                sentiment: lang === 'ar' ? 'وضع التدريب (بانتظار المفتاح)' : 'Training Mode (Waiting for API)',
+                color: '#ffd700',
+                summary: lang === 'ar'
+                    ? "الذكاء الاصطناعي حالياً في وضع الاستعداد. بمجرد إعداد مفتاح Gemini API في لوحة تحكم Vercel، ستبدأ اللوحة بعرض تحليلات الربط المؤسسي المباشرة."
+                    : "The AI is currently in standby. Once the Gemini API key is configured in your Vercel/Environment settings, the dashboard will display live institutional correlation intelligence."
             },
-            ar: {
-                sentiment: 'حيادي (بانتظار المفتاح)',
-                sentimentColor: '#888',
-                summary: "الذكاء الاصطناعي حالياً في 'وضع التدريب'. بمجرد إعداد مفتاح Gemini API، ستتلقى ملخصات ديناميكية ومباشرة لنبض السوق للذهب والفوركس.",
-                topNews: [
-                    { title: "النظام جاهز", impact: "عالي", desc: "البنية التحتية لتحليل الذكاء الاصطناعي جاهزة للعمل." },
-                    { title: "دمج Gemini", impact: "عالي", desc: "بانتظار بيانات الاعتماد لتفعيل مسح السوق المباشر." }
-                ],
-                lastUpdated: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-            }
+            cot_data: [
+                { asset: 'Gold', long: 50, short: 50, trend: 'neutral' },
+                { asset: 'EUR', long: 50, short: 50, trend: 'neutral' }
+            ],
+            bank_forecasts: [
+                { bank: 'System', asset: 'Setup', target: 'Live', bias: 'Updating' }
+            ],
+            top_news: [
+                {
+                    title: lang === 'ar' ? "النظام بانتظار التفعيل" : "System Awaiting Activation",
+                    impact: "High",
+                    desc: lang === 'ar' ? "يرجى إضافة GEMINI_API_KEY لتفعيل التحليل المباشر." : "Please add GEMINI_API_KEY to enable live analysis."
+                }
+            ],
+            lastUpdated: new Date().toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' })
         };
 
-        return NextResponse.json(mockData[lang === 'ar' ? 'ar' : 'en']);
+        return NextResponse.json(mockData);
     }
 
     try {
