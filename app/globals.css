@@ -1819,15 +1819,15 @@ h6 {
 
 @media (max-width: 768px) {
     .floating-chat-container {
-        bottom: 1.5rem;
-        right: 1.5rem;
+        bottom: 1rem;
+        right: 1rem;
     }
     [dir="rtl"] .floating-chat-container {
-        left: 1.5rem;
+        left: 1rem;
     }
     .floating-chat-btn {
-        width: 50px;
-        height: 50px;
+        width: 56px;
+        height: 56px;
         font-size: 1.25rem;
     }
 }
