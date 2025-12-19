@@ -39,7 +39,7 @@ export async function GET(request) {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
         const prompt = lang === 'ar'
             ? "قم بتحليل سوق الذهب والفوركس (العملات الرئيسية) حالياً بناءً على ما تعرفه عن تاريخ ديسمبر 2025. أعطني النتيجة بتنسيق JSON حصراً يحتوي على: sentiment (كلمة واحدة), sentimentColor (كود هيكس), summary (فقرة من 3 أسطر), topNews (مصفوفة من 3 عناصر تحتوي title, impact, desc). اللغة يجب أن تكون العربية."
