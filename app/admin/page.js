@@ -52,60 +52,75 @@ export default function AdminPage() {
     const [postToTelegram, setPostToTelegram] = useState(true);
 
     // ===== NEW: Signal Type & AI Post Generation =====
-    const [signalType, setSignalType] = useState('vip'); // 'vip' or 'free'
-    const [customPost, setCustomPost] = useState('');
-    const [aiPrompt, setAiPrompt] = useState('');
-    const [geminiApiKey, setGeminiApiKey] = useState('AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY');
-    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
+    // Use lazy initialization to load from localStorage on first render
+    const [signalType, setSignalType] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('admin-signal-type') || 'vip';
+        }
+        return 'vip';
+    });
+    const [customPost, setCustomPost] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('admin-custom-post') || '';
+        }
+        return '';
+    });
+    const [aiPrompt, setAiPrompt] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('admin-ai-prompt') || '';
+        }
+        return '';
+    });
+    const [geminiApiKey, setGeminiApiKey] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('admin-gemini-key') || 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
+        }
+        return 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
+    });
+    const [selectedModel, setSelectedModel] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('admin-selected-model') || 'gemini-2.0-flash';
+        }
+        return 'gemini-2.0-flash';
+    });
     const [availableModels, setAvailableModels] = useState([]);
     const [modelsLoading, setModelsLoading] = useState(false);
     const [generatedPosts, setGeneratedPosts] = useState([]);
     const [generatingPosts, setGeneratingPosts] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(-1);
+    const [settingsLoaded, setSettingsLoaded] = useState(false);
 
-    // Load saved settings from localStorage
+    // Mark settings as loaded after first render
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedApiKey = localStorage.getItem('admin-gemini-key');
-            const savedPrompt = localStorage.getItem('admin-ai-prompt');
-            const savedModel = localStorage.getItem('admin-selected-model');
-            const savedPost = localStorage.getItem('admin-custom-post');
-            const savedType = localStorage.getItem('admin-signal-type');
-
-            if (savedApiKey) setGeminiApiKey(savedApiKey);
-            if (savedPrompt) setAiPrompt(savedPrompt);
-            if (savedModel) setSelectedModel(savedModel);
-            if (savedPost) setCustomPost(savedPost);
-            if (savedType) setSignalType(savedType);
-        }
+        setSettingsLoaded(true);
     }, []);
 
-    // Save settings to localStorage on change
+    // Save settings to localStorage on change (only after initial load)
     useEffect(() => {
-        if (typeof window !== 'undefined' && geminiApiKey) {
+        if (settingsLoaded && typeof window !== 'undefined' && geminiApiKey) {
             localStorage.setItem('admin-gemini-key', geminiApiKey);
         }
-    }, [geminiApiKey]);
+    }, [geminiApiKey, settingsLoaded]);
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (settingsLoaded && typeof window !== 'undefined') {
             localStorage.setItem('admin-ai-prompt', aiPrompt);
         }
-    }, [aiPrompt]);
+    }, [aiPrompt, settingsLoaded]);
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (settingsLoaded && typeof window !== 'undefined') {
             localStorage.setItem('admin-selected-model', selectedModel);
         }
-    }, [selectedModel]);
+    }, [selectedModel, settingsLoaded]);
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (settingsLoaded && typeof window !== 'undefined') {
             localStorage.setItem('admin-custom-post', customPost);
         }
-    }, [customPost]);
+    }, [customPost, settingsLoaded]);
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (settingsLoaded && typeof window !== 'undefined') {
             localStorage.setItem('admin-signal-type', signalType);
         }
-    }, [signalType]);
+    }, [signalType, settingsLoaded]);
 
     useEffect(() => {
 
