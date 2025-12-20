@@ -792,7 +792,7 @@ export default function AdminPage() {
                                 opacity: !customPost.trim() ? 0.5 : 1
                             }}
                         >
-                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? '🚀 توليد 50 نسخة بالذكاء الاصطناعي' : '🚀 Generate 50 AI Variations')}
+                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة بالذكاء الاصطناعي` : `🚀 Generate ${postCount} AI Variations`)}
                         </button>
                     </div>
 
