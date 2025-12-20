@@ -148,35 +148,8 @@ export default function AdminPage() {
         if (manual) setSavingSettings(false);
     };
 
-    // Effects to trigger save when specific fields change (after load)
-    useEffect(() => {
-        if (!settingsLoaded) return;
-        const timer = setTimeout(() => {
-            saveSettingsToDB({ generatedPostCount: postCount });
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, [postCount, settingsLoaded]);
-
-    useEffect(() => {
-        if (!settingsLoaded) return;
-        const timer = setTimeout(() => {
-            saveSettingsToDB({ geminiApiKey });
-        }, 1000); // Debounce 1s
-        return () => clearTimeout(timer);
-    }, [geminiApiKey, settingsLoaded]);
-
-    useEffect(() => {
-        if (!settingsLoaded) return;
-        const timer = setTimeout(() => {
-            saveSettingsToDB({ aiPrompt });
-        }, 2000); // Extended debounce for text area
-        return () => clearTimeout(timer);
-    }, [aiPrompt, settingsLoaded]);
-
-    useEffect(() => {
-        if (!settingsLoaded) return;
-        saveSettingsToDB({ selectedModel });
-    }, [selectedModel, settingsLoaded]);
+    // Auto-save effects REMOVED to prevent race conditions.
+    // User must click "Save Settings" manually.
 
     useEffect(() => {
 
