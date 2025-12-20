@@ -30,7 +30,7 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonType = 'view_signal') {
+async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonType = 'none') {
     if (!imageUrl) return null;
 
     try {
@@ -73,8 +73,7 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
                 { text: "🔥 Subscribe Now | اشترك الآن 🔥", url: "https://t.me/AbouAlDahab_bot" }
             ]];
         } else if (buttonType === 'view_signal') {
-            // View Signal Button (Standard)
-            // User requested to unify the name to "Show Signal | إظهار التوصية" to match the site
+            // View Signal Button (Standard) - Unify Label
             const btnLabel = "💎 Show Signal | إظهار التوصية 💎";
             inlineKeyboard = [[
                 { text: btnLabel, url: "https://signals-vip-app.vercel.app/signals" }
