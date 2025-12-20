@@ -67,7 +67,8 @@ export default function AdminPage() {
     const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false); // Manual Save state
     const [telegramButtonType, setTelegramButtonType] = useState('view_signal'); // Default: View Signal
-    const [editingId, setEditingId] = useState(null); // ID of signal being edited
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState(null);
 
     // FETCH SETTINGS FROM DB ON MOUNT
     useEffect(() => {
@@ -203,6 +204,63 @@ export default function AdminPage() {
         } catch (err) {
             console.error('Error fetching users:', err);
         }
+    };
+
+    const handleEdit = (signal) => {
+        setCustomPost(signal.customPost || '');
+        setIsEditing(true);
+        setEditingId(signal._id);
+        setSuccessMessage('');
+        setError('');
+        // Scroll to form (Top)
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditingId(null);
+        setCustomPost('');
+        setError('');
+    };
+
+    const handleUpdate = async () => {
+        if (!editingId) return;
+        setUploading(true);
+        setSuccessMessage('');
+        setError('');
+
+        try {
+            let postToUse = customPost;
+            // Apply auto-bold logic same as processFile
+            if (postToUse && postToUse.trim()) {
+                const cleanPost = postToUse.trim();
+                if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
+                    postToUse = `*${cleanPost}*`;
+                }
+            }
+
+            const res = await fetch('/api/signals', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: editingId,
+                    customPost: postToUse
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                setSuccessMessage(lang === 'ar' ? 'تم تحديث المنشور بنجاح!' : 'Signal updated successfully!');
+                handleCancelEdit();
+                fetchSignals();
+            } else {
+                setError(t.postError);
+            }
+        } catch (err) {
+            console.error('Update error:', err);
+            setError(t.postError);
+        }
+        setUploading(false);
     };
 
     // ===== NEW: Fetch Gemini Models =====
@@ -392,11 +450,7 @@ export default function AdminPage() {
     };
 
     const handlePublish = () => {
-        if (selectedFile) {
-            processFile(selectedFile);
-        } else if (editingId) {
-            processFile(null);
-        }
+        if (selectedFile) processFile(selectedFile);
     };
 
     const cancelPreview = () => {
@@ -411,651 +465,623 @@ export default function AdminPage() {
         setSuccessMessage('');
         setError('');
 
-        const startProcessing = async (base64Image = null) => {
-            // Get the post to use
-            let postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
-                ? generatedPosts[selectedPostIndex]
-                : customPost;
+        try {
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64Image = reader.result;
 
-            // AUTO-BOLD LOGIC: Wrap in * for Telegram Markdown
-            // We trim it first, then wrap.
-            if (postToUse && postToUse.trim()) {
-                const cleanPost = postToUse.trim();
-                // Avoid double wrapping if already wrapped
-                if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
-                    postToUse = `*${cleanPost}*`;
+                // Get the post to use
+                let postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
+                    ? generatedPosts[selectedPostIndex]
+                    : customPost;
+
+                // AUTO-BOLD LOGIC: Wrap in * for Telegram Markdown
+                // We trim it first, then wrap.
+                if (postToUse && postToUse.trim()) {
+                    const cleanPost = postToUse.trim();
+                    // Avoid double wrapping if already wrapped
+                    if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
+                        postToUse = `*${cleanPost}*`;
+                    }
                 }
-            }
 
-            // Only create blurred image for VIP signals
-            let telegramImage = null;
-            if (postToTelegram && signalType === 'vip') {
-                try {
-                    telegramImage = await createBlurredImage(file);
-                } catch (blurErr) {
-                    console.error('Blur failed', blurErr);
+                // Only create blurred image for VIP signals
+                let telegramImage = null;
+                if (postToTelegram && signalType === 'vip') {
+                    try {
+                        telegramImage = await createBlurredImage(file);
+                    } catch (blurErr) {
+                        console.error('Blur failed', blurErr);
+                    }
                 }
-            }
 
-            // If editing existing signal, call PUT instead
-            if (editingId) {
-                const upRes = await fetch('/api/signals', {
-                    method: 'PUT',
+                const res = await fetch('/api/signals', {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        id: editingId,
-                        customPost: postToUse
+                        pair: 'GOLD',
+                        type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
+                        imageUrl: base64Image,
+                        telegramImage: telegramImage,
+                        sendToTelegram: postToTelegram,
+                        isVip: signalType === 'vip',
+                        customPost: postToUse || null,
+                        telegramButtonType: telegramButtonType
                     })
                 });
-                const upData = await upRes.json();
-                if (upData.success) {
-                    setSuccessMessage(t.postSuccess + " (Updated)");
+
+                const data = await res.json();
+                if (data.success) {
+                    let msg = t.postSuccess;
+                    if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
+                    setSuccessMessage(msg);
                     fetchSignals();
-                    setEditingId(null);
-                    setCustomPost('');
+                    // Clear state
                     setGeneratedPosts([]);
                     setSelectedPostIndex(-1);
                     setPreviewData(null);
                     setSelectedFile(null);
+                    setCustomPost('');
                 } else {
                     setError(t.postError);
                 }
                 setUploading(false);
-                return;
-            }
+            };
+            reader.readAsDataURL(file);
+        } catch (err) {
+            console.error('Upload error:', err);
+            setError(t.uploadError);
+            setUploading(false);
+        }
+    };
 
-            const res = await fetch('/api/signals', {
+    const handleGrantVip = async (e) => {
+        e.preventDefault();
+        if (!telegramId) return;
+        setVipLoading(true);
+        setVipMessage({ type: '', text: '' });
+        try {
+            const res = await fetch('/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    pair: 'GOLD',
-                    type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
-                    imageUrl: base64Image,
-                    telegramImage: telegramImage,
-                    sendToTelegram: postToTelegram,
-                    isVip: signalType === 'vip',
-                    customPost: postToUse || null,
-                    telegramButtonType: telegramButtonType
+                    telegramId,
+                    isVip: true,
+                    durationMonths,
+                    isLifetime
                 })
             });
-
             const data = await res.json();
             if (data.success) {
-                let msg = t.postSuccess;
-                if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
-                setSuccessMessage(msg);
-                fetchSignals();
-                // Clear state
-                setGeneratedPosts([]);
-                setSelectedPostIndex(-1);
-                setPreviewData(null);
-                setSelectedFile(null);
-                setCustomPost('');
+                setVipMessage({ type: 'success', text: t.vipSuccess });
+                setTelegramId('');
+                setDurationMonths('');
+                setIsLifetime(false);
+                fetchUsers();
             } else {
-                setError(t.postError);
+                setVipMessage({ type: 'error', text: t.vipError });
             }
-            setUploading(false);
-        };
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => startProcessing(reader.result);
-            reader.readAsDataURL(file);
-        } else {
-            startProcessing(null);
-        }
-    } catch (err) {
-        console.error('Upload error:', err);
-        setError(t.uploadError);
-        setUploading(false);
-    }
-};
-
-const handleGrantVip = async (e) => {
-    e.preventDefault();
-    if (!telegramId) return;
-    setVipLoading(true);
-    setVipMessage({ type: '', text: '' });
-    try {
-        const res = await fetch('/api/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                telegramId,
-                isVip: true,
-                durationMonths,
-                isLifetime
-            })
-        });
-        const data = await res.json();
-        if (data.success) {
-            setVipMessage({ type: 'success', text: t.vipSuccess });
-            setTelegramId('');
-            setDurationMonths('');
-            setIsLifetime(false);
-            fetchUsers();
-        } else {
+        } catch (err) {
             setVipMessage({ type: 'error', text: t.vipError });
         }
-    } catch (err) {
-        setVipMessage({ type: 'error', text: t.vipError });
-    }
-    setVipLoading(false);
-};
+        setVipLoading(false);
+    };
 
-const handleRemoveUser = async (tid) => {
-    if (!confirm('Are you sure you want to remove this user from the VIP list?')) return;
-    try {
-        const res = await fetch('/api/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ telegramId: tid, removeUser: true })
-        });
-        const data = await res.json();
-        if (data.success) {
-            fetchUsers();
+    const handleRemoveUser = async (tid) => {
+        if (!confirm('Are you sure you want to remove this user from the VIP list?')) return;
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId: tid, removeUser: true })
+            });
+            const data = await res.json();
+            if (data.success) {
+                fetchUsers();
+            }
+        } catch (err) {
+            console.error(err);
         }
-    } catch (err) {
-        console.error(err);
-    }
-};
+    };
 
-const deleteSignal = async (id) => {
-    if (!confirm(t.deleteConfirm)) return;
-    try {
-        const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.success) {
-            fetchSignals();
+    const deleteSignal = async (id) => {
+        if (!confirm(t.deleteConfirm)) return;
+        try {
+            const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                fetchSignals();
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
         }
-    } catch (err) {
-        console.error('Delete error:', err);
+    };
+
+    if (!mounted) return null;
+
+    if (!isAuthenticated) {
+        return (
+            <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
+                    </div>
+                    <form onSubmit={handleLogin}>
+                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
+                        {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
+                        <button type="submit" className="btn-primary" style={{ width: '100%' }}>{t.login}</button>
+                    </form>
+                </div>
+            </div>
+        );
     }
-};
 
-if (!mounted) return null;
-
-if (!isAuthenticated) {
     return (
-        <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-            <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
-                    <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
+        <div style={{ minHeight: '100vh', background: '#080808', padding: '2rem' }} onPaste={handlePaste}>
+            <div className="container">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsDashboard}</h1>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
+                        <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', borderRadius: '50px', color: '#ef4444', cursor: 'pointer' }}>{t.logout}</button>
+                    </div>
                 </div>
-                <form onSubmit={handleLogin}>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
-                    {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
-                    <button type="submit" className="btn-primary" style={{ width: '100%' }}>{t.login}</button>
-                </form>
-            </div>
-        </div>
-    );
-}
 
-return (
-    <div style={{ minHeight: '100vh', background: '#080808', padding: '2rem' }} onPaste={handlePaste}>
-        <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsDashboard}</h1>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
-                    <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', borderRadius: '50px', color: '#ef4444', cursor: 'pointer' }}>{t.logout}</button>
-                </div>
-            </div>
+                {/* Old VIP Section Removed - Moved to Bottom */}
 
-            {/* Old VIP Section Removed - Moved to Bottom */}
-
-            <div className="card" style={{ padding: '2rem', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>📤</div>
-                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', textAlign: 'center' }}>{t.postNewSignal}</h2>
-
-                {/* 1. IMAGE UPLOAD SECTION (Top) */}
-                <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                    {!previewData ? (
-                        <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1.5rem 3rem', width: '100%', border: '2px dashed #444' }}>
-                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📸</div>
-                            {lang === 'ar' ? 'اضغط هنا لاختيار صورة' : 'Click to Upload Image'}
-                        </label>
-                    ) : (
-                        <div style={{ position: 'relative', display: 'inline-block', border: '1px solid #DAA520', borderRadius: '12px', overflow: 'hidden' }}>
-                            <img src={previewData} alt="Preview" style={{ maxHeight: '200px', display: 'block', opacity: 0.6 }} />
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <button onClick={cancelPreview} style={{ background: 'rgba(0,0,0,0.8)', border: '1px solid #ef4444', color: '#ef4444', padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer' }}>
-                                    {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
-                                </button>
-                            </div>
+                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)', position: 'relative' }}>
+                    {isEditing && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '-15px',
+                            right: '20px',
+                            background: '#DAA520',
+                            color: '#000',
+                            padding: '0.4rem 1rem',
+                            borderRadius: '20px',
+                            fontWeight: 'bold',
+                            fontSize: '0.8rem',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
+                        }}>
+                            ✏️ {lang === 'ar' ? 'وضع التعديل' : 'Edit Mode'}
                         </div>
                     )}
-                </div>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>📤</div>
+                    <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', textAlign: 'center' }}>{t.postNewSignal}</h2>
 
-                {/* 2. SIGNAL TYPE TOGGLE */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                    <button
-                        onClick={() => setSignalType('vip')}
-                        style={{
-                            padding: '1rem',
-                            background: signalType === 'vip' ? '#DAA520' : '#1a1a20',
-                            border: `1px solid ${signalType === 'vip' ? '#DAA520' : '#333'}`,
-                            borderRadius: '12px',
-                            color: signalType === 'vip' ? '#000' : '#fff',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        � VIP (Blurred)
-                    </button>
-                    <button
-                        onClick={() => setSignalType('free')}
-                        style={{
-                            padding: '1rem',
-                            background: signalType === 'free' ? '#DAA520' : '#1a1a20',
-                            border: `1px solid ${signalType === 'free' ? '#DAA520' : '#333'}`,
-                            borderRadius: '12px',
-                            color: signalType === 'free' ? '#000' : '#fff',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        🎁 Free (Clear)
-                    </button>
-                    <button
-                        onClick={() => setSignalType('regular')}
-                        style={{
-                            padding: '1rem',
-                            background: signalType === 'regular' ? '#DAA520' : '#1a1a20',
-                            border: `1px solid ${signalType === 'regular' ? '#DAA520' : '#333'}`,
-                            borderRadius: '12px',
-                            color: signalType === 'regular' ? '#000' : '#fff',
-                            fontWeight: '700',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        📝 {lang === 'ar' ? 'منشور عادي' : 'Regular Post'}
-                    </button>
-                </div>
+                    {/* 1. IMAGE UPLOAD SECTION (Top) */}
+                    <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
+                        {!previewData ? (
+                            <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1.5rem 3rem', width: '100%', border: '2px dashed #444' }}>
+                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📸</div>
+                                {lang === 'ar' ? 'اضغط هنا لاختيار صورة' : 'Click to Upload Image'}
+                            </label>
+                        ) : (
+                            <div style={{ position: 'relative', display: 'inline-block', border: '1px solid #DAA520', borderRadius: '12px', overflow: 'hidden' }}>
+                                <img src={previewData} alt="Preview" style={{ maxHeight: '200px', display: 'block', opacity: 0.6 }} />
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <button onClick={cancelPreview} style={{ background: 'rgba(0,0,0,0.8)', border: '1px solid #ef4444', color: '#ef4444', padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer' }}>
+                                        {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
-                {/* 3. POST TEXT & AI */}
-                <div style={{ marginBottom: '2rem' }}>
-                    <label style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem', display: 'block' }}>
-                        ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
-                    </label>
-                    <textarea
-                        value={customPost}
-                        onChange={(e) => setCustomPost(e.target.value)}
-                        placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
-                        style={{
-                            width: '100%',
-                            minHeight: '120px',
-                            padding: '1rem',
-                            background: '#13131d',
-                            border: '1px solid #2a2a35',
-                            borderRadius: '12px',
-                            color: '#fff',
-                            fontSize: '1rem',
-                            resize: 'vertical'
-                        }}
-                    />
-                </div>
+                    {/* 2. SIGNAL TYPE TOGGLE */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                        <button
+                            onClick={() => setSignalType('vip')}
+                            style={{
+                                padding: '1rem',
+                                background: signalType === 'vip' ? '#DAA520' : '#1a1a20',
+                                border: `1px solid ${signalType === 'vip' ? '#DAA520' : '#333'}`,
+                                borderRadius: '12px',
+                                color: signalType === 'vip' ? '#000' : '#fff',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            � VIP (Blurred)
+                        </button>
+                        <button
+                            onClick={() => setSignalType('free')}
+                            style={{
+                                padding: '1rem',
+                                background: signalType === 'free' ? '#DAA520' : '#1a1a20',
+                                border: `1px solid ${signalType === 'free' ? '#DAA520' : '#333'}`,
+                                borderRadius: '12px',
+                                color: signalType === 'free' ? '#000' : '#fff',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            🎁 Free (Clear)
+                        </button>
+                        <button
+                            onClick={() => setSignalType('regular')}
+                            style={{
+                                padding: '1rem',
+                                background: signalType === 'regular' ? '#DAA520' : '#1a1a20',
+                                border: `1px solid ${signalType === 'regular' ? '#DAA520' : '#333'}`,
+                                borderRadius: '12px',
+                                color: signalType === 'regular' ? '#000' : '#fff',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            📝 {lang === 'ar' ? 'منشور عادي' : 'Regular Post'}
+                        </button>
+                    </div>
 
-                {/* AI Settings */}
-                <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
-                    <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
-                        🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
-                    </summary>
-                    <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {/* Manual Save */}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <label style={{ color: '#DAA520', fontSize: '1rem' }}>
+                                ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
+                            </label>
+                            {isEditing && (
+                                <button onClick={handleCancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    ✖ {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
+                                </button>
+                            )}
+                        </div>
+                        <textarea
+                            value={customPost}
+                            onChange={(e) => setCustomPost(e.target.value)}
+                            placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
+                            style={{
+                                width: '100%',
+                                minHeight: '120px',
+                                padding: '1rem',
+                                background: '#13131d',
+                                border: '1px solid #2a2a35',
+                                borderRadius: '12px',
+                                color: '#fff',
+                                fontSize: '1rem',
+                                resize: 'vertical'
+                            }}
+                        />
+                    </div>
+
+                    {isEditing && (
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
                             <button
-                                onClick={() => saveSettingsToDB(null, true)}
-                                disabled={savingSettings}
+                                onClick={handleUpdate}
+                                disabled={uploading || !customPost.trim()}
                                 style={{
-                                    padding: '0.5rem 1.5rem',
-                                    background: '#4CAF50',
-                                    color: '#fff',
+                                    padding: '1rem 3rem',
+                                    background: 'linear-gradient(135deg, #DAA520, #B8860B)',
                                     border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: savingSettings ? 'wait' : 'pointer',
-                                    fontWeight: 'bold',
-                                    fontSize: '0.85rem'
+                                    borderRadius: '50px',
+                                    color: '#000',
+                                    fontWeight: '800',
+                                    fontSize: '1.1rem',
+                                    cursor: uploading ? 'wait' : 'pointer',
+                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.4)'
                                 }}
                             >
-                                💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
+                                {uploading ? (lang === 'ar' ? 'جاري التعديل...' : 'Updating...') : (lang === 'ar' ? '🔄 تحديث المنشور الآن' : '🔄 Update Signal Now')}
                             </button>
                         </div>
-                        {/* API Key */}
-                        <div>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
-                            <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
-                        </div>
-                        {/* Model & Count */}
-                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                            <div style={{ flex: 2, minWidth: '200px' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
-                                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                                        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                                        {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
-                                    </select>
-                                    <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
+                    )}
+
+                    {/* AI Settings */}
+                    <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
+                        <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
+                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
+                        </summary>
+                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {/* Manual Save */}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button
+                                    onClick={() => saveSettingsToDB(null, true)}
+                                    disabled={savingSettings}
+                                    style={{
+                                        padding: '0.5rem 1.5rem',
+                                        background: '#4CAF50',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: savingSettings ? 'wait' : 'pointer',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.85rem'
+                                    }}
+                                >
+                                    💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
+                                </button>
+                            </div>
+                            {/* API Key */}
+                            <div>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
+                                <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                            </div>
+                            {/* Model & Count */}
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <div style={{ flex: 2, minWidth: '200px' }}>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
+                                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                                            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                                            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                                            {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
+                                        </select>
+                                        <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
+                                    </div>
+                                </div>
+                                <div style={{ flex: 1, minWidth: '150px' }}>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
+                                    <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                                 </div>
                             </div>
-                            <div style={{ flex: 1, minWidth: '150px' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
-                                <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                            {/* Prompt */}
+                            <div>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
+                                <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                             </div>
                         </div>
-                        {/* Prompt */}
-                        <div>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
-                            <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
-                        </div>
-                    </div>
-                </details>
+                    </details>
 
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
-                        {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
-                    </button>
-                </div>
-
-                {/* Gallery */}
-                {generatedPosts.length > 0 && (
-                    <div style={{ marginBottom: '2rem' }}>
-                        <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', padding: '0.5rem', background: '#0a0a0f', borderRadius: '12px', border: '1px solid #2a2a35' }}>
-                            {generatedPosts.map((post, idx) => (
-                                <div key={idx} onClick={() => setSelectedPostIndex(idx)} style={{ padding: '1rem', background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d', border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                                    <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* 4. TELEGRAM BUTTONS (Wide) */}
-                <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#0f0f15', borderRadius: '16px', border: '1px solid #2a2a35' }}>
-                    {/* Telegram Toggle */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
-                        </div>
-                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                        <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
+                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
+                        </button>
                     </div>
 
-                    {postToTelegram && (
-                        <div style={{ marginTop: '1rem' }}>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
-                                🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
-                            </label>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
-                                {[
-                                    { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
-                                    { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
-                                    { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
-                                    { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
-                                ].map((btn) => (
-                                    <button
-                                        key={btn.id}
-                                        onClick={() => setTelegramButtonType(btn.id)}
-                                        style={{
-                                            padding: '1rem',
-                                            background: telegramButtonType === btn.id ? '#229ED9' : '#1a1a20',
-                                            border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#333'}`,
-                                            borderRadius: '8px',
-                                            color: '#fff',
-                                            fontSize: '1rem',
-                                            fontWeight: telegramButtonType === btn.id ? 'bold' : 'normal',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            textAlign: 'center'
-                                        }}
-                                    >
-                                        {btn.label}
-                                    </button>
+                    {/* Gallery */}
+                    {generatedPosts.length > 0 && (
+                        <div style={{ marginBottom: '2rem' }}>
+                            <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', padding: '0.5rem', background: '#0a0a0f', borderRadius: '12px', border: '1px solid #2a2a35' }}>
+                                {generatedPosts.map((post, idx) => (
+                                    <div key={idx} onClick={() => setSelectedPostIndex(idx)} style={{ padding: '1rem', background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d', border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                        <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
-                </div>
 
-                {/* 5. FINAL PREVIEW (Bottom) */}
-                {previewData && (
-                    <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
-                        <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
-                        <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
-                            <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
+                    {/* 4. TELEGRAM BUTTONS (Wide) */}
+                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#0f0f15', borderRadius: '16px', border: '1px solid #2a2a35' }}>
+                        {/* Telegram Toggle */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                            </div>
+                            <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                         </div>
-                        <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #333', textAlign: 'left', direction: lang === 'ar' ? 'rtl' : 'ltr', marginBottom: '1.5rem' }}>
-                            <p style={{ color: '#fff', margin: 0, fontWeight: 'bold' }}>
-                                {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
-                            </p>
-                        </div>
-                        <button
-                            onClick={handlePublish}
-                            disabled={uploading}
-                            style={{
-                                padding: '1rem 3rem',
-                                background: editingId ? '#4caf50' : 'linear-gradient(135deg, #B8860B, #DAA520)',
-                                border: 'none',
-                                borderRadius: '50px',
-                                color: editingId ? '#fff' : '#000',
-                                fontWeight: '800',
-                                fontSize: '1.1rem',
-                                cursor: uploading ? 'wait' : 'pointer',
-                                boxShadow: editingId ? '0 4px 15px rgba(76, 175, 80, 0.3)' : '0 4px 15px rgba(184, 134, 11, 0.5)'
-                            }}
-                        >
-                            {uploading ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (editingId ? (lang === 'ar' ? '✅ تحديث وحفظ' : '✅ Update & Save') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish'))}
-                        </button>
-                        {editingId && (
-                            <button
-                                onClick={() => {
-                                    setEditingId(null);
-                                    setCustomPost('');
-                                    setPreviewData(null);
-                                }}
-                                style={{
-                                    display: 'block',
-                                    margin: '1rem auto 0',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: '#888',
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline'
-                                }}
-                            >
-                                {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
-                            </button>
+
+                        {postToTelegram && (
+                            <div style={{ marginTop: '1rem' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
+                                    🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
+                                </label>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
+                                    {[
+                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
+                                        { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
+                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
+                                        { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
+                                    ].map((btn) => (
+                                        <button
+                                            key={btn.id}
+                                            onClick={() => setTelegramButtonType(btn.id)}
+                                            style={{
+                                                padding: '1rem',
+                                                background: telegramButtonType === btn.id ? '#229ED9' : '#1a1a20',
+                                                border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#333'}`,
+                                                borderRadius: '8px',
+                                                color: '#fff',
+                                                fontSize: '1rem',
+                                                fontWeight: telegramButtonType === btn.id ? 'bold' : 'normal',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                textAlign: 'center'
+                                            }}
+                                        >
+                                            {btn.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </div>
-                )}
-            </div>
 
-            <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
-
-            {/* Full Width Grid Layout - Matches User Request */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
-                {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
-                    <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
-                        <div style={{ position: 'relative' }}>
-                            <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    {/* 5. FINAL PREVIEW (Bottom) */}
+                    {previewData && (
+                        <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
+                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
+                            <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
+                                <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
+                            </div>
+                            <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #333', textAlign: 'left', direction: lang === 'ar' ? 'rtl' : 'ltr', marginBottom: '1.5rem' }}>
+                                <p style={{ color: '#fff', margin: 0, fontWeight: 'bold' }}>
+                                    {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
+                                </p>
+                            </div>
+                            <button
+                                onClick={handlePublish}
+                                disabled={uploading}
+                                style={{
+                                    padding: '1rem 3rem',
+                                    background: 'linear-gradient(135deg, #B8860B, #DAA520)',
+                                    border: 'none',
+                                    borderRadius: '50px',
+                                    color: '#000',
+                                    fontWeight: '800',
+                                    fontSize: '1.1rem',
+                                    cursor: uploading ? 'wait' : 'pointer',
+                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
+                                }}
+                            >
+                                {uploading ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish')}
+                            </button>
                         </div>
-                        <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                            <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <button
-                                    onClick={() => {
-                                        setEditingId(signal._id);
-                                        setPreviewData(signal.imageUrl);
-                                        // Extract text from bold markdown if present
-                                        let txt = signal.customPost || '';
-                                        if (txt.startsWith('*') && txt.endsWith('*')) {
-                                            txt = txt.slice(1, -1);
-                                        }
-                                        setCustomPost(txt);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        background: 'rgba(74, 158, 217, 0.1)',
-                                        border: '1px solid #4a9ed9',
-                                        color: '#4a9ed9',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    {lang === 'ar' ? 'تعديل' : 'Edit'}
-                                </button>
-                                <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                    )}
+                </div>
+
+                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
+
+                {/* Full Width Grid Layout - Matches User Request */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
+                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
+                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
+                            <div style={{ position: 'relative' }}>
+                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                            </div>
+                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', gap: '0.5rem' }}>
+                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button onClick={() => handleEdit(signal)} style={{ padding: '0.5rem 1rem', background: 'rgba(218, 165, 32, 0.1)', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '8px', color: '#DAA520', cursor: 'pointer' }}>{lang === 'ar' ? 'تعديل' : 'Edit'}</button>
+                                    <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                                </div>
                             </div>
                         </div>
+                    ))}
+                </div>
+
+                {/* VIP Management Section - Moved to Bottom */}
+                <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
+                    <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
+
+                    {/* Add VIP Form */}
+                    <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
+                        <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.2rem' }}>{t.addNewVip}</h3>
+                        <form onSubmit={handleGrantVip} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'end' }}>
+                            <div style={{ flex: 1, minWidth: '200px' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.telegramIdPlaceholder}</label>
+                                <input
+                                    type="text"
+                                    value={telegramId}
+                                    onChange={(e) => setTelegramId(e.target.value)}
+                                    placeholder="e.g. 123456789"
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        background: '#13131d',
+                                        border: '1px solid #2a2a35',
+                                        borderRadius: '8px',
+                                        color: '#fff'
+                                    }}
+                                    required
+                                />
+                            </div>
+
+                            <div style={{ minWidth: '150px' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.durationMonths || 'Duration (Months)'}</label>
+                                <input
+                                    type="number"
+                                    value={durationMonths}
+                                    onChange={(e) => setDurationMonths(e.target.value)}
+                                    placeholder="e.g. 1, 3, 12"
+                                    disabled={isLifetime}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.8rem',
+                                        background: isLifetime ? '#0f0f15' : '#13131d',
+                                        border: '1px solid #2a2a35',
+                                        borderRadius: '8px',
+                                        color: isLifetime ? '#555' : '#fff'
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', height: '45px', padding: '0 1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px' }}>
+                                <input
+                                    type="checkbox"
+                                    id="lifetime"
+                                    checked={isLifetime}
+                                    onChange={(e) => setIsLifetime(e.target.checked)}
+                                    style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                                <label htmlFor="lifetime" style={{ color: '#fff', cursor: 'pointer', userSelect: 'none' }}>{t.lifetime || 'Lifetime'}</label>
+                            </div>
+
+                            <button type="submit" className="btn-primary" style={{ height: '45px', padding: '0 2rem' }}>
+                                {vipLoading ? '...' : t.grantVip}
+                            </button>
+                        </form>
+                        {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
                     </div>
-                ))}
-            </div>
 
-            {/* VIP Management Section - Moved to Bottom */}
-            <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
-                <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
-
-                {/* Add VIP Form */}
-                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
-                    <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.2rem' }}>{t.addNewVip}</h3>
-                    <form onSubmit={handleGrantVip} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'end' }}>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.telegramIdPlaceholder}</label>
-                            <input
-                                type="text"
-                                value={telegramId}
-                                onChange={(e) => setTelegramId(e.target.value)}
-                                placeholder="e.g. 123456789"
-                                style={{
-                                    width: '100%',
-                                    padding: '0.8rem',
-                                    background: '#13131d',
-                                    border: '1px solid #2a2a35',
-                                    borderRadius: '8px',
-                                    color: '#fff'
-                                }}
-                                required
-                            />
-                        </div>
-
-                        <div style={{ minWidth: '150px' }}>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.durationMonths || 'Duration (Months)'}</label>
-                            <input
-                                type="number"
-                                value={durationMonths}
-                                onChange={(e) => setDurationMonths(e.target.value)}
-                                placeholder="e.g. 1, 3, 12"
-                                disabled={isLifetime}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.8rem',
-                                    background: isLifetime ? '#0f0f15' : '#13131d',
-                                    border: '1px solid #2a2a35',
-                                    borderRadius: '8px',
-                                    color: isLifetime ? '#555' : '#fff'
-                                }}
-                            />
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', height: '45px', padding: '0 1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px' }}>
-                            <input
-                                type="checkbox"
-                                id="lifetime"
-                                checked={isLifetime}
-                                onChange={(e) => setIsLifetime(e.target.checked)}
-                                style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
-                            />
-                            <label htmlFor="lifetime" style={{ color: '#fff', cursor: 'pointer', userSelect: 'none' }}>{t.lifetime || 'Lifetime'}</label>
-                        </div>
-
-                        <button type="submit" className="btn-primary" style={{ height: '45px', padding: '0 2rem' }}>
-                            {vipLoading ? '...' : t.grantVip}
-                        </button>
-                    </form>
-                    {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
-                </div>
-
-                {/* Active Users Table */}
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
-                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
-                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
-                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
-                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.filter(u => u.isVip).length === 0 ? (
-                                <tr>
-                                    <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>{t.noVipMembers || 'No active VIP members'}</td>
+                    {/* Active Users Table */}
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                            <thead>
+                                <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
+                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
                                 </tr>
-                            ) : (
-                                users.filter(u => u.isVip).map(user => {
-                                    const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
-                                    const now = new Date();
-                                    const isExpired = expiry && now > expiry;
-                                    // This filter effectively hides expired users, per request "Active members only"
-                                    // If backend update didn't run yet, front-end check helps
-                                    if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
+                            </thead>
+                            <tbody>
+                                {users.filter(u => u.isVip).length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>{t.noVipMembers || 'No active VIP members'}</td>
+                                    </tr>
+                                ) : (
+                                    users.filter(u => u.isVip).map(user => {
+                                        const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
+                                        const now = new Date();
+                                        const isExpired = expiry && now > expiry;
+                                        // This filter effectively hides expired users, per request "Active members only"
+                                        // If backend update didn't run yet, front-end check helps
+                                        if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
 
-                                    let timeLeft = 'Lifetime ♾️';
-                                    if (expiry) {
-                                        const diff = expiry - now;
-                                        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                        timeLeft = `${days} Days`;
-                                    }
+                                        let timeLeft = 'Lifetime ♾️';
+                                        if (expiry) {
+                                            const diff = expiry - now;
+                                            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                            timeLeft = `${days} Days`;
+                                        }
 
-                                    return (
-                                        <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-                                            <td style={{ padding: '1rem' }}>{user.telegramId}</td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <span style={{
-                                                    background: 'rgba(76, 175, 80, 0.1)',
-                                                    color: '#4caf50',
-                                                    padding: '0.2rem 0.6rem',
-                                                    borderRadius: '4px',
-                                                    fontSize: '0.85rem'
-                                                }}>Active</span>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>{timeLeft}</td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <button
-                                                    onClick={() => handleRemoveUser(user.telegramId)}
-                                                    style={{
-                                                        background: 'transparent',
-                                                        border: '1px solid #ef4444',
-                                                        color: '#ef4444',
-                                                        padding: '0.3rem 0.8rem',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
+                                        return (
+                                            <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                                                <td style={{ padding: '1rem' }}>{user.telegramId}</td>
+                                                <td style={{ padding: '1rem' }}>
+                                                    <span style={{
+                                                        background: 'rgba(76, 175, 80, 0.1)',
+                                                        color: '#4caf50',
+                                                        padding: '0.2rem 0.6rem',
+                                                        borderRadius: '4px',
                                                         fontSize: '0.85rem'
-                                                    }}
-                                                >
-                                                    {t.remove || 'Remove'}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
+                                                    }}>Active</span>
+                                                </td>
+                                                <td style={{ padding: '1rem' }}>{timeLeft}</td>
+                                                <td style={{ padding: '1rem' }}>
+                                                    <button
+                                                        onClick={() => handleRemoveUser(user.telegramId)}
+                                                        style={{
+                                                            background: 'transparent',
+                                                            border: '1px solid #ef4444',
+                                                            color: '#ef4444',
+                                                            padding: '0.3rem 0.8rem',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                            fontSize: '0.85rem'
+                                                        }}
+                                                    >
+                                                        {t.remove || 'Remove'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
-    </div>
-);
+    );
 }
