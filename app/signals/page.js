@@ -865,76 +865,70 @@ export default function SignalsPage() {
                                     )}
                                 </div>
 
-                                {/* Signal Info (Footer) */}
-                                <div style={{
-                                    padding: '0.5rem 1rem', // Reduced padding
-                                    background: '#0c0c0c',
-                                    borderTop: 'none',
-                                    position: 'relative',
-                                    zIndex: 2
-                                }}>
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between'
+                                    {/* Post Text Display with Telegram-style Timestamp */}
+                                    <div style={{ 
+                                        marginTop: '1.25rem', 
+                                        borderTop: '1px solid rgba(255,255,255,0.05)', 
+                                        paddingTop: '1.25rem',
+                                        paddingBottom: '2.5rem',
+                                        position: 'relative',
+                                        background: 'rgba(255,255,255,0.02)',
+                                        margin: '0.5rem',
+                                        borderRadius: '12px',
+                                        padding: '1rem'
                                     }}>
-                                        <span style={{
-                                            color: '#9a9ab0',
-                                            fontSize: '0.75rem', // Smaller text
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '0.3rem',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            padding: '0.2rem 0.6rem', // More compact badge
-                                            borderRadius: '15px',
-                                            letterSpacing: '0.5px',
-                                            border: '1px solid rgba(255,255,255,0.05)'
-                                        }}>
-                                            <ClockIcon />
-                                            {getTimeAgo(signal.createdAt, lang)}
-                                        </span>
-                                        {isVip && (
-                                            <span style={{
-                                                background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.2) 100%)',
-                                                border: '1px solid rgba(76, 175, 80, 0.3)',
-                                                color: '#4caf50',
-                                                padding: '0.2rem 0.6rem', // More compact badge
-                                                borderRadius: '20px',
-                                                fontSize: '0.7rem',
-                                                fontWeight: '600',
-                                                letterSpacing: '0.5px'
-                                            }}>
-                                                ✓ VIP
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Post Text Display with VIP Logic */}
-                                    <div style={{ marginTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.25rem' }}>
                                         {(signal.isVip === false || isVip || index === 0) ? (
-                                            <p style={{
-                                                color: '#e0e0e0',
-                                                fontSize: '0.95rem',
-                                                lineHeight: '1.6',
-                                                whiteSpace: 'pre-wrap',
-                                                margin: 0,
-                                                direction: 'auto',
-                                                textAlign: 'start',
-                                                fontWeight: '500'
-                                            }}>
-                                                {signal.customPost ? signal.customPost.replace(/\*/g, '') : ''}
-                                            </p>
+                                            <>
+                                                <p style={{
+                                                    color: '#e0e0e0',
+                                                    fontSize: '0.95rem',
+                                                    lineHeight: '1.6',
+                                                    whiteSpace: 'pre-wrap',
+                                                    margin: 0,
+                                                    direction: 'auto',
+                                                    textAlign: 'start',
+                                                    fontWeight: '500',
+                                                    paddingBottom: '1rem'
+                                                }}>
+                                                    {signal.customPost ? signal.customPost.replace(/\*/g, '') : ''}
+                                                </p>
+                                                {/* Inlined Timestamp */}
+                                                <div style={{ 
+                                                    position: 'absolute', 
+                                                    bottom: '0.75rem', 
+                                                    right: '0.75rem', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    gap: '0.4rem',
+                                                    color: '#666',
+                                                    fontSize: '0.75rem'
+                                                }}>
+                                                    {isVip && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓✓</span>}
+                                                    {getTimeAgo(signal.createdAt, lang)}
+                                                </div>
+                                            </>
                                         ) : (
-                                            <div style={{
-                                                textAlign: 'center',
-                                                padding: '0.5rem',
-                                                background: 'rgba(184, 134, 11, 0.05)',
+                                            <div style={{ 
+                                                textAlign: 'center', 
+                                                padding: '1rem', 
+                                                background: 'rgba(184, 134, 11, 0.05)', 
                                                 borderRadius: '12px',
-                                                border: '1px dashed rgba(184, 134, 11, 0.2)'
+                                                border: '1px dashed rgba(184, 134, 11, 0.2)',
+                                                paddingBottom: '2.5rem'
                                             }}>
                                                 <span className="text-gradient" style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
                                                     🔒 {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
                                                 </span>
+                                                {/* Inlined Timestamp for Locked State */}
+                                                <div style={{ 
+                                                    position: 'absolute', 
+                                                    bottom: '0.75rem', 
+                                                    right: '0.75rem', 
+                                                    color: '#666',
+                                                    fontSize: '0.75rem'
+                                                }}>
+                                                    {getTimeAgo(signal.createdAt, lang)}
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -1022,6 +1016,6 @@ export default function SignalsPage() {
                     }
                 }
             `}</style>
-        </div>
+        </div >
     );
 }

@@ -956,6 +956,7 @@ export default function AdminPage() {
                             {signal.customPost && (
                                 <div style={{
                                     padding: '1.25rem',
+                                    paddingBottom: '2.5rem',
                                     background: 'rgba(255,255,255,0.02)',
                                     borderTop: '1px solid rgba(184, 134, 11, 0.1)',
                                     lineHeight: '1.6',
@@ -963,16 +964,30 @@ export default function AdminPage() {
                                     fontSize: '0.95rem',
                                     whiteSpace: 'pre-wrap',
                                     direction: 'auto',
-                                    textAlign: 'start'
+                                    textAlign: 'start',
+                                    position: 'relative'
                                 }}>
                                     {signal.customPost.replace(/\*/g, '')}
+                                    <span style={{
+                                        position: 'absolute',
+                                        bottom: '0.6rem',
+                                        right: '0.8rem',
+                                        color: '#666',
+                                        fontSize: '0.75rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.3rem'
+                                    }}>
+                                        {getTimeAgo(signal.createdAt, lang)}
+                                        {/* Telegram style checkmarks or just the time */}
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>✓✓</span>
+                                    </span>
                                 </div>
                             )}
-                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', gap: '0.5rem' }}>
-                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
+                            <div style={{ padding: '0.75rem 1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: '#0a0a0a' }}>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button onClick={() => handleEdit(signal)} style={{ padding: '0.5rem 1rem', background: 'rgba(218, 165, 32, 0.1)', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '8px', color: '#DAA520', cursor: 'pointer' }}>{lang === 'ar' ? 'تعديل' : 'Edit'}</button>
-                                    <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                                    <button onClick={() => handleEdit(signal)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '6px', color: '#DAA520', cursor: 'pointer', fontSize: '0.85rem' }}>{lang === 'ar' ? 'تعديل' : 'Edit'}</button>
+                                    <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '6px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem' }}>{t.delete}</button>
                                 </div>
                             </div>
                         </div>
