@@ -576,7 +576,27 @@ export default function AdminPage() {
                     <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>📤</div>
                     <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', textAlign: 'center' }}>{t.postNewSignal}</h2>
 
-                    {/* ===== Signal Type Toggle ===== */}
+                    {/* 1. IMAGE UPLOAD SECTION (Top) */}
+                    <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
+                        {!previewData ? (
+                            <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1.5rem 3rem', width: '100%', border: '2px dashed #444' }}>
+                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📸</div>
+                                {lang === 'ar' ? 'اضغط هنا لاختيار صورة' : 'Click to Upload Image'}
+                            </label>
+                        ) : (
+                            <div style={{ position: 'relative', display: 'inline-block', border: '1px solid #DAA520', borderRadius: '12px', overflow: 'hidden' }}>
+                                <img src={previewData} alt="Preview" style={{ maxHeight: '200px', display: 'block', opacity: 0.6 }} />
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <button onClick={cancelPreview} style={{ background: 'rgba(0,0,0,0.8)', border: '1px solid #ef4444', color: '#ef4444', padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer' }}>
+                                        {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 2. SIGNAL TYPE TOGGLE */}
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
                         <button
                             onClick={() => setSignalType('vip')}
@@ -610,17 +630,15 @@ export default function AdminPage() {
                         </button>
                     </div>
 
-
-
-                    {/* ===== Custom Post Editor ===== */}
+                    {/* 3. POST TEXT & AI */}
                     <div style={{ marginBottom: '2rem' }}>
                         <label style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem', display: 'block' }}>
-                            ✍️ {lang === 'ar' ? 'اكتب المنشور' : 'Write Your Post'}
+                            ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
                         </label>
                         <textarea
                             value={customPost}
                             onChange={(e) => setCustomPost(e.target.value)}
-                            placeholder={lang === 'ar' ? 'اكتب المنشور الذي سيتم نشره مع التوصية...' : 'Write the post that will be published with the signal...'}
+                            placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
                             style={{
                                 width: '100%',
                                 minHeight: '120px',
@@ -635,14 +653,13 @@ export default function AdminPage() {
                         />
                     </div>
 
-                    {/* ===== AI Generation Settings ===== */}
+                    {/* AI Settings */}
                     <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
                         <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
                             🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
                         </summary>
                         <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-                            {/* Manual Save Button - ADDED */}
+                            {/* Manual Save */}
                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <button
                                     onClick={() => saveSettingsToDB(null, true)}
@@ -661,318 +678,134 @@ export default function AdminPage() {
                                     💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
                                 </button>
                             </div>
-
-                            {/* API Key Input */}
+                            {/* API Key */}
                             <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                                    🔑 Gemini API Key
-                                </label>
-                                <input
-                                    type="password"
-                                    value={geminiApiKey}
-                                    onChange={(e) => setGeminiApiKey(e.target.value)}
-                                    placeholder="Enter your Google Gemini API Key"
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.8rem',
-                                        background: '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: '#fff'
-                                    }}
-                                />
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
+                                <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                             </div>
-
-                            {/* Model Selection & Post Count */}
+                            {/* Model & Count */}
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                 <div style={{ flex: 2, minWidth: '200px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                                        🧠 {lang === 'ar' ? 'موديل الذكاء الاصطناعي' : 'AI Model'}
-                                    </label>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <select
-                                            value={selectedModel}
-                                            onChange={(e) => setSelectedModel(e.target.value)}
-                                            style={{
-                                                flex: 1,
-                                                padding: '0.8rem',
-                                                background: '#13131d',
-                                                border: '1px solid #2a2a35',
-                                                borderRadius: '8px',
-                                                color: '#fff'
-                                            }}
-                                        >
-                                            <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</option>
+                                        <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
+                                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
                                             <option value="gemini-1.5-flash">gemini-1.5-flash</option>
                                             <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                                            {availableModels.map(m => (
-                                                <option key={m.id} value={m.id}>{m.displayName}</option>
-                                            ))}
+                                            {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
                                         </select>
-                                        <button
-                                            onClick={fetchModels}
-                                            disabled={modelsLoading}
-                                            style={{
-                                                padding: '0.75rem 1rem',
-                                                background: '#2a2a35',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                color: '#fff',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            {modelsLoading ? '...' : '🔄'}
-                                        </button>
+                                        <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
                                     </div>
                                 </div>
-
-                                {/* Post Count Input - ADDED */}
                                 <div style={{ flex: 1, minWidth: '150px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                                        🔢 {lang === 'ar' ? 'عدد المنشورات' : 'Number of Posts'}
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="100"
-                                        value={postCount}
-                                        onChange={(e) => setPostCount(Number(e.target.value))}
-                                        style={{
-                                            width: '100%',
-                                            padding: '0.8rem',
-                                            background: '#13131d',
-                                            border: '1px solid #2a2a35',
-                                            borderRadius: '8px',
-                                            color: '#fff'
-                                        }}
-                                    />
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
+                                    <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                                 </div>
                             </div>
-                            {/* AI Prompt */}
+                            {/* Prompt */}
                             <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                                    📝 {lang === 'ar' ? 'البرومبت (يمكنك التعديل)' : 'Prompt (Editable)'}
-                                </label>
-                                <textarea
-                                    value={aiPrompt}
-                                    onChange={(e) => setAiPrompt(e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        minHeight: '150px',
-                                        padding: '1rem',
-                                        background: '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: '#fff',
-                                        fontSize: '0.85rem',
-                                        resize: 'vertical'
-                                    }}
-                                />
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
+                                <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                             </div>
                         </div>
                     </details>
 
-                    {/* ===== Generate Posts Button ===== */}
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                        <button
-                            onClick={generateAIPosts}
-                            disabled={generatingPosts || !customPost.trim()}
-                            style={{
-                                padding: '1rem 2rem',
-                                background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)',
-                                border: 'none',
-                                borderRadius: '50px',
-                                color: '#fff',
-                                fontWeight: '700',
-                                cursor: generatingPosts ? 'wait' : 'pointer',
-                                opacity: !customPost.trim() ? 0.5 : 1
-                            }}
-                        >
-                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة بالذكاء الاصطناعي` : `🚀 Generate ${postCount} AI Variations`)}
+                        <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
+                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
                         </button>
                     </div>
 
-                    {/* ===== Generated Posts Gallery ===== */}
+                    {/* Gallery */}
                     {generatedPosts.length > 0 && (
                         <div style={{ marginBottom: '2rem' }}>
-                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>
-                                ✨ {lang === 'ar' ? `اختر منشوراً (${generatedPosts.length} نسخة)` : `Select a Post (${generatedPosts.length} variations)`}
-                            </h3>
-                            <div style={{
-                                maxHeight: '400px',
-                                overflowY: 'auto',
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                                gap: '1rem',
-                                padding: '0.5rem',
-                                background: '#0a0a0f',
-                                borderRadius: '12px',
-                                border: '1px solid #2a2a35'
-                            }}>
+                            <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', padding: '0.5rem', background: '#0a0a0f', borderRadius: '12px', border: '1px solid #2a2a35' }}>
                                 {generatedPosts.map((post, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setSelectedPostIndex(idx)}
-                                        style={{
-                                            padding: '1rem',
-                                            background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d',
-                                            border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`,
-                                            borderRadius: '10px',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem' }}>#{idx + 1}</div>
-                                        <p style={{ color: '#e0e0e0', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>{post}</p>
+                                    <div key={idx} onClick={() => setSelectedPostIndex(idx)} style={{ padding: '1rem', background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d', border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                        <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
                                     </div>
                                 ))}
                             </div>
-                            {selectedPostIndex >= 0 && (
-                                <p style={{ color: '#4caf50', marginTop: '1rem', textAlign: 'center' }}>
-                                    ✓ {lang === 'ar' ? `تم اختيار المنشور رقم ${selectedPostIndex + 1}` : `Post #${selectedPostIndex + 1} selected`}
-                                </p>
-                            )}
                         </div>
                     )}
 
-
-                    {/* ===== Telegram Toggle (Moved) ===== */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                    {/* 4. TELEGRAM BUTTONS (Wide) */}
+                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#0f0f15', borderRadius: '16px', border: '1px solid #2a2a35' }}>
+                        {/* Telegram Toggle */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                            </div>
+                            <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                         </div>
-                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
+
+                        {postToTelegram && (
+                            <div style={{ marginTop: '1rem' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
+                                    🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
+                                </label>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
+                                    {[
+                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة للأصدقاء' : '📤 Share to Friends' },
+                                        { id: 'subscribe', label: lang === 'ar' ? '🤖 الاشتراك الآن' : '🤖 Subscribe Now' },
+                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 View Signal' },
+                                        { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
+                                    ].map((btn) => (
+                                        <button
+                                            key={btn.id}
+                                            onClick={() => setTelegramButtonType(btn.id)}
+                                            style={{
+                                                padding: '1rem',
+                                                background: telegramButtonType === btn.id ? '#229ED9' : '#1a1a20',
+                                                border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#333'}`,
+                                                borderRadius: '8px',
+                                                color: '#fff',
+                                                fontSize: '1rem',
+                                                fontWeight: telegramButtonType === btn.id ? 'bold' : 'normal',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                textAlign: 'center'
+                                            }}
+                                        >
+                                            {btn.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* ===== Telegram Button Selection (Moved) ===== */}
-                    {postToTelegram && (
-                        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#0f0f15', borderRadius: '12px', border: '1px solid #2a2a35' }}>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
-                                🔘 {lang === 'ar' ? 'زر الإجراء (يظهر أسفل المنشور)' : 'Action Button (Shown below post)'}
-                            </label>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                                {[
-                                    { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
-                                    { id: 'subscribe', label: lang === 'ar' ? '🤖 اشتراك' : '🤖 Subscribe' },
-                                    { id: 'view_signal', label: lang === 'ar' ? '💎 التوصية' : '💎 View Signal' },
-                                    { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
-                                ].map((btn) => (
-                                    <button
-                                        key={btn.id}
-                                        onClick={() => setTelegramButtonType(btn.id)}
-                                        style={{
-                                            padding: '0.6rem',
-                                            background: telegramButtonType === btn.id ? '#229ED9' : 'transparent',
-                                            border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#444'}`,
-                                            borderRadius: '8px',
-                                            color: '#fff',
-                                            fontSize: '0.85rem',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        {btn.label}
-                                    </button>
-                                ))}
+                    {/* 5. FINAL PREVIEW (Bottom) */}
+                    {previewData && (
+                        <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
+                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
+                            <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
+                                <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
                             </div>
-                        </div>
-                    )}
-
-                    {/* ===== Preview Card OR Upload Button ===== */}
-                    {previewData ? (
-                        <div style={{
-                            marginBottom: '2rem',
-                            padding: '1.5rem',
-                            background: '#13131d',
-                            borderRadius: '16px',
-                            border: '1px solid #2a2a35',
-                            textAlign: 'center'
-                        }}>
-                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'معاينة قبل النشر' : 'Preview Before Publishing'}</h3>
-
-                            {/* Image Preview */}
-                            <div style={{
-                                maxWidth: '100%',
-                                maxHeight: '400px',
-                                overflow: 'hidden',
-                                borderRadius: '12px',
-                                marginBottom: '1.5rem',
-                                border: '1px solid #333',
-                                display: 'inline-block'
-                            }}>
-                                <img src={previewData} alt="Preview" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} />
-                            </div>
-
-                            {/* Text Preview */}
-                            <div style={{
-                                textAlign: 'left',
-                                background: '#0a0a0f',
-                                padding: '1rem',
-                                borderRadius: '8px',
-                                border: '1px solid #2a2a35',
-                                marginBottom: '1.5rem',
-                                whiteSpace: 'pre-wrap',
-                                direction: lang === 'ar' ? 'rtl' : 'ltr'
-                            }}>
-                                <label style={{ display: 'block', color: '#666', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                                    {lang === 'ar' ? 'نص المنشور (سيتم تعريضه تلقائياً)' : 'Post Text (Auto-Bold Applied)'}
-                                </label>
+                            <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #333', textAlign: 'left', direction: lang === 'ar' ? 'rtl' : 'ltr', marginBottom: '1.5rem' }}>
                                 <p style={{ color: '#fff', margin: 0, fontWeight: 'bold' }}>
-                                    {/* Show the text as it will appear (visually bold) */}
-                                    {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
-                                        ? generatedPosts[selectedPostIndex]
-                                        : customPost || (lang === 'ar' ? 'لا يوجد نص' : 'No text provided')}
+                                    {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
                                 </p>
                             </div>
-
-                            {/* Action Buttons */}
-                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                                <button
-                                    onClick={cancelPreview}
-                                    style={{
-                                        padding: '0.8rem 2rem',
-                                        background: 'transparent',
-                                        border: '1px solid #555',
-                                        borderRadius: '50px',
-                                        color: '#bbb',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    ❌ {lang === 'ar' ? 'إلغاء / تغيير الصورة' : 'Cancel / Change Image'}
-                                </button>
-                                <button
-                                    onClick={handlePublish}
-                                    disabled={uploading}
-                                    style={{
-                                        padding: '0.8rem 2rem',
-                                        background: 'linear-gradient(135deg, #B8860B, #DAA520)',
-                                        border: 'none',
-                                        borderRadius: '50px',
-                                        color: '#000', // Black text on gold for contrast
-                                        fontWeight: '800',
-                                        cursor: uploading ? 'wait' : 'pointer',
-                                        boxShadow: '0 4px 15px rgba(184, 134, 11, 0.3)',
-                                        transition: 'all 0.2s',
-                                        transform: uploading ? 'none' : 'scale(1.05)'
-                                    }}
-                                >
-                                    {uploading ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish')}
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        /* Upload Button */
-                        <div style={{ textAlign: 'center' }}>
-                            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                            <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1rem 3rem' }}>
-                                {lang === 'ar' ? '📸 اختيار صورة للمعاينة' : '📸 Select Image to Preview'}
-                            </label>
+                            <button
+                                onClick={handlePublish}
+                                disabled={uploading}
+                                style={{
+                                    padding: '1rem 3rem',
+                                    background: 'linear-gradient(135deg, #B8860B, #DAA520)',
+                                    border: 'none',
+                                    borderRadius: '50px',
+                                    color: '#000',
+                                    fontWeight: '800',
+                                    fontSize: '1.1rem',
+                                    cursor: uploading ? 'wait' : 'pointer',
+                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
+                                }}
+                            >
+                                {uploading ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish')}
+                            </button>
                         </div>
                     )}
-
-                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold', textAlign: 'center' }}>{successMessage}</p>}
-                    {error && <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
                 </div>
 
                 <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
