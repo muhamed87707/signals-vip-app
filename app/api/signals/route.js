@@ -61,6 +61,41 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
             ? "💎 Show Signal | إظهار التوصية 💎"
             : "📊 View Details | عرض التفاصيل 📊";
 
+        // Initialize optional buttons
+        let inlineKeyboard = [];
+
+        // Fetch settings to get the subscription bot link
+        await dbConnect();
+        const settings = await Settings.findOne();
+        const subscribeBotLink = settings?.telegramBotLink || '#';
+
+        // 1. Share Button (First Row)
+        const shareTextAr = "اشترك في قناة أبو الذهب للتوصيات القوية! 🚀";
+        const shareTextEn = "Join Abu Al-Dahab Channel for powerful signals! 🚀";
+        const channelLink = "https://t.me/Abou_AlDahab";
+        const shareUrl = `https://t.me/share/url?url=${channelLink}&text=${encodeURIComponent(shareTextAr + "\n" + shareTextEn)}`;
+
+        inlineKeyboard.push([{
+            text: "📤 مشاركة للأصدقاء | Share to Friends 📤",
+            url: shareUrl
+        }]);
+
+        // 2. Subscribe Button (Second Row)
+        if (subscribeBotLink && subscribeBotLink !== '#') {
+            inlineKeyboard.push([{
+                text: "🤖 الاشتراك الآن | Subscribe Now 🤖",
+                url: subscribeBotLink
+            }]);
+        }
+
+        // 3. View Signal Button (Third Row)
+        // Always present, links to the website
+        // For VIP: Unlocks signal. For Free: Shows details.
+        inlineKeyboard.push([{
+            text: "💎 إظهار التوصية | View Signal 💎",
+            url: "https://signals-vip-app.vercel.app/signals"
+        }]);
+
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -70,9 +105,7 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
                 caption: text,
                 parse_mode: 'Markdown',
                 reply_markup: {
-                    inline_keyboard: [[
-                        { text: buttonText, url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
-                    ]]
+                    inline_keyboard: inlineKeyboard
                 }
             })
         });

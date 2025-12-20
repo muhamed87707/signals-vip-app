@@ -41,6 +41,7 @@ export async function POST(request) {
             if (aiPrompt !== undefined) settings.aiPrompt = aiPrompt;
             if (selectedModel !== undefined) settings.selectedModel = selectedModel;
             if (generatedPostCount !== undefined) settings.generatedPostCount = generatedPostCount;
+            if (body.telegramBotLink !== undefined) settings.telegramBotLink = body.telegramBotLink;
             settings.updatedAt = new Date();
             await settings.save();
         } else {
@@ -48,7 +49,8 @@ export async function POST(request) {
                 geminiApiKey,
                 aiPrompt,
                 selectedModel,
-                generatedPostCount
+                generatedPostCount,
+                telegramBotLink: body.telegramBotLink
             });
         }
 
