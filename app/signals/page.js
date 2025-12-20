@@ -865,73 +865,72 @@ export default function SignalsPage() {
                                     )}
                                 </div>
 
-                                    {/* Post Text Display with Telegram-style Timestamp */}
-                                    <div style={{ 
-                                        marginTop: '1.25rem', 
-                                        borderTop: '1px solid rgba(255,255,255,0.05)', 
-                                        paddingTop: '1.25rem',
-                                        paddingBottom: '2.5rem',
-                                        position: 'relative',
-                                        background: 'rgba(255,255,255,0.02)',
-                                        margin: '0.5rem',
-                                        borderRadius: '12px',
-                                        padding: '1rem'
-                                    }}>
-                                        {(signal.isVip === false || isVip || index === 0) ? (
-                                            <>
-                                                <p style={{
-                                                    color: '#e0e0e0',
-                                                    fontSize: '0.95rem',
-                                                    lineHeight: '1.6',
-                                                    whiteSpace: 'pre-wrap',
-                                                    margin: 0,
-                                                    direction: 'auto',
-                                                    textAlign: 'start',
-                                                    fontWeight: '500',
-                                                    paddingBottom: '1rem'
-                                                }}>
-                                                    {signal.customPost ? signal.customPost.replace(/\*/g, '') : ''}
-                                                </p>
-                                                {/* Inlined Timestamp */}
-                                                <div style={{ 
-                                                    position: 'absolute', 
-                                                    bottom: '0.75rem', 
-                                                    right: '0.75rem', 
-                                                    display: 'flex', 
-                                                    alignItems: 'center', 
-                                                    gap: '0.4rem',
-                                                    color: '#666',
-                                                    fontSize: '0.75rem'
-                                                }}>
-                                                    {isVip && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓✓</span>}
-                                                    {getTimeAgo(signal.createdAt, lang)}
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div style={{ 
-                                                textAlign: 'center', 
-                                                padding: '1rem', 
-                                                background: 'rgba(184, 134, 11, 0.05)', 
-                                                borderRadius: '12px',
-                                                border: '1px dashed rgba(184, 134, 11, 0.2)',
-                                                paddingBottom: '2.5rem'
+                                {/* Post Text Display with Telegram-style Timestamp */}
+                                <div style={{
+                                    marginTop: '1.25rem',
+                                    borderTop: '1px solid rgba(255,255,255,0.05)',
+                                    paddingTop: '1.25rem',
+                                    paddingBottom: '2.5rem',
+                                    position: 'relative',
+                                    background: 'rgba(255,255,255,0.02)',
+                                    margin: '0.5rem',
+                                    borderRadius: '12px',
+                                    padding: '1rem'
+                                }}>
+                                    {(signal.isVip === false || isVip || index === 0) ? (
+                                        <>
+                                            <p style={{
+                                                color: '#e0e0e0',
+                                                fontSize: '0.95rem',
+                                                lineHeight: '1.6',
+                                                whiteSpace: 'pre-wrap',
+                                                margin: 0,
+                                                direction: 'auto',
+                                                textAlign: 'start',
+                                                fontWeight: '500',
+                                                paddingBottom: '1rem'
                                             }}>
-                                                <span className="text-gradient" style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
-                                                    🔒 {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
-                                                </span>
-                                                {/* Inlined Timestamp for Locked State */}
-                                                <div style={{ 
-                                                    position: 'absolute', 
-                                                    bottom: '0.75rem', 
-                                                    right: '0.75rem', 
-                                                    color: '#666',
-                                                    fontSize: '0.75rem'
-                                                }}>
-                                                    {getTimeAgo(signal.createdAt, lang)}
-                                                </div>
+                                                {signal.customPost ? signal.customPost.replace(/\*/g, '') : ''}
+                                            </p>
+                                            {/* Inlined Timestamp */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '0.75rem',
+                                                right: '0.75rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.4rem',
+                                                color: '#666',
+                                                fontSize: '0.75rem'
+                                            }}>
+                                                {isVip && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓✓</span>}
+                                                {getTimeAgo(signal.createdAt, lang)}
                                             </div>
-                                        )}
-                                    </div>
+                                        </>
+                                    ) : (
+                                        <div style={{
+                                            textAlign: 'center',
+                                            padding: '1rem',
+                                            background: 'rgba(184, 134, 11, 0.05)',
+                                            borderRadius: '12px',
+                                            border: '1px dashed rgba(184, 134, 11, 0.2)',
+                                            paddingBottom: '2.5rem'
+                                        }}>
+                                            <span className="text-gradient" style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
+                                                🔒 {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
+                                            </span>
+                                            {/* Inlined Timestamp for Locked State */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '0.75rem',
+                                                right: '0.75rem',
+                                                color: '#666',
+                                                fontSize: '0.75rem'
+                                            }}>
+                                                {getTimeAgo(signal.createdAt, lang)}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -991,31 +990,7 @@ export default function SignalsPage() {
                         font-size: 0.75rem !important;
                     }
                 }
-                    .signals-diamond {
-                        font-size: 2.5rem !important;
-                        margin-bottom: 0.5rem !important;
-                    }
-                    .signals-title {
-                        font-size: 1.8rem !important;
-                        margin-bottom: 0.5rem !important;
-                    }
-                    .signals-subtitle {
-                        font-size: 0.95rem !important;
-                        line-height: 1.4 !important;
-                    }
-                    .vip-badge-container {
-                        margin-bottom: 1rem !important;
-                        margin-top: 0.5rem !important;
-                        padding: 0.3rem 0.8rem !important;
-                    }
-                    .vip-badge-icon {
-                        font-size: 1rem !important;
-                    }
-                    .vip-badge-text {
-                        font-size: 0.75rem !important;
-                    }
-                }
             `}</style>
-        </div >
+        </div>
     );
 }
