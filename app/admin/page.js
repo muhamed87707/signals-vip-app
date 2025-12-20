@@ -75,10 +75,11 @@ export default function AdminPage() {
                 const data = await res.json();
                 if (data.success && data.settings) {
                     const s = data.settings;
-                    if (s.geminiApiKey) setGeminiApiKey(s.geminiApiKey);
-                    if (s.aiPrompt) setAiPrompt(s.aiPrompt);
-                    if (s.selectedModel) setSelectedModel(s.selectedModel);
-                    if (s.generatedPostCount) setPostCount(s.generatedPostCount);
+                    // Use property check ('in') or check against undefined to allow saving empty strings
+                    if (s.geminiApiKey !== undefined) setGeminiApiKey(s.geminiApiKey);
+                    if (s.aiPrompt !== undefined) setAiPrompt(s.aiPrompt);
+                    if (s.selectedModel !== undefined) setSelectedModel(s.selectedModel);
+                    if (s.generatedPostCount !== undefined) setPostCount(Number(s.generatedPostCount));
                 }
             } catch (err) {
                 console.error('Failed to fetch settings:', err);
