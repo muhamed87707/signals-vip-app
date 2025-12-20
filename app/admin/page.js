@@ -63,7 +63,9 @@ export default function AdminPage() {
     const [generatedPosts, setGeneratedPosts] = useState([]);
     const [generatingPosts, setGeneratingPosts] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(-1);
+    const [postCount, setPostCount] = useState(50); // New State for Count
     const [settingsLoaded, setSettingsLoaded] = useState(false);
+    const [savingSettings, setSavingSettings] = useState(false); // Manual Save state
 
     // FETCH SETTINGS FROM DB ON MOUNT
     useEffect(() => {
@@ -76,7 +78,7 @@ export default function AdminPage() {
                     if (s.geminiApiKey) setGeminiApiKey(s.geminiApiKey);
                     if (s.aiPrompt) setAiPrompt(s.aiPrompt);
                     if (s.selectedModel) setSelectedModel(s.selectedModel);
-                    // Post count is not in UI yet, but fetched
+                    if (s.generatedPostCount) setPostCount(s.generatedPostCount);
                 }
             } catch (err) {
                 console.error('Failed to fetch settings:', err);
@@ -114,19 +116,45 @@ export default function AdminPage() {
 
     // SAVE SETTINGS TO DB (Debounced)
     // We create a generic save function
-    const saveSettingsToDB = async (payload) => {
+    const saveSettingsToDB = async (payload, manual = false) => {
+        if (manual) setSavingSettings(true);
         try {
-            await fetch('/api/settings', {
+            // If manual, save all current settings
+            const body = manual ? {
+                geminiApiKey,
+                aiPrompt,
+                selectedModel,
+                generatedPostCount: postCount
+            } : payload;
+
+            const res = await fetch('/api/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(body)
             });
+
+            if (manual) {
+                const data = await res.json();
+                if (data.success) {
+                    alert(lang === 'ar' ? 'تم حفظ الإعدادات بنجاح!' : 'Settings saved successfully!');
+                }
+            }
         } catch (err) {
             console.error('Failed to save settings:', err);
+            if (manual) alert(lang === 'ar' ? 'فشل حفظ الإعدادات' : 'Failed to save settings');
         }
+        if (manual) setSavingSettings(false);
     };
 
     // Effects to trigger save when specific fields change (after load)
+    useEffect(() => {
+        if (!settingsLoaded) return;
+        const timer = setTimeout(() => {
+            saveSettingsToDB({ generatedPostCount: postCount });
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [postCount, settingsLoaded]);
+
     useEffect(() => {
         if (!settingsLoaded) return;
         const timer = setTimeout(() => {
@@ -240,7 +268,7 @@ export default function AdminPage() {
                     model: selectedModel,
                     userPost: customPost,
                     customPrompt: aiPrompt || undefined,
-                    count: 50
+                    count: postCount // Use the configured count
                 })
             });
             const data = await res.json();
@@ -629,13 +657,34 @@ export default function AdminPage() {
                         />
                     </div>
 
-                    {/* ===== AI Settings Collapsible ===== */}
-                    <details style={{ marginBottom: '2rem', background: '#0a0a0f', borderRadius: '12px', padding: '1rem', border: '1px solid #2a2a35' }}>
-                        <summary style={{ color: '#DAA520', cursor: 'pointer', fontWeight: '600' }}>
-                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي' : 'AI Settings'}
+                    {/* ===== AI Generation Settings ===== */}
+                    <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
+                        <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
+                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
                         </summary>
-                        <div style={{ marginTop: '1.5rem', display: 'grid', gap: '1.5rem' }}>
-                            {/* API Key */}
+                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                            {/* Manual Save Button - ADDED */}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button
+                                    onClick={() => saveSettingsToDB(null, true)}
+                                    disabled={savingSettings}
+                                    style={{
+                                        padding: '0.5rem 1.5rem',
+                                        background: '#4CAF50',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: savingSettings ? 'wait' : 'pointer',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.85rem'
+                                    }}
+                                >
+                                    💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
+                                </button>
+                            </div>
+
+                            {/* API Key Input */}
                             <div>
                                 <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
                                     🔑 Gemini API Key
@@ -644,10 +693,10 @@ export default function AdminPage() {
                                     type="password"
                                     value={geminiApiKey}
                                     onChange={(e) => setGeminiApiKey(e.target.value)}
-                                    placeholder="AIzaSy..."
+                                    placeholder="Enter your Google Gemini API Key"
                                     style={{
                                         width: '100%',
-                                        padding: '0.75rem',
+                                        padding: '0.8rem',
                                         background: '#13131d',
                                         border: '1px solid #2a2a35',
                                         borderRadius: '8px',
@@ -656,46 +705,71 @@ export default function AdminPage() {
                                 />
                             </div>
 
-                            {/* Model Selector */}
-                            <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                                    🧠 {lang === 'ar' ? 'نموذج Gemini' : 'Gemini Model'}
-                                </label>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <select
-                                        value={selectedModel}
-                                        onChange={(e) => setSelectedModel(e.target.value)}
+                            {/* Model Selection & Post Count */}
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <div style={{ flex: 2, minWidth: '200px' }}>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                                        🧠 {lang === 'ar' ? 'موديل الذكاء الاصطناعي' : 'AI Model'}
+                                    </label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <select
+                                            value={selectedModel}
+                                            onChange={(e) => setSelectedModel(e.target.value)}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.8rem',
+                                                background: '#13131d',
+                                                border: '1px solid #2a2a35',
+                                                borderRadius: '8px',
+                                                color: '#fff'
+                                            }}
+                                        >
+                                            <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</option>
+                                            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                                            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                                            {availableModels.map(m => (
+                                                <option key={m.id} value={m.id}>{m.displayName}</option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            onClick={fetchModels}
+                                            disabled={modelsLoading}
+                                            style={{
+                                                padding: '0.75rem 1rem',
+                                                background: '#2a2a35',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                color: '#fff',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {modelsLoading ? '...' : '🔄'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Post Count Input - ADDED */}
+                                <div style={{ flex: 1, minWidth: '150px' }}>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                                        🔢 {lang === 'ar' ? 'عدد المنشورات' : 'Number of Posts'}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="100"
+                                        value={postCount}
+                                        onChange={(e) => setPostCount(Number(e.target.value))}
                                         style={{
-                                            flex: 1,
-                                            padding: '0.75rem',
+                                            width: '100%',
+                                            padding: '0.8rem',
                                             background: '#13131d',
                                             border: '1px solid #2a2a35',
                                             borderRadius: '8px',
                                             color: '#fff'
                                         }}
-                                    >
-                                        <option value="gemini-2.0-flash">gemini-2.0-flash (Default)</option>
-                                        {availableModels.map(m => (
-                                            <option key={m.id} value={m.id}>{m.displayName || m.id}</option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        onClick={fetchModels}
-                                        disabled={modelsLoading}
-                                        style={{
-                                            padding: '0.75rem 1rem',
-                                            background: '#2a2a35',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            color: '#fff',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {modelsLoading ? '...' : '🔄'}
-                                    </button>
+                                    />
                                 </div>
                             </div>
-
                             {/* AI Prompt */}
                             <div>
                                 <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
