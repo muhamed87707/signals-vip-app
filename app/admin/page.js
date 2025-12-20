@@ -67,8 +67,7 @@ export default function AdminPage() {
     const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false); // Manual Save state
     const [telegramButtonType, setTelegramButtonType] = useState('view_signal'); // Default: View Signal
-    const [editingSignalId, setEditingSignalId] = useState(null);
-    const [originalSignal, setOriginalSignal] = useState(null);
+    const [editingId, setEditingId] = useState(null); // ID of signal being edited
 
     // FETCH SETTINGS FROM DB ON MOUNT
     useEffect(() => {
@@ -393,7 +392,11 @@ export default function AdminPage() {
     };
 
     const handlePublish = () => {
-        if (selectedFile) processFile(selectedFile);
+        if (selectedFile) {
+            processFile(selectedFile);
+        } else if (editingId) {
+            processFile(null);
+        }
     };
 
     const cancelPreview = () => {
@@ -408,122 +411,104 @@ export default function AdminPage() {
         setSuccessMessage('');
         setError('');
 
-        try {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64Image = reader.result;
+        const startProcessing = async (base64Image = null) => {
+            // Get the post to use
+            let postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
+                ? generatedPosts[selectedPostIndex]
+                : customPost;
 
-                // Get the post to use
-                let postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
-                    ? generatedPosts[selectedPostIndex]
-                    : customPost;
-
-                // AUTO-BOLD LOGIC: Wrap in * for Telegram Markdown
-                // We trim it first, then wrap.
-                if (postToUse && postToUse.trim()) {
-                    const cleanPost = postToUse.trim();
-                    // Avoid double wrapping if already wrapped
-                    if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
-                        postToUse = `*${cleanPost}*`;
-                    }
+            // AUTO-BOLD LOGIC: Wrap in * for Telegram Markdown
+            // We trim it first, then wrap.
+            if (postToUse && postToUse.trim()) {
+                const cleanPost = postToUse.trim();
+                // Avoid double wrapping if already wrapped
+                if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
+                    postToUse = `*${cleanPost}*`;
                 }
+            }
 
-                // Only create blurred image for VIP signals
-                let telegramImage = null;
-                if (postToTelegram && signalType === 'vip') {
-                    try {
-                        telegramImage = await createBlurredImage(file);
-                    } catch (blurErr) {
-                        console.error('Blur failed', blurErr);
-                    }
+            // Only create blurred image for VIP signals
+            let telegramImage = null;
+            if (postToTelegram && signalType === 'vip') {
+                try {
+                    telegramImage = await createBlurredImage(file);
+                } catch (blurErr) {
+                    console.error('Blur failed', blurErr);
                 }
+            }
 
-                const res = await fetch('/api/signals', {
-                    method: 'POST',
+            // If editing existing signal, call PUT instead
+            if (editingId) {
+                const upRes = await fetch('/api/signals', {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        pair: 'GOLD',
-                        type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
-                        imageUrl: base64Image,
-                        telegramImage: telegramImage,
-                        sendToTelegram: postToTelegram,
-                        isVip: signalType === 'vip',
-                        customPost: postToUse || null,
-                        telegramButtonType: telegramButtonType
+                        id: editingId,
+                        customPost: postToUse
                     })
                 });
-
-                const data = await res.json();
-                if (data.success) {
-                    let msg = t.postSuccess;
-                    if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
-                    setSuccessMessage(msg);
+                const upData = await upRes.json();
+                if (upData.success) {
+                    setSuccessMessage(t.postSuccess + " (Updated)");
                     fetchSignals();
-                    // Clear state
+                    setEditingId(null);
+                    setCustomPost('');
                     setGeneratedPosts([]);
                     setSelectedPostIndex(-1);
                     setPreviewData(null);
                     setSelectedFile(null);
-                    setCustomPost('');
                 } else {
                     setError(t.postError);
                 }
                 setUploading(false);
-            };
-            reader.readAsDataURL(file);
-        } catch (err) {
-            console.error('Upload error:', err);
-            setError(t.uploadError);
-            setUploading(false);
-        }
-    };
+                return;
+            }
 
-    const startEditing = (signal) => {
-        setEditingSignalId(signal._id);
-        setOriginalSignal(signal);
-        setCustomPost(signal.originalPost || signal.customPost || '');
-        setSignalType(signal.type === 'REGULAR' ? 'regular' : (signal.isVip ? 'vip' : 'free'));
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const cancelEdit = () => {
-        setEditingSignalId(null);
-        setOriginalSignal(null);
-        setCustomPost('');
-        setSelectedFile(null);
-        setPreviewData(null);
-    };
-
-    const handleUpdate = async () => {
-        if (!editingSignalId) return;
-        setUploading(true);
-        try {
             const res = await fetch('/api/signals', {
-                method: 'PATCH',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: editingSignalId,
+                    pair: 'GOLD',
                     type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
+                    imageUrl: base64Image,
+                    telegramImage: telegramImage,
+                    sendToTelegram: postToTelegram,
                     isVip: signalType === 'vip',
-                    customPost: customPost
+                    customPost: postToUse || null,
+                    telegramButtonType: telegramButtonType
                 })
             });
 
             const data = await res.json();
             if (data.success) {
-                setSuccessMessage(t.postSuccess);
+                let msg = t.postSuccess;
+                if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
+                setSuccessMessage(msg);
                 fetchSignals();
-                cancelEdit();
+                // Clear state
+                setGeneratedPosts([]);
+                setSelectedPostIndex(-1);
+                setPreviewData(null);
+                setSelectedFile(null);
+                setCustomPost('');
             } else {
                 setError(t.postError);
             }
-        } catch (err) {
-            console.error('Update error:', err);
-            setError(t.uploadError);
+            setUploading(false);
+        };
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => startProcessing(reader.result);
+            reader.readAsDataURL(file);
+        } else {
+            startProcessing(null);
         }
+    } catch (err) {
+        console.error('Upload error:', err);
+        setError(t.uploadError);
         setUploading(false);
-    };
+    }
 };
 
 const handleGrantVip = async (e) => {
@@ -853,46 +838,43 @@ return (
                                 {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
                             </p>
                         </div>
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                        <button
+                            onClick={handlePublish}
+                            disabled={uploading}
+                            style={{
+                                padding: '1rem 3rem',
+                                background: editingId ? '#4caf50' : 'linear-gradient(135deg, #B8860B, #DAA520)',
+                                border: 'none',
+                                borderRadius: '50px',
+                                color: editingId ? '#fff' : '#000',
+                                fontWeight: '800',
+                                fontSize: '1.1rem',
+                                cursor: uploading ? 'wait' : 'pointer',
+                                boxShadow: editingId ? '0 4px 15px rgba(76, 175, 80, 0.3)' : '0 4px 15px rgba(184, 134, 11, 0.5)'
+                            }}
+                        >
+                            {uploading ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (editingId ? (lang === 'ar' ? '✅ تحديث وحفظ' : '✅ Update & Save') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish'))}
+                        </button>
+                        {editingId && (
                             <button
-                                onClick={editingSignalId ? handleUpdate : handlePublish}
-                                disabled={uploading}
+                                onClick={() => {
+                                    setEditingId(null);
+                                    setCustomPost('');
+                                    setPreviewData(null);
+                                }}
                                 style={{
-                                    padding: '1rem 3rem',
-                                    background: 'linear-gradient(135deg, #B8860B, #DAA520)',
+                                    display: 'block',
+                                    margin: '1rem auto 0',
+                                    background: 'transparent',
                                     border: 'none',
-                                    borderRadius: '50px',
-                                    color: '#000',
-                                    fontWeight: '800',
-                                    fontSize: '1.1rem',
-                                    cursor: uploading ? 'wait' : 'pointer',
-                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
+                                    color: '#888',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline'
                                 }}
                             >
-                                {uploading
-                                    ? (lang === 'ar' ? 'جاري التنفيذ...' : 'Executing...')
-                                    : (editingSignalId
-                                        ? (lang === 'ar' ? '� تحديث المنشور' : '💾 Update Signal')
-                                        : (lang === 'ar' ? '�🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish'))
-                                }
+                                {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
                             </button>
-                            {editingSignalId && (
-                                <button
-                                    onClick={cancelEdit}
-                                    style={{
-                                        padding: '1rem 2rem',
-                                        background: 'transparent',
-                                        border: '1px solid #555',
-                                        borderRadius: '50px',
-                                        color: '#fff',
-                                        fontWeight: '700',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    {lang === 'ar' ? 'إلغاء' : 'Cancel'}
-                                </button>
-                            )}
-                        </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -909,7 +891,29 @@ return (
                         <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                             <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <button onClick={() => startEditing(signal)} style={{ padding: '0.5rem 1rem', background: 'rgba(218, 165, 32, 0.1)', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '8px', color: '#DAA520', cursor: 'pointer' }}>{lang === 'ar' ? 'تعديل' : 'Edit'}</button>
+                                <button
+                                    onClick={() => {
+                                        setEditingId(signal._id);
+                                        setPreviewData(signal.imageUrl);
+                                        // Extract text from bold markdown if present
+                                        let txt = signal.customPost || '';
+                                        if (txt.startsWith('*') && txt.endsWith('*')) {
+                                            txt = txt.slice(1, -1);
+                                        }
+                                        setCustomPost(txt);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        background: 'rgba(74, 158, 217, 0.1)',
+                                        border: '1px solid #4a9ed9',
+                                        color: '#4a9ed9',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {lang === 'ar' ? 'تعديل' : 'Edit'}
+                                </button>
                                 <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
                             </div>
                         </div>
