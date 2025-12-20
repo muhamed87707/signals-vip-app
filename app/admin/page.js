@@ -313,10 +313,23 @@ export default function AdminPage() {
         });
     };
 
+    const [previewMode, setPreviewMode] = useState(false);
+    const [previewData, setPreviewData] = useState(null);
+
+    // Auto-bold helper: Wraps text in * for Telegram Markdown if not already formatted
+    const formatForTelegram = (text) => {
+        if (!text) return text;
+        // Check if text already has bold markers
+        if (text.includes('*') || text.includes('**')) return text;
+        // Apply bold to the whole text or key lines (User requested Ctrl+B style "bold everything")
+        // We will wrap the entire block in *...* for Telegram Markdown
+        return `*${text}*`;
+    };
+
     const handleImageUpload = async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        processFile(file);
+        handlePreview(file);
     };
 
     const handlePaste = async (e) => {
@@ -326,73 +339,90 @@ export default function AdminPage() {
         for (const item of items) {
             if (item.type.indexOf('image') !== -1) {
                 const file = item.getAsFile();
-                if (file) processFile(file);
+                if (file) handlePreview(file);
                 break;
             }
         }
     };
 
-    const processFile = async (file) => {
+    const handlePreview = async (file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            // Get the post to use (selected from AI or custom)
+            const rawPost = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
+                ? generatedPosts[selectedPostIndex]
+                : customPost;
+
+            // Apply Auto-Bold Formatting
+            const formattedPost = formatForTelegram(rawPost);
+
+            setPreviewData({
+                file: file,
+                imageUrl: reader.result,
+                post: formattedPost,
+                rawPost: rawPost // keeping raw for reference if needed
+            });
+            setPreviewMode(true);
+            setSuccessMessage('');
+            setError('');
+        };
+        reader.readAsDataURL(file);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const confirmPublish = async () => {
+        if (!previewData) return;
         setUploading(true);
         setSuccessMessage('');
         setError('');
 
         try {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64Image = reader.result;
+            const { file, imageUrl, post } = previewData;
 
-                // Get the post to use (selected from AI or custom)
-                const postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
-                    ? generatedPosts[selectedPostIndex]
-                    : customPost;
-
-                // Only create blurred image for VIP signals
-                let telegramImage = null;
-                if (postToTelegram && signalType === 'vip') {
-                    try {
-                        telegramImage = await createBlurredImage(file);
-                    } catch (blurErr) {
-                        console.error('Blur failed', blurErr);
-                    }
+            // Only create blurred image for VIP signals
+            let telegramImage = null;
+            if (postToTelegram && signalType === 'vip') {
+                try {
+                    telegramImage = await createBlurredImage(file);
+                } catch (blurErr) {
+                    console.error('Blur failed', blurErr);
                 }
+            }
 
-                const res = await fetch('/api/signals', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        pair: 'GOLD',
-                        type: 'SIGNAL',
-                        imageUrl: base64Image,
-                        telegramImage: telegramImage,
-                        sendToTelegram: postToTelegram,
-                        isVip: signalType === 'vip',
-                        customPost: postToUse || null
-                    })
-                });
+            const res = await fetch('/api/signals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pair: 'GOLD',
+                    type: 'SIGNAL',
+                    imageUrl: imageUrl,
+                    telegramImage: telegramImage,
+                    sendToTelegram: postToTelegram,
+                    isVip: signalType === 'vip',
+                    customPost: post || null
+                })
+            });
 
-                const data = await res.json();
-                if (data.success) {
-                    let msg = t.postSuccess;
-                    if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
-                    setSuccessMessage(msg);
-                    fetchSignals();
-                    // Clear generated posts after successful upload
-                    setGeneratedPosts([]);
-                    setSelectedPostIndex(-1);
-                } else {
-                    setError(t.postError);
-                }
-                setUploading(false);
-            };
-            reader.readAsDataURL(file);
+            const data = await res.json();
+            if (data.success) {
+                let msg = t.postSuccess;
+                if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
+                setSuccessMessage(msg);
+                fetchSignals();
+
+                // Reset State
+                setGeneratedPosts([]);
+                setSelectedPostIndex(-1);
+                setPreviewMode(false);
+                setPreviewData(null);
+            } else {
+                setError(t.postError);
+            }
         } catch (err) {
             console.error('Upload error:', err);
             setError(t.uploadError);
-            setUploading(false);
         }
-
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        setUploading(false);
     };
 
     const handleGrantVip = async (e) => {
@@ -715,13 +745,105 @@ export default function AdminPage() {
                         </div>
                     )}
 
-                    {/* ===== Upload Button ===== */}
-                    <div style={{ textAlign: 'center' }}>
-                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                        <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1rem 3rem' }}>
-                            {uploading ? t.uploading : (lang === 'ar' ? '📤 رفع صورة التوصية ونشرها' : '📤 Upload Signal Image & Publish')}
-                        </label>
-                    </div>
+                    {/* ===== Preview Mode & Upload Button ===== */}
+                    {previewMode && previewData ? (
+                        <div style={{
+                            background: '#0a0a0f',
+                            border: '1px solid #DAA520',
+                            borderRadius: '16px',
+                            padding: '1.5rem',
+                            marginBottom: '2rem',
+                            textAlign: 'left'
+                        }}>
+                            <h3 style={{ color: '#DAA520', marginBottom: '1rem', textAlign: 'center' }}>
+                                👁️ {lang === 'ar' ? 'معاينة قبل النشر' : 'Preview & Confirm'}
+                            </h3>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                                {/* Image Preview */}
+                                <div>
+                                    <p style={{ color: '#888', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                                        {lang === 'ar' ? 'الصورة' : 'Image'}
+                                    </p>
+                                    <img
+                                        src={previewData.imageUrl}
+                                        alt="Preview"
+                                        style={{
+                                            width: '100%',
+                                            borderRadius: '8px',
+                                            border: '1px solid #333',
+                                            maxHeight: '300px',
+                                            objectFit: 'contain',
+                                            background: '#000'
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Text Preview */}
+                                <div>
+                                    <p style={{ color: '#888', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                                        {lang === 'ar' ? 'المنشور (كما سيظهر في تيليجرام)' : 'Post (Telegram Format)'}
+                                    </p>
+                                    <div style={{
+                                        background: '#181818',
+                                        padding: '1rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #333',
+                                        color: '#fff',
+                                        whiteSpace: 'pre-wrap',
+                                        height: '100%',
+                                        maxHeight: '300px',
+                                        overflowY: 'auto',
+                                        fontFamily: 'monospace',
+                                        fontSize: '0.9rem'
+                                    }}>
+                                        {previewData.post}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                                <button
+                                    onClick={() => setPreviewMode(false)}
+                                    style={{
+                                        padding: '0.75rem 2rem',
+                                        background: 'transparent',
+                                        border: '1px solid #666',
+                                        borderRadius: '50px',
+                                        color: '#ccc',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {lang === 'ar' ? 'تعديل ✏️' : 'Edit ✏️'}
+                                </button>
+                                <button
+                                    onClick={confirmPublish}
+                                    disabled={uploading}
+                                    className="btn-primary"
+                                    style={{
+                                        padding: '0.75rem 3rem',
+                                        cursor: uploading ? 'wait' : 'pointer',
+                                        background: uploading ? '#333' : 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)',
+                                        color: '#000',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {uploading
+                                        ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...')
+                                        : (lang === 'ar' ? '✅ تأكيد ونشر' : '✅ Confirm & Publish')
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        /* Standard Upload Button */
+                        <div style={{ textAlign: 'center' }}>
+                            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
+                            <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1rem 3rem' }}>
+                                {uploading ? t.uploading : (lang === 'ar' ? '📸 معاينة ونشر التوصية' : '📸 Preview & Publish Signal')}
+                            </label>
+                        </div>
+                    )}
 
                     {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold', textAlign: 'center' }}>{successMessage}</p>}
                     {error && <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
