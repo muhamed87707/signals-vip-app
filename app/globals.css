@@ -2050,3 +2050,129 @@ h6 {
     border-radius: 8px;
     margin-bottom: 1rem;
 }
+
+/* ===== Trust Badges Section ===== */
+.trust-badges-pricing {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, rgba(184, 134, 11, 0.08) 0%, rgba(0, 0, 0, 0) 100%);
+    border-radius: 30px;
+    border: 1px solid rgba(184, 134, 11, 0.2);
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.trust-badges-pricing::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(184, 134, 11, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.trust-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    color: var(--text-primary);
+    z-index: 1;
+}
+
+.trust-badge-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(184, 134, 11, 0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-primary);
+    border: 1px solid rgba(184, 134, 11, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.trust-badge-item:hover .trust-badge-icon {
+    transform: translateY(-5px);
+    background: rgba(184, 134, 11, 0.25);
+    box-shadow: 0 8px 25px rgba(184, 134, 11, 0.3);
+}
+
+.trust-badge-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.trust-badge-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--gold-primary);
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.trust-badge-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.payment-methods-footer {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(184, 134, 11, 0.1);
+}
+
+.payment-icon-wrapper {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.payment-icon-wrapper:hover {
+    background: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.3);
+}
+
+.payment-icon {
+    height: 20px;
+    opacity: 0.7;
+    filter: grayscale(1) brightness(1.5);
+    transition: all 0.3s ease;
+}
+
+.payment-icon-wrapper:hover .payment-icon {
+    opacity: 1;
+    filter: grayscale(0) brightness(1);
+}
+
+@media (max-width: 768px) {
+    .trust-badges-pricing {
+        gap: 2rem;
+        padding: 2rem;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 2rem;
+    }
+
+    .trust-badge-item {
+        width: 100%;
+    }
+}

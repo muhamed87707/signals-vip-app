@@ -92,6 +92,78 @@ const GlobeIcon = () => (
     </svg>
 );
 
+const ShieldCheckIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="m9 12 2 2 4-4" />
+    </svg>
+);
+
+const HeadsetIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2z" />
+        <path d="M21 11h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z" />
+        <path d="M21 11a9 9 0 0 0-18 0" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+);
+
+const VerifiedIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+        <path d="m9 12 2 2 4-4" />
+    </svg>
+);
+
+const TrustBadges = ({ t }) => (
+    <div className="trust-badges-pricing animate-fade-in-up delay-600">
+        <div className="trust-badge-item">
+            <div className="trust-badge-icon">
+                <ShieldCheckIcon />
+            </div>
+            <div className="trust-badge-text">
+                <span className="trust-badge-title">{t.secureCheckout}</span>
+                <span className="trust-badge-desc">{t.encryptionBadge}</span>
+            </div>
+        </div>
+        <div className="trust-badge-item">
+            <div className="trust-badge-icon">
+                <VerifiedIcon />
+            </div>
+            <div className="trust-badge-text">
+                <span className="trust-badge-title">{t.trustedInstitutional}</span>
+                <span className="trust-badge-desc">{t.satisfactionBadge}</span>
+            </div>
+        </div>
+        <div className="trust-badge-item">
+            <div className="trust-badge-icon">
+                <HeadsetIcon />
+            </div>
+            <div className="trust-badge-text">
+                <span className="trust-badge-title">{t.supportBadge}</span>
+                <span className="trust-badge-desc">{t.instantAccess}</span>
+            </div>
+        </div>
+    </div>
+);
+
+const PaymentIcons = ({ t }) => (
+    <div className="payment-methods-footer">
+        <div className="payment-icon-wrapper" title="Visa">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="payment-icon" />
+        </div>
+        <div className="payment-icon-wrapper" title="Mastercard">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="payment-icon" />
+        </div>
+        <div className="payment-icon-wrapper" title="Stripe">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="payment-icon" />
+        </div>
+        <div className="payment-icon-wrapper" title="PayPal">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="payment-icon" />
+        </div>
+    </div>
+);
+
 // ===== Countdown Timer Component =====
 const CountdownTimer = ({ t }) => {
     const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -657,6 +729,7 @@ export default function LandingPage() {
                             <button onClick={() => handleSubscribe('https://t.me/your_bot')} className="btn-primary" style={{ width: '100%', border: 'none', cursor: 'pointer', fontSize: '1rem', fontFamily: 'inherit' }}>{t.subscribe}</button>
                         </div>
                     </div>
+                    <TrustBadges t={t} />
                 </div>
             </section>
 
@@ -710,6 +783,7 @@ export default function LandingPage() {
                     }} className="legal-link">
                         {t.legalFooterLink}
                     </a>
+                    <PaymentIcons t={t} />
                 </div>
             </footer>
         </div>
