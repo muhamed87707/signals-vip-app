@@ -71,7 +71,7 @@ export default function AdminPage() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const res = await fetch('/api/settings');
+                const res = await fetch('/api/settings', { cache: 'no-store' });
                 const data = await res.json();
                 if (data.success && data.settings) {
                     const s = data.settings;
