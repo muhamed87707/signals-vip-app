@@ -57,16 +57,16 @@ export default function AdminPage() {
     const [customPost, setCustomPost] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
     const [geminiApiKey, setGeminiApiKey] = useState('');
-    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
+    const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
     const [availableModels, setAvailableModels] = useState([]);
     const [modelsLoading, setModelsLoading] = useState(false);
     const [generatedPosts, setGeneratedPosts] = useState([]);
     const [generatingPosts, setGeneratingPosts] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(-1);
     const [postCount, setPostCount] = useState(50); // New State for Count
-    const [telegramBotLink, setTelegramBotLink] = useState(''); // New State for Bot Link
     const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false); // Manual Save state
+    const [telegramButtonType, setTelegramButtonType] = useState('view_signal'); // Default: View Signal
 
     // FETCH SETTINGS FROM DB ON MOUNT
     useEffect(() => {
@@ -81,7 +81,6 @@ export default function AdminPage() {
                     if (s.aiPrompt !== undefined) setAiPrompt(s.aiPrompt);
                     if (s.selectedModel !== undefined) setSelectedModel(s.selectedModel);
                     if (s.generatedPostCount !== undefined) setPostCount(Number(s.generatedPostCount));
-                    if (s.telegramBotLink !== undefined) setTelegramBotLink(s.telegramBotLink);
                     setSettingsLoaded(true); // Only enable auto-save if we successfully loaded values
                 }
             } catch (err) {
@@ -128,8 +127,7 @@ export default function AdminPage() {
                 geminiApiKey,
                 aiPrompt,
                 selectedModel,
-                generatedPostCount: postCount,
-                telegramBotLink
+                generatedPostCount: postCount
             } : payload;
 
             const res = await fetch('/api/settings', {
@@ -448,7 +446,8 @@ export default function AdminPage() {
                         telegramImage: telegramImage,
                         sendToTelegram: postToTelegram,
                         isVip: signalType === 'vip',
-                        customPost: postToUse || null
+                        customPost: postToUse || null,
+                        telegramButtonType: telegramButtonType
                     })
                 });
 
@@ -612,12 +611,46 @@ export default function AdminPage() {
                     </div>
 
                     {/* ===== Telegram Toggle ===== */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
                         <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
                         </div>
                         <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                     </div>
+
+                    {/* ===== Telegram Button Selection ===== */}
+                    {postToTelegram && (
+                        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#0f0f15', borderRadius: '12px', border: '1px solid #2a2a35' }}>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
+                                🔘 {lang === 'ar' ? 'زر الإجراء (يظهر أسفل المنشور)' : 'Action Button (Shown below post)'}
+                            </label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                                {[
+                                    { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
+                                    { id: 'subscribe', label: lang === 'ar' ? '🤖 اشتراك' : '🤖 Subscribe' },
+                                    { id: 'view_signal', label: lang === 'ar' ? '💎 التوصية' : '💎 View Signal' },
+                                    { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
+                                ].map((btn) => (
+                                    <button
+                                        key={btn.id}
+                                        onClick={() => setTelegramButtonType(btn.id)}
+                                        style={{
+                                            padding: '0.6rem',
+                                            background: telegramButtonType === btn.id ? '#229ED9' : 'transparent',
+                                            border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#444'}`,
+                                            borderRadius: '8px',
+                                            color: '#fff',
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        {btn.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* ===== Custom Post Editor ===== */}
                     <div style={{ marginBottom: '2rem' }}>
@@ -667,28 +700,6 @@ export default function AdminPage() {
                                 >
                                     💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
                                 </button>
-                            </div>
-
-                            {/* API Key Input */}
-                            <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-                                    🤖 {lang === 'ar' ? 'رابط بوت الاشتراك (تليجرام)' : 'Subscribe Bot Link (Telegram)'}
-                                </label>
-                                <input
-                                    type="text"
-                                    value={telegramBotLink}
-                                    onChange={(e) => setTelegramBotLink(e.target.value)}
-                                    placeholder="https://t.me/YourBotName"
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.8rem',
-                                        background: '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: '#fff',
-                                        marginBottom: '1rem' // Spacing
-                                    }}
-                                />
                             </div>
 
                             {/* API Key Input */}

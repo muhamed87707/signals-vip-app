@@ -30,7 +30,7 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-async function sendToTelegram(imageUrl, customPost = null, isVip = true) {
+async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonType = 'view_signal') {
     if (!imageUrl) return null;
 
     try {
@@ -56,45 +56,30 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
-        // Different button for VIP vs Free
-        const buttonText = isVip
-            ? "💎 Show Signal | إظهار التوصية 💎"
-            : "📊 View Details | عرض التفاصيل 📊";
-
-        // Initialize optional buttons
+        // Construct Inline Keyboard based on Button Type
         let inlineKeyboard = [];
 
-        // Fetch settings to get the subscription bot link
-        await dbConnect();
-        const settings = await Settings.findOne();
-        const subscribeBotLink = settings?.telegramBotLink || '#';
+        if (buttonType === 'share') {
+            // Share Button
+            const shareText = encodeURIComponent("اشترك الآن في قناة أبو الذهب للتوصيات القوية! 🚀💰\nSubscribe now to Abu Al-Dahab's premium signals channel! 🚀💰\n👉 @Abou_AlDahab");
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent("https://t.me/Abou_AlDahab")}&text=${shareText}`;
 
-        // 1. Share Button (First Row)
-        const shareTextAr = "اشترك في قناة أبو الذهب للتوصيات القوية! 🚀";
-        const shareTextEn = "Join Abu Al-Dahab Channel for powerful signals! 🚀";
-        const channelLink = "https://t.me/Abou_AlDahab";
-        const shareUrl = `https://t.me/share/url?url=${channelLink}&text=${encodeURIComponent(shareTextAr + "\n" + shareTextEn)}`;
-
-        inlineKeyboard.push([{
-            text: "📤 مشاركة للأصدقاء | Share to Friends 📤",
-            url: shareUrl
-        }]);
-
-        // 2. Subscribe Button (Second Row)
-        if (subscribeBotLink && subscribeBotLink !== '#') {
-            inlineKeyboard.push([{
-                text: "🤖 الاشتراك الآن | Subscribe Now 🤖",
-                url: subscribeBotLink
-            }]);
+            inlineKeyboard = [[
+                { text: "📤 Share | مشاركة 📤", url: shareUrl }
+            ]];
+        } else if (buttonType === 'subscribe') {
+            // Subscribe Button
+            inlineKeyboard = [[
+                { text: "🤖 Subscribe Now | الاشتراك الآن 🤖", url: "https://t.me/AbouAlDahab_bot" }
+            ]];
+        } else if (buttonType === 'view_signal') {
+            // View Signal Button (Standard)
+            const btnLabel = isVip ? "💎 Show Signal | إظهار التوصية 💎" : "💎 View Details | عرض التفاصيل 💎";
+            inlineKeyboard = [[
+                { text: btnLabel, url: "https://signals-vip-app.vercel.app/signals" }
+            ]];
         }
-
-        // 3. View Signal Button (Third Row)
-        // Always present, links to the website
-        // For VIP: Unlocks signal. For Free: Shows details.
-        inlineKeyboard.push([{
-            text: "💎 إظهار التوصية | View Signal 💎",
-            url: "https://signals-vip-app.vercel.app/signals"
-        }]);
+        // If buttonType is 'none', inlineKeyboard remains []
 
         const response = await fetch(url, {
             method: 'POST',
@@ -104,9 +89,7 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
                 photo: imageUrl,
                 caption: text,
                 parse_mode: 'Markdown',
-                reply_markup: {
-                    inline_keyboard: inlineKeyboard
-                }
+                reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined
             })
         });
 
