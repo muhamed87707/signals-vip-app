@@ -225,6 +225,13 @@ export default function AdminPage() {
         setModelsLoading(false);
     };
 
+    // Auto-fetch models if key exists (restores selection display)
+    useEffect(() => {
+        if (settingsLoaded && geminiApiKey && availableModels.length === 0) {
+            fetchModels();
+        }
+    }, [settingsLoaded, geminiApiKey]);
+
     // ===== NEW: Generate AI Posts =====
     const generateAIPosts = async () => {
         if (!customPost.trim()) {
