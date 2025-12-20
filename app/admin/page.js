@@ -953,6 +953,21 @@ export default function AdminPage() {
                             <div style={{ position: 'relative' }}>
                                 <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
                             </div>
+                            {signal.customPost && (
+                                <div style={{
+                                    padding: '1.25rem',
+                                    background: 'rgba(255,255,255,0.02)',
+                                    borderTop: '1px solid rgba(184, 134, 11, 0.1)',
+                                    lineHeight: '1.6',
+                                    color: '#e0e0e0',
+                                    fontSize: '0.95rem',
+                                    whiteSpace: 'pre-wrap',
+                                    direction: 'auto',
+                                    textAlign: 'start'
+                                }}>
+                                    {signal.customPost.replace(/\*/g, '')}
+                                </div>
+                            )}
                             <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', gap: '0.5rem' }}>
                                 <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>

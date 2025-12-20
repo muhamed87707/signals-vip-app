@@ -908,6 +908,36 @@ export default function SignalsPage() {
                                             </span>
                                         )}
                                     </div>
+
+                                    {/* Post Text Display with VIP Logic */}
+                                    <div style={{ marginTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.25rem' }}>
+                                        {(signal.isVip === false || isVip || index === 0) ? (
+                                            <p style={{
+                                                color: '#e0e0e0',
+                                                fontSize: '0.95rem',
+                                                lineHeight: '1.6',
+                                                whiteSpace: 'pre-wrap',
+                                                margin: 0,
+                                                direction: 'auto',
+                                                textAlign: 'start',
+                                                fontWeight: '500'
+                                            }}>
+                                                {signal.customPost ? signal.customPost.replace(/\*/g, '') : ''}
+                                            </p>
+                                        ) : (
+                                            <div style={{
+                                                textAlign: 'center',
+                                                padding: '0.5rem',
+                                                background: 'rgba(184, 134, 11, 0.05)',
+                                                borderRadius: '12px',
+                                                border: '1px dashed rgba(184, 134, 11, 0.2)'
+                                            }}>
+                                                <span className="text-gradient" style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
+                                                    🔒 {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
