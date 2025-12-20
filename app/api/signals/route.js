@@ -30,12 +30,12 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-async function sendToTelegram(imageUrl) {
+async function sendToTelegram(imageUrl, customPost = null, isVip = true) {
     if (!imageUrl) return null;
 
     try {
-        // Updated Caption and Button Text as requested
-        const text = `🔥 *توصية VIP جديدة!* 💎
+        // Default VIP caption
+        let text = `🔥 *توصية VIP جديدة!* 💎
 تم نشر صفقة قوية للمشتركين فقط. نسبة نجاح عالية وأرباح متوقعة ممتازة! 🚀
 اضغط بالأسفل لكشف التوصية ومشاهدة التفاصيل 👇
 
@@ -43,7 +43,23 @@ async function sendToTelegram(imageUrl) {
 A high-potential trade has been posted for premium subscribers! 🚀
 Click below to reveal the signal 👇`;
 
+        // Use custom post if provided, or free signal caption
+        if (customPost) {
+            text = customPost;
+        } else if (!isVip) {
+            text = `📊 *توصية مجانية جديدة!* 🎁
+استمتع بهذه الصفقة المجانية من مؤسسة أبو الذهب! 💰
+
+📊 *New FREE Signal!* 🎁
+Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
+        }
+
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+
+        // Different button for VIP vs Free
+        const buttonText = isVip
+            ? "💎 Show Signal | إظهار التوصية 💎"
+            : "📊 View Details | عرض التفاصيل 📊";
 
         const response = await fetch(url, {
             method: 'POST',
@@ -55,7 +71,7 @@ Click below to reveal the signal 👇`;
                 parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [[
-                        { text: "💎 Show Signal | إظهار التوصية 💎", url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
+                        { text: buttonText, url: "https://t.me/AbouAlDahab_bot/app?startapp=true" }
                     ]]
                 }
             })
@@ -71,6 +87,7 @@ Click below to reveal the signal 👇`;
         return null;
     }
 }
+
 
 async function deleteTelegramMessage(messageId) {
     if (!messageId) return;
@@ -138,7 +155,15 @@ export async function POST(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        let { pair, type, imageUrl, telegramImage, sendToTelegram: shouldSend } = body;
+        let {
+            pair,
+            type,
+            imageUrl,
+            telegramImage,
+            sendToTelegram: shouldSend,
+            isVip = true,
+            customPost = null
+        } = body;
 
         // 1. Upload Main Image (Clear)
         const clearImageUrl = await uploadToImgBB(imageUrl);
@@ -146,21 +171,31 @@ export async function POST(request) {
 
         let telegramMessageId = null;
 
-        // 2. Upload Telegram Image (Blurred) if requested
-        if (shouldSend && telegramImage) {
-            const blurredUrl = await uploadToImgBB(telegramImage);
-            if (blurredUrl) {
-                // Send and capture Message ID
-                telegramMessageId = await sendToTelegram(blurredUrl);
+        // 2. Handle Telegram posting based on VIP status
+        if (shouldSend) {
+            if (isVip && telegramImage) {
+                // VIP: Upload blurred image and send with VIP caption
+                const blurredUrl = await uploadToImgBB(telegramImage);
+                if (blurredUrl) {
+                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true);
+                }
+            } else {
+                // Free: Send clear image with free caption
+                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false);
             }
         }
 
-        // 3. Save to DB with Message ID
+        // 3. Save to DB with all fields
         const signal = await Signal.create({
             pair,
             type,
             imageUrl: clearImageUrl,
-            telegramMessageId: telegramMessageId?.toString()
+            isVip,
+            customPost,
+            telegramMessageId: telegramMessageId?.toString(),
+            socialMediaPosts: {
+                telegram: telegramMessageId?.toString()
+            }
         });
 
         return NextResponse.json({ success: true, signal });
@@ -169,6 +204,7 @@ export async function POST(request) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+
 
 export async function DELETE(request) {
     try {

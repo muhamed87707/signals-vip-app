@@ -157,15 +157,6 @@ export const translations = {
                 riskDisclaimer: 'Risk Disclaimer',
                 legalFooterLink: 'Legal & Risk Disclaimer',
 
-                // Trust Badges
-                secureCheckout: '100% Secure Checkout',
-                trustedInstitutional: 'Trusted Institutional Grade',
-                supportBadge: '24/7 Priority Support',
-                instantAccess: 'Instant Access After Payment',
-                paymentMethods: 'Supported Payment Methods',
-                encryptionBadge: 'SSL Encrypted & Secure',
-                satisfactionBadge: '99% Satisfaction Rate',
-
                 // Privacy Policy Detail
                 privacyText: `
 **1. Information We Collect**
@@ -412,15 +403,6 @@ Past performance of any trading system or methodology is not necessarily indicat
                 termsOfService: 'شروط الخدمة',
                 riskDisclaimer: 'تحذير المخاطر',
                 legalFooterLink: 'المعلومات القانونية والمخاطر',
-
-                // Trust Badges
-                secureCheckout: 'دفع آمن 100%',
-                trustedInstitutional: 'مؤسسة موثوقة ومعتمدة',
-                supportBadge: 'دعم فني متواصل 24/7',
-                instantAccess: 'وصول فوري بعد الدفع',
-                paymentMethods: 'وسائل الدفع المقبولة',
-                encryptionBadge: 'تشفير SSL آمن بالكامل',
-                satisfactionBadge: '99% نسبة رضا المتداولين',
 
                 privacyText: `
 **1. المعلومات التي نجمعها**

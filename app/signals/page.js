@@ -766,8 +766,8 @@ export default function SignalsPage() {
                             >
                                 {/* Signal Image with Auto Height */}
                                 <div style={{ position: 'relative' }}>
-                                    {/* Free Preview Badge for first signal */}
-                                    {!isVip && index === 0 && (
+                                    {/* FREE Signal Badge - for signals marked as free */}
+                                    {signal.isVip === false && (
                                         <div style={{
                                             position: 'absolute',
                                             top: '1rem',
@@ -781,7 +781,25 @@ export default function SignalsPage() {
                                             zIndex: 5,
                                             boxShadow: '0 2px 10px rgba(76, 175, 80, 0.4)'
                                         }}>
-                                            🎁 {t.freeSignalBadge}
+                                            🎁 {t.freeSignalBadge || 'FREE'}
+                                        </div>
+                                    )}
+                                    {/* VIP Badge - for VIP signals */}
+                                    {signal.isVip !== false && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '1rem',
+                                            right: '1rem',
+                                            background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+                                            color: '#1a1a1a',
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '20px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '700',
+                                            zIndex: 5,
+                                            boxShadow: '0 2px 10px rgba(184, 134, 11, 0.4)'
+                                        }}>
+                                            👑 VIP
                                         </div>
                                     )}
                                     <img
@@ -791,15 +809,16 @@ export default function SignalsPage() {
                                             width: '100%',
                                             height: 'auto',
                                             display: 'block',
-                                            filter: isVip ? 'none' : (index === 0 ? 'none' : 'blur(4px)'),
+                                            // Free signals are always clear. VIP signals are blurred for non-VIP users (except first one as preview)
+                                            filter: (signal.isVip === false || isVip || index === 0) ? 'none' : 'blur(4px)',
                                             transition: 'filter 0.3s ease'
                                         }}
                                     />
 
 
 
-                                    {/* Overlay for non-VIP with Glassmorphism - Skip first signal */}
-                                    {!isVip && index !== 0 && (
+                                    {/* Overlay for non-VIP viewing VIP signals - Skip first and free signals */}
+                                    {!isVip && signal.isVip !== false && index !== 0 && (
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,

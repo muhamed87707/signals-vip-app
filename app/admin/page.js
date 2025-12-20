@@ -51,7 +51,64 @@ export default function AdminPage() {
     // Telegram Auto-Post State
     const [postToTelegram, setPostToTelegram] = useState(true);
 
+    // ===== NEW: Signal Type & AI Post Generation =====
+    const [signalType, setSignalType] = useState('vip'); // 'vip' or 'free'
+    const [customPost, setCustomPost] = useState('');
+    const [aiPrompt, setAiPrompt] = useState('');
+    const [geminiApiKey, setGeminiApiKey] = useState('AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY');
+    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
+    const [availableModels, setAvailableModels] = useState([]);
+    const [modelsLoading, setModelsLoading] = useState(false);
+    const [generatedPosts, setGeneratedPosts] = useState([]);
+    const [generatingPosts, setGeneratingPosts] = useState(false);
+    const [selectedPostIndex, setSelectedPostIndex] = useState(-1);
+
+    // Load saved settings from localStorage
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedApiKey = localStorage.getItem('admin-gemini-key');
+            const savedPrompt = localStorage.getItem('admin-ai-prompt');
+            const savedModel = localStorage.getItem('admin-selected-model');
+            const savedPost = localStorage.getItem('admin-custom-post');
+            const savedType = localStorage.getItem('admin-signal-type');
+
+            if (savedApiKey) setGeminiApiKey(savedApiKey);
+            if (savedPrompt) setAiPrompt(savedPrompt);
+            if (savedModel) setSelectedModel(savedModel);
+            if (savedPost) setCustomPost(savedPost);
+            if (savedType) setSignalType(savedType);
+        }
+    }, []);
+
+    // Save settings to localStorage on change
+    useEffect(() => {
+        if (typeof window !== 'undefined' && geminiApiKey) {
+            localStorage.setItem('admin-gemini-key', geminiApiKey);
+        }
+    }, [geminiApiKey]);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('admin-ai-prompt', aiPrompt);
+        }
+    }, [aiPrompt]);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('admin-selected-model', selectedModel);
+        }
+    }, [selectedModel]);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('admin-custom-post', customPost);
+        }
+    }, [customPost]);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('admin-signal-type', signalType);
+        }
+    }, [signalType]);
+
+    useEffect(() => {
+
         const auth = sessionStorage.getItem('admin-auth');
         if (auth === 'true') {
             setIsAuthenticated(true);
@@ -101,6 +158,76 @@ export default function AdminPage() {
             console.error('Error fetching users:', err);
         }
     };
+
+    // ===== NEW: Fetch Gemini Models =====
+    const fetchModels = async () => {
+        if (!geminiApiKey) return;
+        setModelsLoading(true);
+        try {
+            const res = await fetch('/api/ai/list-models', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiKey: geminiApiKey })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAvailableModels(data.models || []);
+            } else {
+                console.error('Failed to fetch models:', data.error);
+            }
+        } catch (err) {
+            console.error('Error fetching models:', err);
+        }
+        setModelsLoading(false);
+    };
+
+    // ===== NEW: Generate AI Posts =====
+    const generateAIPosts = async () => {
+        if (!customPost.trim()) {
+            setError(lang === 'ar' ? 'يرجى كتابة المنشور أولاً' : 'Please write a post first');
+            return;
+        }
+        setGeneratingPosts(true);
+        setGeneratedPosts([]);
+        setSelectedPostIndex(-1);
+        try {
+            const res = await fetch('/api/ai/generate-posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    apiKey: geminiApiKey,
+                    model: selectedModel,
+                    userPost: customPost,
+                    customPrompt: aiPrompt || undefined,
+                    count: 50
+                })
+            });
+            const data = await res.json();
+            if (data.success && data.posts) {
+                setGeneratedPosts(data.posts);
+            } else {
+                setError(data.error || 'Failed to generate posts');
+            }
+        } catch (err) {
+            console.error('Error generating posts:', err);
+            setError(err.message);
+        }
+        setGeneratingPosts(false);
+    };
+
+    // Fetch default prompt on load
+    useEffect(() => {
+        if (!aiPrompt) {
+            fetch('/api/ai/generate-posts')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.defaultPrompt && !aiPrompt) {
+                        setAiPrompt(data.defaultPrompt);
+                    }
+                })
+                .catch(console.error);
+        }
+    }, []);
 
     // --- CANVAS LOCK GENERATION (TUNED) ---
     const createBlurredImage = (file) => {
@@ -200,8 +327,14 @@ export default function AdminPage() {
             reader.onloadend = async () => {
                 const base64Image = reader.result;
 
+                // Get the post to use (selected from AI or custom)
+                const postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
+                    ? generatedPosts[selectedPostIndex]
+                    : customPost;
+
+                // Only create blurred image for VIP signals
                 let telegramImage = null;
-                if (postToTelegram) {
+                if (postToTelegram && signalType === 'vip') {
                     try {
                         telegramImage = await createBlurredImage(file);
                     } catch (blurErr) {
@@ -217,7 +350,9 @@ export default function AdminPage() {
                         type: 'SIGNAL',
                         imageUrl: base64Image,
                         telegramImage: telegramImage,
-                        sendToTelegram: postToTelegram
+                        sendToTelegram: postToTelegram,
+                        isVip: signalType === 'vip',
+                        customPost: postToUse || null
                     })
                 });
 
@@ -227,6 +362,9 @@ export default function AdminPage() {
                     if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
                     setSuccessMessage(msg);
                     fetchSignals();
+                    // Clear generated posts after successful upload
+                    setGeneratedPosts([]);
+                    setSelectedPostIndex(-1);
                 } else {
                     setError(t.postError);
                 }
@@ -339,22 +477,239 @@ export default function AdminPage() {
 
                 {/* Old VIP Section Removed - Moved to Bottom */}
 
-                <div className="card" style={{ padding: '3rem', textAlign: 'center', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📤</div>
-                    <h2 style={{ color: '#DAA520', marginBottom: '1rem' }}>{t.postNewSignal}</h2>
+                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>📤</div>
+                    <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', textAlign: 'center' }}>{t.postNewSignal}</h2>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                    {/* ===== Signal Type Toggle ===== */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                        <button
+                            onClick={() => setSignalType('vip')}
+                            style={{
+                                padding: '0.75rem 2rem',
+                                background: signalType === 'vip' ? 'linear-gradient(135deg, #B8860B, #DAA520)' : 'transparent',
+                                border: `2px solid ${signalType === 'vip' ? '#DAA520' : '#555'}`,
+                                borderRadius: '50px',
+                                color: signalType === 'vip' ? '#000' : '#888',
+                                fontWeight: signalType === 'vip' ? '700' : '500',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s'
+                            }}
+                        >
+                            👑 VIP {lang === 'ar' ? '(مموهة)' : '(Blurred)'}
+                        </button>
+                        <button
+                            onClick={() => setSignalType('free')}
+                            style={{
+                                padding: '0.75rem 2rem',
+                                background: signalType === 'free' ? 'linear-gradient(135deg, #4caf50, #66bb6a)' : 'transparent',
+                                border: `2px solid ${signalType === 'free' ? '#4caf50' : '#555'}`,
+                                borderRadius: '50px',
+                                color: signalType === 'free' ? '#fff' : '#888',
+                                fontWeight: signalType === 'free' ? '700' : '500',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s'
+                            }}
+                        >
+                            🎁 {lang === 'ar' ? 'مجانية (واضحة)' : 'Free (Clear)'}
+                        </button>
+                    </div>
+
+                    {/* ===== Telegram Toggle ===== */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
                         <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
                         </div>
                         <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                     </div>
 
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                    <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer' }}>{uploading ? t.uploading : t.chooseImage}</label>
+                    {/* ===== Custom Post Editor ===== */}
+                    <div style={{ marginBottom: '2rem' }}>
+                        <label style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem', display: 'block' }}>
+                            ✍️ {lang === 'ar' ? 'اكتب المنشور' : 'Write Your Post'}
+                        </label>
+                        <textarea
+                            value={customPost}
+                            onChange={(e) => setCustomPost(e.target.value)}
+                            placeholder={lang === 'ar' ? 'اكتب المنشور الذي سيتم نشره مع التوصية...' : 'Write the post that will be published with the signal...'}
+                            style={{
+                                width: '100%',
+                                minHeight: '120px',
+                                padding: '1rem',
+                                background: '#13131d',
+                                border: '1px solid #2a2a35',
+                                borderRadius: '12px',
+                                color: '#fff',
+                                fontSize: '1rem',
+                                resize: 'vertical'
+                            }}
+                        />
+                    </div>
 
-                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold' }}>{successMessage}</p>}
-                    {error && <p style={{ color: '#ef4444', marginTop: '1rem' }}>{error}</p>}
+                    {/* ===== AI Settings Collapsible ===== */}
+                    <details style={{ marginBottom: '2rem', background: '#0a0a0f', borderRadius: '12px', padding: '1rem', border: '1px solid #2a2a35' }}>
+                        <summary style={{ color: '#DAA520', cursor: 'pointer', fontWeight: '600' }}>
+                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي' : 'AI Settings'}
+                        </summary>
+                        <div style={{ marginTop: '1.5rem', display: 'grid', gap: '1.5rem' }}>
+                            {/* API Key */}
+                            <div>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                                    🔑 Gemini API Key
+                                </label>
+                                <input
+                                    type="password"
+                                    value={geminiApiKey}
+                                    onChange={(e) => setGeminiApiKey(e.target.value)}
+                                    placeholder="AIzaSy..."
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        background: '#13131d',
+                                        border: '1px solid #2a2a35',
+                                        borderRadius: '8px',
+                                        color: '#fff'
+                                    }}
+                                />
+                            </div>
+
+                            {/* Model Selector */}
+                            <div>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                                    🧠 {lang === 'ar' ? 'نموذج Gemini' : 'Gemini Model'}
+                                </label>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <select
+                                        value={selectedModel}
+                                        onChange={(e) => setSelectedModel(e.target.value)}
+                                        style={{
+                                            flex: 1,
+                                            padding: '0.75rem',
+                                            background: '#13131d',
+                                            border: '1px solid #2a2a35',
+                                            borderRadius: '8px',
+                                            color: '#fff'
+                                        }}
+                                    >
+                                        <option value="gemini-2.0-flash">gemini-2.0-flash (Default)</option>
+                                        {availableModels.map(m => (
+                                            <option key={m.id} value={m.id}>{m.displayName || m.id}</option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        onClick={fetchModels}
+                                        disabled={modelsLoading}
+                                        style={{
+                                            padding: '0.75rem 1rem',
+                                            background: '#2a2a35',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            color: '#fff',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {modelsLoading ? '...' : '🔄'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* AI Prompt */}
+                            <div>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                                    📝 {lang === 'ar' ? 'البرومبت (يمكنك التعديل)' : 'Prompt (Editable)'}
+                                </label>
+                                <textarea
+                                    value={aiPrompt}
+                                    onChange={(e) => setAiPrompt(e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        minHeight: '150px',
+                                        padding: '1rem',
+                                        background: '#13131d',
+                                        border: '1px solid #2a2a35',
+                                        borderRadius: '8px',
+                                        color: '#fff',
+                                        fontSize: '0.85rem',
+                                        resize: 'vertical'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </details>
+
+                    {/* ===== Generate Posts Button ===== */}
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                        <button
+                            onClick={generateAIPosts}
+                            disabled={generatingPosts || !customPost.trim()}
+                            style={{
+                                padding: '1rem 2rem',
+                                background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)',
+                                border: 'none',
+                                borderRadius: '50px',
+                                color: '#fff',
+                                fontWeight: '700',
+                                cursor: generatingPosts ? 'wait' : 'pointer',
+                                opacity: !customPost.trim() ? 0.5 : 1
+                            }}
+                        >
+                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? '🚀 توليد 50 نسخة بالذكاء الاصطناعي' : '🚀 Generate 50 AI Variations')}
+                        </button>
+                    </div>
+
+                    {/* ===== Generated Posts Gallery ===== */}
+                    {generatedPosts.length > 0 && (
+                        <div style={{ marginBottom: '2rem' }}>
+                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>
+                                ✨ {lang === 'ar' ? `اختر منشوراً (${generatedPosts.length} نسخة)` : `Select a Post (${generatedPosts.length} variations)`}
+                            </h3>
+                            <div style={{
+                                maxHeight: '400px',
+                                overflowY: 'auto',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                                gap: '1rem',
+                                padding: '0.5rem',
+                                background: '#0a0a0f',
+                                borderRadius: '12px',
+                                border: '1px solid #2a2a35'
+                            }}>
+                                {generatedPosts.map((post, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => setSelectedPostIndex(idx)}
+                                        style={{
+                                            padding: '1rem',
+                                            background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d',
+                                            border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`,
+                                            borderRadius: '10px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem' }}>#{idx + 1}</div>
+                                        <p style={{ color: '#e0e0e0', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>{post}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            {selectedPostIndex >= 0 && (
+                                <p style={{ color: '#4caf50', marginTop: '1rem', textAlign: 'center' }}>
+                                    ✓ {lang === 'ar' ? `تم اختيار المنشور رقم ${selectedPostIndex + 1}` : `Post #${selectedPostIndex + 1} selected`}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ===== Upload Button ===== */}
+                    <div style={{ textAlign: 'center' }}>
+                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
+                        <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1rem 3rem' }}>
+                            {uploading ? t.uploading : (lang === 'ar' ? '📤 رفع صورة التوصية ونشرها' : '📤 Upload Signal Image & Publish')}
+                        </label>
+                    </div>
+
+                    {successMessage && <p style={{ color: '#4caf50', marginTop: '1rem', fontWeight: 'bold', textAlign: 'center' }}>{successMessage}</p>}
+                    {error && <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
                 </div>
 
                 <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
