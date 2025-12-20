@@ -65,12 +65,12 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent("https://t.me/Abou_AlDahab")}&text=${shareText}`;
 
             inlineKeyboard = [[
-                { text: "📤 Share | مشاركة 📤", url: shareUrl }
+                { text: "📤 Share Post | مشاركة المنشور 📤", url: shareUrl }
             ]];
         } else if (buttonType === 'subscribe') {
             // Subscribe Button
             inlineKeyboard = [[
-                { text: "🤖 Subscribe Now | الاشتراك الآن 🤖", url: "https://t.me/AbouAlDahab_bot" }
+                { text: "🔥 Subscribe Now | اشترك الآن 🔥", url: "https://t.me/AbouAlDahab_bot" }
             ]];
         } else if (buttonType === 'view_signal') {
             // View Signal Button (Standard)

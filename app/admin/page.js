@@ -746,9 +746,9 @@ export default function AdminPage() {
                                 </label>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
                                     {[
-                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة للأصدقاء' : '📤 Share to Friends' },
-                                        { id: 'subscribe', label: lang === 'ar' ? '🤖 الاشتراك الآن' : '🤖 Subscribe Now' },
-                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 View Signal' },
+                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
+                                        { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
+                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
                                         { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
                                     ].map((btn) => (
                                         <button
