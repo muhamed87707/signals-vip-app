@@ -441,7 +441,7 @@ export default function AdminPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         pair: 'GOLD',
-                        type: 'SIGNAL',
+                        type: signalType === 'post' ? 'POST' : 'SIGNAL', // Differentiate Normal Post
                         imageUrl: base64Image,
                         telegramImage: telegramImage,
                         sendToTelegram: postToTelegram,
@@ -598,368 +598,349 @@ export default function AdminPage() {
 
                     {/* 2. SIGNAL TYPE TOGGLE */}
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                        <button
-                            onClick={() => setSignalType('vip')}
-                            style={{
-                                padding: '0.75rem 2rem',
-                                background: signalType === 'vip' ? 'linear-gradient(135deg, #B8860B, #DAA520)' : 'transparent',
-                                border: `2px solid ${signalType === 'vip' ? '#DAA520' : '#555'}`,
-                                borderRadius: '50px',
-                                color: signalType === 'vip' ? '#000' : '#888',
-                                fontWeight: signalType === 'vip' ? '700' : '500',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s'
+                        background: signalType === 'free' ? 'linear-gradient(135deg, #4caf50, #66bb6a)' : 'transparent',
+                        border: `2px solid ${signalType === 'free' ? '#4caf50' : '#555'}`,
+                        borderRadius: '50px',
+                        color: signalType === 'free' ? '#fff' : '#888',
+                        fontWeight: signalType === 'free' ? '700' : '500',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s'
                             }}
                         >
-                            👑 VIP {lang === 'ar' ? '(مموهة)' : '(Blurred)'}
-                        </button>
-                        <button
-                            onClick={() => setSignalType('free')}
-                            style={{
-                                padding: '0.75rem 2rem',
-                                background: signalType === 'free' ? 'linear-gradient(135deg, #4caf50, #66bb6a)' : 'transparent',
-                                border: `2px solid ${signalType === 'free' ? '#4caf50' : '#555'}`,
-                                borderRadius: '50px',
-                                color: signalType === 'free' ? '#fff' : '#888',
-                                fontWeight: signalType === 'free' ? '700' : '500',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s'
-                            }}
-                        >
-                            🎁 {lang === 'ar' ? 'مجانية (واضحة)' : 'Free (Clear)'}
-                        </button>
-                    </div>
+                        🎁 {lang === 'ar' ? 'مجانية (واضحة)' : 'Free (Clear)'}
+                    </button>
+                </div>
 
-                    {/* 3. POST TEXT & AI */}
-                    <div style={{ marginBottom: '2rem' }}>
-                        <label style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem', display: 'block' }}>
-                            ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
-                        </label>
-                        <textarea
-                            value={customPost}
-                            onChange={(e) => setCustomPost(e.target.value)}
-                            placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
-                            style={{
-                                width: '100%',
-                                minHeight: '120px',
-                                padding: '1rem',
-                                background: '#13131d',
-                                border: '1px solid #2a2a35',
-                                borderRadius: '12px',
-                                color: '#fff',
-                                fontSize: '1rem',
-                                resize: 'vertical'
-                            }}
-                        />
-                    </div>
+                {/* 3. POST TEXT & AI */}
+                <div style={{ marginBottom: '2rem' }}>
+                    <label style={{ color: '#DAA520', fontSize: '1rem', marginBottom: '0.5rem', display: 'block' }}>
+                        ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
+                    </label>
+                    <textarea
+                        value={customPost}
+                        onChange={(e) => setCustomPost(e.target.value)}
+                        placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
+                        style={{
+                            width: '100%',
+                            minHeight: '120px',
+                            padding: '1rem',
+                            background: '#13131d',
+                            border: '1px solid #2a2a35',
+                            borderRadius: '12px',
+                            color: '#fff',
+                            fontSize: '1rem',
+                            resize: 'vertical'
+                        }}
+                    />
+                </div>
 
-                    {/* AI Settings */}
-                    <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
-                        <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
-                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
-                        </summary>
-                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {/* Manual Save */}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <button
-                                    onClick={() => saveSettingsToDB(null, true)}
-                                    disabled={savingSettings}
-                                    style={{
-                                        padding: '0.5rem 1.5rem',
-                                        background: '#4CAF50',
-                                        color: '#fff',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: savingSettings ? 'wait' : 'pointer',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.85rem'
-                                    }}
-                                >
-                                    💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
-                                </button>
-                            </div>
-                            {/* API Key */}
-                            <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
-                                <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
-                            </div>
-                            {/* Model & Count */}
-                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                                <div style={{ flex: 2, minWidth: '200px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
-                                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                                            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                                            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                                            {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
-                                        </select>
-                                        <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
-                                    </div>
-                                </div>
-                                <div style={{ flex: 1, minWidth: '150px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
-                                    <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                {/* AI Settings */}
+                <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
+                    <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
+                        🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
+                    </summary>
+                    <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {/* Manual Save */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => saveSettingsToDB(null, true)}
+                                disabled={savingSettings}
+                                style={{
+                                    padding: '0.5rem 1.5rem',
+                                    background: '#4CAF50',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: savingSettings ? 'wait' : 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.85rem'
+                                }}
+                            >
+                                💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
+                            </button>
+                        </div>
+                        {/* API Key */}
+                        <div>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
+                            <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                        </div>
+                        {/* Model & Count */}
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div style={{ flex: 2, minWidth: '200px' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
+                                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                                        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                                        {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
+                                    </select>
+                                    <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
                                 </div>
                             </div>
-                            {/* Prompt */}
-                            <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
-                                <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                            <div style={{ flex: 1, minWidth: '150px' }}>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
+                                <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                             </div>
                         </div>
-                    </details>
+                        {/* Prompt */}
+                        <div>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
+                            <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                        </div>
+                    </div>
+                </details>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                        <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
-                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
-                        </button>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                    <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
+                        {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
+                    </button>
+                </div>
+
+                {/* Gallery */}
+                {generatedPosts.length > 0 && (
+                    <div style={{ marginBottom: '2rem' }}>
+                        <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', padding: '0.5rem', background: '#0a0a0f', borderRadius: '12px', border: '1px solid #2a2a35' }}>
+                            {generatedPosts.map((post, idx) => (
+                                <div key={idx} onClick={() => setSelectedPostIndex(idx)} style={{ padding: '1rem', background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d', border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                    <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* 4. TELEGRAM BUTTONS (Wide) */}
+                <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#0f0f15', borderRadius: '16px', border: '1px solid #2a2a35' }}>
+                    {/* Telegram Toggle */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                        </div>
+                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                     </div>
 
-                    {/* Gallery */}
-                    {generatedPosts.length > 0 && (
-                        <div style={{ marginBottom: '2rem' }}>
-                            <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', padding: '0.5rem', background: '#0a0a0f', borderRadius: '12px', border: '1px solid #2a2a35' }}>
-                                {generatedPosts.map((post, idx) => (
-                                    <div key={idx} onClick={() => setSelectedPostIndex(idx)} style={{ padding: '1rem', background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d', border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                                        <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
-                                    </div>
+                    {postToTelegram && (
+                        <div style={{ marginTop: '1rem' }}>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
+                                🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
+                            </label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
+                                {[
+                                    { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
+                                    { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
+                                    { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
+                                    { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
+                                ].map((btn) => (
+                                    <button
+                                        key={btn.id}
+                                        onClick={() => setTelegramButtonType(btn.id)}
+                                        style={{
+                                            padding: '1rem',
+                                            background: telegramButtonType === btn.id ? '#229ED9' : '#1a1a20',
+                                            border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#333'}`,
+                                            borderRadius: '8px',
+                                            color: '#fff',
+                                            fontSize: '1rem',
+                                            fontWeight: telegramButtonType === btn.id ? 'bold' : 'normal',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        {btn.label}
+                                    </button>
                                 ))}
                             </div>
                         </div>
                     )}
-
-                    {/* 4. TELEGRAM BUTTONS (Wide) */}
-                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#0f0f15', borderRadius: '16px', border: '1px solid #2a2a35' }}>
-                        {/* Telegram Toggle */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
-                            </div>
-                            <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
-                        </div>
-
-                        {postToTelegram && (
-                            <div style={{ marginTop: '1rem' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
-                                    🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
-                                </label>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
-                                    {[
-                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
-                                        { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
-                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
-                                        { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
-                                    ].map((btn) => (
-                                        <button
-                                            key={btn.id}
-                                            onClick={() => setTelegramButtonType(btn.id)}
-                                            style={{
-                                                padding: '1rem',
-                                                background: telegramButtonType === btn.id ? '#229ED9' : '#1a1a20',
-                                                border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#333'}`,
-                                                borderRadius: '8px',
-                                                color: '#fff',
-                                                fontSize: '1rem',
-                                                fontWeight: telegramButtonType === btn.id ? 'bold' : 'normal',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s',
-                                                textAlign: 'center'
-                                            }}
-                                        >
-                                            {btn.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 5. FINAL PREVIEW (Bottom) */}
-                    {previewData && (
-                        <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
-                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
-                            <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
-                                <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
-                            </div>
-                            <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #333', textAlign: 'left', direction: lang === 'ar' ? 'rtl' : 'ltr', marginBottom: '1.5rem' }}>
-                                <p style={{ color: '#fff', margin: 0, fontWeight: 'bold' }}>
-                                    {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
-                                </p>
-                            </div>
-                            <button
-                                onClick={handlePublish}
-                                disabled={uploading}
-                                style={{
-                                    padding: '1rem 3rem',
-                                    background: 'linear-gradient(135deg, #B8860B, #DAA520)',
-                                    border: 'none',
-                                    borderRadius: '50px',
-                                    color: '#000',
-                                    fontWeight: '800',
-                                    fontSize: '1.1rem',
-                                    cursor: uploading ? 'wait' : 'pointer',
-                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
-                                }}
-                            >
-                                {uploading ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish')}
-                            </button>
-                        </div>
-                    )}
                 </div>
 
-                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
-
-                {/* Full Width Grid Layout - Matches User Request */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
-                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
-                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
-                            <div style={{ position: 'relative' }}>
-                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                            </div>
-                            <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
-                                <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
-                            </div>
+                {/* 5. FINAL PREVIEW (Bottom) */}
+                {previewData && (
+                    <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
+                        <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
+                        <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
+                            <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
                         </div>
-                    ))}
-                </div>
-
-                {/* VIP Management Section - Moved to Bottom */}
-                <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
-                    <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
-
-                    {/* Add VIP Form */}
-                    <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
-                        <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.2rem' }}>{t.addNewVip}</h3>
-                        <form onSubmit={handleGrantVip} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'end' }}>
-                            <div style={{ flex: 1, minWidth: '200px' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.telegramIdPlaceholder}</label>
-                                <input
-                                    type="text"
-                                    value={telegramId}
-                                    onChange={(e) => setTelegramId(e.target.value)}
-                                    placeholder="e.g. 123456789"
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.8rem',
-                                        background: '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: '#fff'
-                                    }}
-                                    required
-                                />
-                            </div>
-
-                            <div style={{ minWidth: '150px' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.durationMonths || 'Duration (Months)'}</label>
-                                <input
-                                    type="number"
-                                    value={durationMonths}
-                                    onChange={(e) => setDurationMonths(e.target.value)}
-                                    placeholder="e.g. 1, 3, 12"
-                                    disabled={isLifetime}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.8rem',
-                                        background: isLifetime ? '#0f0f15' : '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: isLifetime ? '#555' : '#fff'
-                                    }}
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', height: '45px', padding: '0 1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px' }}>
-                                <input
-                                    type="checkbox"
-                                    id="lifetime"
-                                    checked={isLifetime}
-                                    onChange={(e) => setIsLifetime(e.target.checked)}
-                                    style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
-                                />
-                                <label htmlFor="lifetime" style={{ color: '#fff', cursor: 'pointer', userSelect: 'none' }}>{t.lifetime || 'Lifetime'}</label>
-                            </div>
-
-                            <button type="submit" className="btn-primary" style={{ height: '45px', padding: '0 2rem' }}>
-                                {vipLoading ? '...' : t.grantVip}
-                            </button>
-                        </form>
-                        {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
+                        <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #333', textAlign: 'left', direction: lang === 'ar' ? 'rtl' : 'ltr', marginBottom: '1.5rem' }}>
+                            <p style={{ color: '#fff', margin: 0, fontWeight: 'bold' }}>
+                                {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
+                            </p>
+                        </div>
+                        <button
+                            onClick={handlePublish}
+                            disabled={uploading}
+                            style={{
+                                padding: '1rem 3rem',
+                                background: 'linear-gradient(135deg, #B8860B, #DAA520)',
+                                border: 'none',
+                                borderRadius: '50px',
+                                color: '#000',
+                                fontWeight: '800',
+                                fontSize: '1.1rem',
+                                cursor: uploading ? 'wait' : 'pointer',
+                                boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
+                            }}
+                        >
+                            {uploading ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish')}
+                        </button>
                     </div>
-
-                    {/* Active Users Table */}
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.filter(u => u.isVip).length === 0 ? (
-                                    <tr>
-                                        <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>{t.noVipMembers || 'No active VIP members'}</td>
-                                    </tr>
-                                ) : (
-                                    users.filter(u => u.isVip).map(user => {
-                                        const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
-                                        const now = new Date();
-                                        const isExpired = expiry && now > expiry;
-                                        // This filter effectively hides expired users, per request "Active members only"
-                                        // If backend update didn't run yet, front-end check helps
-                                        if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
-
-                                        let timeLeft = 'Lifetime ♾️';
-                                        if (expiry) {
-                                            const diff = expiry - now;
-                                            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                            timeLeft = `${days} Days`;
-                                        }
-
-                                        return (
-                                            <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-                                                <td style={{ padding: '1rem' }}>{user.telegramId}</td>
-                                                <td style={{ padding: '1rem' }}>
-                                                    <span style={{
-                                                        background: 'rgba(76, 175, 80, 0.1)',
-                                                        color: '#4caf50',
-                                                        padding: '0.2rem 0.6rem',
-                                                        borderRadius: '4px',
-                                                        fontSize: '0.85rem'
-                                                    }}>Active</span>
-                                                </td>
-                                                <td style={{ padding: '1rem' }}>{timeLeft}</td>
-                                                <td style={{ padding: '1rem' }}>
-                                                    <button
-                                                        onClick={() => handleRemoveUser(user.telegramId)}
-                                                        style={{
-                                                            background: 'transparent',
-                                                            border: '1px solid #ef4444',
-                                                            color: '#ef4444',
-                                                            padding: '0.3rem 0.8rem',
-                                                            borderRadius: '6px',
-                                                            cursor: 'pointer',
-                                                            fontSize: '0.85rem'
-                                                        }}
-                                                    >
-                                                        {t.remove || 'Remove'}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                )}
             </div>
+
+            <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
+
+            {/* Full Width Grid Layout - Matches User Request */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
+                {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
+                    <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
+                        <div style={{ position: 'relative' }}>
+                            <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                        </div>
+                        <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                            <span style={{ color: '#9a9ab0', fontSize: '0.9rem' }}>🕒 {getTimeAgo(signal.createdAt, lang)}</span>
+                            <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', color: '#ef4444', cursor: 'pointer' }}>{t.delete}</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* VIP Management Section - Moved to Bottom */}
+            <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
+                <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
+
+                {/* Add VIP Form */}
+                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
+                    <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.2rem' }}>{t.addNewVip}</h3>
+                    <form onSubmit={handleGrantVip} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'end' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.telegramIdPlaceholder}</label>
+                            <input
+                                type="text"
+                                value={telegramId}
+                                onChange={(e) => setTelegramId(e.target.value)}
+                                placeholder="e.g. 123456789"
+                                style={{
+                                    width: '100%',
+                                    padding: '0.8rem',
+                                    background: '#13131d',
+                                    border: '1px solid #2a2a35',
+                                    borderRadius: '8px',
+                                    color: '#fff'
+                                }}
+                                required
+                            />
+                        </div>
+
+                        <div style={{ minWidth: '150px' }}>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.durationMonths || 'Duration (Months)'}</label>
+                            <input
+                                type="number"
+                                value={durationMonths}
+                                onChange={(e) => setDurationMonths(e.target.value)}
+                                placeholder="e.g. 1, 3, 12"
+                                disabled={isLifetime}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.8rem',
+                                    background: isLifetime ? '#0f0f15' : '#13131d',
+                                    border: '1px solid #2a2a35',
+                                    borderRadius: '8px',
+                                    color: isLifetime ? '#555' : '#fff'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', height: '45px', padding: '0 1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px' }}>
+                            <input
+                                type="checkbox"
+                                id="lifetime"
+                                checked={isLifetime}
+                                onChange={(e) => setIsLifetime(e.target.checked)}
+                                style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
+                            />
+                            <label htmlFor="lifetime" style={{ color: '#fff', cursor: 'pointer', userSelect: 'none' }}>{t.lifetime || 'Lifetime'}</label>
+                        </div>
+
+                        <button type="submit" className="btn-primary" style={{ height: '45px', padding: '0 2rem' }}>
+                            {vipLoading ? '...' : t.grantVip}
+                        </button>
+                    </form>
+                    {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
+                </div>
+
+                {/* Active Users Table */}
+                <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
+                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
+                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
+                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
+                                <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {users.filter(u => u.isVip).length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>{t.noVipMembers || 'No active VIP members'}</td>
+                                </tr>
+                            ) : (
+                                users.filter(u => u.isVip).map(user => {
+                                    const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
+                                    const now = new Date();
+                                    const isExpired = expiry && now > expiry;
+                                    // This filter effectively hides expired users, per request "Active members only"
+                                    // If backend update didn't run yet, front-end check helps
+                                    if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
+
+                                    let timeLeft = 'Lifetime ♾️';
+                                    if (expiry) {
+                                        const diff = expiry - now;
+                                        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                        timeLeft = `${days} Days`;
+                                    }
+
+                                    return (
+                                        <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                                            <td style={{ padding: '1rem' }}>{user.telegramId}</td>
+                                            <td style={{ padding: '1rem' }}>
+                                                <span style={{
+                                                    background: 'rgba(76, 175, 80, 0.1)',
+                                                    color: '#4caf50',
+                                                    padding: '0.2rem 0.6rem',
+                                                    borderRadius: '4px',
+                                                    fontSize: '0.85rem'
+                                                }}>Active</span>
+                                            </td>
+                                            <td style={{ padding: '1rem' }}>{timeLeft}</td>
+                                            <td style={{ padding: '1rem' }}>
+                                                <button
+                                                    onClick={() => handleRemoveUser(user.telegramId)}
+                                                    style={{
+                                                        background: 'transparent',
+                                                        border: '1px solid #ef4444',
+                                                        color: '#ef4444',
+                                                        padding: '0.3rem 0.8rem',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    {t.remove || 'Remove'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
+        </div >
     );
 }

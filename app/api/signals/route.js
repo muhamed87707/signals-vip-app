@@ -128,7 +128,8 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const telegramId = searchParams.get('telegramId');
 
-        const signals = await Signal.find({}).sort({ createdAt: -1 }).limit(10);
+        // Only fetch actual trading signals, hide "Normal Posts"
+        const signals = await Signal.find({ type: 'SIGNAL' }).sort({ createdAt: -1 }).limit(10);
         let isVip = false;
         let subscriptionEndDate = null;
 
@@ -172,8 +173,8 @@ export async function POST(request) {
         await dbConnect();
         const body = await request.json();
         let {
-            pair,
-            type,
+            pair = 'GOLD',
+            type = 'SIGNAL', // Default to signal
             imageUrl,
             telegramImage,
             sendToTelegram: shouldSend,
