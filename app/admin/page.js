@@ -462,6 +462,7 @@ export default function AdminPage() {
                     setSelectedPostIndex(-1);
                     setPreviewData(null);
                     setSelectedFile(null);
+                    setCustomPost('');
                 } else {
                     setError(t.postError);
                 }
