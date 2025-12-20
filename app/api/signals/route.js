@@ -124,6 +124,25 @@ async function deleteTelegramMessage(messageId) {
     }
 }
 
+async function editTelegramCaption(messageId, newCaption) {
+    if (!messageId || !newCaption) return;
+    try {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageCaption`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                message_id: messageId,
+                caption: newCaption,
+                parse_mode: 'Markdown'
+            })
+        });
+    } catch (error) {
+        console.error('Telegram Edit Failed:', error);
+    }
+}
+
 export async function GET(request) {
     try {
         await dbConnect();
@@ -251,6 +270,42 @@ export async function DELETE(request) {
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Delete Error:", error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
+
+export async function PATCH(request) {
+    try {
+        await dbConnect();
+        const body = await request.json();
+        const { id, isVip, customPost, type } = body;
+
+        if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
+
+        const signal = await Signal.findById(id);
+        if (!signal) return NextResponse.json({ success: false, error: 'Signal not found' }, { status: 404 });
+
+        // Update DB
+        if (isVip !== undefined) signal.isVip = isVip;
+        if (customPost !== undefined) signal.customPost = customPost;
+        if (type !== undefined) signal.type = type;
+        await signal.save();
+
+        // Sync with Telegram if text changed
+        if (signal.telegramMessageId && customPost) {
+            let postToUse = customPost;
+            if (postToUse && postToUse.trim()) {
+                const cleanPost = postToUse.trim();
+                if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
+                    postToUse = `*${cleanPost}*`;
+                }
+            }
+            await editTelegramCaption(signal.telegramMessageId, postToUse);
+        }
+
+        return NextResponse.json({ success: true, signal });
+    } catch (error) {
+        console.error("Patch Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
