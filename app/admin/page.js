@@ -208,6 +208,7 @@ export default function AdminPage() {
 
     const handleEdit = (signal) => {
         setCustomPost(signal.customPost || '');
+        setTelegramButtonType(signal.telegramButtonType || 'view_signal');
         setIsEditing(true);
         setEditingId(signal._id);
         setSuccessMessage('');
@@ -244,7 +245,8 @@ export default function AdminPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id: editingId,
-                    customPost: postToUse
+                    customPost: postToUse,
+                    telegramButtonType: telegramButtonType
                 })
             });
 

@@ -124,9 +124,21 @@ async function deleteTelegramMessage(messageId) {
     }
 }
 
-async function editTelegramMessage(messageId, newCaption) {
-    if (!messageId || !newCaption) return;
+async function editTelegramMessage(messageId, newCaption, buttonType = 'none') {
+    if (!messageId) return;
     try {
+        // Construct Inline Keyboard based on Button Type (Same logic as sendToTelegram)
+        let inlineKeyboard = [];
+        if (buttonType === 'share') {
+            const shareText = encodeURIComponent("اشترك الآن في قناة أبو الذهب للتوصيات القوية! 🚀💰\nSubscribe now to Abu Al-Dahab's premium signals channel! 🚀💰\n👉 @Abou_AlDahab");
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent("https://t.me/Abou_AlDahab")}&text=${shareText}`;
+            inlineKeyboard = [[{ text: "📤 Share Post | مشاركة المنشور 📤", url: shareUrl }]];
+        } else if (buttonType === 'subscribe') {
+            inlineKeyboard = [[{ text: "🔥 Subscribe Now | اشترك الآن 🔥", url: "https://t.me/AbouAlDahab_bot" }]];
+        } else if (buttonType === 'view_signal') {
+            inlineKeyboard = [[{ text: "💎 Show Signal | إظهار التوصية 💎", url: "https://signals-vip-app.vercel.app/signals" }]];
+        }
+
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageCaption`;
         await fetch(url, {
             method: 'POST',
@@ -134,8 +146,9 @@ async function editTelegramMessage(messageId, newCaption) {
             body: JSON.stringify({
                 chat_id: TELEGRAM_CHANNEL_ID,
                 message_id: messageId,
-                caption: newCaption,
-                parse_mode: 'Markdown'
+                caption: newCaption || undefined,
+                parse_mode: 'Markdown',
+                reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : { inline_keyboard: [] }
             })
         });
     } catch (error) {
@@ -236,6 +249,7 @@ export async function POST(request) {
             imageUrl: clearImageUrl,
             isVip,
             customPost,
+            telegramButtonType,
             telegramMessageId: telegramMessageId?.toString(),
             socialMediaPosts: {
                 telegram: telegramMessageId?.toString()
@@ -278,7 +292,7 @@ export async function PUT(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        const { id, customPost } = body;
+        const { id, customPost, telegramButtonType } = body;
 
         if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
 
@@ -286,12 +300,13 @@ export async function PUT(request) {
         if (!signal) return NextResponse.json({ success: false, error: 'Signal not found' }, { status: 404 });
 
         // Update Telegram if message ID exists
-        if (signal.telegramMessageId && customPost) {
-            await editTelegramMessage(signal.telegramMessageId, customPost);
+        if (signal.telegramMessageId) {
+            await editTelegramMessage(signal.telegramMessageId, customPost, telegramButtonType);
         }
 
         // Update DB
         signal.customPost = customPost;
+        signal.telegramButtonType = telegramButtonType;
         await signal.save();
 
         return NextResponse.json({ success: true, signal });

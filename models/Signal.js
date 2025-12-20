@@ -7,6 +7,7 @@ const SignalSchema = new mongoose.Schema({
   isVip: { type: Boolean, default: true }, // VIP (مموهة) أو عامة مجانية
   customPost: { type: String }, // المنشور المخصص للسوشيال ميديا
   telegramMessageId: { type: String }, // معرف رسالة تليجرام للحذف
+  telegramButtonType: { type: String, default: 'view_signal' }, // نوع الزر المستخدم في تليجرام
   socialMediaPosts: { // لتتبع رسائل كل المنصات للحذف
     telegram: { type: String },
     twitter: { type: String },
