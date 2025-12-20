@@ -610,47 +610,7 @@ export default function AdminPage() {
                         </button>
                     </div>
 
-                    {/* ===== Telegram Toggle ===== */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
-                        </div>
-                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
-                    </div>
 
-                    {/* ===== Telegram Button Selection ===== */}
-                    {postToTelegram && (
-                        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#0f0f15', borderRadius: '12px', border: '1px solid #2a2a35' }}>
-                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
-                                🔘 {lang === 'ar' ? 'زر الإجراء (يظهر أسفل المنشور)' : 'Action Button (Shown below post)'}
-                            </label>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                                {[
-                                    { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
-                                    { id: 'subscribe', label: lang === 'ar' ? '🤖 اشتراك' : '🤖 Subscribe' },
-                                    { id: 'view_signal', label: lang === 'ar' ? '💎 التوصية' : '💎 View Signal' },
-                                    { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
-                                ].map((btn) => (
-                                    <button
-                                        key={btn.id}
-                                        onClick={() => setTelegramButtonType(btn.id)}
-                                        style={{
-                                            padding: '0.6rem',
-                                            background: telegramButtonType === btn.id ? '#229ED9' : 'transparent',
-                                            border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#444'}`,
-                                            borderRadius: '8px',
-                                            color: '#fff',
-                                            fontSize: '0.85rem',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        {btn.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
                     {/* ===== Custom Post Editor ===== */}
                     <div style={{ marginBottom: '2rem' }}>
@@ -872,6 +832,49 @@ export default function AdminPage() {
                                     ✓ {lang === 'ar' ? `تم اختيار المنشور رقم ${selectedPostIndex + 1}` : `Post #${selectedPostIndex + 1} selected`}
                                 </p>
                             )}
+                        </div>
+                    )}
+
+
+                    {/* ===== Telegram Toggle (Moved) ===== */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
+                        </div>
+                        <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
+                    </div>
+
+                    {/* ===== Telegram Button Selection (Moved) ===== */}
+                    {postToTelegram && (
+                        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#0f0f15', borderRadius: '12px', border: '1px solid #2a2a35' }}>
+                            <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
+                                🔘 {lang === 'ar' ? 'زر الإجراء (يظهر أسفل المنشور)' : 'Action Button (Shown below post)'}
+                            </label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                                {[
+                                    { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
+                                    { id: 'subscribe', label: lang === 'ar' ? '🤖 اشتراك' : '🤖 Subscribe' },
+                                    { id: 'view_signal', label: lang === 'ar' ? '💎 التوصية' : '💎 View Signal' },
+                                    { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
+                                ].map((btn) => (
+                                    <button
+                                        key={btn.id}
+                                        onClick={() => setTelegramButtonType(btn.id)}
+                                        style={{
+                                            padding: '0.6rem',
+                                            background: telegramButtonType === btn.id ? '#229ED9' : 'transparent',
+                                            border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#444'}`,
+                                            borderRadius: '8px',
+                                            color: '#fff',
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        {btn.label}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
 
