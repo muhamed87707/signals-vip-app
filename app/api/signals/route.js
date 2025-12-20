@@ -30,7 +30,7 @@ async function uploadToImgBB(base64Image) {
     }
 }
 
-async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonType = 'none') {
+async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonType = 'none', type = 'SIGNAL') {
     if (!imageUrl) return null;
 
     try {
@@ -43,8 +43,10 @@ async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonT
 A high-potential trade has been posted for premium subscribers! 🚀
 Click below to reveal the signal 👇`;
 
-        // Use custom post if provided, or free signal caption
-        if (customPost) {
+        // Logic for Regular vs Signal
+        if (type === 'REGULAR') {
+            text = customPost || '';
+        } else if (customPost) {
             text = customPost;
         } else if (!isVip) {
             text = `📊 *توصية مجانية جديدة!* 🎁
@@ -128,8 +130,7 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const telegramId = searchParams.get('telegramId');
 
-        // Only fetch actual trading signals, hide "Normal Posts"
-        const signals = await Signal.find({ type: 'SIGNAL' }).sort({ createdAt: -1 }).limit(10);
+        const signals = await Signal.find({ type: { $ne: 'REGULAR' } }).sort({ createdAt: -1 }).limit(10);
         let isVip = false;
         let subscriptionEndDate = null;
 
@@ -173,8 +174,8 @@ export async function POST(request) {
         await dbConnect();
         const body = await request.json();
         let {
-            pair = 'GOLD',
-            type = 'SIGNAL', // Default to signal
+            pair,
+            type,
             imageUrl,
             telegramImage,
             sendToTelegram: shouldSend,
@@ -191,15 +192,18 @@ export async function POST(request) {
 
         // 2. Handle Telegram posting based on VIP status
         if (shouldSend) {
-            if (isVip && telegramImage) {
+            if (type === 'REGULAR') {
+                // Regular Post: Send as is without blurring
+                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, 'REGULAR');
+            } else if (isVip && telegramImage) {
                 // VIP: Upload blurred image and send with VIP caption
                 const blurredUrl = await uploadToImgBB(telegramImage);
                 if (blurredUrl) {
-                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType);
+                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType, 'SIGNAL');
                 }
             } else {
                 // Free: Send clear image with free caption
-                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType);
+                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, 'SIGNAL');
             }
         }
 
