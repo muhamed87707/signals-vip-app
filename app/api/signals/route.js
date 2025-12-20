@@ -74,7 +74,8 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
             ]];
         } else if (buttonType === 'view_signal') {
             // View Signal Button (Standard)
-            const btnLabel = isVip ? "💎 Show Signal | إظهار التوصية 💎" : "💎 View Details | عرض التفاصيل 💎";
+            // User requested to unify the name to "Show Signal | إظهار التوصية" to match the site
+            const btnLabel = "💎 Show Signal | إظهار التوصية 💎";
             inlineKeyboard = [[
                 { text: btnLabel, url: "https://signals-vip-app.vercel.app/signals" }
             ]];
