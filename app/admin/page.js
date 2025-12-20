@@ -80,11 +80,12 @@ export default function AdminPage() {
                     if (s.aiPrompt !== undefined) setAiPrompt(s.aiPrompt);
                     if (s.selectedModel !== undefined) setSelectedModel(s.selectedModel);
                     if (s.generatedPostCount !== undefined) setPostCount(Number(s.generatedPostCount));
+                    setSettingsLoaded(true); // Only enable auto-save if we successfully loaded values
                 }
             } catch (err) {
                 console.error('Failed to fetch settings:', err);
+                // Do NOT enable settingsLoaded, manual retry or refresh needed
             }
-            setSettingsLoaded(true);
         };
         fetchSettings();
 
