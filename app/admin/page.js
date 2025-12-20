@@ -56,7 +56,7 @@ export default function AdminPage() {
     const [signalType, setSignalType] = useState('vip');
     const [customPost, setCustomPost] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
-    const [geminiApiKey, setGeminiApiKey] = useState('AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY');
+    const [geminiApiKey, setGeminiApiKey] = useState('');
     const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
     const [availableModels, setAvailableModels] = useState([]);
     const [modelsLoading, setModelsLoading] = useState(false);
