@@ -183,7 +183,7 @@ export default function AdminPage() {
     const fetchSignals = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/signals');
+            const res = await fetch('/api/signals?admin=true');
             const data = await res.json();
             setSignals(data.signals || []);
         } catch (err) {

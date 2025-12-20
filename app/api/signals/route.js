@@ -129,8 +129,11 @@ export async function GET(request) {
         await dbConnect();
         const { searchParams } = new URL(request.url);
         const telegramId = searchParams.get('telegramId');
+        const isAdmin = searchParams.get('admin') === 'true';
 
-        const signals = await Signal.find({ type: { $ne: 'REGULAR' } }).sort({ createdAt: -1 }).limit(10);
+        // Admin sees all, public sees only non-REGULAR posts
+        const query = isAdmin ? {} : { type: { $ne: 'REGULAR' } };
+        const signals = await Signal.find(query).sort({ createdAt: -1 }).limit(10);
         let isVip = false;
         let subscriptionEndDate = null;
 
