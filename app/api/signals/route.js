@@ -178,7 +178,8 @@ export async function POST(request) {
             telegramImage,
             sendToTelegram: shouldSend,
             isVip = true,
-            customPost = null
+            customPost = null,
+            telegramButtonType // Extract new field
         } = body;
 
         // 1. Upload Main Image (Clear)
@@ -193,11 +194,11 @@ export async function POST(request) {
                 // VIP: Upload blurred image and send with VIP caption
                 const blurredUrl = await uploadToImgBB(telegramImage);
                 if (blurredUrl) {
-                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true);
+                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType);
                 }
             } else {
                 // Free: Send clear image with free caption
-                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false);
+                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType);
             }
         }
 
