@@ -52,37 +52,12 @@ export default function AdminPage() {
     const [postToTelegram, setPostToTelegram] = useState(true);
 
     // ===== NEW: Signal Type & AI Post Generation =====
-    // Use lazy initialization to load from localStorage on first render
-    const [signalType, setSignalType] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('admin-signal-type') || 'vip';
-        }
-        return 'vip';
-    });
-    const [customPost, setCustomPost] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('admin-custom-post') || '';
-        }
-        return '';
-    });
-    const [aiPrompt, setAiPrompt] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('admin-ai-prompt') || '';
-        }
-        return '';
-    });
-    const [geminiApiKey, setGeminiApiKey] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('admin-gemini-key') || 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
-        }
-        return 'AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY';
-    });
-    const [selectedModel, setSelectedModel] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('admin-selected-model') || 'gemini-2.0-flash';
-        }
-        return 'gemini-2.0-flash';
-    });
+    // Initialize with defaults, will fetch from DB on mount
+    const [signalType, setSignalType] = useState('vip');
+    const [customPost, setCustomPost] = useState('');
+    const [aiPrompt, setAiPrompt] = useState('');
+    const [geminiApiKey, setGeminiApiKey] = useState('AIzaSyC2-Sbs6sxNzWk5mU7nN7AEkp4Kgd1NwwY');
+    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
     const [availableModels, setAvailableModels] = useState([]);
     const [modelsLoading, setModelsLoading] = useState(false);
     const [generatedPosts, setGeneratedPosts] = useState([]);
@@ -90,37 +65,88 @@ export default function AdminPage() {
     const [selectedPostIndex, setSelectedPostIndex] = useState(-1);
     const [settingsLoaded, setSettingsLoaded] = useState(false);
 
-    // Mark settings as loaded after first render
+    // FETCH SETTINGS FROM DB ON MOUNT
     useEffect(() => {
-        setSettingsLoaded(true);
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data.success && data.settings) {
+                    const s = data.settings;
+                    if (s.geminiApiKey) setGeminiApiKey(s.geminiApiKey);
+                    if (s.aiPrompt) setAiPrompt(s.aiPrompt);
+                    if (s.selectedModel) setSelectedModel(s.selectedModel);
+                    // Post count is not in UI yet, but fetched
+                }
+            } catch (err) {
+                console.error('Failed to fetch settings:', err);
+            }
+            setSettingsLoaded(true);
+        };
+        fetchSettings();
+
+        // Also load signal type and custom post from local storage (UI preference vs Config)
+        // User asked for "API, Prompt, Model" -> DB. Custom Post & Type -> Maybe keep localStorage or add to DB?
+        // User said "The prompt, api key, model... stored in database". 
+        // I will stick to localStorage for momentary drafts like customPost/SignalType to avoid DB spam, 
+        // unless explicitly asked for ALL fields. User said "Settings". 
+        // Let's keep customPost/Type in localStorage for session persistence, 
+        // and Key/Prompt/Model in DB for global config.
+        if (typeof window !== 'undefined') {
+            const savedPost = localStorage.getItem('admin-custom-post');
+            const savedType = localStorage.getItem('admin-signal-type');
+            if (savedPost) setCustomPost(savedPost);
+            if (savedType) setSignalType(savedType);
+        }
     }, []);
 
-    // Save settings to localStorage on change (only after initial load)
+    // Save Drafts to LocalStorage (User Experience / Session)
     useEffect(() => {
-        if (settingsLoaded && typeof window !== 'undefined' && geminiApiKey) {
-            localStorage.setItem('admin-gemini-key', geminiApiKey);
-        }
-    }, [geminiApiKey, settingsLoaded]);
-    useEffect(() => {
-        if (settingsLoaded && typeof window !== 'undefined') {
-            localStorage.setItem('admin-ai-prompt', aiPrompt);
-        }
-    }, [aiPrompt, settingsLoaded]);
-    useEffect(() => {
-        if (settingsLoaded && typeof window !== 'undefined') {
-            localStorage.setItem('admin-selected-model', selectedModel);
-        }
-    }, [selectedModel, settingsLoaded]);
-    useEffect(() => {
-        if (settingsLoaded && typeof window !== 'undefined') {
+        if (typeof window !== 'undefined') {
             localStorage.setItem('admin-custom-post', customPost);
         }
-    }, [customPost, settingsLoaded]);
+    }, [customPost]);
     useEffect(() => {
-        if (settingsLoaded && typeof window !== 'undefined') {
+        if (typeof window !== 'undefined') {
             localStorage.setItem('admin-signal-type', signalType);
         }
-    }, [signalType, settingsLoaded]);
+    }, [signalType]);
+
+    // SAVE SETTINGS TO DB (Debounced)
+    // We create a generic save function
+    const saveSettingsToDB = async (payload) => {
+        try {
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            console.error('Failed to save settings:', err);
+        }
+    };
+
+    // Effects to trigger save when specific fields change (after load)
+    useEffect(() => {
+        if (!settingsLoaded) return;
+        const timer = setTimeout(() => {
+            saveSettingsToDB({ geminiApiKey });
+        }, 1000); // Debounce 1s
+        return () => clearTimeout(timer);
+    }, [geminiApiKey, settingsLoaded]);
+
+    useEffect(() => {
+        if (!settingsLoaded) return;
+        const timer = setTimeout(() => {
+            saveSettingsToDB({ aiPrompt });
+        }, 2000); // Extended debounce for text area
+        return () => clearTimeout(timer);
+    }, [aiPrompt, settingsLoaded]);
+
+    useEffect(() => {
+        if (!settingsLoaded) return;
+        saveSettingsToDB({ selectedModel });
+    }, [selectedModel, settingsLoaded]);
 
     useEffect(() => {
 
