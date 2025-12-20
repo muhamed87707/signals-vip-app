@@ -869,13 +869,13 @@ export default function SignalsPage() {
                                 <div style={{
                                     marginTop: '1.25rem',
                                     borderTop: '1px solid rgba(255,255,255,0.05)',
-                                    paddingTop: '1.25rem',
-                                    paddingBottom: '2.5rem',
+                                    paddingTop: '1rem',
+                                    paddingBottom: '2.2rem',
                                     position: 'relative',
                                     background: 'rgba(255,255,255,0.02)',
                                     margin: '0.5rem',
                                     borderRadius: '12px',
-                                    padding: '1rem'
+                                    padding: '0.8rem 1rem'
                                 }}>
                                     {(signal.isVip === false || isVip || index === 0) ? (
                                         <>
@@ -895,8 +895,8 @@ export default function SignalsPage() {
                                             {/* Inlined Timestamp */}
                                             <div style={{
                                                 position: 'absolute',
-                                                bottom: '0.75rem',
-                                                right: '0.75rem',
+                                                bottom: '0.5rem',
+                                                [lang === 'ar' ? 'left' : 'right']: '0.75rem',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: '0.4rem',
@@ -922,8 +922,8 @@ export default function SignalsPage() {
                                             {/* Inlined Timestamp for Locked State */}
                                             <div style={{
                                                 position: 'absolute',
-                                                bottom: '0.75rem',
-                                                right: '0.75rem',
+                                                bottom: '0.5rem',
+                                                [lang === 'ar' ? 'left' : 'right']: '0.75rem',
                                                 color: '#666',
                                                 fontSize: '0.75rem'
                                             }}>

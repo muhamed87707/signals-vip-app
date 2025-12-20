@@ -956,7 +956,7 @@ export default function AdminPage() {
                             {signal.customPost && (
                                 <div style={{
                                     padding: '1.25rem',
-                                    paddingBottom: '2.5rem',
+                                    paddingBottom: '2.2rem',
                                     background: 'rgba(255,255,255,0.02)',
                                     borderTop: '1px solid rgba(184, 134, 11, 0.1)',
                                     lineHeight: '1.6',
@@ -970,8 +970,8 @@ export default function AdminPage() {
                                     {signal.customPost.replace(/\*/g, '')}
                                     <span style={{
                                         position: 'absolute',
-                                        bottom: '0.6rem',
-                                        right: '0.8rem',
+                                        bottom: '0.5rem',
+                                        [lang === 'ar' ? 'left' : 'right']: '0.8rem',
                                         color: '#666',
                                         fontSize: '0.75rem',
                                         display: 'flex',
@@ -979,7 +979,6 @@ export default function AdminPage() {
                                         gap: '0.3rem'
                                     }}>
                                         {getTimeAgo(signal.createdAt, lang)}
-                                        {/* Telegram style checkmarks or just the time */}
                                         <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>✓✓</span>
                                     </span>
                                 </div>
