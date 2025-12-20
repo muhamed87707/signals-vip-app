@@ -209,6 +209,9 @@ export default function AdminPage() {
     const handleEdit = (signal) => {
         setCustomPost(signal.customPost || '');
         setTelegramButtonType(signal.telegramButtonType || 'view_signal');
+        setSignalType(signal.type === 'REGULAR' ? 'regular' : (signal.isVip ? 'vip' : 'free'));
+        setPreviewData(signal.imageUrl);
+        setSelectedFile(null); // No new file selected yet
         setIsEditing(true);
         setEditingId(signal._id);
         setSuccessMessage('');
@@ -221,6 +224,9 @@ export default function AdminPage() {
         setIsEditing(false);
         setEditingId(null);
         setCustomPost('');
+        setPreviewData(null);
+        setSelectedFile(null);
+        setTelegramButtonType('view_signal');
         setError('');
     };
 
@@ -240,14 +246,43 @@ export default function AdminPage() {
                 }
             }
 
+            let payload = {
+                id: editingId,
+                customPost: postToUse,
+                telegramButtonType: telegramButtonType,
+                type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
+                isVip: signalType === 'vip'
+            };
+
+            // If a new file was selected, process it
+            if (selectedFile) {
+                const reader = new FileReader();
+                const filePromise = new Promise((resolve, reject) => {
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(selectedFile);
+                });
+
+                const base64Image = await filePromise;
+                payload.imageUrl = base64Image;
+
+                // Only create blurred image for VIP signals
+                if (signalType === 'vip') {
+                    try {
+                        payload.telegramImage = await createBlurredImage(selectedFile);
+                    } catch (blurErr) {
+                        console.error('Blur failed during update', blurErr);
+                    }
+                }
+            } else {
+                // No new file, just send the current image URL
+                payload.imageUrl = previewData;
+            }
+
             const res = await fetch('/api/signals', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: editingId,
-                    customPost: postToUse,
-                    telegramButtonType: telegramButtonType
-                })
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();
@@ -752,28 +787,6 @@ export default function AdminPage() {
                         />
                     </div>
 
-                    {isEditing && (
-                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                            <button
-                                onClick={handleUpdate}
-                                disabled={uploading || !customPost.trim()}
-                                style={{
-                                    padding: '1rem 3rem',
-                                    background: 'linear-gradient(135deg, #DAA520, #B8860B)',
-                                    border: 'none',
-                                    borderRadius: '50px',
-                                    color: '#000',
-                                    fontWeight: '800',
-                                    fontSize: '1.1rem',
-                                    cursor: uploading ? 'wait' : 'pointer',
-                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.4)'
-                                }}
-                            >
-                                {uploading ? (lang === 'ar' ? 'جاري التعديل...' : 'Updating...') : (lang === 'ar' ? '🔄 تحديث المنشور الآن' : '🔄 Update Signal Now')}
-                            </button>
-                        </div>
-                    )}
-
                     {/* AI Settings */}
                     <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
                         <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
@@ -909,7 +922,7 @@ export default function AdminPage() {
                                 </p>
                             </div>
                             <button
-                                onClick={handlePublish}
+                                onClick={isEditing ? handleUpdate : handlePublish}
                                 disabled={uploading}
                                 style={{
                                     padding: '1rem 3rem',
@@ -923,7 +936,9 @@ export default function AdminPage() {
                                     boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
                                 }}
                             >
-                                {uploading ? (lang === 'ar' ? 'جاري النشر...' : 'Publishing...') : (lang === 'ar' ? '🚀 تأكيد ونشر الآن' : '🚀 Confirm & Publish')}
+                                {uploading
+                                    ? (lang === 'ar' ? (isEditing ? 'جاري التعديل...' : 'جاري النشر...') : (isEditing ? 'Updating...' : 'Publishing...'))
+                                    : (lang === 'ar' ? (isEditing ? '🔄 تأكيد وتحديث الآن' : '🚀 تأكيد ونشر الآن') : (isEditing ? '🔄 Confirm & Update' : '🚀 Confirm & Publish'))}
                             </button>
                         </div>
                     )}

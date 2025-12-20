@@ -156,6 +156,41 @@ async function editTelegramMessage(messageId, newCaption, buttonType = 'none') {
     }
 }
 
+async function editTelegramMedia(messageId, imageUrl, caption, buttonType = 'none') {
+    if (!messageId || !imageUrl) return;
+    try {
+        let inlineKeyboard = [];
+        if (buttonType === 'share') {
+            const shareText = encodeURIComponent("اشترك الآن في قناة أبو الذهب للتوصيات القوية! 🚀💰\nSubscribe now to Abu Al-Dahab's premium signals channel! 🚀💰\n👉 @Abou_AlDahab");
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent("https://t.me/Abou_AlDahab")}&text=${shareText}`;
+            inlineKeyboard = [[{ text: "📤 Share Post | مشاركة المنشور 📤", url: shareUrl }]];
+        } else if (buttonType === 'subscribe') {
+            inlineKeyboard = [[{ text: "🔥 Subscribe Now | اشترك الآن 🔥", url: "https://t.me/AbouAlDahab_bot" }]];
+        } else if (buttonType === 'view_signal') {
+            inlineKeyboard = [[{ text: "💎 Show Signal | إظهار التوصية 💎", url: "https://signals-vip-app.vercel.app/signals" }]];
+        }
+
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageMedia`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHANNEL_ID,
+                message_id: messageId,
+                media: {
+                    type: 'photo',
+                    media: imageUrl,
+                    caption: caption || undefined,
+                    parse_mode: 'Markdown'
+                },
+                reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : { inline_keyboard: [] }
+            })
+        });
+    } catch (error) {
+        console.error('Telegram Media Edit Failed:', error);
+    }
+}
+
 export async function GET(request) {
     try {
         await dbConnect();
@@ -292,21 +327,46 @@ export async function PUT(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        const { id, customPost, telegramButtonType } = body;
+        const { id, customPost, telegramButtonType, imageUrl, telegramImage, type, isVip } = body;
 
         if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
 
         const signal = await Signal.findById(id);
         if (!signal) return NextResponse.json({ success: false, error: 'Signal not found' }, { status: 404 });
 
-        // Update Telegram if message ID exists
-        if (signal.telegramMessageId) {
-            await editTelegramMessage(signal.telegramMessageId, customPost, telegramButtonType);
+        let finalImageUrl = signal.imageUrl;
+
+        // If a new image is provided
+        if (imageUrl && !imageUrl.startsWith('http')) {
+            // 1. Upload new Main Image
+            const clearImageUrl = await uploadToImgBB(imageUrl);
+            if (clearImageUrl) {
+                finalImageUrl = clearImageUrl;
+
+                // 2. Handle Telegram Update with new Media
+                if (signal.telegramMessageId) {
+                    let telegramUrl = clearImageUrl;
+                    if (type === 'SIGNAL' && isVip && telegramImage) {
+                        const blurredUrl = await uploadToImgBB(telegramImage);
+                        if (blurredUrl) telegramUrl = blurredUrl;
+                    }
+                    await editTelegramMedia(signal.telegramMessageId, telegramUrl, customPost, telegramButtonType);
+                }
+            }
+        } else {
+            // Only update text/buttons
+            if (signal.telegramMessageId) {
+                await editTelegramMessage(signal.telegramMessageId, customPost, telegramButtonType);
+            }
         }
 
         // Update DB
         signal.customPost = customPost;
         signal.telegramButtonType = telegramButtonType;
+        signal.imageUrl = finalImageUrl;
+        signal.type = type || signal.type;
+        signal.isVip = isVip !== undefined ? isVip : signal.isVip;
+
         await signal.save();
 
         return NextResponse.json({ success: true, signal });
