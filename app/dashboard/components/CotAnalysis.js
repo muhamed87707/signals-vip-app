@@ -176,10 +176,10 @@ const HistoricalContext = () => {
                         <div
                             key={index}
                             className={`flex-1 rounded-t transition-all duration-300 ${isOvercrowded
-                                    ? 'bg-gradient-to-t from-red-600 to-red-400'
-                                    : isLast
-                                        ? 'bg-gradient-to-t from-amber-600 to-amber-400'
-                                        : 'bg-gradient-to-t from-slate-600 to-slate-500'
+                                ? 'bg-gradient-to-t from-red-600 to-red-400'
+                                : isLast
+                                    ? 'bg-gradient-to-t from-amber-600 to-amber-400'
+                                    : 'bg-gradient-to-t from-slate-600 to-slate-500'
                                 }`}
                             style={{ height: `${Math.max(height, 10)}%` }}
                             title={`Week ${index + 1}: ${value}%`}
@@ -197,9 +197,17 @@ const HistoricalContext = () => {
 
 export default function CotAnalysis() {
     const [data, setData] = useState(cotData);
+    const [mounted, setMounted] = useState(false);
 
-    // Simulate data updates
+    // Handle client-side mounting
     useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Simulate data updates (only after mount)
+    useEffect(() => {
+        if (!mounted) return;
+
         const interval = setInterval(() => {
             setData(prev => ({
                 ...prev,
@@ -212,7 +220,7 @@ export default function CotAnalysis() {
         }, 10000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [mounted]);
 
     const { longPercent } = calculatePercentage(data.managedMoney.longs, data.managedMoney.shorts);
 

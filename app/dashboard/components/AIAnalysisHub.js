@@ -337,9 +337,17 @@ export default function AIAnalysisHub() {
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
     const [marketContext, setMarketContext] = useState(null);
+    const [mounted, setMounted] = useState(false);
+
+    // Handle client-side mounting
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Fetch AI analysis
     const fetchAnalysis = useCallback(async () => {
+        if (!mounted) return;
+
         setIsLoading(true);
         setError(null);
 
@@ -358,7 +366,8 @@ export default function AIAnalysisHub() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch analysis');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to fetch analysis');
             }
 
             const data = await response.json();
@@ -375,15 +384,30 @@ export default function AIAnalysisHub() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [mounted]);
 
     // Initial fetch on mount
     useEffect(() => {
-        fetchAnalysis();
-    }, [fetchAnalysis]);
+        if (mounted) {
+            // Set initial market context immediately
+            try {
+                const context = gatherMarketContext();
+                setMarketContext(context);
+            } catch (e) {
+                console.error('Error gathering market context:', e);
+            }
+            // Delay API call slightly to ensure hydration is complete
+            const timer = setTimeout(() => {
+                fetchAnalysis();
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [mounted, fetchAnalysis]);
 
     // Auto-refresh every 5 minutes
     useEffect(() => {
+        if (!mounted) return;
+
         const interval = setInterval(() => {
             if (!isLoading) {
                 fetchAnalysis();
@@ -391,7 +415,24 @@ export default function AIAnalysisHub() {
         }, 5 * 60 * 1000); // 5 minutes
 
         return () => clearInterval(interval);
-    }, [fetchAnalysis, isLoading]);
+    }, [mounted, fetchAnalysis, isLoading]);
+
+    // Show loading state during SSR/hydration
+    if (!mounted) {
+        return (
+            <Card
+                className="h-full"
+                title="Gemini AI Analysis Hub"
+                icon="🤖"
+                glow
+                accent="gold"
+            >
+                <div className="flex items-center justify-center py-12">
+                    <TypingIndicator />
+                </div>
+            </Card>
+        );
+    }
 
     return (
         <Card
@@ -453,8 +494,8 @@ export default function AIAnalysisHub() {
                     onClick={fetchAnalysis}
                     disabled={isLoading}
                     className={`text-xs transition-colors ${isLoading
-                            ? 'text-slate-600 cursor-not-allowed'
-                            : 'text-amber-500 hover:text-amber-400'
+                        ? 'text-slate-600 cursor-not-allowed'
+                        : 'text-amber-500 hover:text-amber-400'
                         }`}
                 >
                     {isLoading ? 'Analyzing...' : 'Refresh Analysis ↻'}
