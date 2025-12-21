@@ -3,11 +3,15 @@
 /**
  * Gold & Forex Market Intelligence Dashboard
  * Main Page - Bento Grid Layout
- * 
+ *
  * Phase 2: Market Data Visualization Integration
  * - TradingView Lightweight Charts for Gold price
  * - Macro Watch with inverse correlation visualizer
  * - Cross-Asset Matrix heatmap
+ *
+ * Phase 3: Institutional Intelligence Modules
+ * - Bank Forecasts with consensus price
+ * - COT Report Analyzer with overcrowded warnings
  */
 
 import Header from './components/Header';
@@ -17,6 +21,8 @@ import AIAnalysisHub from './components/AIAnalysisHub';
 import CrossAssetMatrix from './components/CrossAssetMatrix';
 import InstitutionalData from './components/InstitutionalData';
 import BottomSection from './components/BottomSection';
+import BankForecasts from './components/BankForecasts';
+import CotAnalysis from './components/CotAnalysis';
 
 export default function DashboardPage() {
     return (
@@ -77,7 +83,20 @@ export default function DashboardPage() {
                         <InstitutionalData />
                     </section>
 
-                    {/* Row 4: Bottom Section (Full Width) - News & Correlations */}
+                    {/* Row 4: Institutional Intelligence - Bank Forecasts & COT Analysis */}
+                    <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+                        {/* Bank Forecasts Panel */}
+                        <div>
+                            <BankForecasts />
+                        </div>
+
+                        {/* COT Report Analyzer Panel */}
+                        <div>
+                            <CotAnalysis />
+                        </div>
+                    </section>
+
+                    {/* Row 5: Bottom Section (Full Width) - News & Correlations */}
                     <section>
                         <BottomSection />
                     </section>

@@ -337,4 +337,110 @@ export const MarketDataAPI = {
     },
 };
 
+// ===== MARKET CONTEXT AGGREGATOR =====
+
+/**
+ * Gather all market context data for AI analysis
+ * Aggregates data from all dashboard components
+ */
+export function gatherMarketContext() {
+    const crossAsset = getCrossAssetData();
+    const macro = getMacroIndicators();
+
+    // COT Data (from CotAnalysis component mock data)
+    const cotData = {
+        longs: 285420,
+        shorts: 42180,
+        netPosition: 243240,
+    };
+    const cotTotal = cotData.longs + cotData.shorts;
+    const cotLongPercent = Math.round((cotData.longs / cotTotal) * 100);
+    const cotShortPercent = Math.round((cotData.shorts / cotTotal) * 100);
+
+    // Bank Forecasts (from BankForecasts component mock data)
+    const bankForecasts = [
+        { bank: "Goldman Sachs", target: 2700, sentiment: "Bullish" },
+        { bank: "JP Morgan", target: 2650, sentiment: "Neutral" },
+        { bank: "Citi", target: 2800, sentiment: "Bullish" },
+        { bank: "Morgan Stanley", target: 2720, sentiment: "Bullish" },
+        { bank: "UBS", target: 2680, sentiment: "Neutral" },
+        { bank: "HSBC", target: 2750, sentiment: "Bullish" },
+    ];
+    const bankConsensus = Math.round(
+        bankForecasts.reduce((sum, f) => sum + f.target, 0) / bankForecasts.length
+    );
+    const bullishBanks = bankForecasts.filter(f => f.sentiment === 'Bullish').length;
+
+    // Sentiment calculation
+    const sentimentScore = 65 + Math.floor((Math.random() - 0.5) * 10);
+    const getSentimentLabel = (score) => {
+        if (score >= 80) return 'Extreme Greed';
+        if (score >= 60) return 'Bullish';
+        if (score >= 40) return 'Neutral';
+        if (score >= 20) return 'Bearish';
+        return 'Extreme Fear';
+    };
+
+    return {
+        // Gold Data
+        goldPrice: crossAsset.gold.price,
+        goldChange: crossAsset.gold.changePercent,
+        goldHigh: crossAsset.gold.dayHigh,
+        goldLow: crossAsset.gold.dayLow,
+
+        // Macro Indicators
+        us10y: macro.us10y.value,
+        us10yChange: macro.us10y.changePercent,
+        dxy: macro.dxy.value,
+        dxyChange: macro.dxy.changePercent,
+        realYields: macro.realYields.value,
+
+        // COT Data
+        cotLongPercent,
+        cotShortPercent,
+        cotNetPosition: cotData.netPosition,
+        cotOvercrowded: cotLongPercent > 80,
+
+        // Bank Forecasts
+        bankConsensus,
+        bullishBanks,
+        totalBanks: bankForecasts.length,
+        bankTargetLow: Math.min(...bankForecasts.map(f => f.target)),
+        bankTargetHigh: Math.max(...bankForecasts.map(f => f.target)),
+
+        // Sentiment
+        sentimentScore,
+        sentimentLabel: getSentimentLabel(sentimentScore),
+
+        // Timestamp
+        timestamp: new Date().toISOString(),
+    };
+}
+
+/**
+ * Call the Gemini AI analysis API
+ */
+export async function getAIAnalysis() {
+    const marketContext = gatherMarketContext();
+
+    try {
+        const response = await fetch('/api/dashboard/analysis', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ marketContext }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch AI analysis');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('AI Analysis Error:', error);
+        throw error;
+    }
+}
+
 export default MarketDataAPI;
