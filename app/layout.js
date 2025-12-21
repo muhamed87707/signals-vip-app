@@ -26,6 +26,21 @@ export const metadata = {
     keywords: ["Gold Signals", "Forex VIP", "Trading Signals", "XAUUSD", "Abu Al-Dahab", "توصيات ذهب", "فوركس", "تداول", "Gold Trading", "Forex Signals"],
     authors: [{ name: 'Abu Al-Dahab' }],
     creator: 'Abu Al-Dahab Est.',
+    manifest: '/manifest.json',
+    icons: {
+        icon: [
+            { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+            { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+            { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+        ],
+        apple: [
+            { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+        ],
+        other: [
+            { rel: 'icon', url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { rel: 'icon', url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
+    },
     openGraph: {
         title: "Abu Al-Dahab | Premium Gold & Forex Signals",
         description: "Achieve consistent results with our VIP trading signals. High accuracy technical analysis for Gold and Forex.",
@@ -49,9 +64,14 @@ export const metadata = {
         images: ['/og-image.png'],
     },
     viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-    themeColor: '#000000',
+    themeColor: '#B8860B',
     alternates: {
         canonical: '/',
+    },
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'black-translucent',
+        title: 'Abu Al-Dahab',
     },
 };
 
