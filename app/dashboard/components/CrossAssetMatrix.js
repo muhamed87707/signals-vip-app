@@ -16,8 +16,8 @@ const AssetPriceCard = ({ asset, isHighlighted = false }) => {
 
     return (
         <div className={`p-3 rounded-xl border transition-all ${isHighlighted
-                ? 'bg-amber-500/10 border-amber-500/30'
-                : 'bg-slate-800/30 border-slate-700/30 hover:border-slate-600/50'
+            ? 'bg-amber-500/10 border-amber-500/30'
+            : 'bg-slate-800/30 border-slate-700/30 hover:border-slate-600/50'
             }`}>
             <div className="flex items-center justify-between mb-2">
                 <div>
@@ -159,14 +159,22 @@ export default function CrossAssetMatrix() {
     const [assets, setAssets] = useState({});
     const [correlations, setCorrelations] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+
+    // Handle client-side mounting
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
+        if (!mounted) return;
+
         loadData();
 
         // Refresh every 30 seconds
         const interval = setInterval(loadData, 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [mounted]);
 
     const loadData = async () => {
         try {
@@ -180,7 +188,7 @@ export default function CrossAssetMatrix() {
         setIsLoading(false);
     };
 
-    if (isLoading) {
+    if (!mounted || isLoading) {
         return (
             <Card title="Cross-Asset Matrix" icon="🔗">
                 <div className="flex items-center justify-center h-48">

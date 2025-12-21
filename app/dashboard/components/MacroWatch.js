@@ -205,13 +205,13 @@ const CorrelationVisual = ({ indicators }) => {
                         <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
                             <div
                                 className={`h-full rounded-full transition-all ${item.impact === 'bullish' ? 'bg-emerald-500' :
-                                        item.impact === 'bearish' ? 'bg-red-500' : 'bg-slate-500'
+                                    item.impact === 'bearish' ? 'bg-red-500' : 'bg-slate-500'
                                     }`}
                                 style={{ width: `${(item.strength || 0) * 100}%` }}
                             />
                         </div>
                         <span className={`text-xs font-medium w-16 text-right ${item.impact === 'bullish' ? 'text-emerald-400' :
-                                item.impact === 'bearish' ? 'text-red-400' : 'text-slate-400'
+                            item.impact === 'bearish' ? 'text-red-400' : 'text-slate-400'
                             }`}>
                             {item.impact === 'bullish' ? '↑ Gold' : item.impact === 'bearish' ? '↓ Gold' : '→ Neutral'}
                         </span>
@@ -238,14 +238,22 @@ export default function MacroWatch() {
     const [indicators, setIndicators] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [lastUpdate, setLastUpdate] = useState(null);
+    const [mounted, setMounted] = useState(false);
+
+    // Handle client-side mounting
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
+        if (!mounted) return;
+
         loadIndicators();
 
         // Refresh every 30 seconds
         const interval = setInterval(loadIndicators, 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [mounted]);
 
     const loadIndicators = async () => {
         try {
@@ -259,7 +267,7 @@ export default function MacroWatch() {
         setIsLoading(false);
     };
 
-    if (isLoading) {
+    if (!mounted || isLoading) {
         return (
             <Card title="Macro Watch" icon="🏛️">
                 <div className="flex items-center justify-center h-48">
