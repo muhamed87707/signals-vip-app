@@ -72,7 +72,7 @@ const LockIcon = () => (
 );
 
 const BrandAIcon = () => (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
         <defs>
             <linearGradient id="gold-gradient-brand" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#FFD700" />
@@ -92,14 +92,19 @@ const BrandAIcon = () => (
                 </feMerge>
             </filter>
         </defs>
-        {/* Bold 'A' Letter */}
-        <path
-            d="M20 5 L6 35 L12 35 L15 28 L25 28 L28 35 L34 35 L20 5 Z M17 23 L20 14 L23 23 Z"
-            stroke="url(#gold-gradient-brand)"
-            strokeWidth="2.5"
-            fill="none"
+        {/* Bold 'A' - Solid filled */}
+        <text
+            x="20"
+            y="32"
+            textAnchor="middle"
+            fontFamily="Arial, sans-serif"
+            fontSize="32"
+            fontWeight="900"
+            fill="url(#gold-gradient-brand)"
             filter="url(#gold-glow)"
-        />
+        >
+            A
+        </text>
     </svg>
 );
 
