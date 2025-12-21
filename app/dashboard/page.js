@@ -4,14 +4,17 @@
  * Gold & Forex Market Intelligence Dashboard
  * Main Page - Bento Grid Layout
  * 
- * A Bloomberg Terminal-inspired professional trading dashboard
- * featuring real-time market data, AI analysis, and institutional insights.
+ * Phase 2: Market Data Visualization Integration
+ * - TradingView Lightweight Charts for Gold price
+ * - Macro Watch with inverse correlation visualizer
+ * - Cross-Asset Matrix heatmap
  */
 
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
-import FundamentalDrivers from './components/FundamentalDrivers';
+import MacroWatch from './components/MacroWatch';
 import AIAnalysisHub from './components/AIAnalysisHub';
+import CrossAssetMatrix from './components/CrossAssetMatrix';
 import InstitutionalData from './components/InstitutionalData';
 import BottomSection from './components/BottomSection';
 
@@ -23,6 +26,7 @@ export default function DashboardPage() {
                 {/* Gradient Orbs */}
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+                <div className="absolute top-1/2 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl" />
 
                 {/* Grid Pattern */}
                 <div
@@ -45,16 +49,16 @@ export default function DashboardPage() {
                 {/* Bento Grid Layout */}
                 <div className="max-w-[1920px] mx-auto space-y-4 lg:space-y-6">
 
-                    {/* Row 1: Hero Section (Full Width) */}
+                    {/* Row 1: Hero Section (Full Width) - Gold Chart + Sentiment */}
                     <section>
                         <HeroSection />
                     </section>
 
-                    {/* Row 2: Three Column Layout - Left Panel | Center (AI Hub) | Right Panel */}
+                    {/* Row 2: Three Column Layout */}
                     <section className="grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-6">
-                        {/* Left Panel - Fundamental Drivers (3 cols) */}
-                        <div className="xl:col-span-3 space-y-4">
-                            <FundamentalDrivers />
+                        {/* Left Panel - Macro Watch (3 cols) */}
+                        <div className="xl:col-span-3">
+                            <MacroWatch />
                         </div>
 
                         {/* Center Panel - AI Analysis Hub (6 cols) */}
@@ -62,13 +66,18 @@ export default function DashboardPage() {
                             <AIAnalysisHub />
                         </div>
 
-                        {/* Right Panel - Institutional Data (3 cols) */}
+                        {/* Right Panel - Cross-Asset Matrix + Institutional (3 cols) */}
                         <div className="xl:col-span-3 space-y-4">
-                            <InstitutionalData />
+                            <CrossAssetMatrix />
                         </div>
                     </section>
 
-                    {/* Row 3: Bottom Section (Full Width) */}
+                    {/* Row 3: Institutional Data (Full Width) */}
+                    <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+                        <InstitutionalData />
+                    </section>
+
+                    {/* Row 4: Bottom Section (Full Width) - News & Correlations */}
                     <section>
                         <BottomSection />
                     </section>
