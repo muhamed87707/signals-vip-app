@@ -46,7 +46,7 @@ export default function AINewsAnalysis({ data, onRefresh, isLoading }) {
                         <button
                             onClick={onRefresh}
                             className={`refresh-ai-btn ${isLoading ? 'spinning' : ''}`}
-                            title="Refresh Dashboard"
+                            title="Refresh Analysis"
                             disabled={isLoading}
                         >
                             🔄

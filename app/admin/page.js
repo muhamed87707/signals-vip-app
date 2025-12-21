@@ -659,7 +659,7 @@ export default function AdminPage() {
             <div className="container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsDashboard}</h1>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsPanel}</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>

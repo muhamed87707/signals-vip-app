@@ -70,12 +70,12 @@ export const translations = {
                 joinVip: 'Activate VIP Status',
 
                 // Admin Page
-                adminTitle: 'Admin Dashboard',
+                adminTitle: 'Admin Panel',
                 adminSubtitle: 'Enter password to login',
                 passwordPlaceholder: 'Password',
                 login: 'Login',
                 logout: 'Logout',
-                signalsDashboard: 'Signals Dashboard',
+                signalsPanel: 'Signals Panel',
                 postNewSignal: 'Post New Signal',
                 dragDropText: 'Paste signal image (Ctrl+V) or upload file',
                 chooseImage: 'Choose Image',
@@ -324,7 +324,7 @@ Past performance of any trading system or methodology is not necessarily indicat
                 passwordPlaceholder: 'كلمة المرور',
                 login: 'دخول',
                 logout: 'تسجيل خروج',
-                signalsDashboard: 'لوحة تحكم التوصيات',
+                signalsPanel: 'لوحة التوصيات',
                 postNewSignal: 'نشر توصية جديدة',
                 dragDropText: 'الصق صورة التوصية مباشرة (Ctrl+V) أو اختر ملف',
                 chooseImage: 'اختر صورة',
