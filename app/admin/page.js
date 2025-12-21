@@ -1,770 +1,583 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useLanguage } from '../context/LanguageContext';
-
-const ADMIN_PASSWORD = '123';
-
-const getTimeAgo = (dateStr, lang) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
-
-    if (lang === 'ar') {
-        if (seconds < 60) return 'منذ لحظات';
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `منذ ${minutes} دقيقة`;
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `منذ ${hours} ساعة`;
-        const days = Math.floor(hours / 24);
-        return `منذ ${days} يوم`;
-    } else {
-        if (seconds < 60) return 'Just now';
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes}m ago`;
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours}h ago`;
-        const days = Math.floor(hours / 24);
-        return `${days}d ago`;
-    }
-};
+import { translations } from '../utils/translations';
 
 export default function AdminPage() {
-    const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
+    // Authentication state
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [loginError, setLoginError] = useState('');
+
+    // Language state
+    const [lang, setLang] = useState('en');
+    const t = translations[lang];
+
+    // Signal management state
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
-    const fileInputRef = useRef(null);
-
-    // VIP Management State
-    const [telegramId, setTelegramId] = useState('');
-    const [durationMonths, setDurationMonths] = useState('');
-    const [isLifetime, setIsLifetime] = useState(false);
-    const [vipLoading, setVipLoading] = useState(false);
-    const [vipMessage, setVipMessage] = useState({ type: '', text: '' });
-    const [users, setUsers] = useState([]);
-
-    // Telegram Auto-Post State
-    const [postToTelegram, setPostToTelegram] = useState(true);
-
-    // ===== NEW: Signal Type & AI Post Generation =====
-    // Initialize with defaults, will fetch from DB on mount
-    const [signalType, setSignalType] = useState('vip');
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [previewData, setPreviewData] = useState(null);
     const [customPost, setCustomPost] = useState('');
-    const [aiPrompt, setAiPrompt] = useState('');
+    const [signalType, setSignalType] = useState('vip');
+    const [postToTelegram, setPostToTelegram] = useState(true);
+    const [telegramButtonType, setTelegramButtonType] = useState('view_signal');
+
+    // AI settings state
     const [geminiApiKey, setGeminiApiKey] = useState('');
-    const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
+    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
+    const [postCount, setPostCount] = useState(3);
+    const [aiPrompt, setAiPrompt] = useState('Generate 3 variations of this trading signal post. Keep the same meaning but vary the wording, tone, and structure. Make them engaging and professional for a trading audience. Each variation should be unique but maintain the core message.');
     const [availableModels, setAvailableModels] = useState([]);
     const [modelsLoading, setModelsLoading] = useState(false);
+    const [savingSettings, setSavingSettings] = useState(false);
     const [generatedPosts, setGeneratedPosts] = useState([]);
-    const [generatingPosts, setGeneratingPosts] = useState(false);
     const [selectedPostIndex, setSelectedPostIndex] = useState(-1);
-    const [postCount, setPostCount] = useState(50); // New State for Count
-    const [settingsLoaded, setSettingsLoaded] = useState(false);
-    const [savingSettings, setSavingSettings] = useState(false); // Manual Save state
-    const [telegramButtonType, setTelegramButtonType] = useState('view_signal'); // Default: View Signal
+    const [generatingPosts, setGeneratingPosts] = useState(false);
+
+    // VIP management state
+    const [users, setUsers] = useState([]);
+    const [telegramId, setTelegramId] = useState('');
+    const [durationMonths, setDurationMonths] = useState('1');
+    const [isLifetime, setIsLifetime] = useState(false);
+    const [vipLoading, setVipLoading] = useState(false);
+    const [vipMessage, setVipMessage] = useState({ text: '', type: '' });
+
+    // Edit state
     const [isEditing, setIsEditing] = useState(false);
-    const [editingId, setEditingId] = useState(null);
+    const [editingSignal, setEditingSignal] = useState(null);
 
-    // FETCH SETTINGS FROM DB ON MOUNT
+    // Refs
+    const fileInputRef = useRef(null);
+
+    // Load settings and data on mount
     useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const res = await fetch('/api/settings', { cache: 'no-store' });
-                const data = await res.json();
-                if (data.success && data.settings) {
-                    const s = data.settings;
-                    // Use property check ('in') or check against undefined to allow saving empty strings
-                    if (s.geminiApiKey !== undefined) setGeminiApiKey(s.geminiApiKey);
-                    if (s.aiPrompt !== undefined) setAiPrompt(s.aiPrompt);
-                    if (s.selectedModel !== undefined) setSelectedModel(s.selectedModel);
-                    if (s.generatedPostCount !== undefined) setPostCount(Number(s.generatedPostCount));
-                    setSettingsLoaded(true); // Only enable auto-save if we successfully loaded values
-                }
-            } catch (err) {
-                console.error('Failed to fetch settings:', err);
-                // Do NOT enable settingsLoaded, manual retry or refresh needed
-            }
-        };
-        fetchSettings();
-
-        // Also load signal type and custom post from local storage (UI preference vs Config)
-        // User asked for "API, Prompt, Model" -> DB. Custom Post & Type -> Maybe keep localStorage or add to DB?
-        // User said "The prompt, api key, model... stored in database". 
-        // I will stick to localStorage for momentary drafts like customPost/SignalType to avoid DB spam, 
-        // unless explicitly asked for ALL fields. User said "Settings". 
-        // Let's keep customPost/Type in localStorage for session persistence, 
-        // and Key/Prompt/Model in DB for global config.
-        if (typeof window !== 'undefined') {
-            const savedPost = localStorage.getItem('admin-custom-post');
-            const savedType = localStorage.getItem('admin-signal-type');
-            if (savedPost) setCustomPost(savedPost);
-            if (savedType) setSignalType(savedType);
-        }
-    }, []);
-
-    // Save Drafts to LocalStorage (User Experience / Session)
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('admin-custom-post', customPost);
-        }
-    }, [customPost]);
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('admin-signal-type', signalType);
-        }
-    }, [signalType]);
-
-    // SAVE SETTINGS TO DB (Debounced)
-    // We create a generic save function
-    const saveSettingsToDB = async (payload, manual = false) => {
-        if (manual) setSavingSettings(true);
-        try {
-            // If manual, save all current settings
-            const body = manual ? {
-                geminiApiKey,
-                aiPrompt,
-                selectedModel,
-                generatedPostCount: postCount
-            } : payload;
-
-            const res = await fetch('/api/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if (manual) {
-                const data = await res.json();
-                if (data.success) {
-                    alert(lang === 'ar' ? 'تم حفظ الإعدادات بنجاح!' : 'Settings saved successfully!');
-                }
-            }
-        } catch (err) {
-            console.error('Failed to save settings:', err);
-            if (manual) alert(lang === 'ar' ? 'فشل حفظ الإعدادات' : 'Failed to save settings');
-        }
-        if (manual) setSavingSettings(false);
-    };
-
-    // Auto-save effects REMOVED to prevent race conditions.
-    // User must click "Save Settings" manually.
-
-    useEffect(() => {
-
-        const auth = sessionStorage.getItem('admin-auth');
-        if (auth === 'true') {
+        const savedAuth = localStorage.getItem('adminAuth');
+        if (savedAuth === 'true') {
             setIsAuthenticated(true);
-            fetchSignals();
-            fetchUsers();
+            loadSignals();
+            loadUsers();
+            loadSettings();
         }
+
+        const savedLang = localStorage.getItem('language') || 'en';
+        setLang(savedLang);
     }, []);
 
-    const handleLogin = (e) => {
+    // Authentication functions
+    const handleLogin = async (e) => {
         e.preventDefault();
-        if (password === ADMIN_PASSWORD) {
+        if (password === 'admin123') {
             setIsAuthenticated(true);
-            sessionStorage.setItem('admin-auth', 'true');
-            setError('');
-            fetchSignals();
-            fetchUsers();
+            localStorage.setItem('adminAuth', 'true');
+            setLoginError('');
+            loadSignals();
+            loadUsers();
+            loadSettings();
         } else {
-            setError(t.loginError);
+            setLoginError(t.loginError);
         }
     };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
-        sessionStorage.removeItem('admin-auth');
+        localStorage.removeItem('adminAuth');
+        setPassword('');
     };
 
-    const fetchSignals = async () => {
+    // Data loading functions
+    const loadSignals = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/signals?admin=true');
-            const data = await res.json();
-            setSignals(data.signals || []);
-        } catch (err) {
-            console.error('Error fetching signals:', err);
+            const response = await fetch('/api/signals');
+            if (response.ok) {
+                const data = await response.json();
+                setSignals(data.signals || []);
+            }
+        } catch (error) {
+            console.error('Error loading signals:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    const fetchUsers = async () => {
+    const loadUsers = async () => {
         try {
-            const res = await fetch('/api/users');
-            const data = await res.json();
-            if (data.success) {
+            const response = await fetch('/api/admin/users');
+            if (response.ok) {
+                const data = await response.json();
                 setUsers(data.users || []);
             }
-        } catch (err) {
-            console.error('Error fetching users:', err);
+        } catch (error) {
+            console.error('Error loading users:', error);
         }
     };
 
-    const handleEdit = (signal) => {
-        setCustomPost(signal.customPost || '');
-        setTelegramButtonType(signal.telegramButtonType || 'view_signal');
-        setSignalType(signal.type === 'REGULAR' ? 'regular' : (signal.isVip ? 'vip' : 'free'));
-        setPreviewData(signal.imageUrl);
-        setSelectedFile(null); // No new file selected yet
-        setIsEditing(true);
-        setEditingId(signal._id);
-        setSuccessMessage('');
-        setError('');
-        // Scroll to form (Top)
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const handleCancelEdit = () => {
-        setIsEditing(false);
-        setEditingId(null);
-        setCustomPost('');
-        setPreviewData(null);
-        setSelectedFile(null);
-        setTelegramButtonType('view_signal');
-        setError('');
-    };
-
-    const handleUpdate = async () => {
-        if (!editingId) return;
-        setUploading(true);
-        setSuccessMessage('');
-        setError('');
-
+    const loadSettings = async () => {
         try {
-            let postToUse = customPost;
-            // Apply auto-bold logic same as processFile
-            if (postToUse && postToUse.trim()) {
-                const cleanPost = postToUse.trim();
-                if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
-                    postToUse = `*${cleanPost}*`;
+            const response = await fetch('/api/admin/settings');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.settings) {
+                    setGeminiApiKey(data.settings.geminiApiKey || '');
+                    setSelectedModel(data.settings.selectedModel || 'gemini-2.0-flash');
+                    setPostCount(data.settings.postCount || 3);
+                    setAiPrompt(data.settings.aiPrompt || aiPrompt);
                 }
             }
-
-            let payload = {
-                id: editingId,
-                customPost: postToUse,
-                telegramButtonType: telegramButtonType,
-                type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
-                isVip: signalType === 'vip'
-            };
-
-            // If a new file was selected, process it
-            if (selectedFile) {
-                const reader = new FileReader();
-                const filePromise = new Promise((resolve, reject) => {
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(selectedFile);
-                });
-
-                const base64Image = await filePromise;
-                payload.imageUrl = base64Image;
-
-                // Only create blurred image for VIP signals
-                if (signalType === 'vip') {
-                    try {
-                        payload.telegramImage = await createBlurredImage(selectedFile);
-                    } catch (blurErr) {
-                        console.error('Blur failed during update', blurErr);
-                    }
-                }
-            } else {
-                // No new file, just send the current image URL
-                payload.imageUrl = previewData;
-            }
-
-            const res = await fetch('/api/signals', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                setSuccessMessage(lang === 'ar' ? 'تم تحديث المنشور بنجاح!' : 'Signal updated successfully!');
-                handleCancelEdit();
-                fetchSignals();
-            } else {
-                setError(t.postError);
-            }
-        } catch (err) {
-            console.error('Update error:', err);
-            setError(t.postError);
+        } catch (error) {
+            console.error('Error loading settings:', error);
         }
-        setUploading(false);
+    };
+    // Settings functions
+    const saveSettingsToDB = async (e = null, manual = false) => {
+        if (e) e.preventDefault();
+        setSavingSettings(true);
+        try {
+            const response = await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    geminiApiKey,
+                    selectedModel,
+                    postCount,
+                    aiPrompt
+                })
+            });
+            if (response.ok && manual) {
+                // Show success feedback for manual saves
+                const originalText = savingSettings;
+                setSavingSettings(false);
+                setTimeout(() => setSavingSettings(false), 2000);
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+        } finally {
+            setSavingSettings(false);
+        }
     };
 
-    // ===== NEW: Fetch Gemini Models =====
     const fetchModels = async () => {
-        if (!geminiApiKey) return;
         setModelsLoading(true);
         try {
-            const res = await fetch('/api/ai/list-models', {
+            const response = await fetch('/api/admin/gemini-models', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ apiKey: geminiApiKey })
             });
-            const data = await res.json();
-            if (data.success) {
+            if (response.ok) {
+                const data = await response.json();
                 setAvailableModels(data.models || []);
-            } else {
-                console.error('Failed to fetch models:', data.error);
             }
-        } catch (err) {
-            console.error('Error fetching models:', err);
+        } catch (error) {
+            console.error('Error fetching models:', error);
+        } finally {
+            setModelsLoading(false);
         }
-        setModelsLoading(false);
     };
 
-    // Auto-fetch models if key exists (restores selection display)
-    useEffect(() => {
-        if (settingsLoaded && geminiApiKey && availableModels.length === 0) {
-            fetchModels();
+    // Image handling functions
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewData(e.target.result);
+            reader.readAsDataURL(file);
         }
-    }, [settingsLoaded, geminiApiKey]);
-
-    // ===== NEW: Generate AI Posts =====
-    const generateAIPosts = async () => {
-        if (!customPost.trim()) {
-            setError(lang === 'ar' ? 'يرجى كتابة المنشور أولاً' : 'Please write a post first');
-            return;
-        }
-        setGeneratingPosts(true);
-        setGeneratedPosts([]);
-        setSelectedPostIndex(-1);
-        try {
-            const res = await fetch('/api/ai/generate-posts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    apiKey: geminiApiKey,
-                    model: selectedModel,
-                    userPost: customPost,
-                    customPrompt: aiPrompt || undefined,
-                    count: postCount // Use the configured count
-                })
-            });
-            const data = await res.json();
-            if (data.success && data.posts) {
-                setGeneratedPosts(data.posts);
-            } else {
-                setError(data.error || 'Failed to generate posts');
-            }
-        } catch (err) {
-            console.error('Error generating posts:', err);
-            setError(err.message);
-        }
-        setGeneratingPosts(false);
     };
 
-    // Fetch default prompt on load
-    useEffect(() => {
-        if (!aiPrompt) {
-            fetch('/api/ai/generate-posts')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.defaultPrompt && !aiPrompt) {
-                        setAiPrompt(data.defaultPrompt);
-                    }
-                })
-                .catch(console.error);
-        }
-    }, []);
-
-    // --- CANVAS LOCK GENERATION (TUNED) ---
-    const createBlurredImage = (file) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            const url = URL.createObjectURL(file);
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-
-                // 1. Draw Reduced Blur Image (10px) - Overdraw to prevent black edges
-                ctx.filter = 'blur(10px)';
-                // Draw image slightly larger (-20px offset) to ensure blur doesn't pull transparency from edges
-                ctx.drawImage(img, -20, -20, canvas.width + 40, canvas.height + 40);
-                ctx.filter = 'none'; // Reset
-
-                // 2. Prepare SVG Lock Badge (Corrected Radial Gradient)
-                const size = Math.min(canvas.width, canvas.height) * 0.35; // Slightly larger lock
-                const x = (canvas.width - size) / 2;
-                const y = (canvas.height - size) / 2;
-
-                // We simulate the signals page gradient: radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%)
-                // And the SVG lock
-                const svgString = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
-                    <defs>
-                        <!-- Glow Gradient -->
-                        <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                            <stop offset="0%" style="stop-color:rgba(184, 134, 11, 0.4);stop-opacity:1" />
-                            <stop offset="70%" style="stop-color:rgba(0, 0, 0, 0);stop-opacity:0" />
-                        </radialGradient>
-
-                        <!-- Gold Lock Gradient -->
-                        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#FFE566;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#705C0B;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- 1. Ambient Glow REMOVED as requested -->
-                    
-                    <!-- 2. Lock Icon Group (Larger & Centered) -->
-                    <!-- Net Scale: 0.6 * 3.5 = 2.1. Center approx (12, 14). 12*2.1=25.2, 14*2.1=29.4. Offsets: 50-25=25, 50-29=21. -->
-                    <g transform="translate(25, 21) scale(0.6)">
-                         <!-- Backing Circle (Behind Lock Body Only - Slightly Smaller) -->
-                         <circle cx="12" cy="16" r="5.5" fill="rgba(0,0,0,0.6)" transform="scale(3.5)" />
-                         
-                         <!-- Lock Parts -->
-                         <rect x="6" y="11" width="12" height="10" rx="3" stroke="url(#gold)" stroke-width="2" fill="rgba(0,0,0,0.3)" transform="scale(3.5)" />
-                         <path d="M8 11V7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7V11" stroke="url(#gold)" stroke-width="2" stroke-linecap="round" fill="none" transform="scale(3.5)" />
-                         <circle cx="12" cy="16" r="1.5" fill="url(#gold)" transform="scale(3.5)" />
-                    </g>
-                </svg>`;
-
-                const badgeImg = new Image();
-                badgeImg.onload = () => {
-                    ctx.drawImage(badgeImg, x, y, size, size);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                    URL.revokeObjectURL(url);
-                    resolve(dataUrl);
-                };
-                badgeImg.src = 'data:image/svg+xml;base64,' + btoa(svgString);
-            };
-            img.src = url;
-        });
-    };
-
-    // Preview State
-    const [previewData, setPreviewData] = useState(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleImageUpload = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        // Render preview immediately
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviewData(reader.result);
-            setSelectedFile(file);
-        };
-        reader.readAsDataURL(file);
-
-        // Reset file input
-        if (fileInputRef.current) fileInputRef.current.value = '';
-    };
-
-    const handlePaste = async (e) => {
+    const handlePaste = (e) => {
         const items = e.clipboardData?.items;
-        if (!items) return;
-
-        for (const item of items) {
-            if (item.type.indexOf('image') !== -1) {
-                const file = item.getAsFile();
-                if (file) {
+        if (items) {
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    setSelectedImage(file);
                     const reader = new FileReader();
-                    reader.onloadend = () => {
-                        setPreviewData(reader.result);
-                        setSelectedFile(file);
-                    };
+                    reader.onload = (e) => setPreviewData(e.target.result);
                     reader.readAsDataURL(file);
+                    break;
                 }
-                break;
             }
         }
-    };
-
-    const handlePublish = () => {
-        if (selectedFile) processFile(selectedFile);
     };
 
     const cancelPreview = () => {
+        setSelectedImage(null);
         setPreviewData(null);
-        setSelectedFile(null);
-        setSuccessMessage('');
-        setError('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
-    const processFile = async (file) => {
-        setUploading(true);
-        setSuccessMessage('');
-        setError('');
-
+    // AI functions
+    const generateAIPosts = async () => {
+        if (!customPost.trim()) return;
+        setGeneratingPosts(true);
         try {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64Image = reader.result;
+            const response = await fetch('/api/admin/generate-posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    originalPost: customPost,
+                    count: postCount,
+                    model: selectedModel,
+                    prompt: aiPrompt,
+                    apiKey: geminiApiKey
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setGeneratedPosts(data.posts || []);
+                setSelectedPostIndex(0);
+            }
+        } catch (error) {
+            console.error('Error generating posts:', error);
+        } finally {
+            setGeneratingPosts(false);
+        }
+    };
+    // Signal management functions
+    const handlePublish = async () => {
+        if (!selectedImage || !customPost.trim()) return;
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('image', selectedImage);
+            formData.append('customPost', selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost);
+            formData.append('signalType', signalType);
+            formData.append('postToTelegram', postToTelegram);
+            formData.append('telegramButtonType', telegramButtonType);
 
-                // Get the post to use
-                let postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
-                    ? generatedPosts[selectedPostIndex]
-                    : customPost;
+            const response = await fetch('/api/admin/signals', {
+                method: 'POST',
+                body: formData
+            });
 
-                // AUTO-BOLD LOGIC: Wrap in * for Telegram Markdown
-                // We trim it first, then wrap.
-                if (postToUse && postToUse.trim()) {
-                    const cleanPost = postToUse.trim();
-                    // Avoid double wrapping if already wrapped
-                    if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
-                        postToUse = `*${cleanPost}*`;
-                    }
-                }
-
-                // Only create blurred image for VIP signals
-                let telegramImage = null;
-                if (postToTelegram && signalType === 'vip') {
-                    try {
-                        telegramImage = await createBlurredImage(file);
-                    } catch (blurErr) {
-                        console.error('Blur failed', blurErr);
-                    }
-                }
-
-                const res = await fetch('/api/signals', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        pair: 'GOLD',
-                        type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
-                        imageUrl: base64Image,
-                        telegramImage: telegramImage,
-                        sendToTelegram: postToTelegram,
-                        isVip: signalType === 'vip',
-                        customPost: postToUse || null,
-                        telegramButtonType: telegramButtonType
-                    })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    let msg = t.postSuccess;
-                    if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
-                    setSuccessMessage(msg);
-                    fetchSignals();
-                    // Clear state
-                    setGeneratedPosts([]);
-                    setSelectedPostIndex(-1);
-                    setPreviewData(null);
-                    setSelectedFile(null);
-                    setCustomPost('');
-                } else {
-                    setError(t.postError);
-                }
-                setUploading(false);
-            };
-            reader.readAsDataURL(file);
-        } catch (err) {
-            console.error('Upload error:', err);
-            setError(t.uploadError);
+            if (response.ok) {
+                loadSignals();
+                resetForm();
+            }
+        } catch (error) {
+            console.error('Error publishing signal:', error);
+        } finally {
             setUploading(false);
         }
     };
 
-    const handleGrantVip = async (e) => {
-        e.preventDefault();
-        if (!telegramId) return;
-        setVipLoading(true);
-        setVipMessage({ type: '', text: '' });
+    const handleUpdate = async () => {
+        if (!editingSignal || !customPost.trim()) return;
+        setUploading(true);
         try {
-            const res = await fetch('/api/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telegramId,
-                    isVip: true,
-                    durationMonths,
-                    isLifetime
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setVipMessage({ type: 'success', text: t.vipSuccess });
-                setTelegramId('');
-                setDurationMonths('');
-                setIsLifetime(false);
-                fetchUsers();
-            } else {
-                setVipMessage({ type: 'error', text: t.vipError });
+            const formData = new FormData();
+            if (selectedImage) {
+                formData.append('image', selectedImage);
             }
-        } catch (err) {
-            setVipMessage({ type: 'error', text: t.vipError });
+            formData.append('customPost', selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost);
+            formData.append('signalType', signalType);
+            formData.append('postToTelegram', postToTelegram);
+            formData.append('telegramButtonType', telegramButtonType);
+
+            const response = await fetch(`/api/admin/signals/${editingSignal._id}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            if (response.ok) {
+                loadSignals();
+                handleCancelEdit();
+            }
+        } catch (error) {
+            console.error('Error updating signal:', error);
+        } finally {
+            setUploading(false);
         }
-        setVipLoading(false);
     };
 
-    const handleRemoveUser = async (tid) => {
-        if (!confirm('Are you sure you want to remove this user from the VIP list?')) return;
-        try {
-            const res = await fetch('/api/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ telegramId: tid, removeUser: true })
-            });
-            const data = await res.json();
-            if (data.success) {
-                fetchUsers();
-            }
-        } catch (err) {
-            console.error(err);
-        }
+    const handleEdit = (signal) => {
+        setIsEditing(true);
+        setEditingSignal(signal);
+        setCustomPost(signal.customPost || '');
+        setSignalType(signal.signalType || 'vip');
+        setPreviewData(signal.imageUrl);
+        setSelectedImage(null);
+        setGeneratedPosts([]);
+        setSelectedPostIndex(-1);
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditingSignal(null);
+        resetForm();
     };
 
     const deleteSignal = async (id) => {
         if (!confirm(t.deleteConfirm)) return;
         try {
-            const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-                fetchSignals();
+            const response = await fetch(`/api/admin/signals/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                loadSignals();
             }
-        } catch (err) {
-            console.error('Delete error:', err);
+        } catch (error) {
+            console.error('Error deleting signal:', error);
         }
     };
 
-    if (!mounted) return null;
+    const resetForm = () => {
+        setSelectedImage(null);
+        setPreviewData(null);
+        setCustomPost('');
+        setSignalType('vip');
+        setPostToTelegram(true);
+        setTelegramButtonType('view_signal');
+        setGeneratedPosts([]);
+        setSelectedPostIndex(-1);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+    // VIP management functions
+    const handleGrantVip = async (e) => {
+        e.preventDefault();
+        if (!telegramId.trim()) return;
+        setVipLoading(true);
+        try {
+            const response = await fetch('/api/admin/grant-vip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegramId: telegramId.trim(),
+                    durationMonths: isLifetime ? null : parseInt(durationMonths),
+                    isLifetime
+                })
+            });
+            if (response.ok) {
+                setVipMessage({ text: t.vipSuccess, type: 'success' });
+                setTelegramId('');
+                setDurationMonths('1');
+                setIsLifetime(false);
+                loadUsers();
+            } else {
+                setVipMessage({ text: t.vipError, type: 'error' });
+            }
+        } catch (error) {
+            setVipMessage({ text: t.vipError, type: 'error' });
+        } finally {
+            setVipLoading(false);
+            setTimeout(() => setVipMessage({ text: '', type: '' }), 3000);
+        }
+    };
 
+    const handleRemoveUser = async (telegramId) => {
+        if (!confirm(t.remove + '?')) return;
+        try {
+            const response = await fetch('/api/admin/remove-vip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telegramId })
+            });
+            if (response.ok) {
+                loadUsers();
+            }
+        } catch (error) {
+            console.error('Error removing user:', error);
+        }
+    };
+
+    // Utility functions
+    const getTimeAgo = (dateString, lang) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return lang === 'ar' ? 'الآن' : 'now';
+        if (diffInSeconds < 3600) return lang === 'ar' ? `${Math.floor(diffInSeconds / 60)} د` : `${Math.floor(diffInSeconds / 60)}m`;
+        if (diffInSeconds < 86400) return lang === 'ar' ? `${Math.floor(diffInSeconds / 3600)} س` : `${Math.floor(diffInSeconds / 3600)}h`;
+        return lang === 'ar' ? `${Math.floor(diffInSeconds / 86400)} ي` : `${Math.floor(diffInSeconds / 86400)}d`;
+    };
+    // Login screen
     if (!isAuthenticated) {
         return (
-            <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-                <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
-                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-4">
+                <div className="w-full max-w-md">
+                    <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 shadow-2xl">
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <span className="text-3xl">👑</span>
+                            </div>
+                            <h1 className="text-3xl font-bold text-gradient mb-2">{t.adminTitle}</h1>
+                            <p className="text-gray-400">{t.adminSubtitle}</p>
+                        </div>
+                        
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <div>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder={t.passwordPlaceholder}
+                                    className="w-full px-4 py-3 bg-black/30 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                                    required
+                                />
+                            </div>
+                            
+                            {loginError && (
+                                <div className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                                    {loginError}
+                                </div>
+                            )}
+                            
+                            <button
+                                type="submit"
+                                className="w-full btn-primary py-3 text-lg font-bold"
+                            >
+                                {t.login}
+                            </button>
+                        </form>
+                        
+                        <div className="mt-6 text-center">
+                            <button
+                                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+                                className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm"
+                            >
+                                {t.langSwitch}
+                            </button>
+                        </div>
                     </div>
-                    <form onSubmit={handleLogin}>
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPlaceholder} style={{ width: '100%', padding: '1rem', background: '#141414', border: '1px solid rgba(184, 134, 11, 0.2)', borderRadius: '12px', color: '#fff', textAlign: 'center', marginBottom: '1rem' }} />
-                        {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
-                        <button type="submit" className="btn-primary" style={{ width: '100%' }}>{t.login}</button>
-                    </form>
                 </div>
             </div>
         );
     }
-
+    // Main admin interface
     return (
-        <div style={{ minHeight: '100vh', background: '#080808', padding: '2rem' }} onPaste={handlePaste}>
-            <div className="container">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsPanel}</h1>
-                    </div>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
-                        <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', borderRadius: '50px', color: '#ef4444', cursor: 'pointer' }}>{t.logout}</button>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+            {/* Header */}
+            <header className="bg-black/50 backdrop-blur-xl border-b border-yellow-500/20 sticky top-0 z-50">
+                <div className="container mx-auto px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <span className="text-xl">👑</span>
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gradient">{t.adminTitle}</h1>
+                                <p className="text-gray-400 text-sm">{t.signalsPanel}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+                                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg text-white transition-all"
+                            >
+                                {t.langSwitch}
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all"
+                            >
+                                {t.logout}
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </header>
 
-                {/* Old VIP Section Removed - Moved to Bottom */}
+            <div className="container mx-auto px-6 py-8">
+                {/* Signal Creation Section */}
+                <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 mb-8 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-3">
+                        <span className="text-3xl">📊</span>
+                        {t.postNewSignal}
+                    </h2>
 
-                <div className="card" style={{ padding: '2rem', marginBottom: '2rem', border: '2px dashed rgba(184, 134, 11, 0.4)', position: 'relative' }}>
-                    {isEditing && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '-15px',
-                            right: '20px',
-                            background: '#DAA520',
-                            color: '#000',
-                            padding: '0.4rem 1rem',
-                            borderRadius: '20px',
-                            fontWeight: 'bold',
-                            fontSize: '0.8rem',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
-                        }}>
-                            ✏️ {lang === 'ar' ? 'وضع التعديل' : 'Edit Mode'}
-                        </div>
-                    )}
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>📤</div>
-                    <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', textAlign: 'center' }}>{t.postNewSignal}</h2>
-
-                    {/* 1. IMAGE UPLOAD SECTION (Top) */}
-                    <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
-                        {!previewData ? (
-                            <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1.5rem 3rem', width: '100%', border: '2px dashed #444' }}>
-                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📸</div>
-                                {lang === 'ar' ? 'اضغط هنا لاختيار صورة' : 'Click to Upload Image'}
-                            </label>
-                        ) : (
-                            <div style={{ position: 'relative', display: 'inline-block', border: '1px solid #DAA520', borderRadius: '12px', overflow: 'hidden' }}>
-                                <img src={previewData} alt="Preview" style={{ maxHeight: '200px', display: 'block', opacity: 0.6 }} />
-                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <button onClick={cancelPreview} style={{ background: 'rgba(0,0,0,0.8)', border: '1px solid #ef4444', color: '#ef4444', padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer' }}>
-                                        {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
+                    {/* Image Upload Section */}
+                    <div className="mb-8">
+                        <label className="block text-yellow-400 font-semibold mb-4 text-lg">
+                            📸 {lang === 'ar' ? 'صورة التوصية' : 'Signal Image'}
+                        </label>
+                        
+                        <div 
+                            className="relative border-2 border-dashed border-gray-600 hover:border-yellow-500 rounded-2xl p-8 text-center transition-all cursor-pointer bg-gray-800/30"
+                            onPaste={handlePaste}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageSelect}
+                                className="hidden"
+                            />
+                            
+                            {previewData ? (
+                                <div className="relative">
+                                    <img 
+                                        src={previewData} 
+                                        alt="Preview" 
+                                        className="max-w-full max-h-96 mx-auto rounded-xl shadow-lg"
+                                    />
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            cancelPreview();
+                                        }}
+                                        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all"
+                                    >
+                                        ✕
                                     </button>
                                 </div>
-                            </div>
-                        )}
+                            ) : (
+                                <div className="py-12">
+                                    <div className="text-6xl mb-4">📷</div>
+                                    <p className="text-gray-400 text-lg mb-2">{t.dragDropText}</p>
+                                    <p className="text-yellow-400 font-semibold">{t.chooseImage}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {/* Signal Type Selection */}
+                    <div className="mb-8">
+                        <label className="block text-yellow-400 font-semibold mb-4 text-lg">
+                            🎯 {lang === 'ar' ? 'نوع التوصية' : 'Signal Type'}
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {[
+                                { id: 'vip', label: '💎 VIP (Blurred)', desc: lang === 'ar' ? 'للأعضاء المميزين فقط' : 'For VIP members only' },
+                                { id: 'free', label: '🎁 Free (Clear)', desc: lang === 'ar' ? 'مجاني للجميع' : 'Free for everyone' },
+                                { id: 'regular', label: '📝 Regular Post', desc: lang === 'ar' ? 'منشور عادي' : 'Regular post' }
+                            ].map((type) => (
+                                <button
+                                    key={type.id}
+                                    onClick={() => setSignalType(type.id)}
+                                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                                        signalType === type.id
+                                            ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
+                                            : 'border-gray-600 bg-gray-800/30 text-gray-300 hover:border-gray-500'
+                                    }`}
+                                >
+                                    <div className="font-bold text-lg mb-1">{type.label}</div>
+                                    <div className="text-sm opacity-75">{type.desc}</div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* 2. SIGNAL TYPE TOGGLE */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                        <button
-                            onClick={() => setSignalType('vip')}
-                            style={{
-                                padding: '1rem',
-                                background: signalType === 'vip' ? '#DAA520' : '#1a1a20',
-                                border: `1px solid ${signalType === 'vip' ? '#DAA520' : '#333'}`,
-                                borderRadius: '12px',
-                                color: signalType === 'vip' ? '#000' : '#fff',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            � VIP (Blurred)
-                        </button>
-                        <button
-                            onClick={() => setSignalType('free')}
-                            style={{
-                                padding: '1rem',
-                                background: signalType === 'free' ? '#DAA520' : '#1a1a20',
-                                border: `1px solid ${signalType === 'free' ? '#DAA520' : '#333'}`,
-                                borderRadius: '12px',
-                                color: signalType === 'free' ? '#000' : '#fff',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            🎁 Free (Clear)
-                        </button>
-                        <button
-                            onClick={() => setSignalType('regular')}
-                            style={{
-                                padding: '1rem',
-                                background: signalType === 'regular' ? '#DAA520' : '#1a1a20',
-                                border: `1px solid ${signalType === 'regular' ? '#DAA520' : '#333'}`,
-                                borderRadius: '12px',
-                                color: signalType === 'regular' ? '#000' : '#fff',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            📝 {lang === 'ar' ? 'منشور عادي' : 'Regular Post'}
-                        </button>
-                    </div>
-
-                    <div style={{ marginBottom: '2rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <label style={{ color: '#DAA520', fontSize: '1rem' }}>
+                    {/* Post Text */}
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                            <label className="text-yellow-400 font-semibold text-lg">
                                 ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
                             </label>
                             {isEditing && (
-                                <button onClick={handleCancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                                <button
+                                    onClick={handleCancelEdit}
+                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all text-sm"
+                                >
                                     ✖ {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
                                 </button>
                             )}
@@ -773,112 +586,136 @@ export default function AdminPage() {
                             value={customPost}
                             onChange={(e) => setCustomPost(e.target.value)}
                             placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
-                            style={{
-                                width: '100%',
-                                minHeight: '120px',
-                                padding: '1rem',
-                                background: '#13131d',
-                                border: '1px solid #2a2a35',
-                                borderRadius: '12px',
-                                color: '#fff',
-                                fontSize: '1rem',
-                                resize: 'vertical'
-                            }}
+                            className="w-full h-32 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all resize-vertical"
                         />
                     </div>
-
                     {/* AI Settings */}
-                    <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
-                        <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
+                    <details className="mb-8 bg-gray-800/30 rounded-2xl border border-gray-700">
+                        <summary className="p-6 cursor-pointer text-yellow-400 font-bold text-lg hover:text-yellow-300 transition-colors">
                             🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
                         </summary>
-                        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {/* Manual Save */}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <div className="px-6 pb-6 space-y-6">
+                            <div className="flex justify-end">
                                 <button
                                     onClick={() => saveSettingsToDB(null, true)}
                                     disabled={savingSettings}
-                                    style={{
-                                        padding: '0.5rem 1.5rem',
-                                        background: '#4CAF50',
-                                        color: '#fff',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: savingSettings ? 'wait' : 'pointer',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.85rem'
-                                    }}
+                                    className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-all font-semibold"
                                 >
                                     💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
                                 </button>
                             </div>
-                            {/* API Key */}
+                            
                             <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
-                                <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                                <label className="block text-gray-300 font-semibold mb-2">🔑 Gemini API Key</label>
+                                <input
+                                    type="password"
+                                    value={geminiApiKey}
+                                    onChange={(e) => setGeminiApiKey(e.target.value)}
+                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
+                                />
                             </div>
-                            {/* Model & Count */}
-                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                                <div style={{ flex: 2, minWidth: '200px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-2">🧠 Model</label>
+                                    <div className="flex gap-2">
+                                        <select
+                                            value={selectedModel}
+                                            onChange={(e) => setSelectedModel(e.target.value)}
+                                            className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
+                                        >
                                             <option value="gemini-2.0-flash">gemini-2.0-flash</option>
                                             <option value="gemini-1.5-flash">gemini-1.5-flash</option>
                                             <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                                            {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
+                                            {availableModels.map(m => (
+                                                <option key={m.id} value={m.id}>{m.displayName}</option>
+                                            ))}
                                         </select>
-                                        <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
+                                        <button
+                                            onClick={fetchModels}
+                                            disabled={modelsLoading}
+                                            className="px-4 py-3 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded-xl transition-all"
+                                        >
+                                            {modelsLoading ? '...' : '🔄'}
+                                        </button>
                                     </div>
                                 </div>
-                                <div style={{ flex: 1, minWidth: '150px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
-                                    <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                                
+                                <div>
+                                    <label className="block text-gray-300 font-semibold mb-2">🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="100"
+                                        value={postCount}
+                                        onChange={(e) => setPostCount(Number(e.target.value))}
+                                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
+                                    />
                                 </div>
                             </div>
-                            {/* Prompt */}
+                            
                             <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
-                                <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
+                                <label className="block text-gray-300 font-semibold mb-2">📝 Prompt</label>
+                                <textarea
+                                    value={aiPrompt}
+                                    onChange={(e) => setAiPrompt(e.target.value)}
+                                    className="w-full h-24 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all resize-vertical"
+                                />
                             </div>
                         </div>
                     </details>
-
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                        <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
+                    {/* Generate AI Posts Button */}
+                    <div className="text-center mb-8">
+                        <button
+                            onClick={generateAIPosts}
+                            disabled={generatingPosts || !customPost.trim()}
+                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-2xl font-bold text-lg transition-all shadow-lg disabled:opacity-50"
+                        >
                             {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
                         </button>
                     </div>
 
-                    {/* Gallery */}
+                    {/* Generated Posts Gallery */}
                     {generatedPosts.length > 0 && (
-                        <div style={{ marginBottom: '2rem' }}>
-                            <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', padding: '0.5rem', background: '#0a0a0f', borderRadius: '12px', border: '1px solid #2a2a35' }}>
+                        <div className="mb-8">
+                            <h3 className="text-xl font-bold text-yellow-400 mb-4">🎨 Generated Variations</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto custom-scrollbar">
                                 {generatedPosts.map((post, idx) => (
-                                    <div key={idx} onClick={() => setSelectedPostIndex(idx)} style={{ padding: '1rem', background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : '#13131d', border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : '#2a2a35'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                                        <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
+                                    <div
+                                        key={idx}
+                                        onClick={() => setSelectedPostIndex(idx)}
+                                        className={`p-4 rounded-xl cursor-pointer transition-all ${
+                                            selectedPostIndex === idx
+                                                ? 'bg-yellow-500/20 border-2 border-yellow-500'
+                                                : 'bg-gray-800/50 border border-gray-600 hover:border-gray-500'
+                                        }`}
+                                    >
+                                        <p className="text-gray-200 text-sm leading-relaxed">{post}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* 4. TELEGRAM BUTTONS (Wide) */}
-                    <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#0f0f15', borderRadius: '16px', border: '1px solid #2a2a35' }}>
-                        {/* Telegram Toggle */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
-                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
-                            </div>
-                            <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
+                    {/* Telegram Settings */}
+                    <div className="mb-8 bg-blue-500/10 border border-blue-500/20 rounded-2xl p-6">
+                        <div className="flex items-center justify-center mb-6">
+                            <label className="flex items-center gap-3 cursor-pointer" onClick={() => setPostToTelegram(!postToTelegram)}>
+                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                                    postToTelegram ? 'bg-blue-500 border-blue-500' : 'border-gray-500'
+                                }`}>
+                                    {postToTelegram && <span className="text-white text-sm">✓</span>}
+                                </div>
+                                <span className="text-white font-semibold text-lg">{t.postToTelegram}</span>
+                            </label>
                         </div>
 
                         {postToTelegram && (
-                            <div style={{ marginTop: '1rem' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
-                                    🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
+                            <div>
+                                <label className="block text-blue-300 font-semibold mb-4 text-center">
+                                    🔘 {lang === 'ar' ? 'أزرار التفاعل' : 'Action Buttons'}
                                 </label>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {[
                                         { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
                                         { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
@@ -888,18 +725,11 @@ export default function AdminPage() {
                                         <button
                                             key={btn.id}
                                             onClick={() => setTelegramButtonType(btn.id)}
-                                            style={{
-                                                padding: '1rem',
-                                                background: telegramButtonType === btn.id ? '#229ED9' : '#1a1a20',
-                                                border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : '#333'}`,
-                                                borderRadius: '8px',
-                                                color: '#fff',
-                                                fontSize: '1rem',
-                                                fontWeight: telegramButtonType === btn.id ? 'bold' : 'normal',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s',
-                                                textAlign: 'center'
-                                            }}
+                                            className={`p-3 rounded-xl border-2 transition-all font-semibold ${
+                                                telegramButtonType === btn.id
+                                                    ? 'border-blue-400 bg-blue-400/20 text-blue-300'
+                                                    : 'border-gray-600 bg-gray-800/30 text-gray-300 hover:border-gray-500'
+                                            }`}
                                         >
                                             {btn.label}
                                         </button>
@@ -908,33 +738,29 @@ export default function AdminPage() {
                             </div>
                         )}
                     </div>
-
-                    {/* 5. FINAL PREVIEW (Bottom) */}
+                    {/* Final Preview & Publish */}
                     {previewData && (
-                        <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
-                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
-                            <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
-                                <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
+                        <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-2xl p-6 text-center">
+                            <h3 className="text-2xl font-bold text-yellow-400 mb-6">👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
+                            
+                            <div className="mb-6">
+                                <img 
+                                    src={previewData} 
+                                    alt="Preview" 
+                                    className="max-w-full max-h-96 mx-auto rounded-xl shadow-lg border border-gray-600"
+                                />
                             </div>
-                            <div style={{ background: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #333', textAlign: 'left', direction: lang === 'ar' ? 'rtl' : 'ltr', marginBottom: '1.5rem' }}>
-                                <p style={{ color: '#fff', margin: 0, fontWeight: 'bold' }}>
+                            
+                            <div className="bg-black/50 rounded-xl p-4 mb-6 text-left" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                                <p className="text-white font-semibold leading-relaxed">
                                     {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
                                 </p>
                             </div>
+                            
                             <button
                                 onClick={isEditing ? handleUpdate : handlePublish}
                                 disabled={uploading}
-                                style={{
-                                    padding: '1rem 3rem',
-                                    background: 'linear-gradient(135deg, #B8860B, #DAA520)',
-                                    border: 'none',
-                                    borderRadius: '50px',
-                                    color: '#000',
-                                    fontWeight: '800',
-                                    fontSize: '1.1rem',
-                                    cursor: uploading ? 'wait' : 'pointer',
-                                    boxShadow: '0 4px 15px rgba(184, 134, 11, 0.5)'
-                                }}
+                                className="px-12 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-600 disabled:to-gray-700 text-black font-bold text-xl rounded-2xl transition-all shadow-lg disabled:opacity-50"
                             >
                                 {uploading
                                     ? (lang === 'ar' ? (isEditing ? 'جاري التعديل...' : 'جاري النشر...') : (isEditing ? 'Updating...' : 'Publishing...'))
@@ -943,190 +769,186 @@ export default function AdminPage() {
                         </div>
                     )}
                 </div>
+                {/* Published Signals Section */}
+                <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 mb-8 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-3">
+                        <span className="text-3xl">📊</span>
+                        {t.publishedSignals} ({signals.length})
+                    </h2>
 
-                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
-
-                {/* Full Width Grid Layout - Matches User Request */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
-                    {loading ? <p style={{ color: '#888' }}>{t.loading}</p> : signals.map((signal) => (
-                        <div key={signal._id} style={{ background: '#0c0c0c', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(184, 134, 11, 0.15)' }}>
-                            <div style={{ position: 'relative' }}>
-                                <img src={signal.imageUrl} alt="Signal" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                            </div>
-                            {signal.customPost && (
-                                <div style={{
-                                    padding: '1.25rem',
-                                    paddingBottom: '2.2rem',
-                                    background: 'rgba(255,255,255,0.02)',
-                                    borderTop: '1px solid rgba(184, 134, 11, 0.1)',
-                                    lineHeight: '1.6',
-                                    color: '#e0e0e0',
-                                    fontSize: '0.95rem',
-                                    whiteSpace: 'pre-wrap',
-                                    direction: 'auto',
-                                    textAlign: 'start',
-                                    position: 'relative'
-                                }}>
-                                    {signal.customPost.replace(/\*/g, '')}
-                                    <span style={{
-                                        position: 'absolute',
-                                        bottom: '0.5rem',
-                                        [lang === 'ar' ? 'left' : 'right']: '0.8rem',
-                                        color: '#666',
-                                        fontSize: '0.75rem',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.3rem'
-                                    }}>
-                                        {getTimeAgo(signal.createdAt, lang)}
-                                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>✓✓</span>
-                                    </span>
-                                </div>
-                            )}
-                            <div style={{ padding: '0.75rem 1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: '#0a0a0a' }}>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button onClick={() => handleEdit(signal)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '6px', color: '#DAA520', cursor: 'pointer', fontSize: '0.85rem' }}>{lang === 'ar' ? 'تعديل' : 'Edit'}</button>
-                                    <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '6px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem' }}>{t.delete}</button>
-                                </div>
-                            </div>
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p className="text-gray-400">{t.loading}</p>
                         </div>
-                    ))}
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {signals.map((signal) => (
+                                <div key={signal._id} className="bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden hover:border-yellow-500/50 transition-all">
+                                    <div className="relative">
+                                        <img 
+                                            src={signal.imageUrl} 
+                                            alt="Signal" 
+                                            className="w-full h-48 object-cover"
+                                        />
+                                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1 text-xs text-gray-300">
+                                            {getTimeAgo(signal.createdAt, lang)}
+                                        </div>
+                                    </div>
+                                    
+                                    {signal.customPost && (
+                                        <div className="p-4 border-t border-gray-700">
+                                            <p className="text-gray-200 text-sm leading-relaxed line-clamp-3">
+                                                {signal.customPost.replace(/\*/g, '')}
+                                            </p>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="p-4 bg-gray-900/50 flex justify-end gap-2">
+                                        <button
+                                            onClick={() => handleEdit(signal)}
+                                            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-black rounded-lg transition-all text-sm font-semibold"
+                                        >
+                                            {lang === 'ar' ? 'تعديل' : 'Edit'}
+                                        </button>
+                                        <button
+                                            onClick={() => deleteSignal(signal._id)}
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all text-sm font-semibold"
+                                        >
+                                            {t.delete}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-
-                {/* VIP Management Section - Moved to Bottom */}
-                <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
-                    <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
+                {/* VIP Management Section */}
+                <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-3">
+                        <span className="text-3xl">👑</span>
+                        {t.manageVip}
+                    </h2>
 
                     {/* Add VIP Form */}
-                    <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
-                        <h3 style={{ color: '#DAA520', marginBottom: '1rem', fontSize: '1.2rem' }}>{t.addNewVip}</h3>
-                        <form onSubmit={handleGrantVip} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'end' }}>
-                            <div style={{ flex: 1, minWidth: '200px' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.telegramIdPlaceholder}</label>
+                    <div className="bg-gray-800/30 rounded-2xl p-6 mb-8 border border-gray-700">
+                        <h3 className="text-xl font-bold text-yellow-400 mb-4">{t.addNewVip}</h3>
+                        <form onSubmit={handleGrantVip} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                            <div>
+                                <label className="block text-gray-300 font-semibold mb-2">{t.telegramIdPlaceholder}</label>
                                 <input
                                     type="text"
                                     value={telegramId}
                                     onChange={(e) => setTelegramId(e.target.value)}
                                     placeholder="e.g. 123456789"
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.8rem',
-                                        background: '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: '#fff'
-                                    }}
+                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
                                     required
                                 />
                             </div>
 
-                            <div style={{ minWidth: '150px' }}>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>{t.durationMonths || 'Duration (Months)'}</label>
+                            <div>
+                                <label className="block text-gray-300 font-semibold mb-2">{t.durationMonths || 'Duration (Months)'}</label>
                                 <input
                                     type="number"
                                     value={durationMonths}
                                     onChange={(e) => setDurationMonths(e.target.value)}
                                     placeholder="e.g. 1, 3, 12"
                                     disabled={isLifetime}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.8rem',
-                                        background: isLifetime ? '#0f0f15' : '#13131d',
-                                        border: '1px solid #2a2a35',
-                                        borderRadius: '8px',
-                                        color: isLifetime ? '#555' : '#fff'
-                                    }}
+                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all disabled:opacity-50 disabled:bg-gray-900"
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', height: '45px', padding: '0 1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px' }}>
-                                <input
-                                    type="checkbox"
-                                    id="lifetime"
-                                    checked={isLifetime}
-                                    onChange={(e) => setIsLifetime(e.target.checked)}
-                                    style={{ marginRight: '0.5rem', width: '16px', height: '16px', cursor: 'pointer' }}
-                                />
-                                <label htmlFor="lifetime" style={{ color: '#fff', cursor: 'pointer', userSelect: 'none' }}>{t.lifetime || 'Lifetime'}</label>
+                            <div className="flex items-center justify-center h-12">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={isLifetime}
+                                        onChange={(e) => setIsLifetime(e.target.checked)}
+                                        className="w-5 h-5 text-yellow-500 bg-gray-800 border-gray-600 rounded focus:ring-yellow-500"
+                                    />
+                                    <span className="text-white font-semibold">{t.lifetime || 'Lifetime'}</span>
+                                </label>
                             </div>
 
-                            <button type="submit" className="btn-primary" style={{ height: '45px', padding: '0 2rem' }}>
+                            <button
+                                type="submit"
+                                disabled={vipLoading}
+                                className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-xl transition-all font-semibold"
+                            >
                                 {vipLoading ? '...' : t.grantVip}
                             </button>
                         </form>
-                        {vipMessage.text && <p style={{ color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444', marginTop: '1rem' }}>{vipMessage.text}</p>}
+                        
+                        {vipMessage.text && (
+                            <div className={`mt-4 p-3 rounded-lg text-center font-semibold ${
+                                vipMessage.type === 'success' 
+                                    ? 'bg-green-500/20 border border-green-500/30 text-green-400' 
+                                    : 'bg-red-500/20 border border-red-500/30 text-red-400'
+                            }`}>
+                                {vipMessage.text}
+                            </div>
+                        )}
                     </div>
-
                     {/* Active Users Table */}
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.2)', textAlign: 'center' }}>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>Telegram ID</th>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.status || 'Status'}</th>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.expiresIn || 'Expires In'}</th>
-                                    <th style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{t.actions || 'Actions'}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.filter(u => u.isVip).length === 0 ? (
+                    <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-900/50">
                                     <tr>
-                                        <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>{t.noVipMembers || 'No active VIP members'}</td>
+                                        <th className="px-6 py-4 text-left text-yellow-400 font-bold">Telegram ID</th>
+                                        <th className="px-6 py-4 text-center text-yellow-400 font-bold">{t.status || 'Status'}</th>
+                                        <th className="px-6 py-4 text-center text-yellow-400 font-bold">{t.expiresIn || 'Expires In'}</th>
+                                        <th className="px-6 py-4 text-center text-yellow-400 font-bold">{t.actions || 'Actions'}</th>
                                     </tr>
-                                ) : (
-                                    users.filter(u => u.isVip).map(user => {
-                                        const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
-                                        const now = new Date();
-                                        const isExpired = expiry && now > expiry;
-                                        // This filter effectively hides expired users, per request "Active members only"
-                                        // If backend update didn't run yet, front-end check helps
-                                        if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
+                                </thead>
+                                <tbody>
+                                    {users.filter(u => u.isVip).length === 0 ? (
+                                        <tr>
+                                            <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
+                                                {t.noVipMembers || 'No active VIP members'}
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        users.filter(u => u.isVip).map(user => {
+                                            const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
+                                            const now = new Date();
+                                            const isExpired = expiry && now > expiry;
+                                            
+                                            if (isExpired && user.isVip) return null;
 
-                                        let timeLeft = 'Lifetime ♾️';
-                                        if (expiry) {
-                                            const diff = expiry - now;
-                                            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                            timeLeft = `${days} Days`;
-                                        }
+                                            let timeLeft = 'Lifetime ♾️';
+                                            if (expiry) {
+                                                const diff = expiry - now;
+                                                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                                timeLeft = `${days} Days`;
+                                            }
 
-                                        return (
-                                            <tr key={user._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-                                                <td style={{ padding: '1rem' }}>{user.telegramId}</td>
-                                                <td style={{ padding: '1rem' }}>
-                                                    <span style={{
-                                                        background: 'rgba(76, 175, 80, 0.1)',
-                                                        color: '#4caf50',
-                                                        padding: '0.2rem 0.6rem',
-                                                        borderRadius: '4px',
-                                                        fontSize: '0.85rem'
-                                                    }}>Active</span>
-                                                </td>
-                                                <td style={{ padding: '1rem' }}>{timeLeft}</td>
-                                                <td style={{ padding: '1rem' }}>
-                                                    <button
-                                                        onClick={() => handleRemoveUser(user.telegramId)}
-                                                        style={{
-                                                            background: 'transparent',
-                                                            border: '1px solid #ef4444',
-                                                            color: '#ef4444',
-                                                            padding: '0.3rem 0.8rem',
-                                                            borderRadius: '6px',
-                                                            cursor: 'pointer',
-                                                            fontSize: '0.85rem'
-                                                        }}
-                                                    >
-                                                        {t.remove || 'Remove'}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
+                                            return (
+                                                <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-800/30 transition-colors">
+                                                    <td className="px-6 py-4 text-white font-mono">{user.telegramId}</td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <span className="px-3 py-1 bg-green-500/20 border border-green-500/30 text-green-400 rounded-full text-sm font-semibold">
+                                                            Active
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center text-white font-semibold">{timeLeft}</td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <button
+                                                            onClick={() => handleRemoveUser(user.telegramId)}
+                                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all text-sm font-semibold"
+                                                        >
+                                                            {t.remove || 'Remove'}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );
