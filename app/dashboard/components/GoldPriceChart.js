@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { generateGoldCandlestickData, generateVolumeData, createPriceSimulator } from '../services/marketData';
 
 /**
  * Gold Price Chart Component
- * Uses TradingView Lightweight Charts for professional candlestick visualization
+ * Simple SVG-based chart as fallback for TradingView
  */
 
 // Chart Theme Configuration
@@ -19,10 +18,6 @@ const chartTheme = {
         crosshairColor: '#f59e0b',
         upColor: '#10b981',
         downColor: '#ef4444',
-        wickUpColor: '#10b981',
-        wickDownColor: '#ef4444',
-        volumeUpColor: 'rgba(16, 185, 129, 0.3)',
-        volumeDownColor: 'rgba(239, 68, 68, 0.3)',
     },
 };
 
@@ -42,140 +37,249 @@ const chartTypes = [
     { label: 'Area', value: 'area', icon: '📉' },
 ];
 
+// Simple SVG Candlestick Chart
+const SimpleCandlestickChart = ({ data, width, height }) => {
+    if (!data || data.length === 0) return null;
+
+    const padding = { top: 20, right: 60, bottom: 30, left: 10 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    // Calculate price range
+    const prices = data.flatMap(d => [d.high, d.low]);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice || 1;
+
+    // Scale functions
+    const xScale = (index) => padding.left + (index / (data.length - 1)) * chartWidth;
+    const yScale = (price) => padding.top + ((maxPrice - price) / priceRange) * chartHeight;
+
+    const candleWidth = Math.max(2, (chartWidth / data.length) * 0.7);
+
+    return (
+        <svg width={width} height={height} className="overflow-visible">
+            {/* Grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                const y = padding.top + ratio * chartHeight;
+                const price = maxPrice - ratio * priceRange;
+                return (
+                    <g key={i}>
+                        <line
+                            x1={padding.left}
+                            y1={y}
+                            x2={width - padding.right}
+                            y2={y}
+                            stroke={chartTheme.dark.gridColor}
+                            strokeDasharray="2,2"
+                        />
+                        <text
+                            x={width - padding.right + 5}
+                            y={y + 4}
+                            fill={chartTheme.dark.textColor}
+                            fontSize="10"
+                        >
+                            ${price.toFixed(0)}
+                        </text>
+                    </g>
+                );
+            })}
+
+            {/* Candlesticks */}
+            {data.map((candle, i) => {
+                const x = xScale(i);
+                const isUp = candle.close >= candle.open;
+                const color = isUp ? chartTheme.dark.upColor : chartTheme.dark.downColor;
+
+                const bodyTop = yScale(Math.max(candle.open, candle.close));
+                const bodyBottom = yScale(Math.min(candle.open, candle.close));
+                const bodyHeight = Math.max(1, bodyBottom - bodyTop);
+
+                return (
+                    <g key={i}>
+                        {/* Wick */}
+                        <line
+                            x1={x}
+                            y1={yScale(candle.high)}
+                            x2={x}
+                            y2={yScale(candle.low)}
+                            stroke={color}
+                            strokeWidth="1"
+                        />
+                        {/* Body */}
+                        <rect
+                            x={x - candleWidth / 2}
+                            y={bodyTop}
+                            width={candleWidth}
+                            height={bodyHeight}
+                            fill={isUp ? color : color}
+                            stroke={color}
+                            strokeWidth="1"
+                        />
+                    </g>
+                );
+            })}
+
+            {/* Current price line */}
+            {data.length > 0 && (
+                <g>
+                    <line
+                        x1={padding.left}
+                        y1={yScale(data[data.length - 1].close)}
+                        x2={width - padding.right}
+                        y2={yScale(data[data.length - 1].close)}
+                        stroke={chartTheme.dark.crosshairColor}
+                        strokeDasharray="4,2"
+                        strokeWidth="1"
+                    />
+                    <rect
+                        x={width - padding.right}
+                        y={yScale(data[data.length - 1].close) - 10}
+                        width="55"
+                        height="20"
+                        fill={chartTheme.dark.crosshairColor}
+                        rx="3"
+                    />
+                    <text
+                        x={width - padding.right + 5}
+                        y={yScale(data[data.length - 1].close) + 4}
+                        fill="#000"
+                        fontSize="11"
+                        fontWeight="bold"
+                    >
+                        ${data[data.length - 1].close.toFixed(0)}
+                    </text>
+                </g>
+            )}
+        </svg>
+    );
+};
+
+// Simple Line Chart
+const SimpleLineChart = ({ data, width, height }) => {
+    if (!data || data.length === 0) return null;
+
+    const padding = { top: 20, right: 60, bottom: 30, left: 10 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    const prices = data.map(d => d.close);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const priceRange = maxPrice - minPrice || 1;
+
+    const xScale = (index) => padding.left + (index / (data.length - 1)) * chartWidth;
+    const yScale = (price) => padding.top + ((maxPrice - price) / priceRange) * chartHeight;
+
+    const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xScale(i)} ${yScale(d.close)}`).join(' ');
+    const areaPath = `${linePath} L ${xScale(data.length - 1)} ${height - padding.bottom} L ${padding.left} ${height - padding.bottom} Z`;
+
+    return (
+        <svg width={width} height={height} className="overflow-visible">
+            {/* Grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                const y = padding.top + ratio * chartHeight;
+                const price = maxPrice - ratio * priceRange;
+                return (
+                    <g key={i}>
+                        <line
+                            x1={padding.left}
+                            y1={y}
+                            x2={width - padding.right}
+                            y2={y}
+                            stroke={chartTheme.dark.gridColor}
+                            strokeDasharray="2,2"
+                        />
+                        <text
+                            x={width - padding.right + 5}
+                            y={y + 4}
+                            fill={chartTheme.dark.textColor}
+                            fontSize="10"
+                        >
+                            ${price.toFixed(0)}
+                        </text>
+                    </g>
+                );
+            })}
+
+            {/* Area fill */}
+            <path
+                d={areaPath}
+                fill="url(#areaGradient)"
+                opacity="0.3"
+            />
+
+            {/* Line */}
+            <path
+                d={linePath}
+                fill="none"
+                stroke={chartTheme.dark.crosshairColor}
+                strokeWidth="2"
+            />
+
+            {/* Gradient definition */}
+            <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={chartTheme.dark.crosshairColor} stopOpacity="0.4" />
+                    <stop offset="100%" stopColor={chartTheme.dark.crosshairColor} stopOpacity="0" />
+                </linearGradient>
+            </defs>
+
+            {/* Current price indicator */}
+            {data.length > 0 && (
+                <g>
+                    <circle
+                        cx={xScale(data.length - 1)}
+                        cy={yScale(data[data.length - 1].close)}
+                        r="4"
+                        fill={chartTheme.dark.crosshairColor}
+                    />
+                    <rect
+                        x={width - padding.right}
+                        y={yScale(data[data.length - 1].close) - 10}
+                        width="55"
+                        height="20"
+                        fill={chartTheme.dark.crosshairColor}
+                        rx="3"
+                    />
+                    <text
+                        x={width - padding.right + 5}
+                        y={yScale(data[data.length - 1].close) + 4}
+                        fill="#000"
+                        fontSize="11"
+                        fontWeight="bold"
+                    >
+                        ${data[data.length - 1].close.toFixed(0)}
+                    </text>
+                </g>
+            )}
+        </svg>
+    );
+};
+
 export default function GoldPriceChart({ height = 400 }) {
     const chartContainerRef = useRef(null);
-    const chartRef = useRef(null);
-    const candlestickSeriesRef = useRef(null);
-    const volumeSeriesRef = useRef(null);
-
+    const [chartData, setChartData] = useState([]);
     const [activeTimeframe, setActiveTimeframe] = useState('1D');
     const [chartType, setChartType] = useState('candlestick');
     const [currentPrice, setCurrentPrice] = useState(null);
     const [priceChange, setPriceChange] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [containerWidth, setContainerWidth] = useState(800);
+    const [mounted, setMounted] = useState(false);
 
-    // Initialize chart
+    // Handle client-side mounting
     useEffect(() => {
-        if (!chartContainerRef.current) return;
-
-        const theme = chartTheme.dark;
-
-        // Create chart instance
-        const chart = createChart(chartContainerRef.current, {
-            layout: {
-                background: { type: ColorType.Solid, color: theme.background },
-                textColor: theme.textColor,
-            },
-            grid: {
-                vertLines: { color: theme.gridColor },
-                horzLines: { color: theme.gridColor },
-            },
-            crosshair: {
-                mode: CrosshairMode.Normal,
-                vertLine: {
-                    color: theme.crosshairColor,
-                    width: 1,
-                    style: 2,
-                    labelBackgroundColor: theme.crosshairColor,
-                },
-                horzLine: {
-                    color: theme.crosshairColor,
-                    width: 1,
-                    style: 2,
-                    labelBackgroundColor: theme.crosshairColor,
-                },
-            },
-            rightPriceScale: {
-                borderColor: theme.borderColor,
-                scaleMargins: {
-                    top: 0.1,
-                    bottom: 0.2,
-                },
-            },
-            timeScale: {
-                borderColor: theme.borderColor,
-                timeVisible: true,
-                secondsVisible: false,
-            },
-            handleScroll: {
-                mouseWheel: true,
-                pressedMouseMove: true,
-            },
-            handleScale: {
-                axisPressedMouseMove: true,
-                mouseWheel: true,
-                pinch: true,
-            },
-        });
-
-        chartRef.current = chart;
-
-        // Add candlestick series
-        const candlestickSeries = chart.addCandlestickSeries({
-            upColor: theme.upColor,
-            downColor: theme.downColor,
-            borderDownColor: theme.downColor,
-            borderUpColor: theme.upColor,
-            wickDownColor: theme.wickDownColor,
-            wickUpColor: theme.wickUpColor,
-        });
-        candlestickSeriesRef.current = candlestickSeries;
-
-        // Add volume series
-        const volumeSeries = chart.addHistogramSeries({
-            color: theme.volumeUpColor,
-            priceFormat: {
-                type: 'volume',
-            },
-            priceScaleId: '',
-            scaleMargins: {
-                top: 0.85,
-                bottom: 0,
-            },
-        });
-        volumeSeriesRef.current = volumeSeries;
-
-        // Load initial data
-        loadChartData();
-
-        // Handle resize
-        const handleResize = () => {
-            if (chartContainerRef.current && chartRef.current) {
-                chartRef.current.applyOptions({
-                    width: chartContainerRef.current.clientWidth,
-                });
-            }
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize();
-
-        // Cleanup
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            if (chartRef.current) {
-                chartRef.current.remove();
-            }
-        };
+        setMounted(true);
     }, []);
 
     // Load chart data
-    const loadChartData = async () => {
+    const loadChartData = useCallback(() => {
         setIsLoading(true);
-
         try {
-            // Generate mock data (replace with API call later)
-            const candleData = generateGoldCandlestickData(100);
-            const volumeData = generateVolumeData(100);
+            const candleData = generateGoldCandlestickData(50);
+            setChartData(candleData);
 
-            if (candlestickSeriesRef.current) {
-                candlestickSeriesRef.current.setData(candleData);
-            }
-            if (volumeSeriesRef.current) {
-                volumeSeriesRef.current.setData(volumeData);
-            }
-
-            // Set current price from last candle
             if (candleData.length > 0) {
                 const lastCandle = candleData[candleData.length - 1];
                 const prevCandle = candleData[candleData.length - 2];
@@ -185,40 +289,59 @@ export default function GoldPriceChart({ height = 400 }) {
                     percent: ((lastCandle.close - prevCandle.close) / prevCandle.close) * 100,
                 });
             }
-
-            // Fit content
-            if (chartRef.current) {
-                chartRef.current.timeScale().fitContent();
-            }
         } catch (error) {
             console.error('Error loading chart data:', error);
         }
-
         setIsLoading(false);
-    };
+    }, []);
+
+    // Initialize
+    useEffect(() => {
+        if (!mounted) return;
+        loadChartData();
+    }, [mounted, loadChartData]);
+
+    // Handle resize
+    useEffect(() => {
+        if (!mounted || !chartContainerRef.current) return;
+
+        const updateWidth = () => {
+            if (chartContainerRef.current) {
+                setContainerWidth(chartContainerRef.current.clientWidth);
+            }
+        };
+
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, [mounted]);
 
     // Simulate real-time updates
     useEffect(() => {
-        if (!candlestickSeriesRef.current || !currentPrice) return;
+        if (!mounted || !currentPrice) return;
 
         const priceSimulator = createPriceSimulator(currentPrice, 0.3);
 
         const interval = setInterval(() => {
             const tick = priceSimulator();
             setCurrentPrice(tick.price);
-
-            // Update the last candle (in real implementation, this would be more sophisticated)
-            // For now, we just update the displayed price
-        }, 2000);
+        }, 3000);
 
         return () => clearInterval(interval);
-    }, [currentPrice]);
+    }, [mounted, currentPrice]);
 
-    // Handle timeframe change
     const handleTimeframeChange = (tf) => {
         setActiveTimeframe(tf);
-        loadChartData(); // Reload data for new timeframe
+        loadChartData();
     };
+
+    if (!mounted) {
+        return (
+            <div className="flex items-center justify-center" style={{ height: `${height}px` }}>
+                <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="relative">
@@ -246,8 +369,8 @@ export default function GoldPriceChart({ height = 400 }) {
                                 key={type.value}
                                 onClick={() => setChartType(type.value)}
                                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${chartType === type.value
-                                        ? 'bg-amber-500/20 text-amber-400'
-                                        : 'text-slate-500 hover:text-slate-300'
+                                    ? 'bg-amber-500/20 text-amber-400'
+                                    : 'text-slate-500 hover:text-slate-300'
                                     }`}
                                 title={type.label}
                             >
@@ -263,8 +386,8 @@ export default function GoldPriceChart({ height = 400 }) {
                                 key={tf.value}
                                 onClick={() => handleTimeframeChange(tf.value)}
                                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTimeframe === tf.value
-                                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                        : 'text-slate-500 hover:text-slate-300'
+                                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                    : 'text-slate-500 hover:text-slate-300'
                                     }`}
                             >
                                 {tf.label}
@@ -275,7 +398,7 @@ export default function GoldPriceChart({ height = 400 }) {
             </div>
 
             {/* Chart Container */}
-            <div className="relative">
+            <div className="relative" ref={chartContainerRef}>
                 {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm z-10 rounded-xl">
                         <div className="flex items-center gap-3">
@@ -285,10 +408,15 @@ export default function GoldPriceChart({ height = 400 }) {
                     </div>
                 )}
                 <div
-                    ref={chartContainerRef}
                     style={{ height: `${height}px` }}
-                    className="rounded-xl overflow-hidden"
-                />
+                    className="rounded-xl overflow-hidden bg-slate-900/30"
+                >
+                    {chartType === 'candlestick' ? (
+                        <SimpleCandlestickChart data={chartData} width={containerWidth} height={height} />
+                    ) : (
+                        <SimpleLineChart data={chartData} width={containerWidth} height={height} />
+                    )}
+                </div>
             </div>
 
             {/* Chart Footer - Quick Stats */}
