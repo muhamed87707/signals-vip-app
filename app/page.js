@@ -72,7 +72,7 @@ const LockIcon = () => (
 );
 
 const BrandAIcon = () => (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" strokeLinecap="round" strokeLinejoin="round">
         <defs>
             <linearGradient id="gold-gradient-brand" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#FFD700" />
@@ -84,27 +84,11 @@ const BrandAIcon = () => (
                 <animate attributeName="x1" values="-50%;150%;-50%" dur="3s" repeatCount="indefinite" />
                 <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
             </linearGradient>
-            <filter id="gold-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
-                <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
         </defs>
-        {/* Bold 'A' - Solid filled */}
-        <text
-            x="20"
-            y="32"
-            textAnchor="middle"
-            fontFamily="Arial, sans-serif"
-            fontSize="32"
-            fontWeight="900"
-            fill="url(#gold-gradient-brand)"
-            filter="url(#gold-glow)"
-        >
-            A
-        </text>
+        {/* Simple clean 'A' letter */}
+        <path d="M20 6L8 34" stroke="url(#gold-gradient-brand)" strokeWidth="2.5" />
+        <path d="M20 6L32 34" stroke="url(#gold-gradient-brand)" strokeWidth="2.5" />
+        <path d="M12 24H28" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
     </svg>
 );
 
