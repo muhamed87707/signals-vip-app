@@ -84,29 +84,25 @@ const BrandAIcon = () => (
                 <animate attributeName="x1" values="-50%;150%;-50%" dur="3s" repeatCount="indefinite" />
                 <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
             </linearGradient>
-            <filter id="gold-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="1" result="coloredBlur" />
-                <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
         </defs>
-        {/* Elegant Stylized 'A' - Flowing curves */}
-        <path
-            d="M20 6 C14 6, 8 18, 8 28 Q8 34, 14 34 L16 34 Q12 24, 20 12 Q28 24, 24 34 L26 34 Q32 34, 32 28 C32 18, 26 6, 20 6"
+        {/* Rounded square border */}
+        <rect
+            x="2" y="2"
+            width="36" height="36"
+            rx="10" ry="10"
             stroke="url(#gold-gradient-brand)"
             strokeWidth="2"
             fill="none"
-            filter="url(#gold-glow)"
         />
-        {/* Elegant crossbar with curves */}
-        <path
-            d="M12 24 Q20 20, 28 24"
-            stroke="url(#gold-gradient-brand)"
-            strokeWidth="1.5"
-            fill="none"
-        />
+        {/* Bold 'A' letter */}
+        <text
+            x="20" y="29"
+            textAnchor="middle"
+            fill="url(#gold-gradient-brand)"
+            fontSize="26"
+            fontWeight="800"
+            fontFamily="Arial, sans-serif"
+        >A</text>
     </svg>
 );
 
