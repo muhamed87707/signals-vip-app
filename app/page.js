@@ -72,13 +72,34 @@ const LockIcon = () => (
 );
 
 const BrandAIcon = () => (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="url(#gold-gradient-lock)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        {/* Main 'A' Shape - Outer */}
-        <path d="M20 3L6 37H12L15 29H25L28 37H34L20 3Z" />
-        {/* Inner horizontal bar */}
-        <path d="M13 24H27" strokeWidth="1.5" />
-        {/* Inner decorative curve (the swoosh) */}
-        <path d="M10 32Q20 22 30 32" strokeWidth="1.5" fill="none" />
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <defs>
+            <linearGradient id="gold-gradient-brand" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FFD700" />
+                <stop offset="25%" stopColor="#FFE566" />
+                <stop offset="45%" stopColor="#FFFFFF" />
+                <stop offset="55%" stopColor="#FFFFFF" />
+                <stop offset="75%" stopColor="#FFE566" />
+                <stop offset="100%" stopColor="#FFD700" />
+                <animate attributeName="x1" values="-50%;150%;-50%" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
+            </linearGradient>
+            <filter id="gold-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+                <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+        {/* Outer decorative circle */}
+        <circle cx="20" cy="20" r="18" stroke="url(#gold-gradient-brand)" strokeWidth="1.5" fill="none" opacity="0.3" />
+        {/* Main 'A' Shape - Elegant */}
+        <path d="M20 8L10 32H14L16.5 26H23.5L26 32H30L20 8Z" stroke="url(#gold-gradient-brand)" strokeWidth="2" fill="none" filter="url(#gold-glow)" />
+        {/* Inner horizontal bar of A */}
+        <path d="M15 23H25" stroke="url(#gold-gradient-brand)" strokeWidth="1.5" />
+        {/* Small diamond accent at top */}
+        <path d="M20 6L21.5 8L20 10L18.5 8Z" stroke="url(#gold-gradient-brand)" strokeWidth="1" fill="none" />
     </svg>
 );
 
