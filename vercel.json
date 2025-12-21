@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/market-data",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/ai-analysis",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/news-aggregation",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}
