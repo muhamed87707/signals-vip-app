@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 /**
  * Gold & Forex Market Intelligence Dashboard
  * Main Page - Bento Grid Layout
@@ -24,9 +26,30 @@ import BottomSection from './components/BottomSection';
 import BankForecasts from './components/BankForecasts';
 import CotAnalysis from './components/CotAnalysis';
 
+// Loading skeleton for SSR
+const DashboardSkeleton = () => (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            <p className="text-slate-400 text-sm">Loading Dashboard...</p>
+        </div>
+    </div>
+);
+
 export default function DashboardPage() {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Show loading skeleton during SSR to prevent hydration mismatch
+    if (!mounted) {
+        return <DashboardSkeleton />;
+    }
+
     return (
-        <div className="min-h-screen bg-slate-950">
+        <div className="min-h-screen bg-slate-950" suppressHydrationWarning>
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none">
                 {/* Gradient Orbs */}
