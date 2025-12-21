@@ -1,22 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import Card, { MetricValue, StatusBadge } from './Card';
+import GoldPriceChart from './GoldPriceChart';
 import { getCrossAssetData } from '../services/marketData';
-
-// Dynamic import with SSR disabled for TradingView chart
-const GoldPriceChart = dynamic(() => import('./GoldPriceChart'), {
-    ssr: false,
-    loading: () => (
-        <div className="flex items-center justify-center h-[350px] bg-slate-800/30 rounded-xl">
-            <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-slate-400">Loading chart...</span>
-            </div>
-        </div>
-    ),
-});
 
 /**
  * Hero Section - Gold Price Chart & Quick Sentiment
