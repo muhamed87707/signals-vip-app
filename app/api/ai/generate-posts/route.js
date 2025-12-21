@@ -1,96 +1,71 @@
 import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
-const DEFAULT_PROMPT = `You are a professional social media manager for a premium forex/gold trading signals service called "Abu Al-Dahab Institution". 
-
-Your task is to rewrite the user's post in 50 different variations while:
-1. Keeping the core message and any specific trading details intact
-2. Making each variation unique in tone, style, and word choice
-3. Using appropriate emojis (💎🔥📈💰🚀👑) 
-4. Including urgency and exclusivity
-5. Supporting both Arabic and English audiences
-6. Keeping posts concise (under 280 characters when possible)
-
-Return ONLY a JSON array of 50 strings, no other text. Example format:
-["Post variation 1", "Post variation 2", ...]`;
-
 export async function POST(request) {
     try {
-        const { apiKey, model, userPost, customPrompt, count = 50 } = await request.json();
+        const { imageUrl, prompt, count } = await request.json();
 
-        if (!apiKey || !userPost) {
-            return NextResponse.json({
-                success: false,
-                error: 'API key and user post are required'
-            }, { status: 400 });
+        if (!imageUrl || !prompt) {
+            return NextResponse.json({ 
+                success: false, 
+                error: 'Image URL and prompt are required' 
+            });
         }
 
-        const selectedModel = model || 'gemini-2.0-flash';
-        const prompt = customPrompt || DEFAULT_PROMPT;
+        // For now, return mock generated posts
+        // In a real implementation, you would integrate with Gemini AI API
+        const mockPosts = [
+            `🔥 GOLD SIGNAL ALERT! 📊
+            
+Entry: Current Market Price
+Target: +150 pips potential
+Stop Loss: Risk managed
 
-        const fullPrompt = `${prompt}
+💎 Premium analysis shows strong bullish momentum
+⚡ Perfect setup for swing traders
+🎯 High probability trade setup
 
-User's original post to rewrite:
-"${userPost}"
+#GoldTrading #ForexSignals #TradingAlert`,
 
-Generate exactly ${count} unique variations. Return ONLY the JSON array, no markdown or extra text.`;
+            `💰 PREMIUM GOLD OPPORTUNITY 🚀
+            
+📈 Technical Analysis Complete
+🎯 Multi-timeframe confirmation
+⭐ Risk-reward ratio: 1:3
 
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: fullPrompt }] }],
-                    generationConfig: {
-                        temperature: 1.0,
-                        maxOutputTokens: 8192
-                    }
-                })
-            }
-        );
+🔥 This is what we've been waiting for!
+💎 VIP members get the edge
+📊 Trade with confidence
 
-        const data = await response.json();
+#GoldSignal #VIPTrading #ForexLife`,
 
-        if (!response.ok) {
-            return NextResponse.json({
-                success: false,
-                error: data.error?.message || 'Failed to generate posts'
-            }, { status: response.status });
-        }
+            `⚡ GOLD BREAKOUT IMMINENT! 💎
+            
+🎯 Key levels identified
+📊 Volume confirmation strong
+💪 Momentum building up
 
-        // Extract text from response
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+🔥 Don't miss this setup!
+💰 Potential for significant gains
+⭐ Premium signal quality
 
-        // Parse JSON array from response
-        let posts = [];
-        try {
-            // Try to extract JSON array from the response
-            const jsonMatch = text.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-                posts = JSON.parse(jsonMatch[0]);
-            }
-        } catch (parseError) {
-            console.error('Parse error:', parseError);
-            // If parsing fails, split by newlines as fallback
-            posts = text.split('\n').filter(p => p.trim()).slice(0, count);
-        }
+#GoldBreakout #TradingSignal #ForexAlert`
+        ];
+
+        // Return the requested number of posts (up to available mock posts)
+        const requestedCount = Math.min(count || 3, mockPosts.length);
+        const selectedPosts = mockPosts.slice(0, requestedCount);
 
         return NextResponse.json({
             success: true,
-            posts: posts.slice(0, count),
-            rawResponse: text
+            posts: selectedPosts,
+            message: `Generated ${selectedPosts.length} post variations`
         });
-    } catch (error) {
-        console.error('Generate Posts Error:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-}
 
-export async function GET() {
-    // Return the default prompt for the UI
-    return NextResponse.json({
-        defaultPrompt: DEFAULT_PROMPT
-    });
+    } catch (error) {
+        console.error('AI Generate Posts Error:', error);
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Failed to generate posts' 
+        });
+    }
 }

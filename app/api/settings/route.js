@@ -2,59 +2,72 @@ import { NextResponse } from 'next/server';
 import dbConnect from '../../../lib/mongodb';
 import Settings from '../../../models/Settings';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
     try {
         await dbConnect();
-        // Always try to find the one settings doc
+        
         let settings = await Settings.findOne();
-
-        // If not exists, return default object (frontend handles it)
+        
         if (!settings) {
-            settings = {
+            // Create default settings if none exist
+            settings = new Settings({
                 geminiApiKey: '',
-                aiPrompt: '',
                 selectedModel: 'gemini-2.0-flash',
-                generatedPostCount: 50
-            };
+                generatedPostCount: 3,
+                aiPrompt: 'Generate 3 variations of this trading signal post.'
+            });
+            await settings.save();
         }
 
-        return NextResponse.json({ success: true, settings });
+        return NextResponse.json({
+            success: true,
+            settings: {
+                geminiApiKey: settings.geminiApiKey || '',
+                selectedModel: settings.selectedModel || 'gemini-2.0-flash',
+                generatedPostCount: settings.generatedPostCount || 3,
+                aiPrompt: settings.aiPrompt || 'Generate 3 variations of this trading signal post.'
+            }
+        });
+
     } catch (error) {
-        console.error('Fetch Settings Error:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        console.error('Settings GET Error:', error);
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Failed to load settings' 
+        });
     }
 }
 
 export async function POST(request) {
     try {
         await dbConnect();
-        const body = await request.json();
-        const { geminiApiKey, aiPrompt, selectedModel, generatedPostCount } = body;
+        
+        const { geminiApiKey, selectedModel, generatedPostCount, aiPrompt } = await request.json();
 
-        // Upsert: Try to update first document found, or insert if none
         let settings = await Settings.findOne();
-
-        if (settings) {
-            if (geminiApiKey !== undefined) settings.geminiApiKey = geminiApiKey;
-            if (aiPrompt !== undefined) settings.aiPrompt = aiPrompt;
-            if (selectedModel !== undefined) settings.selectedModel = selectedModel;
-            if (generatedPostCount !== undefined) settings.generatedPostCount = generatedPostCount;
-            settings.updatedAt = new Date();
-            await settings.save();
-        } else {
-            settings = await Settings.create({
-                geminiApiKey,
-                aiPrompt,
-                selectedModel,
-                generatedPostCount
-            });
+        
+        if (!settings) {
+            settings = new Settings();
         }
 
-        return NextResponse.json({ success: true, settings });
+        // Update settings
+        if (geminiApiKey !== undefined) settings.geminiApiKey = geminiApiKey;
+        if (selectedModel !== undefined) settings.selectedModel = selectedModel;
+        if (generatedPostCount !== undefined) settings.generatedPostCount = generatedPostCount;
+        if (aiPrompt !== undefined) settings.aiPrompt = aiPrompt;
+
+        await settings.save();
+
+        return NextResponse.json({
+            success: true,
+            message: 'Settings saved successfully'
+        });
+
     } catch (error) {
-        console.error('Update Settings Error:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        console.error('Settings POST Error:', error);
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Failed to save settings' 
+        });
     }
 }

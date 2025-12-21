@@ -13,6 +13,9 @@ export default function AdminPage() {
     const [lang, setLang] = useState('en');
     const t = translations[lang];
 
+    // Active tab state
+    const [activeTab, setActiveTab] = useState('signals');
+
     // Signal management state
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -28,7 +31,7 @@ export default function AdminPage() {
     const [geminiApiKey, setGeminiApiKey] = useState('');
     const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
     const [postCount, setPostCount] = useState(3);
-    const [aiPrompt, setAiPrompt] = useState('Generate 3 variations of this trading signal post. Keep the same meaning but vary the wording, tone, and structure. Make them engaging and professional for a trading audience. Each variation should be unique but maintain the core message.');
+    const [aiPrompt, setAiPrompt] = useState('Generate 3 variations of this trading signal post.');
     const [availableModels, setAvailableModels] = useState([]);
     const [modelsLoading, setModelsLoading] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false);
@@ -51,6 +54,9 @@ export default function AdminPage() {
     // Refs
     const fileInputRef = useRef(null);
 
+    // Messages state
+    const [successMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState('');
     // Load settings and data on mount
     useEffect(() => {
         const savedAuth = localStorage.getItem('adminAuth');
@@ -69,20 +75,20 @@ export default function AdminPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
         if (password === 'admin123') {
-            setIsAuthenticated(true);
             localStorage.setItem('adminAuth', 'true');
+            setIsAuthenticated(true);
             setLoginError('');
             loadSignals();
             loadUsers();
             loadSettings();
         } else {
-            setLoginError(t.loginError);
+            setLoginError(t.invalidPassword || 'Invalid password');
         }
     };
 
     const handleLogout = () => {
-        setIsAuthenticated(false);
         localStorage.removeItem('adminAuth');
+        setIsAuthenticated(false);
         setPassword('');
     };
 
@@ -90,865 +96,1428 @@ export default function AdminPage() {
     const loadSignals = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/signals');
-            if (response.ok) {
-                const data = await response.json();
-                setSignals(data.signals || []);
-            }
-        } catch (error) {
-            console.error('Error loading signals:', error);
-        } finally {
-            setLoading(false);
+            const res = await fetch('/api/signals?admin=true');
+            const data = await res.json();
+            setSignals(data.signals || []);
+        } catch (err) {
+            console.error('Error loading signals:', err);
         }
+        setLoading(false);
     };
 
     const loadUsers = async () => {
         try {
-            const response = await fetch('/api/admin/users');
-            if (response.ok) {
-                const data = await response.json();
-                setUsers(data.users || []);
-            }
-        } catch (error) {
-            console.error('Error loading users:', error);
+            const res = await fetch('/api/users');
+            const data = await res.json();
+            setUsers(data.users || []);
+        } catch (err) {
+            console.error('Error loading users:', err);
         }
     };
 
     const loadSettings = async () => {
         try {
-            const response = await fetch('/api/admin/settings');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.settings) {
-                    setGeminiApiKey(data.settings.geminiApiKey || '');
-                    setSelectedModel(data.settings.selectedModel || 'gemini-2.0-flash');
-                    setPostCount(data.settings.postCount || 3);
-                    setAiPrompt(data.settings.aiPrompt || aiPrompt);
-                }
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+            if (data.success) {
+                setGeminiApiKey(data.settings.geminiApiKey || '');
+                setSelectedModel(data.settings.selectedModel || 'gemini-2.0-flash');
+                setPostCount(data.settings.generatedPostCount || 3);
+                setAiPrompt(data.settings.aiPrompt || 'Generate 3 variations of this trading signal post.');
             }
-        } catch (error) {
-            console.error('Error loading settings:', error);
+        } catch (err) {
+            console.error('Error loading settings:', err);
         }
     };
-    // Settings functions
-    const saveSettingsToDB = async (e = null, manual = false) => {
-        if (e) e.preventDefault();
-        setSavingSettings(true);
-        try {
-            const response = await fetch('/api/admin/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    geminiApiKey,
-                    selectedModel,
-                    postCount,
-                    aiPrompt
-                })
-            });
-            if (response.ok && manual) {
-                // Show success feedback for manual saves
-                const originalText = savingSettings;
-                setSavingSettings(false);
-                setTimeout(() => setSavingSettings(false), 2000);
-            }
-        } catch (error) {
-            console.error('Error saving settings:', error);
-        } finally {
-            setSavingSettings(false);
-        }
-    };
-
-    const fetchModels = async () => {
-        setModelsLoading(true);
-        try {
-            const response = await fetch('/api/admin/gemini-models', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ apiKey: geminiApiKey })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setAvailableModels(data.models || []);
-            }
-        } catch (error) {
-            console.error('Error fetching models:', error);
-        } finally {
-            setModelsLoading(false);
-        }
-    };
-
     // Image handling functions
-    const handleImageSelect = (e) => {
+    const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setSelectedImage(file);
             const reader = new FileReader();
-            reader.onload = (e) => setPreviewData(e.target.result);
+            reader.onload = (e) => {
+                setSelectedImage(e.target.result);
+                setPreviewData({ type: 'image', content: e.target.result });
+            };
             reader.readAsDataURL(file);
         }
     };
 
     const handlePaste = (e) => {
-        const items = e.clipboardData?.items;
-        if (items) {
-            for (let item of items) {
-                if (item.type.indexOf('image') !== -1) {
-                    const file = item.getAsFile();
-                    setSelectedImage(file);
-                    const reader = new FileReader();
-                    reader.onload = (e) => setPreviewData(e.target.result);
-                    reader.readAsDataURL(file);
-                    break;
-                }
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setSelectedImage(e.target.result);
+                    setPreviewData({ type: 'image', content: e.target.result });
+                };
+                reader.readAsDataURL(blob);
+                break;
             }
         }
     };
 
-    const cancelPreview = () => {
-        setSelectedImage(null);
-        setPreviewData(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+    // Signal posting function
+    const handlePostSignal = async () => {
+        if (!selectedImage) {
+            setError(t.selectImageFirst || 'Please select an image first');
+            return;
         }
-    };
 
-    // AI functions
-    const generateAIPosts = async () => {
-        if (!customPost.trim()) return;
-        setGeneratingPosts(true);
+        setUploading(true);
+        setError('');
+        setSuccessMessage('');
+
         try {
-            const response = await fetch('/api/admin/generate-posts', {
+            const payload = {
+                pair: 'GOLD',
+                type: signalType === 'vip' ? 'SIGNAL' : 'REGULAR',
+                imageUrl: selectedImage,
+                telegramImage: selectedImage,
+                sendToTelegram: postToTelegram,
+                isVip: signalType === 'vip',
+                customPost: customPost || null,
+                telegramButtonType: telegramButtonType
+            };
+
+            const res = await fetch('/api/signals', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    originalPost: customPost,
-                    count: postCount,
-                    model: selectedModel,
-                    prompt: aiPrompt,
-                    apiKey: geminiApiKey
-                })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setGeneratedPosts(data.posts || []);
-                setSelectedPostIndex(0);
-            }
-        } catch (error) {
-            console.error('Error generating posts:', error);
-        } finally {
-            setGeneratingPosts(false);
-        }
-    };
-    // Signal management functions
-    const handlePublish = async () => {
-        if (!selectedImage || !customPost.trim()) return;
-        setUploading(true);
-        try {
-            const formData = new FormData();
-            formData.append('image', selectedImage);
-            formData.append('customPost', selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost);
-            formData.append('signalType', signalType);
-            formData.append('postToTelegram', postToTelegram);
-            formData.append('telegramButtonType', telegramButtonType);
-
-            const response = await fetch('/api/admin/signals', {
-                method: 'POST',
-                body: formData
+                body: JSON.stringify(payload)
             });
 
-            if (response.ok) {
+            const data = await res.json();
+            if (data.success) {
+                setSuccessMessage(t.postSuccess || 'Signal posted successfully!');
                 loadSignals();
-                resetForm();
+                // Clear form
+                setSelectedImage(null);
+                setPreviewData(null);
+                setCustomPost('');
+                setGeneratedPosts([]);
+                setSelectedPostIndex(-1);
+            } else {
+                setError(data.error || t.postError || 'Failed to post signal');
             }
-        } catch (error) {
-            console.error('Error publishing signal:', error);
-        } finally {
-            setUploading(false);
+        } catch (err) {
+            setError(t.postError || 'Failed to post signal');
         }
-    };
-
-    const handleUpdate = async () => {
-        if (!editingSignal || !customPost.trim()) return;
-        setUploading(true);
-        try {
-            const formData = new FormData();
-            if (selectedImage) {
-                formData.append('image', selectedImage);
-            }
-            formData.append('customPost', selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost);
-            formData.append('signalType', signalType);
-            formData.append('postToTelegram', postToTelegram);
-            formData.append('telegramButtonType', telegramButtonType);
-
-            const response = await fetch(`/api/admin/signals/${editingSignal._id}`, {
-                method: 'PUT',
-                body: formData
-            });
-
-            if (response.ok) {
-                loadSignals();
-                handleCancelEdit();
-            }
-        } catch (error) {
-            console.error('Error updating signal:', error);
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    const handleEdit = (signal) => {
-        setIsEditing(true);
-        setEditingSignal(signal);
-        setCustomPost(signal.customPost || '');
-        setSignalType(signal.signalType || 'vip');
-        setPreviewData(signal.imageUrl);
-        setSelectedImage(null);
-        setGeneratedPosts([]);
-        setSelectedPostIndex(-1);
-    };
-
-    const handleCancelEdit = () => {
-        setIsEditing(false);
-        setEditingSignal(null);
-        resetForm();
-    };
-
-    const deleteSignal = async (id) => {
-        if (!confirm(t.deleteConfirm)) return;
-        try {
-            const response = await fetch(`/api/admin/signals/${id}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                loadSignals();
-            }
-        } catch (error) {
-            console.error('Error deleting signal:', error);
-        }
-    };
-
-    const resetForm = () => {
-        setSelectedImage(null);
-        setPreviewData(null);
-        setCustomPost('');
-        setSignalType('vip');
-        setPostToTelegram(true);
-        setTelegramButtonType('view_signal');
-        setGeneratedPosts([]);
-        setSelectedPostIndex(-1);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        setUploading(false);
     };
     // VIP management functions
-    const handleGrantVip = async (e) => {
-        e.preventDefault();
-        if (!telegramId.trim()) return;
+    const handleVipAction = async (action) => {
+        if (!telegramId.trim()) {
+            setVipMessage({ text: 'Please enter Telegram ID', type: 'error' });
+            return;
+        }
+
         setVipLoading(true);
         try {
-            const response = await fetch('/api/admin/grant-vip', {
+            const payload = {
+                telegramId: telegramId.trim(),
+                isVip: action === 'add',
+                durationMonths: isLifetime ? null : parseInt(durationMonths),
+                isLifetime: isLifetime,
+                removeUser: action === 'remove'
+            };
+
+            const res = await fetch('/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telegramId: telegramId.trim(),
-                    durationMonths: isLifetime ? null : parseInt(durationMonths),
-                    isLifetime
-                })
+                body: JSON.stringify(payload)
             });
-            if (response.ok) {
-                setVipMessage({ text: t.vipSuccess, type: 'success' });
+
+            const data = await res.json();
+            if (data.success) {
+                setVipMessage({ 
+                    text: action === 'add' ? 'VIP access granted!' : 'User removed successfully!', 
+                    type: 'success' 
+                });
+                loadUsers();
                 setTelegramId('');
-                setDurationMonths('1');
-                setIsLifetime(false);
-                loadUsers();
             } else {
-                setVipMessage({ text: t.vipError, type: 'error' });
+                setVipMessage({ text: data.error || 'Operation failed', type: 'error' });
             }
-        } catch (error) {
-            setVipMessage({ text: t.vipError, type: 'error' });
-        } finally {
-            setVipLoading(false);
-            setTimeout(() => setVipMessage({ text: '', type: '' }), 3000);
+        } catch (err) {
+            setVipMessage({ text: 'Operation failed', type: 'error' });
         }
+        setVipLoading(false);
     };
 
-    const handleRemoveUser = async (telegramId) => {
-        if (!confirm(t.remove + '?')) return;
-        try {
-            const response = await fetch('/api/admin/remove-vip', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ telegramId })
-            });
-            if (response.ok) {
-                loadUsers();
-            }
-        } catch (error) {
-            console.error('Error removing user:', error);
-        }
-    };
-
-    // Utility functions
-    const getTimeAgo = (dateString, lang) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInSeconds = Math.floor((now - date) / 1000);
+    // Delete signal function
+    const handleDeleteSignal = async (id) => {
+        if (!confirm(t.deleteConfirm || 'Are you sure you want to delete this signal?')) return;
         
-        if (diffInSeconds < 60) return lang === 'ar' ? 'الآن' : 'now';
-        if (diffInSeconds < 3600) return lang === 'ar' ? `${Math.floor(diffInSeconds / 60)} د` : `${Math.floor(diffInSeconds / 60)}m`;
-        if (diffInSeconds < 86400) return lang === 'ar' ? `${Math.floor(diffInSeconds / 3600)} س` : `${Math.floor(diffInSeconds / 3600)}h`;
-        return lang === 'ar' ? `${Math.floor(diffInSeconds / 86400)} ي` : `${Math.floor(diffInSeconds / 86400)}d`;
+        try {
+            const res = await fetch(`/api/signals?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                loadSignals();
+                setSuccessMessage(t.deleteSuccess || 'Signal deleted successfully!');
+            }
+        } catch (err) {
+            setError(t.deleteError || 'Failed to delete signal');
+        }
+    };
+
+    // Language toggle
+    const toggleLanguage = () => {
+        const newLang = lang === 'en' ? 'ar' : 'en';
+        setLang(newLang);
+        localStorage.setItem('language', newLang);
     };
     // Login screen
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-4">
-                <div className="w-full max-w-md">
-                    <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 shadow-2xl">
-                        <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                                <span className="text-3xl">👑</span>
-                            </div>
-                            <h1 className="text-3xl font-bold text-gradient mb-2">{t.adminTitle}</h1>
-                            <p className="text-gray-400">{t.adminSubtitle}</p>
-                        </div>
-                        
-                        <form onSubmit={handleLogin} className="space-y-6">
-                            <div>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder={t.passwordPlaceholder}
-                                    className="w-full px-4 py-3 bg-black/30 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all"
-                                    required
-                                />
-                            </div>
-                            
-                            {loginError && (
-                                <div className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                                    {loginError}
-                                </div>
-                            )}
-                            
-                            <button
-                                type="submit"
-                                className="w-full btn-primary py-3 text-lg font-bold"
-                            >
-                                {t.login}
-                            </button>
-                        </form>
-                        
-                        <div className="mt-6 text-center">
-                            <button
-                                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-                                className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm"
-                            >
-                                {t.langSwitch}
-                            </button>
-                        </div>
+            <div style={{
+                minHeight: '100vh',
+                background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a25 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2rem',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                {/* Background effects */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-10%',
+                    left: '-10%',
+                    width: '50%',
+                    height: '50%',
+                    background: 'radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%)',
+                    filter: 'blur(60px)',
+                    animation: 'pulse 8s ease-in-out infinite'
+                }}></div>
+
+                <div style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(20px)',
+                    border: '2px solid rgba(184, 134, 11, 0.2)',
+                    borderRadius: '30px',
+                    padding: '3rem',
+                    maxWidth: '450px',
+                    width: '100%',
+                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+                    position: 'relative',
+                    zIndex: 1
+                }}>
+                    {/* Logo */}
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>💎</div>
+                        <h1 className="text-gradient" style={{
+                            fontSize: '2rem',
+                            fontWeight: '800',
+                            marginBottom: '0.5rem'
+                        }}>
+                            {t.adminTitle || 'Admin Panel'}
+                        </h1>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                            {t.adminSubtitle || 'Enter password to login'}
+                        </p>
                     </div>
+
+                    {/* Login form */}
+                    <form onSubmit={handleLogin}>
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder={t.passwordPlaceholder || 'Password'}
+                                style={{
+                                    width: '100%',
+                                    padding: '1rem 1.5rem',
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: '2px solid rgba(184, 134, 11, 0.2)',
+                                    borderRadius: '15px',
+                                    color: 'white',
+                                    fontSize: '1rem',
+                                    outline: 'none',
+                                    transition: 'all 0.3s ease'
+                                }}
+                                onFocus={(e) => e.target.style.borderColor = 'var(--gold-primary)'}
+                                onBlur={(e) => e.target.style.borderColor = 'rgba(184, 134, 11, 0.2)'}
+                            />
+                        </div>
+
+                        {loginError && (
+                            <div style={{
+                                padding: '0.75rem',
+                                background: 'rgba(255, 68, 68, 0.1)',
+                                border: '1px solid rgba(255, 68, 68, 0.3)',
+                                borderRadius: '10px',
+                                color: '#ff4444',
+                                fontSize: '0.9rem',
+                                marginBottom: '1rem',
+                                textAlign: 'center'
+                            }}>
+                                {loginError}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="btn-primary"
+                            style={{
+                                width: '100%',
+                                padding: '1rem',
+                                fontSize: '1.1rem',
+                                fontWeight: '700'
+                            }}
+                        >
+                            {t.login || 'Login'} 🔐
+                        </button>
+                    </form>
                 </div>
             </div>
         );
     }
     // Main admin interface
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-            {/* Header */}
-            <header className="bg-black/50 backdrop-blur-xl border-b border-yellow-500/20 sticky top-0 z-50">
-                <div className="container mx-auto px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <span className="text-xl">👑</span>
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-gradient">{t.adminTitle}</h1>
-                                <p className="text-gray-400 text-sm">{t.signalsPanel}</p>
-                            </div>
+        <div style={{
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a25 100%)',
+            position: 'relative',
+            overflow: 'hidden'
+        }}>
+            {/* Background effects */}
+            <div style={{
+                position: 'absolute',
+                top: '-10%',
+                right: '-10%',
+                width: '60%',
+                height: '60%',
+                background: 'radial-gradient(circle, rgba(218, 165, 32, 0.08) 0%, transparent 70%)',
+                filter: 'blur(80px)',
+                animation: 'pulse 10s ease-in-out infinite reverse'
+            }}></div>
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+                {/* Header */}
+                <header style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    backdropFilter: 'blur(20px)',
+                    borderBottom: '1px solid rgba(184, 134, 11, 0.2)',
+                    padding: '1.5rem 2rem',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 100
+                }}>
+                    <div style={{
+                        maxWidth: '1400px',
+                        margin: '0 auto',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '1rem'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ fontSize: '2rem' }}>💎</div>
+                            <h1 className="text-gradient" style={{
+                                fontSize: '1.8rem',
+                                fontWeight: '800',
+                                margin: 0
+                            }}>
+                                {t.signalsPanel || 'Signals Panel'}
+                            </h1>
                         </div>
-                        
-                        <div className="flex items-center gap-4">
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <button
-                                onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-                                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg text-white transition-all"
+                                onClick={toggleLanguage}
+                                style={{
+                                    padding: '0.5rem 1rem',
+                                    background: 'rgba(184, 134, 11, 0.1)',
+                                    border: '1px solid rgba(184, 134, 11, 0.3)',
+                                    borderRadius: '10px',
+                                    color: 'var(--gold-primary)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600'
+                                }}
                             >
-                                {t.langSwitch}
+                                🌐 {lang === 'en' ? 'العربية' : 'English'}
                             </button>
                             <button
                                 onClick={handleLogout}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all"
+                                style={{
+                                    padding: '0.5rem 1rem',
+                                    background: 'rgba(255, 68, 68, 0.1)',
+                                    border: '1px solid rgba(255, 68, 68, 0.3)',
+                                    borderRadius: '10px',
+                                    color: '#ff4444',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600'
+                                }}
                             >
-                                {t.logout}
+                                {t.logout || 'Logout'} 🚪
                             </button>
                         </div>
                     </div>
-                </div>
-            </header>
-
-            <div className="container mx-auto px-6 py-8">
-                {/* Signal Creation Section */}
-                <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 mb-8 shadow-2xl">
-                    <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-3">
-                        <span className="text-3xl">📊</span>
-                        {t.postNewSignal}
-                    </h2>
-
-                    {/* Image Upload Section */}
-                    <div className="mb-8">
-                        <label className="block text-yellow-400 font-semibold mb-4 text-lg">
-                            📸 {lang === 'ar' ? 'صورة التوصية' : 'Signal Image'}
-                        </label>
-                        
-                        <div 
-                            className="relative border-2 border-dashed border-gray-600 hover:border-yellow-500 rounded-2xl p-8 text-center transition-all cursor-pointer bg-gray-800/30"
-                            onPaste={handlePaste}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageSelect}
-                                className="hidden"
-                            />
-                            
-                            {previewData ? (
-                                <div className="relative">
-                                    <img 
-                                        src={previewData} 
-                                        alt="Preview" 
-                                        className="max-w-full max-h-96 mx-auto rounded-xl shadow-lg"
-                                    />
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            cancelPreview();
-                                        }}
-                                        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all"
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="py-12">
-                                    <div className="text-6xl mb-4">📷</div>
-                                    <p className="text-gray-400 text-lg mb-2">{t.dragDropText}</p>
-                                    <p className="text-yellow-400 font-semibold">{t.chooseImage}</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    {/* Signal Type Selection */}
-                    <div className="mb-8">
-                        <label className="block text-yellow-400 font-semibold mb-4 text-lg">
-                            🎯 {lang === 'ar' ? 'نوع التوصية' : 'Signal Type'}
-                        </label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {[
-                                { id: 'vip', label: '💎 VIP (Blurred)', desc: lang === 'ar' ? 'للأعضاء المميزين فقط' : 'For VIP members only' },
-                                { id: 'free', label: '🎁 Free (Clear)', desc: lang === 'ar' ? 'مجاني للجميع' : 'Free for everyone' },
-                                { id: 'regular', label: '📝 Regular Post', desc: lang === 'ar' ? 'منشور عادي' : 'Regular post' }
-                            ].map((type) => (
-                                <button
-                                    key={type.id}
-                                    onClick={() => setSignalType(type.id)}
-                                    className={`p-4 rounded-xl border-2 transition-all text-left ${
-                                        signalType === type.id
-                                            ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
-                                            : 'border-gray-600 bg-gray-800/30 text-gray-300 hover:border-gray-500'
-                                    }`}
-                                >
-                                    <div className="font-bold text-lg mb-1">{type.label}</div>
-                                    <div className="text-sm opacity-75">{type.desc}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Post Text */}
-                    <div className="mb-8">
-                        <div className="flex items-center justify-between mb-4">
-                            <label className="text-yellow-400 font-semibold text-lg">
-                                ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
-                            </label>
-                            {isEditing && (
-                                <button
-                                    onClick={handleCancelEdit}
-                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all text-sm"
-                                >
-                                    ✖ {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
-                                </button>
-                            )}
-                        </div>
-                        <textarea
-                            value={customPost}
-                            onChange={(e) => setCustomPost(e.target.value)}
-                            placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
-                            className="w-full h-32 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all resize-vertical"
-                        />
-                    </div>
-                    {/* AI Settings */}
-                    <details className="mb-8 bg-gray-800/30 rounded-2xl border border-gray-700">
-                        <summary className="p-6 cursor-pointer text-yellow-400 font-bold text-lg hover:text-yellow-300 transition-colors">
-                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
-                        </summary>
-                        <div className="px-6 pb-6 space-y-6">
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={() => saveSettingsToDB(null, true)}
-                                    disabled={savingSettings}
-                                    className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg transition-all font-semibold"
-                                >
-                                    💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
-                                </button>
-                            </div>
-                            
-                            <div>
-                                <label className="block text-gray-300 font-semibold mb-2">🔑 Gemini API Key</label>
-                                <input
-                                    type="password"
-                                    value={geminiApiKey}
-                                    onChange={(e) => setGeminiApiKey(e.target.value)}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
-                                />
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-gray-300 font-semibold mb-2">🧠 Model</label>
-                                    <div className="flex gap-2">
-                                        <select
-                                            value={selectedModel}
-                                            onChange={(e) => setSelectedModel(e.target.value)}
-                                            className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
-                                        >
-                                            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                                            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                                            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                                            {availableModels.map(m => (
-                                                <option key={m.id} value={m.id}>{m.displayName}</option>
-                                            ))}
-                                        </select>
-                                        <button
-                                            onClick={fetchModels}
-                                            disabled={modelsLoading}
-                                            className="px-4 py-3 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded-xl transition-all"
-                                        >
-                                            {modelsLoading ? '...' : '🔄'}
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <label className="block text-gray-300 font-semibold mb-2">🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="100"
-                                        value={postCount}
-                                        onChange={(e) => setPostCount(Number(e.target.value))}
-                                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label className="block text-gray-300 font-semibold mb-2">📝 Prompt</label>
-                                <textarea
-                                    value={aiPrompt}
-                                    onChange={(e) => setAiPrompt(e.target.value)}
-                                    className="w-full h-24 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all resize-vertical"
-                                />
-                            </div>
-                        </div>
-                    </details>
-                    {/* Generate AI Posts Button */}
-                    <div className="text-center mb-8">
-                        <button
-                            onClick={generateAIPosts}
-                            disabled={generatingPosts || !customPost.trim()}
-                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-2xl font-bold text-lg transition-all shadow-lg disabled:opacity-50"
-                        >
-                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
-                        </button>
-                    </div>
-
-                    {/* Generated Posts Gallery */}
-                    {generatedPosts.length > 0 && (
-                        <div className="mb-8">
-                            <h3 className="text-xl font-bold text-yellow-400 mb-4">🎨 Generated Variations</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto custom-scrollbar">
-                                {generatedPosts.map((post, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setSelectedPostIndex(idx)}
-                                        className={`p-4 rounded-xl cursor-pointer transition-all ${
-                                            selectedPostIndex === idx
-                                                ? 'bg-yellow-500/20 border-2 border-yellow-500'
-                                                : 'bg-gray-800/50 border border-gray-600 hover:border-gray-500'
-                                        }`}
-                                    >
-                                        <p className="text-gray-200 text-sm leading-relaxed">{post}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Telegram Settings */}
-                    <div className="mb-8 bg-blue-500/10 border border-blue-500/20 rounded-2xl p-6">
-                        <div className="flex items-center justify-center mb-6">
-                            <label className="flex items-center gap-3 cursor-pointer" onClick={() => setPostToTelegram(!postToTelegram)}>
-                                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
-                                    postToTelegram ? 'bg-blue-500 border-blue-500' : 'border-gray-500'
-                                }`}>
-                                    {postToTelegram && <span className="text-white text-sm">✓</span>}
-                                </div>
-                                <span className="text-white font-semibold text-lg">{t.postToTelegram}</span>
-                            </label>
-                        </div>
-
-                        {postToTelegram && (
-                            <div>
-                                <label className="block text-blue-300 font-semibold mb-4 text-center">
-                                    🔘 {lang === 'ar' ? 'أزرار التفاعل' : 'Action Buttons'}
-                                </label>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {[
-                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
-                                        { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
-                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
-                                        { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
-                                    ].map((btn) => (
-                                        <button
-                                            key={btn.id}
-                                            onClick={() => setTelegramButtonType(btn.id)}
-                                            className={`p-3 rounded-xl border-2 transition-all font-semibold ${
-                                                telegramButtonType === btn.id
-                                                    ? 'border-blue-400 bg-blue-400/20 text-blue-300'
-                                                    : 'border-gray-600 bg-gray-800/30 text-gray-300 hover:border-gray-500'
-                                            }`}
-                                        >
-                                            {btn.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                    {/* Final Preview & Publish */}
-                    {previewData && (
-                        <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-2xl p-6 text-center">
-                            <h3 className="text-2xl font-bold text-yellow-400 mb-6">👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
-                            
-                            <div className="mb-6">
-                                <img 
-                                    src={previewData} 
-                                    alt="Preview" 
-                                    className="max-w-full max-h-96 mx-auto rounded-xl shadow-lg border border-gray-600"
-                                />
-                            </div>
-                            
-                            <div className="bg-black/50 rounded-xl p-4 mb-6 text-left" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-                                <p className="text-white font-semibold leading-relaxed">
-                                    {selectedPostIndex >= 0 && generatedPosts[selectedPostIndex] ? generatedPosts[selectedPostIndex] : customPost}
-                                </p>
-                            </div>
-                            
+                </header>
+                {/* Navigation Tabs */}
+                <div style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    borderBottom: '1px solid rgba(184, 134, 11, 0.1)',
+                    padding: '0 2rem',
+                    overflowX: 'auto'
+                }}>
+                    <div style={{
+                        maxWidth: '1400px',
+                        margin: '0 auto',
+                        display: 'flex',
+                        gap: '0.5rem',
+                        minWidth: 'max-content'
+                    }}>
+                        {[
+                            { id: 'signals', label: t.signalsTab || 'Signals', icon: '📊' },
+                            { id: 'vip', label: t.vipTab || 'VIP Management', icon: '👑' },
+                            { id: 'settings', label: t.settingsTab || 'AI Settings', icon: '⚙️' }
+                        ].map(tab => (
                             <button
-                                onClick={isEditing ? handleUpdate : handlePublish}
-                                disabled={uploading}
-                                className="px-12 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-600 disabled:to-gray-700 text-black font-bold text-xl rounded-2xl transition-all shadow-lg disabled:opacity-50"
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                style={{
+                                    padding: '1rem 1.5rem',
+                                    background: activeTab === tab.id 
+                                        ? 'linear-gradient(135deg, rgba(184, 134, 11, 0.2) 0%, rgba(218, 165, 32, 0.1) 100%)'
+                                        : 'transparent',
+                                    border: 'none',
+                                    borderBottom: activeTab === tab.id 
+                                        ? '3px solid var(--gold-primary)' 
+                                        : '3px solid transparent',
+                                    color: activeTab === tab.id ? 'var(--gold-primary)' : 'var(--text-secondary)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '600',
+                                    transition: 'all 0.3s ease',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    whiteSpace: 'nowrap',
+                                    minWidth: 'max-content'
+                                }}
                             >
-                                {uploading
-                                    ? (lang === 'ar' ? (isEditing ? 'جاري التعديل...' : 'جاري النشر...') : (isEditing ? 'Updating...' : 'Publishing...'))
-                                    : (lang === 'ar' ? (isEditing ? '🔄 تأكيد وتحديث الآن' : '🚀 تأكيد ونشر الآن') : (isEditing ? '🔄 Confirm & Update' : '🚀 Confirm & Publish'))}
+                                <span>{tab.icon}</span>
+                                {tab.label}
                             </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Main Content */}
+                <main style={{
+                    maxWidth: '1400px',
+                    margin: '0 auto',
+                    padding: '2rem'
+                }}>
+                    {/* Success/Error Messages */}
+                    {successMessage && (
+                        <div style={{
+                            padding: '1rem',
+                            background: 'rgba(74, 222, 128, 0.1)',
+                            border: '1px solid rgba(74, 222, 128, 0.3)',
+                            borderRadius: '15px',
+                            color: '#4ade80',
+                            marginBottom: '2rem',
+                            textAlign: 'center',
+                            fontWeight: '600'
+                        }}>
+                            ✅ {successMessage}
                         </div>
                     )}
-                </div>
-                {/* Published Signals Section */}
-                <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 mb-8 shadow-2xl">
-                    <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-3">
-                        <span className="text-3xl">📊</span>
-                        {t.publishedSignals} ({signals.length})
-                    </h2>
 
-                    {loading ? (
-                        <div className="text-center py-12">
-                            <div className="animate-spin w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                            <p className="text-gray-400">{t.loading}</p>
+                    {error && (
+                        <div style={{
+                            padding: '1rem',
+                            background: 'rgba(255, 68, 68, 0.1)',
+                            border: '1px solid rgba(255, 68, 68, 0.3)',
+                            borderRadius: '15px',
+                            color: '#ff4444',
+                            marginBottom: '2rem',
+                            textAlign: 'center',
+                            fontWeight: '600'
+                        }}>
+                            ❌ {error}
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {signals.map((signal) => (
-                                <div key={signal._id} className="bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden hover:border-yellow-500/50 transition-all">
-                                    <div className="relative">
-                                        <img 
-                                            src={signal.imageUrl} 
-                                            alt="Signal" 
-                                            className="w-full h-48 object-cover"
-                                        />
-                                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1 text-xs text-gray-300">
-                                            {getTimeAgo(signal.createdAt, lang)}
+                    )}
+                    {/* Signals Tab */}
+                    {activeTab === 'signals' && (
+                        <div style={{ display: 'grid', gap: '2rem' }}>
+                            {/* Post New Signal Card */}
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px solid rgba(184, 134, 11, 0.2)',
+                                borderRadius: '25px',
+                                padding: '2rem',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--gold-primary)',
+                                    marginBottom: '1.5rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    📤 {t.postNewSignal || 'Post New Signal'}
+                                </h2>
+
+                                {/* Image Upload Area */}
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    onPaste={handlePaste}
+                                    style={{
+                                        border: '2px dashed rgba(184, 134, 11, 0.3)',
+                                        borderRadius: '20px',
+                                        padding: '3rem',
+                                        textAlign: 'center',
+                                        cursor: 'pointer',
+                                        marginBottom: '2rem',
+                                        background: selectedImage 
+                                            ? 'rgba(184, 134, 11, 0.05)' 
+                                            : 'rgba(255, 255, 255, 0.02)',
+                                        transition: 'all 0.3s ease',
+                                        position: 'relative',
+                                        overflow: 'hidden'
+                                    }}
+                                >
+                                    {selectedImage ? (
+                                        <div>
+                                            <img
+                                                src={selectedImage}
+                                                alt="Preview"
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: '300px',
+                                                    borderRadius: '15px',
+                                                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+                                                }}
+                                            />
+                                            <p style={{
+                                                color: 'var(--gold-primary)',
+                                                marginTop: '1rem',
+                                                fontWeight: '600'
+                                            }}>
+                                                ✅ Image selected - Click to change
+                                            </p>
                                         </div>
-                                    </div>
-                                    
-                                    {signal.customPost && (
-                                        <div className="p-4 border-t border-gray-700">
-                                            <p className="text-gray-200 text-sm leading-relaxed line-clamp-3">
-                                                {signal.customPost.replace(/\*/g, '')}
+                                    ) : (
+                                        <div>
+                                            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📸</div>
+                                            <p style={{
+                                                color: 'var(--text-secondary)',
+                                                fontSize: '1.1rem',
+                                                fontWeight: '600'
+                                            }}>
+                                                {t.dragDropText || 'Click to upload or paste image (Ctrl+V)'}
                                             </p>
                                         </div>
                                     )}
-                                    
-                                    <div className="p-4 bg-gray-900/50 flex justify-end gap-2">
-                                        <button
-                                            onClick={() => handleEdit(signal)}
-                                            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-black rounded-lg transition-all text-sm font-semibold"
+                                </div>
+
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    style={{ display: 'none' }}
+                                />
+                                {/* Signal Options */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '1.5rem',
+                                    marginBottom: '2rem'
+                                }}>
+                                    {/* Signal Type */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            📊 Signal Type
+                                        </label>
+                                        <select
+                                            value={signalType}
+                                            onChange={(e) => setSignalType(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem'
+                                            }}
                                         >
-                                            {lang === 'ar' ? 'تعديل' : 'Edit'}
-                                        </button>
-                                        <button
-                                            onClick={() => deleteSignal(signal._id)}
-                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all text-sm font-semibold"
+                                            <option value="vip">👑 VIP Signal</option>
+                                            <option value="free">🎁 Free Signal</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Telegram Button */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            🔘 Telegram Button
+                                        </label>
+                                        <select
+                                            value={telegramButtonType}
+                                            onChange={(e) => setTelegramButtonType(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem'
+                                            }}
                                         >
-                                            {t.delete}
-                                        </button>
+                                            <option value="view_signal">💎 View Signal</option>
+                                            <option value="subscribe">🔥 Subscribe</option>
+                                            <option value="share">📤 Share</option>
+                                            <option value="none">❌ No Button</option>
+                                        </select>
                                     </div>
                                 </div>
-                            ))}
+
+                                {/* Custom Post Text */}
+                                <div style={{ marginBottom: '2rem' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        color: 'var(--gold-primary)',
+                                        fontWeight: '600',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        ✍️ Custom Post Text (Optional)
+                                    </label>
+                                    <textarea
+                                        value={customPost}
+                                        onChange={(e) => setCustomPost(e.target.value)}
+                                        placeholder="Enter custom text for the post..."
+                                        rows={4}
+                                        style={{
+                                            width: '100%',
+                                            padding: '1rem',
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            border: '1px solid rgba(184, 134, 11, 0.3)',
+                                            borderRadius: '15px',
+                                            color: 'white',
+                                            fontSize: '0.95rem',
+                                            resize: 'vertical',
+                                            fontFamily: 'inherit'
+                                        }}
+                                    />
+                                </div>
+                                {/* Post Options */}
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '2rem',
+                                    marginBottom: '2rem',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        cursor: 'pointer',
+                                        color: 'var(--text-primary)',
+                                        fontWeight: '600'
+                                    }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={postToTelegram}
+                                            onChange={(e) => setPostToTelegram(e.target.checked)}
+                                            style={{
+                                                width: '18px',
+                                                height: '18px',
+                                                accentColor: 'var(--gold-primary)'
+                                            }}
+                                        />
+                                        📱 Post to Telegram
+                                    </label>
+                                </div>
+
+                                {/* Post Button */}
+                                <button
+                                    onClick={handlePostSignal}
+                                    disabled={uploading || !selectedImage}
+                                    className="btn-primary"
+                                    style={{
+                                        width: '100%',
+                                        padding: '1rem 2rem',
+                                        fontSize: '1.1rem',
+                                        fontWeight: '700',
+                                        opacity: uploading || !selectedImage ? 0.6 : 1,
+                                        cursor: uploading || !selectedImage ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    {uploading ? (
+                                        <>🔄 Posting...</>
+                                    ) : (
+                                        <>🚀 {t.postSignal || 'Post Signal'}</>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Recent Signals */}
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px solid rgba(184, 134, 11, 0.2)',
+                                borderRadius: '25px',
+                                padding: '2rem',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--gold-primary)',
+                                    marginBottom: '1.5rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    📋 Recent Signals ({signals.length})
+                                </h2>
+                                {loading ? (
+                                    <div style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+                                        <p style={{ color: 'var(--text-secondary)' }}>Loading signals...</p>
+                                    </div>
+                                ) : signals.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
+                                        <p style={{ color: 'var(--text-secondary)' }}>No signals posted yet</p>
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                                        gap: '1.5rem'
+                                    }}>
+                                        {signals.map((signal, index) => (
+                                            <div
+                                                key={signal._id || index}
+                                                style={{
+                                                    background: 'rgba(255, 255, 255, 0.05)',
+                                                    border: '1px solid rgba(184, 134, 11, 0.2)',
+                                                    borderRadius: '20px',
+                                                    overflow: 'hidden',
+                                                    transition: 'all 0.3s ease',
+                                                    position: 'relative'
+                                                }}
+                                            >
+                                                {/* Signal Badge */}
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    top: '1rem',
+                                                    right: '1rem',
+                                                    background: signal.isVip 
+                                                        ? 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)'
+                                                        : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
+                                                    color: signal.isVip ? '#1a1a1a' : 'white',
+                                                    padding: '0.3rem 0.8rem',
+                                                    borderRadius: '15px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: '700',
+                                                    zIndex: 2
+                                                }}>
+                                                    {signal.isVip ? '👑 VIP' : '🎁 FREE'}
+                                                </div>
+
+                                                {/* Signal Image */}
+                                                <img
+                                                    src={signal.imageUrl}
+                                                    alt="Signal"
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '200px',
+                                                        objectFit: 'cover'
+                                                    }}
+                                                />
+
+                                                {/* Signal Info */}
+                                                <div style={{ padding: '1rem' }}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        marginBottom: '1rem'
+                                                    }}>
+                                                        <span style={{
+                                                            color: 'var(--text-secondary)',
+                                                            fontSize: '0.85rem'
+                                                        }}>
+                                                            {new Date(signal.createdAt).toLocaleString()}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Actions */}
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        gap: '0.5rem'
+                                                    }}>
+                                                        <button
+                                                            onClick={() => handleDeleteSignal(signal._id)}
+                                                            style={{
+                                                                flex: 1,
+                                                                padding: '0.5rem',
+                                                                background: 'rgba(255, 68, 68, 0.1)',
+                                                                border: '1px solid rgba(255, 68, 68, 0.3)',
+                                                                borderRadius: '10px',
+                                                                color: '#ff4444',
+                                                                cursor: 'pointer',
+                                                                fontSize: '0.85rem',
+                                                                fontWeight: '600'
+                                                            }}
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
-                </div>
-                {/* VIP Management Section */}
-                <div className="bg-gray-900/50 backdrop-blur-xl border border-yellow-500/20 rounded-3xl p-8 shadow-2xl">
-                    <h2 className="text-2xl font-bold text-gradient mb-6 flex items-center gap-3">
-                        <span className="text-3xl">👑</span>
-                        {t.manageVip}
-                    </h2>
 
-                    {/* Add VIP Form */}
-                    <div className="bg-gray-800/30 rounded-2xl p-6 mb-8 border border-gray-700">
-                        <h3 className="text-xl font-bold text-yellow-400 mb-4">{t.addNewVip}</h3>
-                        <form onSubmit={handleGrantVip} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                            <div>
-                                <label className="block text-gray-300 font-semibold mb-2">{t.telegramIdPlaceholder}</label>
-                                <input
-                                    type="text"
-                                    value={telegramId}
-                                    onChange={(e) => setTelegramId(e.target.value)}
-                                    placeholder="e.g. 123456789"
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all"
-                                    required
-                                />
+                    {/* VIP Management Tab */}
+                    {activeTab === 'vip' && (
+                        <div style={{ display: 'grid', gap: '2rem' }}>
+                            {/* Add/Remove VIP Card */}
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px solid rgba(184, 134, 11, 0.2)',
+                                borderRadius: '25px',
+                                padding: '2rem',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--gold-primary)',
+                                    marginBottom: '1rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    👑 {t.manageVip || 'Manage VIP Access'}
+                                </h2>
+                                <p style={{
+                                    color: 'var(--text-secondary)',
+                                    marginBottom: '2rem',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    {t.manageVipSubtitle || 'Grant or revoke VIP status by Telegram ID'}
+                                </p>
+
+                                {/* VIP Action Form */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '1.5rem',
+                                    marginBottom: '2rem'
+                                }}>
+                                    {/* Telegram ID Input */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            📱 Telegram ID
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={telegramId}
+                                            onChange={(e) => setTelegramId(e.target.value)}
+                                            placeholder={t.telegramIdPlaceholder || 'Enter Telegram ID'}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem 1rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem',
+                                                outline: 'none'
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Duration Selection */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            ⏰ Duration
+                                        </label>
+                                        <select
+                                            value={isLifetime ? 'lifetime' : durationMonths}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'lifetime') {
+                                                    setIsLifetime(true);
+                                                } else {
+                                                    setIsLifetime(false);
+                                                    setDurationMonths(e.target.value);
+                                                }
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem'
+                                            }}
+                                        >
+                                            <option value="1">1 Month</option>
+                                            <option value="3">3 Months</option>
+                                            <option value="6">6 Months</option>
+                                            <option value="12">12 Months</option>
+                                            <option value="lifetime">♾️ Lifetime</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* VIP Message */}
+                                {vipMessage.text && (
+                                    <div style={{
+                                        padding: '1rem',
+                                        background: vipMessage.type === 'success' 
+                                            ? 'rgba(74, 222, 128, 0.1)' 
+                                            : 'rgba(255, 68, 68, 0.1)',
+                                        border: `1px solid ${vipMessage.type === 'success' 
+                                            ? 'rgba(74, 222, 128, 0.3)' 
+                                            : 'rgba(255, 68, 68, 0.3)'}`,
+                                        borderRadius: '15px',
+                                        color: vipMessage.type === 'success' ? '#4ade80' : '#ff4444',
+                                        marginBottom: '2rem',
+                                        textAlign: 'center',
+                                        fontWeight: '600'
+                                    }}>
+                                        {vipMessage.type === 'success' ? '✅' : '❌'} {vipMessage.text}
+                                    </div>
+                                )}
+
+                                {/* Action Buttons */}
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '1rem',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <button
+                                        onClick={() => handleVipAction('add')}
+                                        disabled={vipLoading}
+                                        className="btn-primary"
+                                        style={{
+                                            flex: 1,
+                                            minWidth: '200px',
+                                            padding: '1rem',
+                                            fontSize: '1rem',
+                                            fontWeight: '700',
+                                            opacity: vipLoading ? 0.6 : 1
+                                        }}
+                                    >
+                                        {vipLoading ? '⏳ Processing...' : '👑 Grant VIP Access'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleVipAction('remove')}
+                                        disabled={vipLoading}
+                                        style={{
+                                            flex: 1,
+                                            minWidth: '200px',
+                                            padding: '1rem',
+                                            background: 'rgba(255, 68, 68, 0.1)',
+                                            border: '2px solid rgba(255, 68, 68, 0.3)',
+                                            borderRadius: '15px',
+                                            color: '#ff4444',
+                                            cursor: vipLoading ? 'not-allowed' : 'pointer',
+                                            fontSize: '1rem',
+                                            fontWeight: '700',
+                                            opacity: vipLoading ? 0.6 : 1,
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    >
+                                        {vipLoading ? '⏳ Processing...' : '🗑️ Remove User'}
+                                    </button>
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="block text-gray-300 font-semibold mb-2">{t.durationMonths || 'Duration (Months)'}</label>
-                                <input
-                                    type="number"
-                                    value={durationMonths}
-                                    onChange={(e) => setDurationMonths(e.target.value)}
-                                    placeholder="e.g. 1, 3, 12"
-                                    disabled={isLifetime}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white focus:border-yellow-500 focus:outline-none transition-all disabled:opacity-50 disabled:bg-gray-900"
-                                />
+                            {/* VIP Users List */}
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px solid rgba(184, 134, 11, 0.2)',
+                                borderRadius: '25px',
+                                padding: '2rem',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--gold-primary)',
+                                    marginBottom: '1.5rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    👥 VIP Users ({users.filter(u => u.isVip).length})
+                                </h2>
+
+                                {users.filter(u => u.isVip).length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👑</div>
+                                        <p style={{ color: 'var(--text-secondary)' }}>No VIP users yet</p>
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                                        gap: '1.5rem'
+                                    }}>
+                                        {users.filter(u => u.isVip).map((user, index) => (
+                                            <div
+                                                key={user.telegramId || index}
+                                                style={{
+                                                    background: 'rgba(184, 134, 11, 0.05)',
+                                                    border: '1px solid rgba(184, 134, 11, 0.2)',
+                                                    borderRadius: '20px',
+                                                    padding: '1.5rem',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                            >
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '1rem',
+                                                    marginBottom: '1rem'
+                                                }}>
+                                                    <div style={{
+                                                        width: '50px',
+                                                        height: '50px',
+                                                        background: 'var(--gradient-gold-metallic)',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '1.5rem',
+                                                        color: '#1a1a1a',
+                                                        fontWeight: '800'
+                                                    }}>
+                                                        👑
+                                                    </div>
+                                                    <div>
+                                                        <h3 style={{
+                                                            color: 'var(--gold-primary)',
+                                                            fontSize: '1.1rem',
+                                                            fontWeight: '700',
+                                                            marginBottom: '0.25rem'
+                                                        }}>
+                                                            {user.firstName} {user.lastName}
+                                                        </h3>
+                                                        <p style={{
+                                                            color: 'var(--text-secondary)',
+                                                            fontSize: '0.85rem',
+                                                            fontFamily: 'monospace'
+                                                        }}>
+                                                            ID: {user.telegramId}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{
+                                                    display: 'grid',
+                                                    gridTemplateColumns: '1fr 1fr',
+                                                    gap: '1rem',
+                                                    fontSize: '0.85rem'
+                                                }}>
+                                                    <div>
+                                                        <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
+                                                        <div style={{ color: 'var(--gold-primary)', fontWeight: '600' }}>
+                                                            {user.isLifetime ? '♾️ Lifetime' : '👑 VIP'}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <span style={{ color: 'var(--text-secondary)' }}>Expires:</span>
+                                                        <div style={{ color: user.isLifetime ? 'var(--gold-primary)' : 'white', fontWeight: '600' }}>
+                                                            {user.isLifetime 
+                                                                ? 'Never' 
+                                                                : user.subscriptionEndDate 
+                                                                    ? new Date(user.subscriptionEndDate).toLocaleDateString()
+                                                                    : 'Unknown'
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-
-                            <div className="flex items-center justify-center h-12">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={isLifetime}
-                                        onChange={(e) => setIsLifetime(e.target.checked)}
-                                        className="w-5 h-5 text-yellow-500 bg-gray-800 border-gray-600 rounded focus:ring-yellow-500"
-                                    />
-                                    <span className="text-white font-semibold">{t.lifetime || 'Lifetime'}</span>
-                                </label>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={vipLoading}
-                                className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-xl transition-all font-semibold"
-                            >
-                                {vipLoading ? '...' : t.grantVip}
-                            </button>
-                        </form>
-                        
-                        {vipMessage.text && (
-                            <div className={`mt-4 p-3 rounded-lg text-center font-semibold ${
-                                vipMessage.type === 'success' 
-                                    ? 'bg-green-500/20 border border-green-500/30 text-green-400' 
-                                    : 'bg-red-500/20 border border-red-500/30 text-red-400'
-                            }`}>
-                                {vipMessage.text}
-                            </div>
-                        )}
-                    </div>
-                    {/* Active Users Table */}
-                    <div className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700">
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-gray-900/50">
-                                    <tr>
-                                        <th className="px-6 py-4 text-left text-yellow-400 font-bold">Telegram ID</th>
-                                        <th className="px-6 py-4 text-center text-yellow-400 font-bold">{t.status || 'Status'}</th>
-                                        <th className="px-6 py-4 text-center text-yellow-400 font-bold">{t.expiresIn || 'Expires In'}</th>
-                                        <th className="px-6 py-4 text-center text-yellow-400 font-bold">{t.actions || 'Actions'}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {users.filter(u => u.isVip).length === 0 ? (
-                                        <tr>
-                                            <td colSpan="4" className="px-6 py-12 text-center text-gray-400">
-                                                {t.noVipMembers || 'No active VIP members'}
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        users.filter(u => u.isVip).map(user => {
-                                            const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
-                                            const now = new Date();
-                                            const isExpired = expiry && now > expiry;
-                                            
-                                            if (isExpired && user.isVip) return null;
-
-                                            let timeLeft = 'Lifetime ♾️';
-                                            if (expiry) {
-                                                const diff = expiry - now;
-                                                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                                timeLeft = `${days} Days`;
-                                            }
-
-                                            return (
-                                                <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-800/30 transition-colors">
-                                                    <td className="px-6 py-4 text-white font-mono">{user.telegramId}</td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <span className="px-3 py-1 bg-green-500/20 border border-green-500/30 text-green-400 rounded-full text-sm font-semibold">
-                                                            Active
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center text-white font-semibold">{timeLeft}</td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <button
-                                                            onClick={() => handleRemoveUser(user.telegramId)}
-                                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all text-sm font-semibold"
-                                                        >
-                                                            {t.remove || 'Remove'}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    )}
-                                </tbody>
-                            </table>
                         </div>
-                    </div>
-                </div>
+                    )}
+
+                    {/* AI Settings Tab */}
+                    {activeTab === 'settings' && (
+                        <div style={{ display: 'grid', gap: '2rem' }}>
+                            {/* AI Configuration Card */}
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px solid rgba(184, 134, 11, 0.2)',
+                                borderRadius: '25px',
+                                padding: '2rem',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--gold-primary)',
+                                    marginBottom: '1rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    🤖 AI Configuration
+                                </h2>
+                                <p style={{
+                                    color: 'var(--text-secondary)',
+                                    marginBottom: '2rem',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    Configure AI settings for automated post generation
+                                </p>
+
+                                {/* AI Settings Form */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                                    gap: '2rem'
+                                }}>
+                                    {/* Gemini API Key */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            🔑 Gemini API Key
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={geminiApiKey}
+                                            onChange={(e) => setGeminiApiKey(e.target.value)}
+                                            placeholder="Enter your Gemini API key..."
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem 1rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem',
+                                                outline: 'none',
+                                                fontFamily: 'monospace'
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Model Selection */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            🧠 AI Model
+                                        </label>
+                                        <select
+                                            value={selectedModel}
+                                            onChange={(e) => setSelectedModel(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem'
+                                            }}
+                                        >
+                                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                            <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Post Count */}
+                                    <div>
+                                        <label style={{
+                                            display: 'block',
+                                            color: 'var(--gold-primary)',
+                                            fontWeight: '600',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            📊 Generated Posts Count
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="10"
+                                            value={postCount}
+                                            onChange={(e) => setPostCount(parseInt(e.target.value))}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.75rem 1rem',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                border: '1px solid rgba(184, 134, 11, 0.3)',
+                                                borderRadius: '10px',
+                                                color: 'white',
+                                                fontSize: '0.95rem',
+                                                outline: 'none'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* AI Prompt */}
+                                <div style={{ marginTop: '2rem' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        color: 'var(--gold-primary)',
+                                        fontWeight: '600',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        ✍️ AI Prompt Template
+                                    </label>
+                                    <textarea
+                                        value={aiPrompt}
+                                        onChange={(e) => setAiPrompt(e.target.value)}
+                                        placeholder="Enter the prompt template for AI post generation..."
+                                        rows={4}
+                                        style={{
+                                            width: '100%',
+                                            padding: '1rem',
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            border: '1px solid rgba(184, 134, 11, 0.3)',
+                                            borderRadius: '15px',
+                                            color: 'white',
+                                            fontSize: '0.95rem',
+                                            resize: 'vertical',
+                                            fontFamily: 'inherit',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Save Settings Button */}
+                                <button
+                                    onClick={async () => {
+                                        setSavingSettings(true);
+                                        try {
+                                            const res = await fetch('/api/settings', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    geminiApiKey,
+                                                    selectedModel,
+                                                    generatedPostCount: postCount,
+                                                    aiPrompt
+                                                })
+                                            });
+                                            const data = await res.json();
+                                            if (data.success) {
+                                                setSuccessMessage('AI settings saved successfully! ✓');
+                                            } else {
+                                                setError('Failed to save settings');
+                                            }
+                                        } catch (err) {
+                                            setError('Failed to save settings');
+                                        }
+                                        setSavingSettings(false);
+                                    }}
+                                    disabled={savingSettings}
+                                    className="btn-primary"
+                                    style={{
+                                        marginTop: '2rem',
+                                        padding: '1rem 2rem',
+                                        fontSize: '1.1rem',
+                                        fontWeight: '700',
+                                        opacity: savingSettings ? 0.6 : 1
+                                    }}
+                                >
+                                    {savingSettings ? '⏳ Saving...' : '💾 Save AI Settings'}
+                                </button>
+                            </div>
+
+                            {/* AI Post Generator */}
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(20px)',
+                                border: '2px solid rgba(184, 134, 11, 0.2)',
+                                borderRadius: '25px',
+                                padding: '2rem',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--gold-primary)',
+                                    marginBottom: '1rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    ✨ AI Post Generator
+                                </h2>
+                                <p style={{
+                                    color: 'var(--text-secondary)',
+                                    marginBottom: '2rem',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    Generate multiple post variations using AI
+                                </p>
+
+                                {/* Generate Button */}
+                                <button
+                                    onClick={async () => {
+                                        if (!selectedImage) {
+                                            setError('Please select an image first');
+                                            return;
+                                        }
+                                        setGeneratingPosts(true);
+                                        try {
+                                            const res = await fetch('/api/ai/generate-posts', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    imageUrl: selectedImage,
+                                                    prompt: aiPrompt,
+                                                    count: postCount
+                                                })
+                                            });
+                                            const data = await res.json();
+                                            if (data.success) {
+                                                setGeneratedPosts(data.posts);
+                                                setSuccessMessage(`Generated ${data.posts.length} post variations! ✓`);
+                                            } else {
+                                                setError('Failed to generate posts');
+                                            }
+                                        } catch (err) {
+                                            setError('Failed to generate posts');
+                                        }
+                                        setGeneratingPosts(false);
+                                    }}
+                                    disabled={generatingPosts || !selectedImage}
+                                    className="btn-primary"
+                                    style={{
+                                        padding: '1rem 2rem',
+                                        fontSize: '1.1rem',
+                                        fontWeight: '700',
+                                        opacity: generatingPosts || !selectedImage ? 0.6 : 1,
+                                        marginBottom: '2rem'
+                                    }}
+                                >
+                                    {generatingPosts ? '🤖 Generating...' : '✨ Generate AI Posts'}
+                                </button>
+
+                                {/* Generated Posts */}
+                                {generatedPosts.length > 0 && (
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                                        gap: '1.5rem'
+                                    }}>
+                                        {generatedPosts.map((post, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    background: selectedPostIndex === index 
+                                                        ? 'rgba(184, 134, 11, 0.1)' 
+                                                        : 'rgba(255, 255, 255, 0.05)',
+                                                    border: selectedPostIndex === index 
+                                                        ? '2px solid var(--gold-primary)' 
+                                                        : '1px solid rgba(184, 134, 11, 0.2)',
+                                                    borderRadius: '15px',
+                                                    padding: '1.5rem',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onClick={() => {
+                                                    setSelectedPostIndex(index);
+                                                    setCustomPost(post);
+                                                }}
+                                            >
+                                                <div style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    marginBottom: '1rem'
+                                                }}>
+                                                    <h3 style={{
+                                                        color: 'var(--gold-primary)',
+                                                        fontSize: '1rem',
+                                                        fontWeight: '700'
+                                                    }}>
+                                                        Variation {index + 1}
+                                                    </h3>
+                                                    {selectedPostIndex === index && (
+                                                        <span style={{
+                                                            background: 'var(--gold-primary)',
+                                                            color: '#1a1a1a',
+                                                            padding: '0.25rem 0.75rem',
+                                                            borderRadius: '15px',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: '700'
+                                                        }}>
+                                                            Selected
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p style={{
+                                                    color: 'var(--text-secondary)',
+                                                    fontSize: '0.9rem',
+                                                    lineHeight: '1.6',
+                                                    whiteSpace: 'pre-wrap'
+                                                }}>
+                                                    {post}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </main>
             </div>
         </div>
     );
