@@ -1,5 +1,5 @@
 'use client';
-// Dashboard v3.0 - Live Data with Refresh Button
+// Dashboard v3.1 - Live Data (Cleaned)
 import { useState, useEffect, useCallback } from 'react';
 import AIAnalysisPanel from './components/AIAnalysisPanel';
 import MacroEngine from './components/MacroEngine';
@@ -7,10 +7,7 @@ import BankForecasts from './components/BankForecasts';
 import COTAnalyzer from './components/COTAnalyzer';
 import SentimentPanel from './components/SentimentPanel';
 import CorrelationMatrix from './components/CorrelationMatrix';
-import TechnicalChart from './components/TechnicalChart';
-import ScenarioSimulator from './components/ScenarioSimulator';
 import CentralBankTracker from './components/CentralBankTracker';
-import Seasonality from './components/Seasonality';
 
 /**
  * Main Dashboard Page - Live Trading Data
@@ -99,7 +96,7 @@ export default function DashboardPage() {
   // Fetch data on mount and every 60 seconds
   useEffect(() => {
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 60000); // Auto-refresh every minute
+    const interval = setInterval(fetchMarketData, 60000);
     return () => clearInterval(interval);
   }, [fetchMarketData]);
 
@@ -216,17 +213,8 @@ export default function DashboardPage() {
         {/* Correlation Matrix */}
         <CorrelationMatrix key={`corr-${refreshKey}`} />
 
-        {/* Technical Chart */}
-        <TechnicalChart key={`tech-${refreshKey}`} />
-
-        {/* Scenario Simulator */}
-        <ScenarioSimulator key={`sim-${refreshKey}`} />
-
         {/* Central Bank Tracker */}
         <CentralBankTracker key={`cb-${refreshKey}`} />
-
-        {/* Seasonality */}
-        <Seasonality key={`season-${refreshKey}`} />
       </div>
 
       <style jsx>{`
