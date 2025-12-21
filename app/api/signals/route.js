@@ -249,6 +249,7 @@ export async function POST(request) {
             imageUrl,
             telegramImage,
             sendToTelegram: shouldSend,
+            sendToTwitter: shouldSendTwitter,
             isVip = true,
             customPost = null,
             telegramButtonType // Extract new field
@@ -259,6 +260,7 @@ export async function POST(request) {
         if (!clearImageUrl) throw new Error('Failed to upload main image');
 
         let telegramMessageId = null;
+        let twitterTweetId = null;
 
         // 2. Handle Telegram posting based on VIP status
         if (shouldSend) {
@@ -277,7 +279,27 @@ export async function POST(request) {
             }
         }
 
-        // 3. Save to DB with all fields
+        // 3. Handle Twitter posting
+        if (shouldSendTwitter) {
+            try {
+                const twitterRes = await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: customPost ? customPost.replace(/\*/g, '') : '',
+                        imageUrl: clearImageUrl
+                    })
+                });
+                const twitterData = await twitterRes.json();
+                if (twitterData.success) {
+                    twitterTweetId = twitterData.tweetId;
+                }
+            } catch (twitterError) {
+                console.error('Twitter Post Failed:', twitterError);
+            }
+        }
+
+        // 4. Save to DB with all fields
         const signal = await Signal.create({
             pair,
             type,
@@ -286,8 +308,10 @@ export async function POST(request) {
             customPost,
             telegramButtonType,
             telegramMessageId: telegramMessageId?.toString(),
+            twitterTweetId: twitterTweetId?.toString(),
             socialMediaPosts: {
-                telegram: telegramMessageId?.toString()
+                telegram: telegramMessageId?.toString(),
+                twitter: twitterTweetId?.toString()
             }
         });
 
@@ -313,6 +337,18 @@ export async function DELETE(request) {
             if (signal.telegramMessageId) {
                 await deleteTelegramMessage(signal.telegramMessageId);
             }
+            
+            // Delete from Twitter if tweet ID exists
+            if (signal.twitterTweetId) {
+                try {
+                    await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter?tweetId=' + signal.twitterTweetId, {
+                        method: 'DELETE'
+                    });
+                } catch (twitterError) {
+                    console.error('Twitter Delete Failed:', twitterError);
+                }
+            }
+            
             await Signal.findByIdAndDelete(id);
         }
 

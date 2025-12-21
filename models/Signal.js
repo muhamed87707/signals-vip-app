@@ -1,14 +1,15 @@
 import mongoose from 'mongoose';
 
 const SignalSchema = new mongoose.Schema({
-  pair: { type: String, required: true }, // اسم الزوج مثلا GOLD
-  type: { type: String, required: true }, // بيع او شراء
-  imageUrl: { type: String, required: true }, // رابط الصورة
-  isVip: { type: Boolean, default: true }, // VIP (مموهة) أو عامة مجانية
-  customPost: { type: String }, // المنشور المخصص للسوشيال ميديا
-  telegramMessageId: { type: String }, // معرف رسالة تليجرام للحذف
-  telegramButtonType: { type: String, default: 'view_signal' }, // نوع الزر المستخدم في تليجرام
-  socialMediaPosts: { // لتتبع رسائل كل المنصات للحذف
+  pair: { type: String, required: true },
+  type: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  isVip: { type: Boolean, default: true },
+  customPost: { type: String },
+  telegramMessageId: { type: String },
+  telegramButtonType: { type: String, default: 'view_signal' },
+  twitterTweetId: { type: String }, // New: Twitter tweet ID
+  socialMediaPosts: {
     telegram: { type: String },
     twitter: { type: String },
     facebook: { type: String }

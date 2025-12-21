@@ -105,6 +105,13 @@ export default function AdminPage() {
 
     // Telegram Auto-Post State
     const [postToTelegram, setPostToTelegram] = useState(true);
+    
+    // Twitter/X Auto-Post State
+    const [postToTwitter, setPostToTwitter] = useState(false);
+    const [twitterApiKey, setTwitterApiKey] = useState('');
+    const [twitterApiSecret, setTwitterApiSecret] = useState('');
+    const [twitterAccessToken, setTwitterAccessToken] = useState('');
+    const [twitterAccessSecret, setTwitterAccessSecret] = useState('');
 
     // Signal Type & AI Post Generation
     const [signalType, setSignalType] = useState('vip');
@@ -140,6 +147,11 @@ export default function AdminPage() {
                     if (s.aiPrompt !== undefined) setAiPrompt(s.aiPrompt);
                     if (s.selectedModel !== undefined) setSelectedModel(s.selectedModel);
                     if (s.generatedPostCount !== undefined) setPostCount(Number(s.generatedPostCount));
+                    // Twitter settings
+                    if (s.twitterApiKey !== undefined) setTwitterApiKey(s.twitterApiKey);
+                    if (s.twitterApiSecret !== undefined) setTwitterApiSecret(s.twitterApiSecret);
+                    if (s.twitterAccessToken !== undefined) setTwitterAccessToken(s.twitterAccessToken);
+                    if (s.twitterAccessSecret !== undefined) setTwitterAccessSecret(s.twitterAccessSecret);
                     setSettingsLoaded(true);
                 }
             } catch (err) {
@@ -175,7 +187,11 @@ export default function AdminPage() {
                 geminiApiKey,
                 aiPrompt,
                 selectedModel,
-                generatedPostCount: postCount
+                generatedPostCount: postCount,
+                twitterApiKey,
+                twitterApiSecret,
+                twitterAccessToken,
+                twitterAccessSecret
             } : payload;
 
             const res = await fetch('/api/settings', {
@@ -546,6 +562,7 @@ export default function AdminPage() {
                         imageUrl: base64Image,
                         telegramImage: telegramImage,
                         sendToTelegram: postToTelegram,
+                        sendToTwitter: postToTwitter,
                         isVip: signalType === 'vip',
                         customPost: postToUse || null,
                         telegramButtonType: telegramButtonType
@@ -556,6 +573,7 @@ export default function AdminPage() {
                 if (data.success) {
                     let msg = t.postSuccess;
                     if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
+                    if (postToTwitter) msg += ' | X ✓';
                     setSuccessMessage(msg);
                     fetchSignals();
                     setGeneratedPosts([]);
@@ -564,7 +582,7 @@ export default function AdminPage() {
                     setSelectedFile(null);
                     setCustomPost('');
                 } else {
-                    setError(t.postError);
+                    setError(data.error || t.postError);
                 }
                 setUploading(false);
             };
@@ -1005,6 +1023,16 @@ export default function AdminPage() {
                                 )}
                             </div>
 
+                            {/* Twitter/X Options */}
+                            <div className="twitter-section">
+                                <div className="twitter-toggle" onClick={() => setPostToTwitter(!postToTwitter)}>
+                                    <div className={`toggle-checkbox twitter ${postToTwitter ? 'checked' : ''}`}>
+                                        {postToTwitter && <span>𝕏</span>}
+                                    </div>
+                                    <span>{lang === 'ar' ? 'نشر على X (تويتر)' : 'Post to X (Twitter)'}</span>
+                                </div>
+                            </div>
+
                             {/* Publish Button */}
                             {previewData && (
                                 <div className="publish-action">
@@ -1254,6 +1282,61 @@ export default function AdminPage() {
                                             placeholder={lang === 'ar' ? 'أدخل الأمر المخصص للذكاء الاصطناعي...' : 'Enter custom AI prompt...'}
                                             className="setting-textarea"
                                         />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Twitter/X Settings */}
+                            <div className="settings-card" style={{ marginTop: '1.5rem' }}>
+                                <div className="settings-header">
+                                    <h3>𝕏 {lang === 'ar' ? 'إعدادات تويتر' : 'Twitter/X Settings'}</h3>
+                                </div>
+
+                                <div className="settings-form">
+                                    <div className="setting-row">
+                                        <div className="setting-group flex-1">
+                                            <label>🔑 API Key</label>
+                                            <input
+                                                type="password"
+                                                value={twitterApiKey}
+                                                onChange={(e) => setTwitterApiKey(e.target.value)}
+                                                placeholder="API Key..."
+                                                className="setting-input"
+                                            />
+                                        </div>
+                                        <div className="setting-group flex-1">
+                                            <label>🔐 API Secret</label>
+                                            <input
+                                                type="password"
+                                                value={twitterApiSecret}
+                                                onChange={(e) => setTwitterApiSecret(e.target.value)}
+                                                placeholder="API Secret..."
+                                                className="setting-input"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="setting-row">
+                                        <div className="setting-group flex-1">
+                                            <label>🎫 Access Token</label>
+                                            <input
+                                                type="password"
+                                                value={twitterAccessToken}
+                                                onChange={(e) => setTwitterAccessToken(e.target.value)}
+                                                placeholder="Access Token..."
+                                                className="setting-input"
+                                            />
+                                        </div>
+                                        <div className="setting-group flex-1">
+                                            <label>🔒 Access Secret</label>
+                                            <input
+                                                type="password"
+                                                value={twitterAccessSecret}
+                                                onChange={(e) => setTwitterAccessSecret(e.target.value)}
+                                                placeholder="Access Token Secret..."
+                                                className="setting-input"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1733,6 +1816,34 @@ export default function AdminPage() {
                     padding: 1.5rem;
                 }
 
+                .twitter-section {
+                    background: rgba(12, 12, 12, 0.8);
+                    border: 1px solid rgba(0, 0, 0, 0.3);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    margin-top: 1rem;
+                }
+
+                .twitter-toggle {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    cursor: pointer;
+                    padding: 0.5rem;
+                }
+
+                .toggle-checkbox.twitter {
+                    border-color: rgba(255, 255, 255, 0.3);
+                    font-weight: bold;
+                    font-size: 14px;
+                }
+
+                .toggle-checkbox.twitter.checked {
+                    background: #000;
+                    border-color: #fff;
+                    color: #fff;
+                }
+
                 .telegram-toggle {
                     display: flex;
                     align-items: center;
@@ -1761,7 +1872,7 @@ export default function AdminPage() {
                     color: #fff;
                 }
 
-                .telegram-toggle span {
+                .telegram-toggle span, .twitter-toggle span {
                     color: #fff;
                     font-size: 0.95rem;
                 }
