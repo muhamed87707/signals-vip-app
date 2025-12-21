@@ -87,22 +87,28 @@ const BrandAIcon = () => (
         </defs>
         {/* Rounded square border */}
         <rect
-            x="2" y="2"
-            width="36" height="36"
-            rx="10" ry="10"
+            x="3"
+            y="3"
+            width="34"
+            height="34"
+            rx="10"
+            ry="10"
             stroke="url(#gold-gradient-brand)"
             strokeWidth="2"
             fill="none"
         />
         {/* Bold 'A' letter */}
         <text
-            x="20" y="29"
+            x="20"
+            y="28"
             textAnchor="middle"
             fill="url(#gold-gradient-brand)"
-            fontSize="26"
+            fontSize="24"
             fontWeight="800"
             fontFamily="Arial, sans-serif"
-        >A</text>
+        >
+            A
+        </text>
     </svg>
 );
 
