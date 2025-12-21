@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import './admin.css';
 
 const ADMIN_PASSWORD = '123';
 
