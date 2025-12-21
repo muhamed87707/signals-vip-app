@@ -5,97 +5,6 @@ import { useLanguage } from '../context/LanguageContext';
 
 const ADMIN_PASSWORD = '123';
 
-// ===== Icons Components =====
-const DashboardIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="3" width="7" height="7" rx="1" />
-        <rect x="3" y="14" width="7" height="7" rx="1" />
-        <rect x="14" y="14" width="7" height="7" rx="1" />
-    </svg>
-);
-
-const SignalIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 20h.01" />
-        <path d="M7 20v-4" />
-        <path d="M12 20v-8" />
-        <path d="M17 20V8" />
-        <path d="M22 4v16" />
-    </svg>
-);
-
-const CrownIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
-        <path d="M3 20h18" />
-    </svg>
-);
-
-const SettingsIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-    </svg>
-);
-
-const UploadIcon = () => (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="17 8 12 3 7 8" />
-        <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
-);
-
-const ImageIcon = () => (
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <defs>
-            <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FFD700" />
-                <stop offset="50%" stopColor="#B8860B" />
-                <stop offset="100%" stopColor="#DAA520" />
-            </linearGradient>
-        </defs>
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <polyline points="21 15 16 10 5 21" />
-    </svg>
-);
-
-const TelegramIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" />
-    </svg>
-);
-
-const LogoutIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <polyline points="16 17 21 12 16 7" />
-        <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
-);
-
-const TrashIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="3 6 5 6 21 6" />
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-);
-
-const EditIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-);
-
-const SparkleIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z" />
-    </svg>
-);
-
 const getTimeAgo = (dateStr, lang) => {
     const date = new Date(dateStr);
     const now = new Date();
@@ -120,297 +29,6 @@ const getTimeAgo = (dateStr, lang) => {
     }
 };
 
-// ===== Styles =====
-const styles = {
-    // Layout
-    pageWrapper: {
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #080808 0%, #0a0a0f 50%, #080808 100%)',
-    },
-    sidebar: {
-        position: 'fixed',
-        top: 0,
-        width: '280px',
-        height: '100vh',
-        background: 'linear-gradient(180deg, #0c0c0c 0%, #080808 100%)',
-        borderRight: '1px solid rgba(184, 134, 11, 0.15)',
-        padding: '2rem 1.5rem',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 100,
-        transition: 'transform 0.3s ease',
-    },
-    mainContent: {
-        marginLeft: '280px',
-        padding: '2rem 3rem',
-        minHeight: '100vh',
-    },
-    // Logo
-    logo: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        marginBottom: '3rem',
-        paddingBottom: '1.5rem',
-        borderBottom: '1px solid rgba(184, 134, 11, 0.1)',
-    },
-    logoIcon: {
-        width: '48px',
-        height: '48px',
-        background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 50%, #FFE566 100%)',
-        borderRadius: '12px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '1.5rem',
-        boxShadow: '0 4px 20px rgba(184, 134, 11, 0.3)',
-    },
-    logoText: {
-        fontSize: '1.25rem',
-        fontWeight: '700',
-        background: 'linear-gradient(90deg, #FFD700, #FFE566, #FFD700)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-    },
-    // Navigation
-    navItem: (isActive) => ({
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        padding: '1rem 1.25rem',
-        borderRadius: '12px',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        marginBottom: '0.5rem',
-        background: isActive ? 'linear-gradient(90deg, rgba(184, 134, 11, 0.15), rgba(218, 165, 32, 0.1))' : 'transparent',
-        border: isActive ? '1px solid rgba(184, 134, 11, 0.3)' : '1px solid transparent',
-        color: isActive ? '#FFD700' : '#888',
-    }),
-    navIcon: (isActive) => ({
-        color: isActive ? '#FFD700' : '#666',
-        transition: 'color 0.3s ease',
-    }),
-    navText: {
-        fontSize: '0.95rem',
-        fontWeight: '500',
-    },
-    // Cards
-    card: {
-        background: 'linear-gradient(145deg, #0c0c0c 0%, #0a0a0f 100%)',
-        border: '1px solid rgba(184, 134, 11, 0.12)',
-        borderRadius: '20px',
-        padding: '2rem',
-        marginBottom: '1.5rem',
-        position: 'relative',
-        overflow: 'hidden',
-    },
-    cardGlow: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '1px',
-        background: 'linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.5), transparent)',
-    },
-    // Buttons
-    primaryButton: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        padding: '1rem 2rem',
-        background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 50%, #FFE566 100%)',
-        backgroundSize: '200% 200%',
-        border: 'none',
-        borderRadius: '12px',
-        color: '#000',
-        fontWeight: '700',
-        fontSize: '1rem',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 4px 20px rgba(184, 134, 11, 0.3)',
-    },
-    secondaryButton: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        padding: '0.75rem 1.5rem',
-        background: 'transparent',
-        border: '1px solid rgba(184, 134, 11, 0.3)',
-        borderRadius: '10px',
-        color: '#DAA520',
-        fontWeight: '600',
-        fontSize: '0.9rem',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-    },
-    dangerButton: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        padding: '0.75rem 1.5rem',
-        background: 'transparent',
-        border: '1px solid rgba(239, 68, 68, 0.3)',
-        borderRadius: '10px',
-        color: '#ef4444',
-        fontWeight: '600',
-        fontSize: '0.9rem',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-    },
-    // Inputs
-    input: {
-        width: '100%',
-        padding: '1rem 1.25rem',
-        background: 'rgba(0, 0, 0, 0.4)',
-        border: '1px solid rgba(184, 134, 11, 0.15)',
-        borderRadius: '12px',
-        color: '#fff',
-        fontSize: '1rem',
-        outline: 'none',
-        transition: 'all 0.3s ease',
-    },
-    textarea: {
-        width: '100%',
-        minHeight: '140px',
-        padding: '1rem 1.25rem',
-        background: 'rgba(0, 0, 0, 0.4)',
-        border: '1px solid rgba(184, 134, 11, 0.15)',
-        borderRadius: '12px',
-        color: '#fff',
-        fontSize: '1rem',
-        outline: 'none',
-        resize: 'vertical',
-        transition: 'all 0.3s ease',
-        fontFamily: 'inherit',
-    },
-    select: {
-        width: '100%',
-        padding: '1rem 1.25rem',
-        background: 'rgba(0, 0, 0, 0.4)',
-        border: '1px solid rgba(184, 134, 11, 0.15)',
-        borderRadius: '12px',
-        color: '#fff',
-        fontSize: '1rem',
-        outline: 'none',
-        cursor: 'pointer',
-    },
-    label: {
-        display: 'block',
-        color: '#DAA520',
-        fontSize: '0.9rem',
-        fontWeight: '600',
-        marginBottom: '0.75rem',
-    },
-    // Signal Type Buttons
-    typeButton: (isActive) => ({
-        flex: 1,
-        padding: '1rem',
-        background: isActive ? 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)' : 'rgba(0, 0, 0, 0.3)',
-        border: isActive ? 'none' : '1px solid rgba(184, 134, 11, 0.2)',
-        borderRadius: '12px',
-        color: isActive ? '#000' : '#888',
-        fontWeight: '700',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-    }),
-    // Upload Zone
-    uploadZone: {
-        border: '2px dashed rgba(184, 134, 11, 0.3)',
-        borderRadius: '16px',
-        padding: '3rem 2rem',
-        textAlign: 'center',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        background: 'rgba(184, 134, 11, 0.02)',
-    },
-    // Signal Card
-    signalCard: {
-        background: 'linear-gradient(145deg, #0c0c0c 0%, #080808 100%)',
-        borderRadius: '20px',
-        overflow: 'hidden',
-        border: '1px solid rgba(184, 134, 11, 0.1)',
-        transition: 'all 0.3s ease',
-    },
-    // Table
-    table: {
-        width: '100%',
-        borderCollapse: 'separate',
-        borderSpacing: '0 0.5rem',
-    },
-    tableHeader: {
-        background: 'rgba(184, 134, 11, 0.05)',
-        color: '#DAA520',
-        fontWeight: '600',
-        fontSize: '0.85rem',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-    },
-    tableRow: {
-        background: 'rgba(0, 0, 0, 0.2)',
-        transition: 'all 0.3s ease',
-    },
-    tableCell: {
-        padding: '1rem 1.25rem',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
-    },
-    // Badge
-    badge: (type) => ({
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.3rem',
-        padding: '0.35rem 0.75rem',
-        borderRadius: '20px',
-        fontSize: '0.8rem',
-        fontWeight: '600',
-        background: type === 'success' ? 'rgba(76, 175, 80, 0.1)' : type === 'warning' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(184, 134, 11, 0.1)',
-        color: type === 'success' ? '#4caf50' : type === 'warning' ? '#ffc107' : '#DAA520',
-        border: `1px solid ${type === 'success' ? 'rgba(76, 175, 80, 0.2)' : type === 'warning' ? 'rgba(255, 193, 7, 0.2)' : 'rgba(184, 134, 11, 0.2)'}`,
-    }),
-    // Section Title
-    sectionTitle: {
-        fontSize: '1.5rem',
-        fontWeight: '700',
-        marginBottom: '1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.75rem',
-        background: 'linear-gradient(90deg, #FFD700, #FFE566, #FFD700)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-    },
-    // Stats
-    statCard: {
-        background: 'linear-gradient(145deg, rgba(184, 134, 11, 0.08) 0%, rgba(184, 134, 11, 0.02) 100%)',
-        border: '1px solid rgba(184, 134, 11, 0.15)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        textAlign: 'center',
-    },
-    statValue: {
-        fontSize: '2rem',
-        fontWeight: '800',
-        background: 'linear-gradient(90deg, #FFD700, #FFE566)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-    },
-    statLabel: {
-        color: '#888',
-        fontSize: '0.85rem',
-        marginTop: '0.5rem',
-    },
-};
-
-
 export default function AdminPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -422,7 +40,6 @@ export default function AdminPage() {
     const [successMessage, setSuccessMessage] = useState('');
     const fileInputRef = useRef(null);
     const [activeTab, setActiveTab] = useState('publish');
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // VIP Management State
     const [telegramId, setTelegramId] = useState('');
@@ -485,7 +102,6 @@ export default function AdminPage() {
         }
     }, []);
 
-    // Save Drafts to LocalStorage
     useEffect(() => {
         if (typeof window !== 'undefined') {
             localStorage.setItem('admin-custom-post', customPost);
@@ -498,7 +114,6 @@ export default function AdminPage() {
         }
     }, [signalType]);
 
-    // SAVE SETTINGS TO DB
     const saveSettingsToDB = async (payload, manual = false) => {
         if (manual) setSavingSettings(true);
         try {
@@ -670,7 +285,6 @@ export default function AdminPage() {
         setUploading(false);
     };
 
-    // Fetch Gemini Models
     const fetchModels = async () => {
         if (!geminiApiKey) return;
         setModelsLoading(true);
@@ -696,7 +310,6 @@ export default function AdminPage() {
         }
     }, [settingsLoaded, geminiApiKey]);
 
-    // Generate AI Posts
     const generateAIPosts = async () => {
         if (!customPost.trim()) {
             setError(lang === 'ar' ? 'يرجى كتابة المنشور أولاً' : 'Please write a post first');
@@ -743,7 +356,6 @@ export default function AdminPage() {
         }
     }, []);
 
-    // Canvas Lock Generation
     const createBlurredImage = (file) => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -974,423 +586,237 @@ export default function AdminPage() {
 
     if (!mounted) return null;
 
+    const vipUsers = users.filter(u => u.isVip);
+    const tabs = [
+        { id: 'publish', label: lang === 'ar' ? '📤 نشر توصية' : '📤 Publish' },
+        { id: 'signals', label: lang === 'ar' ? `📊 التوصيات (${signals.length})` : `📊 Signals (${signals.length})` },
+        { id: 'vip', label: lang === 'ar' ? `👑 VIP (${vipUsers.length})` : `👑 VIP (${vipUsers.length})` },
+        { id: 'settings', label: lang === 'ar' ? '⚙️ الإعدادات' : '⚙️ Settings' },
+    ];
+
+
     // Login Screen
     if (!isAuthenticated) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                background: 'linear-gradient(135deg, #080808 0%, #0a0a0f 50%, #080808 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2rem',
-            }}>
-                <div style={{
-                    ...styles.card,
-                    maxWidth: '420px',
-                    width: '100%',
-                    padding: '3rem',
-                    textAlign: 'center',
-                }}>
-                    <div style={styles.cardGlow} />
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 50%, #FFE566 100%)',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 2rem',
-                        fontSize: '2.5rem',
-                        boxShadow: '0 8px 32px rgba(184, 134, 11, 0.4)',
-                    }}>
-                        💎
-                    </div>
-                    <h1 style={{
-                        ...styles.sectionTitle,
-                        justifyContent: 'center',
-                        marginBottom: '0.5rem',
-                    }}>{t.adminTitle}</h1>
-                    <p style={{ color: '#666', marginBottom: '2rem', fontSize: '0.95rem' }}>
-                        {lang === 'ar' ? 'أدخل كلمة المرور للوصول' : 'Enter password to access'}
-                    </p>
+            <div className="admin-login">
+                <div className="login-card">
+                    <div className="login-icon">💎</div>
+                    <h1 className="text-gradient">{t.adminTitle}</h1>
+                    <p className="login-subtitle">{lang === 'ar' ? 'أدخل كلمة المرور للوصول' : 'Enter password to access'}</p>
                     <form onSubmit={handleLogin}>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder={t.passwordPlaceholder}
-                            style={{
-                                ...styles.input,
-                                textAlign: 'center',
-                                marginBottom: '1.5rem',
-                                fontSize: '1.1rem',
-                            }}
+                            className="gold-input"
                         />
-                        {error && (
-                            <p style={{
-                                color: '#ef4444',
-                                marginBottom: '1rem',
-                                padding: '0.75rem',
-                                background: 'rgba(239, 68, 68, 0.1)',
-                                borderRadius: '8px',
-                                fontSize: '0.9rem',
-                            }}>{error}</p>
-                        )}
-                        <button type="submit" style={{ ...styles.primaryButton, width: '100%' }}>
-                            {t.login}
-                        </button>
+                        {error && <p className="error-msg">{error}</p>}
+                        <button type="submit" className="btn-primary">{t.login}</button>
                     </form>
                 </div>
+
+                <style jsx>{`
+                    .admin-login {
+                        min-height: 100vh;
+                        background: #080808;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 2rem;
+                        background-image: linear-gradient(rgba(184, 134, 11, 0.03) 1px, transparent 1px),
+                                          linear-gradient(90deg, rgba(184, 134, 11, 0.03) 1px, transparent 1px);
+                        background-size: 50px 50px;
+                    }
+                    .login-card {
+                        background: #0c0c0c;
+                        border: 1px solid rgba(184, 134, 11, 0.2);
+                        border-radius: 24px;
+                        padding: 3rem;
+                        max-width: 420px;
+                        width: 100%;
+                        text-align: center;
+                        box-shadow: 0 0 60px rgba(184, 134, 11, 0.1);
+                    }
+                    .login-icon {
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, #B8860B, #DAA520, #FFE566);
+                        border-radius: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 1.5rem;
+                        font-size: 2.5rem;
+                        box-shadow: 0 8px 32px rgba(184, 134, 11, 0.4);
+                    }
+                    .login-card h1 {
+                        font-size: 1.75rem;
+                        margin-bottom: 0.5rem;
+                    }
+                    .login-subtitle {
+                        color: #888;
+                        margin-bottom: 2rem;
+                    }
+                    .gold-input {
+                        width: 100%;
+                        padding: 1rem;
+                        background: rgba(184, 134, 11, 0.05);
+                        border: 1px solid rgba(184, 134, 11, 0.2);
+                        border-radius: 12px;
+                        color: #fff;
+                        font-size: 1rem;
+                        text-align: center;
+                        margin-bottom: 1rem;
+                        outline: none;
+                        transition: all 0.3s;
+                    }
+                    .gold-input:focus {
+                        border-color: #DAA520;
+                        box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
+                    }
+                    .error-msg {
+                        color: #ef4444;
+                        background: rgba(239, 68, 68, 0.1);
+                        padding: 0.75rem;
+                        border-radius: 8px;
+                        margin-bottom: 1rem;
+                    }
+                `}</style>
             </div>
         );
     }
 
-
-    // Navigation Items
-    const navItems = [
-        { id: 'publish', icon: <UploadIcon />, label: lang === 'ar' ? 'نشر توصية' : 'Publish Signal', smallIcon: <SignalIcon /> },
-        { id: 'signals', icon: <SignalIcon />, label: lang === 'ar' ? 'التوصيات' : 'Signals', count: signals.length, smallIcon: <SignalIcon /> },
-        { id: 'vip', icon: <CrownIcon />, label: lang === 'ar' ? 'إدارة VIP' : 'VIP Management', count: users.filter(u => u.isVip).length, smallIcon: <CrownIcon /> },
-        { id: 'settings', icon: <SettingsIcon />, label: lang === 'ar' ? 'الإعدادات' : 'Settings', smallIcon: <SettingsIcon /> },
-    ];
-
-    const vipUsers = users.filter(u => u.isVip);
-
     return (
-        <div style={styles.pageWrapper} onPaste={handlePaste}>
-            {/* Sidebar */}
-            <aside style={{
-                ...styles.sidebar,
-                [isRTL ? 'right' : 'left']: 0,
-                transform: mobileMenuOpen ? 'translateX(0)' : undefined,
-            }} className="admin-sidebar">
-                {/* Logo */}
-                <div style={styles.logo}>
-                    <div style={styles.logoIcon}>💎</div>
-                    <div>
-                        <div style={styles.logoText}>{lang === 'ar' ? 'أبو الذهب' : 'Abu Al-Dahab'}</div>
-                        <div style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-                            {lang === 'ar' ? 'لوحة التحكم' : 'Admin Panel'}
-                        </div>
+        <div className="admin-page" onPaste={handlePaste}>
+            {/* Header */}
+            <header className="admin-header">
+                <div className="header-content">
+                    <div className="logo">
+                        <span className="logo-icon">💎</span>
+                        <span className="text-gradient">{lang === 'ar' ? 'لوحة التحكم' : 'Admin Panel'}</span>
+                    </div>
+                    <div className="header-actions">
+                        <button onClick={toggleLang} className="lang-toggle">
+                            🌐 {t.langSwitch}
+                        </button>
+                        <button onClick={handleLogout} className="logout-btn">
+                            {t.logout}
+                        </button>
                     </div>
                 </div>
+            </header>
 
-                {/* Navigation */}
-                <nav style={{ flex: 1 }}>
-                    {navItems.map((item) => (
-                        <div
-                            key={item.id}
-                            onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
-                            style={styles.navItem(activeTab === item.id)}
-                            onMouseEnter={(e) => {
-                                if (activeTab !== item.id) {
-                                    e.currentTarget.style.background = 'rgba(184, 134, 11, 0.05)';
-                                    e.currentTarget.style.color = '#DAA520';
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (activeTab !== item.id) {
-                                    e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.color = '#888';
-                                }
-                            }}
-                        >
-                            <span style={styles.navIcon(activeTab === item.id)}>{item.smallIcon}</span>
-                            <span style={styles.navText}>{item.label}</span>
-                            {item.count !== undefined && (
-                                <span style={{
-                                    marginLeft: 'auto',
-                                    background: activeTab === item.id ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 255, 255, 0.1)',
-                                    color: activeTab === item.id ? '#FFD700' : '#888',
-                                    padding: '0.2rem 0.6rem',
-                                    borderRadius: '20px',
-                                    fontSize: '0.8rem',
-                                    fontWeight: '600',
-                                }}>{item.count}</span>
-                            )}
-                        </div>
-                    ))}
-                </nav>
+            {/* Tabs */}
+            <nav className="admin-tabs">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </nav>
 
-                {/* Bottom Actions */}
-                <div style={{ borderTop: '1px solid rgba(184, 134, 11, 0.1)', paddingTop: '1.5rem' }}>
-                    <button
-                        onClick={toggleLang}
-                        style={{
-                            ...styles.secondaryButton,
-                            width: '100%',
-                            marginBottom: '0.75rem',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        🌐 {t.langSwitch}
-                    </button>
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            ...styles.dangerButton,
-                            width: '100%',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <LogoutIcon /> {t.logout}
-                    </button>
+            {/* Messages */}
+            {successMessage && (
+                <div className="success-toast">✓ {successMessage}</div>
+            )}
+            {error && (
+                <div className="error-toast">
+                    ✕ {error}
+                    <button onClick={() => setError('')}>×</button>
                 </div>
-            </aside>
-
-            {/* Mobile Header */}
-            <div className="mobile-header" style={{
-                display: 'none',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '60px',
-                background: 'rgba(8, 8, 8, 0.95)',
-                backdropFilter: 'blur(10px)',
-                borderBottom: '1px solid rgba(184, 134, 11, 0.15)',
-                zIndex: 99,
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 1rem',
-            }}>
-                <button
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#DAA520',
-                        fontSize: '1.5rem',
-                        cursor: 'pointer',
-                    }}
-                >
-                    ☰
-                </button>
-                <div style={styles.logoText}>💎 {lang === 'ar' ? 'لوحة التحكم' : 'Admin'}</div>
-                <button onClick={toggleLang} style={{ background: 'transparent', border: 'none', color: '#DAA520', cursor: 'pointer' }}>
-                    🌐
-                </button>
-            </div>
+            )}
 
             {/* Main Content */}
-            <main style={{
-                ...styles.mainContent,
-                marginLeft: isRTL ? 0 : '280px',
-                marginRight: isRTL ? '280px' : 0,
-            }} className="admin-main">
-                {/* Success/Error Messages */}
-                {successMessage && (
-                    <div style={{
-                        position: 'fixed',
-                        top: '2rem',
-                        right: '2rem',
-                        left: isRTL ? '2rem' : 'auto',
-                        background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.9))',
-                        color: '#fff',
-                        padding: '1rem 1.5rem',
-                        borderRadius: '12px',
-                        zIndex: 1000,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        boxShadow: '0 8px 32px rgba(76, 175, 80, 0.3)',
-                        animation: 'slideIn 0.3s ease',
-                    }}>
-                        ✓ {successMessage}
-                    </div>
-                )}
-
-                {error && (
-                    <div style={{
-                        position: 'fixed',
-                        top: '2rem',
-                        right: '2rem',
-                        left: isRTL ? '2rem' : 'auto',
-                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))',
-                        color: '#fff',
-                        padding: '1rem 1.5rem',
-                        borderRadius: '12px',
-                        zIndex: 1000,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        boxShadow: '0 8px 32px rgba(239, 68, 68, 0.3)',
-                    }}>
-                        ✕ {error}
-                        <button onClick={() => setError('')} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', marginLeft: '1rem' }}>×</button>
-                    </div>
-                )}
-
+            <main className="admin-main">
                 {/* PUBLISH TAB */}
                 {activeTab === 'publish' && (
-                    <div>
-                        <h1 style={styles.sectionTitle}>
-                            📤 {isEditing ? (lang === 'ar' ? 'تعديل المنشور' : 'Edit Signal') : t.postNewSignal}
-                        </h1>
+                    <div className="tab-content">
+                        <h2 className="section-title text-gradient">
+                            {isEditing ? (lang === 'ar' ? '✏️ تعديل المنشور' : '✏️ Edit Signal') : (lang === 'ar' ? '📤 نشر توصية جديدة' : '📤 Publish New Signal')}
+                        </h2>
 
                         {isEditing && (
-                            <div style={{
-                                background: 'linear-gradient(90deg, rgba(218, 165, 32, 0.1), transparent)',
-                                border: '1px solid rgba(218, 165, 32, 0.3)',
-                                borderRadius: '12px',
-                                padding: '1rem 1.5rem',
-                                marginBottom: '1.5rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                            }}>
-                                <span style={{ color: '#DAA520', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    ✏️ {lang === 'ar' ? 'أنت في وضع التعديل' : 'You are in edit mode'}
-                                </span>
-                                <button onClick={handleCancelEdit} style={styles.dangerButton}>
-                                    {lang === 'ar' ? 'إلغاء' : 'Cancel'}
-                                </button>
+                            <div className="edit-banner">
+                                <span>✏️ {lang === 'ar' ? 'وضع التعديل' : 'Edit Mode'}</span>
+                                <button onClick={handleCancelEdit} className="cancel-btn">{lang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
                             </div>
                         )}
 
-                        <div style={styles.card}>
-                            <div style={styles.cardGlow} />
-                            
+                        <div className="card">
                             {/* Image Upload */}
-                            <div style={{ marginBottom: '2rem' }}>
-                                <label style={styles.label}>
-                                    📸 {lang === 'ar' ? 'صورة التوصية' : 'Signal Image'}
-                                </label>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    style={{ display: 'none' }}
-                                    id="image-upload"
-                                />
+                            <div className="form-group">
+                                <label className="gold-label">📸 {lang === 'ar' ? 'صورة التوصية' : 'Signal Image'}</label>
+                                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="img-upload" />
                                 {!previewData ? (
-                                    <label htmlFor="image-upload" style={styles.uploadZone}>
-                                        <ImageIcon />
-                                        <p style={{ color: '#888', marginTop: '1rem', fontSize: '1rem' }}>
-                                            {lang === 'ar' ? 'اضغط لرفع صورة أو الصق من الحافظة' : 'Click to upload or paste from clipboard'}
-                                        </p>
-                                        <p style={{ color: '#555', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-                                            PNG, JPG, WEBP
-                                        </p>
+                                    <label htmlFor="img-upload" className="upload-zone">
+                                        <div className="upload-icon">📷</div>
+                                        <p>{lang === 'ar' ? 'اضغط لرفع صورة أو الصق من الحافظة' : 'Click to upload or paste from clipboard'}</p>
+                                        <span>PNG, JPG, WEBP</span>
                                     </label>
                                 ) : (
-                                    <div style={{
-                                        position: 'relative',
-                                        borderRadius: '16px',
-                                        overflow: 'hidden',
-                                        border: '2px solid rgba(184, 134, 11, 0.3)',
-                                        display: 'inline-block',
-                                    }}>
-                                        <img src={previewData} alt="Preview" style={{ maxHeight: '300px', display: 'block' }} />
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            background: 'rgba(0,0,0,0.5)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            opacity: 0,
-                                            transition: 'opacity 0.3s ease',
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
-                                        onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
-                                        >
-                                            <button onClick={cancelPreview} style={styles.dangerButton}>
-                                                {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
-                                            </button>
-                                        </div>
+                                    <div className="preview-container">
+                                        <img src={previewData} alt="Preview" />
+                                        <button onClick={cancelPreview} className="change-img-btn">
+                                            {lang === 'ar' ? '🔄 تغيير' : '🔄 Change'}
+                                        </button>
                                     </div>
                                 )}
                             </div>
 
                             {/* Signal Type */}
-                            <div style={{ marginBottom: '2rem' }}>
-                                <label style={styles.label}>
-                                    📊 {lang === 'ar' ? 'نوع المنشور' : 'Post Type'}
-                                </label>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <button onClick={() => setSignalType('vip')} style={styles.typeButton(signalType === 'vip')}>
+                            <div className="form-group">
+                                <label className="gold-label">📊 {lang === 'ar' ? 'نوع المنشور' : 'Post Type'}</label>
+                                <div className="type-buttons">
+                                    <button onClick={() => setSignalType('vip')} className={`type-btn ${signalType === 'vip' ? 'active' : ''}`}>
                                         💎 VIP
                                     </button>
-                                    <button onClick={() => setSignalType('free')} style={styles.typeButton(signalType === 'free')}>
+                                    <button onClick={() => setSignalType('free')} className={`type-btn ${signalType === 'free' ? 'active' : ''}`}>
                                         🎁 {lang === 'ar' ? 'مجاني' : 'Free'}
                                     </button>
-                                    <button onClick={() => setSignalType('regular')} style={styles.typeButton(signalType === 'regular')}>
+                                    <button onClick={() => setSignalType('regular')} className={`type-btn ${signalType === 'regular' ? 'active' : ''}`}>
                                         📝 {lang === 'ar' ? 'عادي' : 'Regular'}
                                     </button>
                                 </div>
                             </div>
 
                             {/* Post Text */}
-                            <div style={{ marginBottom: '2rem' }}>
-                                <label style={styles.label}>
-                                    ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
-                                </label>
+                            <div className="form-group">
+                                <label className="gold-label">✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}</label>
                                 <textarea
                                     value={customPost}
                                     onChange={(e) => setCustomPost(e.target.value)}
                                     placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write your post here...'}
-                                    style={styles.textarea}
+                                    className="gold-textarea"
                                 />
                             </div>
 
-                            {/* AI Generation */}
-                            <div style={{
-                                background: 'rgba(102, 126, 234, 0.05)',
-                                border: '1px solid rgba(102, 126, 234, 0.2)',
-                                borderRadius: '16px',
-                                padding: '1.5rem',
-                                marginBottom: '2rem',
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                                    <SparkleIcon />
-                                    <span style={{ color: '#a78bfa', fontWeight: '600' }}>
-                                        {lang === 'ar' ? 'توليد بالذكاء الاصطناعي' : 'AI Generation'}
-                                    </span>
+                            {/* AI Section */}
+                            <div className="ai-section">
+                                <div className="ai-header">
+                                    <span>🤖 {lang === 'ar' ? 'توليد بالذكاء الاصطناعي' : 'AI Generation'}</span>
                                 </div>
                                 <button
                                     onClick={generateAIPosts}
                                     disabled={generatingPosts || !customPost.trim()}
-                                    style={{
-                                        ...styles.primaryButton,
-                                        background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)',
-                                        opacity: !customPost.trim() ? 0.5 : 1,
-                                        width: '100%',
-                                    }}
+                                    className="ai-btn"
                                 >
-                                    {generatingPosts 
-                                        ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') 
-                                        : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
+                                    {generatingPosts ? '⏳...' : `🚀 ${lang === 'ar' ? `توليد ${postCount} نسخة` : `Generate ${postCount} Variations`}`}
                                 </button>
 
                                 {generatedPosts.length > 0 && (
-                                    <div style={{
-                                        marginTop: '1.5rem',
-                                        maxHeight: '300px',
-                                        overflowY: 'auto',
-                                        display: 'grid',
-                                        gap: '0.75rem',
-                                    }}>
+                                    <div className="generated-posts">
                                         {generatedPosts.map((post, idx) => (
                                             <div
                                                 key={idx}
                                                 onClick={() => setSelectedPostIndex(idx)}
-                                                style={{
-                                                    padding: '1rem',
-                                                    background: selectedPostIndex === idx ? 'rgba(184, 134, 11, 0.15)' : 'rgba(0, 0, 0, 0.3)',
-                                                    border: `2px solid ${selectedPostIndex === idx ? '#DAA520' : 'transparent'}`,
-                                                    borderRadius: '12px',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s ease',
-                                                }}
+                                                className={`post-option ${selectedPostIndex === idx ? 'selected' : ''}`}
                                             >
-                                                <p style={{ color: '#e0e0e0', fontSize: '0.9rem', margin: 0 }}>{post}</p>
+                                                {post}
                                             </div>
                                         ))}
                                     </div>
@@ -1398,65 +824,28 @@ export default function AdminPage() {
                             </div>
 
                             {/* Telegram Options */}
-                            <div style={{
-                                background: 'rgba(34, 158, 217, 0.05)',
-                                border: '1px solid rgba(34, 158, 217, 0.2)',
-                                borderRadius: '16px',
-                                padding: '1.5rem',
-                                marginBottom: '2rem',
-                            }}>
-                                <div
-                                    onClick={() => setPostToTelegram(!postToTelegram)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.75rem',
-                                        cursor: 'pointer',
-                                        marginBottom: postToTelegram ? '1.5rem' : 0,
-                                    }}
-                                >
-                                    <div style={{
-                                        width: '24px',
-                                        height: '24px',
-                                        borderRadius: '6px',
-                                        border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`,
-                                        background: postToTelegram ? '#229ED9' : 'transparent',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        transition: 'all 0.2s ease',
-                                    }}>
-                                        {postToTelegram && <span style={{ color: '#fff', fontSize: '14px' }}>✓</span>}
+                            <div className="telegram-section">
+                                <div className="telegram-toggle" onClick={() => setPostToTelegram(!postToTelegram)}>
+                                    <div className={`checkbox ${postToTelegram ? 'checked' : ''}`}>
+                                        {postToTelegram && '✓'}
                                     </div>
-                                    <TelegramIcon />
-                                    <span style={{ color: '#229ED9', fontWeight: '600' }}>{t.postToTelegram}</span>
+                                    <span>📱 {t.postToTelegram}</span>
                                 </div>
 
                                 {postToTelegram && (
-                                    <div>
-                                        <label style={{ ...styles.label, color: '#229ED9' }}>
-                                            🔘 {lang === 'ar' ? 'زر التفاعل' : 'Action Button'}
-                                        </label>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                                    <div className="button-options">
+                                        <label className="gold-label">{lang === 'ar' ? 'زر التفاعل' : 'Action Button'}</label>
+                                        <div className="btn-grid">
                                             {[
-                                                { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
-                                                { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe' },
-                                                { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
-                                                { id: 'none', label: lang === 'ar' ? '🚫 بدون' : '🚫 None' },
-                                            ].map((btn) => (
+                                                { id: 'view_signal', label: '💎 ' + (lang === 'ar' ? 'إظهار التوصية' : 'Show Signal') },
+                                                { id: 'subscribe', label: '🔥 ' + (lang === 'ar' ? 'اشترك' : 'Subscribe') },
+                                                { id: 'share', label: '📤 ' + (lang === 'ar' ? 'مشاركة' : 'Share') },
+                                                { id: 'none', label: '🚫 ' + (lang === 'ar' ? 'بدون' : 'None') },
+                                            ].map(btn => (
                                                 <button
                                                     key={btn.id}
                                                     onClick={() => setTelegramButtonType(btn.id)}
-                                                    style={{
-                                                        padding: '0.75rem',
-                                                        background: telegramButtonType === btn.id ? '#229ED9' : 'rgba(0, 0, 0, 0.3)',
-                                                        border: `1px solid ${telegramButtonType === btn.id ? '#229ED9' : 'rgba(34, 158, 217, 0.2)'}`,
-                                                        borderRadius: '10px',
-                                                        color: '#fff',
-                                                        fontWeight: telegramButtonType === btn.id ? '600' : '400',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s ease',
-                                                    }}
+                                                    className={`tg-btn ${telegramButtonType === btn.id ? 'active' : ''}`}
                                                 >
                                                     {btn.label}
                                                 </button>
@@ -1471,126 +860,57 @@ export default function AdminPage() {
                                 <button
                                     onClick={isEditing ? handleUpdate : handlePublish}
                                     disabled={uploading}
-                                    style={{
-                                        ...styles.primaryButton,
-                                        width: '100%',
-                                        padding: '1.25rem',
-                                        fontSize: '1.1rem',
-                                        opacity: uploading ? 0.7 : 1,
-                                    }}
+                                    className="btn-primary publish-btn"
                                 >
                                     {uploading
-                                        ? (lang === 'ar' ? (isEditing ? 'جاري التحديث...' : 'جاري النشر...') : (isEditing ? 'Updating...' : 'Publishing...'))
-                                        : (lang === 'ar' ? (isEditing ? '🔄 تحديث المنشور' : '🚀 نشر التوصية') : (isEditing ? '🔄 Update Signal' : '🚀 Publish Signal'))}
+                                        ? (lang === 'ar' ? '⏳ جاري...' : '⏳ Processing...')
+                                        : (isEditing 
+                                            ? (lang === 'ar' ? '🔄 تحديث المنشور' : '🔄 Update Signal')
+                                            : (lang === 'ar' ? '🚀 نشر التوصية' : '🚀 Publish Signal'))}
                                 </button>
                             )}
                         </div>
                     </div>
                 )}
 
-
                 {/* SIGNALS TAB */}
                 {activeTab === 'signals' && (
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                            <h1 style={styles.sectionTitle}>
-                                📊 {t.publishedSignals}
-                            </h1>
-                            <span style={styles.badge('default')}>{signals.length} {lang === 'ar' ? 'توصية' : 'signals'}</span>
-                        </div>
-
+                    <div className="tab-content">
+                        <h2 className="section-title text-gradient">📊 {t.publishedSignals}</h2>
+                        
                         {loading ? (
-                            <div style={{ textAlign: 'center', padding: '4rem' }}>
-                                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-                                <p style={{ color: '#888' }}>{t.loading}</p>
-                            </div>
+                            <div className="loading">⏳ {t.loading}</div>
                         ) : signals.length === 0 ? (
-                            <div style={{ ...styles.card, textAlign: 'center', padding: '4rem' }}>
-                                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📭</div>
-                                <p style={{ color: '#888', fontSize: '1.1rem' }}>
-                                    {lang === 'ar' ? 'لا توجد توصيات بعد' : 'No signals yet'}
-                                </p>
-                                <button
-                                    onClick={() => setActiveTab('publish')}
-                                    style={{ ...styles.primaryButton, marginTop: '1.5rem' }}
-                                >
+                            <div className="empty-state">
+                                <div className="empty-icon">📭</div>
+                                <p>{lang === 'ar' ? 'لا توجد توصيات بعد' : 'No signals yet'}</p>
+                                <button onClick={() => setActiveTab('publish')} className="btn-primary">
                                     {lang === 'ar' ? 'نشر أول توصية' : 'Publish First Signal'}
                                 </button>
                             </div>
                         ) : (
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                                gap: '1.5rem',
-                            }}>
-                                {signals.map((signal) => (
-                                    <div key={signal._id} style={styles.signalCard}>
-                                        <div style={{ position: 'relative' }}>
-                                            <img
-                                                src={signal.imageUrl}
-                                                alt="Signal"
-                                                style={{ width: '100%', height: 'auto', display: 'block' }}
-                                            />
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '0.75rem',
-                                                right: '0.75rem',
-                                                display: 'flex',
-                                                gap: '0.5rem',
-                                            }}>
-                                                {signal.isVip && (
-                                                    <span style={styles.badge('default')}>💎 VIP</span>
-                                                )}
-                                                {signal.type === 'REGULAR' && (
-                                                    <span style={styles.badge('warning')}>📝 Regular</span>
-                                                )}
+                            <div className="signals-grid">
+                                {signals.map(signal => (
+                                    <div key={signal._id} className="signal-card">
+                                        <div className="signal-image">
+                                            <img src={signal.imageUrl} alt="Signal" />
+                                            <div className="signal-badges">
+                                                {signal.isVip && <span className="badge vip">💎 VIP</span>}
+                                                {signal.type === 'REGULAR' && <span className="badge regular">📝</span>}
                                             </div>
                                         </div>
                                         {signal.customPost && (
-                                            <div style={{
-                                                padding: '1.25rem',
-                                                background: 'rgba(255,255,255,0.02)',
-                                                borderTop: '1px solid rgba(184, 134, 11, 0.1)',
-                                            }}>
-                                                <p style={{
-                                                    color: '#e0e0e0',
-                                                    fontSize: '0.95rem',
-                                                    lineHeight: '1.6',
-                                                    margin: 0,
-                                                    whiteSpace: 'pre-wrap',
-                                                }}>
-                                                    {signal.customPost.replace(/\*/g, '')}
-                                                </p>
-                                                <div style={{
-                                                    marginTop: '1rem',
-                                                    color: '#666',
-                                                    fontSize: '0.8rem',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.5rem',
-                                                }}>
-                                                    🕐 {getTimeAgo(signal.createdAt, lang)}
-                                                </div>
+                                            <div className="signal-text">
+                                                <p>{signal.customPost.replace(/\*/g, '')}</p>
+                                                <span className="time">{getTimeAgo(signal.createdAt, lang)}</span>
                                             </div>
                                         )}
-                                        <div style={{
-                                            padding: '1rem 1.25rem',
-                                            background: 'rgba(0, 0, 0, 0.3)',
-                                            display: 'flex',
-                                            justifyContent: 'flex-end',
-                                            gap: '0.75rem',
-                                        }}>
-                                            <button
-                                                onClick={() => handleEdit(signal)}
-                                                style={styles.secondaryButton}
-                                            >
-                                                <EditIcon /> {lang === 'ar' ? 'تعديل' : 'Edit'}
+                                        <div className="signal-actions">
+                                            <button onClick={() => handleEdit(signal)} className="edit-btn">
+                                                ✏️ {lang === 'ar' ? 'تعديل' : 'Edit'}
                                             </button>
-                                            <button
-                                                onClick={() => deleteSignal(signal._id)}
-                                                style={styles.dangerButton}
-                                            >
-                                                <TrashIcon /> {t.delete}
+                                            <button onClick={() => deleteSignal(signal._id)} className="delete-btn">
+                                                🗑️ {t.delete}
                                             </button>
                                         </div>
                                     </div>
@@ -1602,176 +922,107 @@ export default function AdminPage() {
 
                 {/* VIP TAB */}
                 {activeTab === 'vip' && (
-                    <div>
-                        <h1 style={styles.sectionTitle}>
-                            👑 {t.manageVip}
-                        </h1>
+                    <div className="tab-content">
+                        <h2 className="section-title text-gradient">👑 {t.manageVip}</h2>
 
                         {/* Stats */}
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                            gap: '1rem',
-                            marginBottom: '2rem',
-                        }}>
-                            <div style={styles.statCard}>
-                                <div style={styles.statValue}>{vipUsers.length}</div>
-                                <div style={styles.statLabel}>{lang === 'ar' ? 'أعضاء VIP' : 'VIP Members'}</div>
+                        <div className="stats-row">
+                            <div className="stat-card">
+                                <div className="stat-value text-gradient">{vipUsers.length}</div>
+                                <div className="stat-label">{lang === 'ar' ? 'أعضاء VIP' : 'VIP Members'}</div>
                             </div>
-                            <div style={styles.statCard}>
-                                <div style={styles.statValue}>{vipUsers.filter(u => !u.subscriptionEndDate).length}</div>
-                                <div style={styles.statLabel}>{lang === 'ar' ? 'مدى الحياة' : 'Lifetime'}</div>
+                            <div className="stat-card">
+                                <div className="stat-value text-gradient">{vipUsers.filter(u => !u.subscriptionEndDate).length}</div>
+                                <div className="stat-label">{lang === 'ar' ? 'مدى الحياة' : 'Lifetime'}</div>
                             </div>
-                            <div style={styles.statCard}>
-                                <div style={styles.statValue}>{users.length}</div>
-                                <div style={styles.statLabel}>{lang === 'ar' ? 'إجمالي المستخدمين' : 'Total Users'}</div>
+                            <div className="stat-card">
+                                <div className="stat-value text-gradient">{users.length}</div>
+                                <div className="stat-label">{lang === 'ar' ? 'إجمالي' : 'Total'}</div>
                             </div>
                         </div>
 
                         {/* Add VIP Form */}
-                        <div style={styles.card}>
-                            <div style={styles.cardGlow} />
-                            <h3 style={{ color: '#DAA520', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
-                                ➕ {t.addNewVip}
-                            </h3>
-                            <form onSubmit={handleGrantVip}>
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                    gap: '1rem',
-                                    marginBottom: '1.5rem',
-                                }}>
-                                    <div>
-                                        <label style={styles.label}>{t.telegramIdPlaceholder}</label>
+                        <div className="card">
+                            <h3 className="card-title">➕ {t.addNewVip}</h3>
+                            <form onSubmit={handleGrantVip} className="vip-form">
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label className="gold-label">Telegram ID</label>
                                         <input
                                             type="text"
                                             value={telegramId}
                                             onChange={(e) => setTelegramId(e.target.value)}
-                                            placeholder="e.g. 123456789"
-                                            style={styles.input}
+                                            placeholder="123456789"
+                                            className="gold-input"
                                             required
                                         />
                                     </div>
-                                    <div>
-                                        <label style={styles.label}>{t.durationMonths || 'Duration (Months)'}</label>
+                                    <div className="form-group">
+                                        <label className="gold-label">{t.durationMonths || 'Duration'}</label>
                                         <input
                                             type="number"
                                             value={durationMonths}
                                             onChange={(e) => setDurationMonths(e.target.value)}
                                             placeholder="1, 3, 12..."
                                             disabled={isLifetime}
-                                            style={{
-                                                ...styles.input,
-                                                opacity: isLifetime ? 0.5 : 1,
-                                            }}
+                                            className="gold-input"
                                         />
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                        <label style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.75rem',
-                                            padding: '1rem 1.25rem',
-                                            background: isLifetime ? 'rgba(184, 134, 11, 0.1)' : 'rgba(0, 0, 0, 0.4)',
-                                            border: `1px solid ${isLifetime ? 'rgba(184, 134, 11, 0.3)' : 'rgba(184, 134, 11, 0.15)'}`,
-                                            borderRadius: '12px',
-                                            cursor: 'pointer',
-                                            width: '100%',
-                                            transition: 'all 0.2s ease',
-                                        }}>
+                                    <div className="form-group">
+                                        <label className="lifetime-check">
                                             <input
                                                 type="checkbox"
                                                 checked={isLifetime}
                                                 onChange={(e) => setIsLifetime(e.target.checked)}
-                                                style={{ width: '18px', height: '18px', accentColor: '#DAA520' }}
                                             />
-                                            <span style={{ color: isLifetime ? '#DAA520' : '#888' }}>
-                                                ♾️ {t.lifetime || 'Lifetime'}
-                                            </span>
+                                            <span>♾️ {t.lifetime || 'Lifetime'}</span>
                                         </label>
                                     </div>
                                 </div>
-                                <button type="submit" style={styles.primaryButton} disabled={vipLoading}>
+                                <button type="submit" className="btn-primary" disabled={vipLoading}>
                                     {vipLoading ? '...' : t.grantVip}
                                 </button>
                             </form>
                             {vipMessage.text && (
-                                <p style={{
-                                    marginTop: '1rem',
-                                    padding: '0.75rem 1rem',
-                                    borderRadius: '8px',
-                                    background: vipMessage.type === 'success' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                    color: vipMessage.type === 'success' ? '#4caf50' : '#ef4444',
-                                }}>
-                                    {vipMessage.text}
-                                </p>
+                                <p className={`msg ${vipMessage.type}`}>{vipMessage.text}</p>
                             )}
                         </div>
 
-                        {/* VIP Users Table */}
-                        <div style={{ ...styles.card, marginTop: '1.5rem', padding: '0', overflow: 'hidden' }}>
-                            <div style={styles.cardGlow} />
-                            <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(184, 134, 11, 0.1)' }}>
-                                <h3 style={{ color: '#DAA520', margin: 0 }}>
-                                    👥 {lang === 'ar' ? 'الأعضاء النشطين' : 'Active Members'}
-                                </h3>
-                            </div>
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={styles.table}>
+                        {/* VIP Table */}
+                        <div className="card">
+                            <h3 className="card-title">👥 {lang === 'ar' ? 'الأعضاء النشطين' : 'Active Members'}</h3>
+                            <div className="table-wrapper">
+                                <table className="vip-table">
                                     <thead>
-                                        <tr style={styles.tableHeader}>
-                                            <th style={{ ...styles.tableCell, textAlign: isRTL ? 'right' : 'left' }}>Telegram ID</th>
-                                            <th style={{ ...styles.tableCell, textAlign: 'center' }}>{t.status || 'Status'}</th>
-                                            <th style={{ ...styles.tableCell, textAlign: 'center' }}>{t.expiresIn || 'Expires'}</th>
-                                            <th style={{ ...styles.tableCell, textAlign: 'center' }}>{t.actions || 'Actions'}</th>
+                                        <tr>
+                                            <th>Telegram ID</th>
+                                            <th>{t.status || 'Status'}</th>
+                                            <th>{t.expiresIn || 'Expires'}</th>
+                                            <th>{t.actions || 'Actions'}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {vipUsers.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="4" style={{ ...styles.tableCell, textAlign: 'center', padding: '3rem', color: '#666' }}>
-                                                    {t.noVipMembers || 'No active VIP members'}
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            vipUsers.map(user => {
-                                                const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
-                                                const now = new Date();
-                                                const isExpired = expiry && now > expiry;
-                                                if (isExpired) return null;
-
-                                                let timeLeft = '♾️ Lifetime';
-                                                if (expiry) {
-                                                    const diff = expiry - now;
-                                                    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                                    timeLeft = `${days} ${lang === 'ar' ? 'يوم' : 'days'}`;
-                                                }
-
-                                                return (
-                                                    <tr key={user._id} style={styles.tableRow}>
-                                                        <td style={{ ...styles.tableCell, fontFamily: 'monospace', color: '#fff' }}>
-                                                            {user.telegramId}
-                                                        </td>
-                                                        <td style={{ ...styles.tableCell, textAlign: 'center' }}>
-                                                            <span style={styles.badge('success')}>
-                                                                ✓ Active
-                                                            </span>
-                                                        </td>
-                                                        <td style={{ ...styles.tableCell, textAlign: 'center', color: '#DAA520' }}>
-                                                            {timeLeft}
-                                                        </td>
-                                                        <td style={{ ...styles.tableCell, textAlign: 'center' }}>
-                                                            <button
-                                                                onClick={() => handleRemoveUser(user.telegramId)}
-                                                                style={styles.dangerButton}
-                                                            >
-                                                                <TrashIcon /> {t.remove || 'Remove'}
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        )}
+                                            <tr><td colSpan="4" className="empty">{t.noVipMembers || 'No VIP members'}</td></tr>
+                                        ) : vipUsers.map(user => {
+                                            const expiry = user.subscriptionEndDate ? new Date(user.subscriptionEndDate) : null;
+                                            const now = new Date();
+                                            if (expiry && now > expiry) return null;
+                                            const timeLeft = expiry ? `${Math.ceil((expiry - now) / (1000 * 60 * 60 * 24))} ${lang === 'ar' ? 'يوم' : 'days'}` : '♾️';
+                                            
+                                            return (
+                                                <tr key={user._id}>
+                                                    <td className="mono">{user.telegramId}</td>
+                                                    <td><span className="status-badge">✓ Active</span></td>
+                                                    <td className="gold">{timeLeft}</td>
+                                                    <td>
+                                                        <button onClick={() => handleRemoveUser(user.telegramId)} className="delete-btn small">
+                                                            🗑️
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -1781,96 +1032,63 @@ export default function AdminPage() {
 
                 {/* SETTINGS TAB */}
                 {activeTab === 'settings' && (
-                    <div>
-                        <h1 style={styles.sectionTitle}>
-                            ⚙️ {lang === 'ar' ? 'الإعدادات' : 'Settings'}
-                        </h1>
+                    <div className="tab-content">
+                        <h2 className="section-title text-gradient">⚙️ {lang === 'ar' ? 'الإعدادات' : 'Settings'}</h2>
 
-                        <div style={styles.card}>
-                            <div style={styles.cardGlow} />
-                            <h3 style={{ color: '#a78bfa', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <SparkleIcon /> {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي' : 'AI Settings (Gemini)'}
-                            </h3>
-
-                            <div style={{ display: 'grid', gap: '1.5rem' }}>
-                                {/* API Key */}
-                                <div>
-                                    <label style={styles.label}>🔑 Gemini API Key</label>
+                        <div className="card">
+                            <h3 className="card-title">🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي' : 'AI Settings (Gemini)'}</h3>
+                            
+                            <div className="settings-form">
+                                <div className="form-group">
+                                    <label className="gold-label">🔑 API Key</label>
                                     <input
                                         type="password"
                                         value={geminiApiKey}
                                         onChange={(e) => setGeminiApiKey(e.target.value)}
-                                        placeholder="Enter your API key..."
-                                        style={styles.input}
+                                        placeholder="Enter API key..."
+                                        className="gold-input"
                                     />
                                 </div>
 
-                                {/* Model Selection */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'end' }}>
-                                    <div>
-                                        <label style={styles.label}>🧠 {lang === 'ar' ? 'النموذج' : 'Model'}</label>
-                                        <select
-                                            value={selectedModel}
-                                            onChange={(e) => setSelectedModel(e.target.value)}
-                                            style={styles.select}
-                                        >
+                                <div className="form-row">
+                                    <div className="form-group flex-2">
+                                        <label className="gold-label">🧠 {lang === 'ar' ? 'النموذج' : 'Model'}</label>
+                                        <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} className="gold-select">
                                             <option value="gemini-2.0-flash">gemini-2.0-flash</option>
                                             <option value="gemini-1.5-flash">gemini-1.5-flash</option>
                                             <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                                            {availableModels.map(m => (
-                                                <option key={m.id} value={m.id}>{m.displayName}</option>
-                                            ))}
+                                            {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
                                         </select>
                                     </div>
-                                    <button
-                                        onClick={fetchModels}
-                                        disabled={modelsLoading || !geminiApiKey}
-                                        style={{
-                                            ...styles.secondaryButton,
-                                            opacity: !geminiApiKey ? 0.5 : 1,
-                                        }}
-                                    >
+                                    <button onClick={fetchModels} disabled={modelsLoading || !geminiApiKey} className="refresh-btn">
                                         {modelsLoading ? '...' : '🔄'}
                                     </button>
                                 </div>
 
-                                {/* Post Count */}
-                                <div>
-                                    <label style={styles.label}>🔢 {lang === 'ar' ? 'عدد المنشورات المولدة' : 'Generated Posts Count'}</label>
+                                <div className="form-group">
+                                    <label className="gold-label">🔢 {lang === 'ar' ? 'عدد المنشورات' : 'Post Count'}</label>
                                     <input
                                         type="number"
                                         min="1"
                                         max="100"
                                         value={postCount}
                                         onChange={(e) => setPostCount(Number(e.target.value))}
-                                        style={{ ...styles.input, maxWidth: '150px' }}
+                                        className="gold-input small"
                                     />
                                 </div>
 
-                                {/* Prompt */}
-                                <div>
-                                    <label style={styles.label}>📝 {lang === 'ar' ? 'الأمر (Prompt)' : 'Custom Prompt'}</label>
+                                <div className="form-group">
+                                    <label className="gold-label">📝 Prompt</label>
                                     <textarea
                                         value={aiPrompt}
                                         onChange={(e) => setAiPrompt(e.target.value)}
-                                        placeholder={lang === 'ar' ? 'أدخل الأمر المخصص...' : 'Enter custom prompt...'}
-                                        style={styles.textarea}
+                                        placeholder={lang === 'ar' ? 'أدخل الأمر...' : 'Enter prompt...'}
+                                        className="gold-textarea"
                                     />
                                 </div>
 
-                                {/* Save Button */}
-                                <button
-                                    onClick={() => saveSettingsToDB(null, true)}
-                                    disabled={savingSettings}
-                                    style={{
-                                        ...styles.primaryButton,
-                                        background: 'linear-gradient(135deg, #4CAF50, #45a049)',
-                                        maxWidth: '200px',
-                                    }}
-                                >
-                                    {savingSettings 
-                                        ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') 
-                                        : (lang === 'ar' ? '💾 حفظ الإعدادات' : '💾 Save Settings')}
+                                <button onClick={() => saveSettingsToDB(null, true)} disabled={savingSettings} className="btn-primary save-btn">
+                                    {savingSettings ? '⏳...' : (lang === 'ar' ? '💾 حفظ الإعدادات' : '💾 Save Settings')}
                                 </button>
                             </div>
                         </div>
@@ -1878,50 +1096,747 @@ export default function AdminPage() {
                 )}
             </main>
 
-            {/* Mobile Overlay */}
-            {mobileMenuOpen && (
-                <div
-                    onClick={() => setMobileMenuOpen(false)}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        zIndex: 99,
-                    }}
-                />
-            )}
 
-            {/* Responsive Styles */}
-            <style jsx global>{`
-                @media (max-width: 1024px) {
-                    .admin-sidebar {
-                        transform: translateX(${isRTL ? '100%' : '-100%'});
-                        width: 280px !important;
-                    }
-                    .admin-sidebar.open {
-                        transform: translateX(0) !important;
-                    }
-                    .admin-main {
-                        margin-left: 0 !important;
-                        margin-right: 0 !important;
-                        padding: 80px 1.5rem 2rem !important;
-                    }
-                    .mobile-header {
-                        display: flex !important;
-                    }
+            {/* Styles */}
+            <style jsx>{`
+                .admin-page {
+                    min-height: 100vh;
+                    background: #080808;
+                    background-image: linear-gradient(rgba(184, 134, 11, 0.02) 1px, transparent 1px),
+                                      linear-gradient(90deg, rgba(184, 134, 11, 0.02) 1px, transparent 1px);
+                    background-size: 50px 50px;
+                }
+
+                /* Header */
+                .admin-header {
+                    background: rgba(8, 8, 8, 0.95);
+                    backdrop-filter: blur(20px);
+                    border-bottom: 1px solid rgba(184, 134, 11, 0.15);
+                    padding: 1rem 2rem;
+                    position: sticky;
+                    top: 0;
+                    z-index: 100;
+                }
+                .header-content {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .logo {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                }
+                .logo-icon {
+                    font-size: 1.5rem;
+                }
+                .header-actions {
+                    display: flex;
+                    gap: 1rem;
+                }
+                .lang-toggle {
+                    padding: 0.5rem 1rem;
+                    background: transparent;
+                    border: 1px solid rgba(184, 134, 11, 0.3);
+                    border-radius: 50px;
+                    color: #DAA520;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .lang-toggle:hover {
+                    background: rgba(184, 134, 11, 0.1);
+                    border-color: #DAA520;
+                }
+                .logout-btn {
+                    padding: 0.5rem 1rem;
+                    background: transparent;
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    border-radius: 50px;
+                    color: #ef4444;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .logout-btn:hover {
+                    background: rgba(239, 68, 68, 0.1);
+                }
+
+                /* Tabs */
+                .admin-tabs {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    padding: 1.5rem 2rem 0;
+                    display: flex;
+                    gap: 0.5rem;
+                    flex-wrap: wrap;
+                }
+                .tab-btn {
+                    padding: 0.75rem 1.5rem;
+                    background: rgba(184, 134, 11, 0.05);
+                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    border-radius: 12px 12px 0 0;
+                    color: #888;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .tab-btn:hover {
+                    color: #DAA520;
+                    background: rgba(184, 134, 11, 0.1);
+                }
+                .tab-btn.active {
+                    background: linear-gradient(180deg, rgba(184, 134, 11, 0.15), rgba(184, 134, 11, 0.05));
+                    border-color: rgba(184, 134, 11, 0.3);
+                    border-bottom-color: transparent;
+                    color: #FFD700;
+                }
+
+                /* Toast Messages */
+                .success-toast, .error-toast {
+                    position: fixed;
+                    top: 1.5rem;
+                    right: 1.5rem;
+                    padding: 1rem 1.5rem;
+                    border-radius: 12px;
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    animation: slideIn 0.3s ease;
+                }
+                .success-toast {
+                    background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.9));
+                    color: #fff;
+                    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+                }
+                .error-toast {
+                    background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+                    color: #fff;
+                    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+                }
+                .error-toast button {
+                    background: transparent;
+                    border: none;
+                    color: #fff;
+                    font-size: 1.25rem;
+                    cursor: pointer;
+                    margin-left: 1rem;
                 }
                 @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+
+                /* Main Content */
+                .admin-main {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                }
+                .tab-content {
+                    animation: fadeIn 0.3s ease;
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                /* Section Title */
+                .section-title {
+                    font-size: 1.75rem;
+                    font-weight: 700;
+                    margin-bottom: 1.5rem;
+                }
+
+                /* Cards */
+                .card {
+                    background: linear-gradient(145deg, #0c0c0c, #080808);
+                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    border-radius: 20px;
+                    padding: 2rem;
+                    margin-bottom: 1.5rem;
+                    position: relative;
+                }
+                .card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.4), transparent);
+                }
+                .card-title {
+                    color: #DAA520;
+                    font-size: 1.1rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                /* Form Elements */
+                .form-group {
+                    margin-bottom: 1.5rem;
+                }
+                .form-row {
+                    display: flex;
+                    gap: 1rem;
+                    flex-wrap: wrap;
+                    align-items: flex-end;
+                }
+                .flex-2 { flex: 2; }
+                .gold-label {
+                    display: block;
+                    color: #DAA520;
+                    font-weight: 600;
+                    margin-bottom: 0.75rem;
+                    font-size: 0.95rem;
+                }
+                .gold-input, .gold-select, .gold-textarea {
+                    width: 100%;
+                    padding: 1rem;
+                    background: rgba(184, 134, 11, 0.05);
+                    border: 1px solid rgba(184, 134, 11, 0.2);
+                    border-radius: 12px;
+                    color: #fff;
+                    font-size: 1rem;
+                    outline: none;
+                    transition: all 0.3s;
+                }
+                .gold-input:focus, .gold-select:focus, .gold-textarea:focus {
+                    border-color: #DAA520;
+                    box-shadow: 0 0 20px rgba(184, 134, 11, 0.15);
+                }
+                .gold-input.small { max-width: 150px; }
+                .gold-textarea {
+                    min-height: 120px;
+                    resize: vertical;
+                    font-family: inherit;
+                }
+                .gold-select {
+                    cursor: pointer;
+                    appearance: none;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23DAA520' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 1rem center;
+                    padding-right: 2.5rem;
+                }
+
+                /* Upload Zone */
+                .upload-zone {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 3rem 2rem;
+                    border: 2px dashed rgba(184, 134, 11, 0.3);
+                    border-radius: 16px;
+                    background: rgba(184, 134, 11, 0.02);
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .upload-zone:hover {
+                    border-color: #DAA520;
+                    background: rgba(184, 134, 11, 0.05);
+                }
+                .upload-icon {
+                    font-size: 3rem;
+                    margin-bottom: 1rem;
+                }
+                .upload-zone p {
+                    color: #888;
+                    margin-bottom: 0.5rem;
+                }
+                .upload-zone span {
+                    color: #555;
+                    font-size: 0.85rem;
+                }
+
+                /* Preview */
+                .preview-container {
+                    position: relative;
+                    display: inline-block;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    border: 2px solid rgba(184, 134, 11, 0.3);
+                }
+                .preview-container img {
+                    max-height: 300px;
+                    display: block;
+                }
+                .change-img-btn {
+                    position: absolute;
+                    bottom: 1rem;
+                    right: 1rem;
+                    padding: 0.5rem 1rem;
+                    background: rgba(0, 0, 0, 0.8);
+                    border: 1px solid #DAA520;
+                    border-radius: 8px;
+                    color: #DAA520;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                }
+
+                /* Type Buttons */
+                .type-buttons {
+                    display: flex;
+                    gap: 1rem;
+                }
+                .type-btn {
+                    flex: 1;
+                    padding: 1rem;
+                    background: rgba(184, 134, 11, 0.05);
+                    border: 1px solid rgba(184, 134, 11, 0.2);
+                    border-radius: 12px;
+                    color: #888;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .type-btn:hover {
+                    border-color: #DAA520;
+                    color: #DAA520;
+                }
+                .type-btn.active {
+                    background: linear-gradient(135deg, #B8860B, #DAA520);
+                    border-color: #DAA520;
+                    color: #000;
+                    box-shadow: 0 4px 20px rgba(184, 134, 11, 0.3);
+                }
+
+                /* AI Section */
+                .ai-section {
+                    background: rgba(102, 126, 234, 0.05);
+                    border: 1px solid rgba(102, 126, 234, 0.15);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    margin-bottom: 1.5rem;
+                }
+                .ai-header {
+                    color: #a78bfa;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                }
+                .ai-btn {
+                    width: 100%;
+                    padding: 1rem;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    border: none;
+                    border-radius: 12px;
+                    color: #fff;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                .ai-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+                }
+                .ai-btn:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                    transform: none;
+                }
+                .generated-posts {
+                    margin-top: 1.5rem;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    display: grid;
+                    gap: 0.75rem;
+                }
+                .post-option {
+                    padding: 1rem;
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 2px solid transparent;
+                    border-radius: 12px;
+                    color: #ccc;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    font-size: 0.9rem;
+                }
+                .post-option:hover {
+                    border-color: rgba(184, 134, 11, 0.3);
+                }
+                .post-option.selected {
+                    border-color: #DAA520;
+                    background: rgba(184, 134, 11, 0.1);
+                    color: #fff;
+                }
+
+                /* Telegram Section */
+                .telegram-section {
+                    background: rgba(34, 158, 217, 0.05);
+                    border: 1px solid rgba(34, 158, 217, 0.15);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    margin-bottom: 1.5rem;
+                }
+                .telegram-toggle {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    cursor: pointer;
+                    color: #229ED9;
+                    font-weight: 600;
+                }
+                .checkbox {
+                    width: 24px;
+                    height: 24px;
+                    border: 2px solid #555;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                    color: #fff;
+                    font-size: 14px;
+                }
+                .checkbox.checked {
+                    background: #229ED9;
+                    border-color: #229ED9;
+                }
+                .button-options {
+                    margin-top: 1.5rem;
+                }
+                .btn-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 0.75rem;
+                }
+                .tg-btn {
+                    padding: 0.75rem;
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px solid rgba(34, 158, 217, 0.2);
+                    border-radius: 10px;
+                    color: #fff;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .tg-btn:hover {
+                    border-color: #229ED9;
+                }
+                .tg-btn.active {
+                    background: #229ED9;
+                    border-color: #229ED9;
+                    font-weight: 600;
+                }
+
+                /* Primary Button */
+                .btn-primary {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    padding: 1rem 2rem;
+                    background: linear-gradient(110deg, #B8860B, #DAA520, #FFE566, #DAA520, #B8860B);
+                    background-size: 200% 100%;
+                    animation: goldShine 3s linear infinite;
+                    border: none;
+                    border-radius: 12px;
+                    color: #000;
+                    font-weight: 700;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 4px 20px rgba(184, 134, 11, 0.3);
+                }
+                .btn-primary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 30px rgba(184, 134, 11, 0.4);
+                }
+                .btn-primary:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    transform: none;
+                }
+                .publish-btn {
+                    width: 100%;
+                    padding: 1.25rem;
+                    font-size: 1.1rem;
+                }
+                @keyframes goldShine {
+                    0% { background-position: 200% center; }
+                    100% { background-position: -200% center; }
+                }
+
+                /* Edit Banner */
+                .edit-banner {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1rem 1.5rem;
+                    background: linear-gradient(90deg, rgba(218, 165, 32, 0.1), transparent);
+                    border: 1px solid rgba(218, 165, 32, 0.3);
+                    border-radius: 12px;
+                    margin-bottom: 1.5rem;
+                    color: #DAA520;
+                }
+                .cancel-btn {
+                    padding: 0.5rem 1rem;
+                    background: transparent;
+                    border: 1px solid #ef4444;
+                    border-radius: 8px;
+                    color: #ef4444;
+                    cursor: pointer;
+                }
+
+                /* Signals Grid */
+                .signals-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                    gap: 1.5rem;
+                }
+                .signal-card {
+                    background: linear-gradient(145deg, #0c0c0c, #080808);
+                    border: 1px solid rgba(184, 134, 11, 0.1);
+                    border-radius: 20px;
+                    overflow: hidden;
+                    transition: all 0.3s;
+                }
+                .signal-card:hover {
+                    border-color: rgba(184, 134, 11, 0.3);
+                    transform: translateY(-4px);
+                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+                }
+                .signal-image {
+                    position: relative;
+                }
+                .signal-image img {
+                    width: 100%;
+                    display: block;
+                }
+                .signal-badges {
+                    position: absolute;
+                    top: 0.75rem;
+                    right: 0.75rem;
+                    display: flex;
+                    gap: 0.5rem;
+                }
+                .badge {
+                    padding: 0.35rem 0.75rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                }
+                .badge.vip {
+                    background: rgba(184, 134, 11, 0.9);
+                    color: #000;
+                }
+                .badge.regular {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: #fff;
+                }
+                .signal-text {
+                    padding: 1.25rem;
+                    border-top: 1px solid rgba(184, 134, 11, 0.1);
+                }
+                .signal-text p {
+                    color: #e0e0e0;
+                    line-height: 1.6;
+                    margin-bottom: 0.75rem;
+                }
+                .signal-text .time {
+                    color: #666;
+                    font-size: 0.8rem;
+                }
+                .signal-actions {
+                    padding: 1rem 1.25rem;
+                    background: rgba(0, 0, 0, 0.3);
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 0.75rem;
+                }
+                .edit-btn {
+                    padding: 0.5rem 1rem;
+                    background: transparent;
+                    border: 1px solid rgba(184, 134, 11, 0.3);
+                    border-radius: 8px;
+                    color: #DAA520;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .edit-btn:hover {
+                    background: rgba(184, 134, 11, 0.1);
+                }
+                .delete-btn {
+                    padding: 0.5rem 1rem;
+                    background: transparent;
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    border-radius: 8px;
+                    color: #ef4444;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .delete-btn:hover {
+                    background: rgba(239, 68, 68, 0.1);
+                }
+                .delete-btn.small {
+                    padding: 0.4rem 0.75rem;
+                }
+
+                /* Stats */
+                .stats-row {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 1rem;
+                    margin-bottom: 2rem;
+                }
+                .stat-card {
+                    background: linear-gradient(145deg, rgba(184, 134, 11, 0.08), rgba(184, 134, 11, 0.02));
+                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                    text-align: center;
+                }
+                .stat-value {
+                    font-size: 2rem;
+                    font-weight: 800;
+                }
+                .stat-label {
+                    color: #888;
+                    font-size: 0.85rem;
+                    margin-top: 0.5rem;
+                }
+
+                /* VIP Form */
+                .vip-form {
+                    margin-bottom: 1rem;
+                }
+                .lifetime-check {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 1rem;
+                    background: rgba(184, 134, 11, 0.05);
+                    border: 1px solid rgba(184, 134, 11, 0.2);
+                    border-radius: 12px;
+                    cursor: pointer;
+                    color: #888;
+                    height: 100%;
+                }
+                .lifetime-check input {
+                    width: 18px;
+                    height: 18px;
+                    accent-color: #DAA520;
+                }
+                .lifetime-check:has(input:checked) {
+                    border-color: #DAA520;
+                    color: #DAA520;
+                }
+                .msg {
+                    margin-top: 1rem;
+                    padding: 0.75rem 1rem;
+                    border-radius: 8px;
+                }
+                .msg.success {
+                    background: rgba(76, 175, 80, 0.1);
+                    color: #4caf50;
+                }
+                .msg.error {
+                    background: rgba(239, 68, 68, 0.1);
+                    color: #ef4444;
+                }
+
+                /* Table */
+                .table-wrapper {
+                    overflow-x: auto;
+                }
+                .vip-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .vip-table th {
+                    padding: 1rem;
+                    background: rgba(184, 134, 11, 0.05);
+                    color: #DAA520;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    text-align: center;
+                }
+                .vip-table td {
+                    padding: 1rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                    text-align: center;
+                    color: #ccc;
+                }
+                .vip-table td.mono {
+                    font-family: monospace;
+                    color: #fff;
+                }
+                .vip-table td.gold {
+                    color: #DAA520;
+                }
+                .vip-table td.empty {
+                    padding: 3rem;
+                    color: #666;
+                }
+                .status-badge {
+                    display: inline-block;
+                    padding: 0.35rem 0.75rem;
+                    background: rgba(76, 175, 80, 0.1);
+                    border: 1px solid rgba(76, 175, 80, 0.2);
+                    border-radius: 20px;
+                    color: #4caf50;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                }
+
+                /* Settings */
+                .settings-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.5rem;
+                }
+                .refresh-btn {
+                    padding: 1rem;
+                    background: rgba(184, 134, 11, 0.1);
+                    border: 1px solid rgba(184, 134, 11, 0.2);
+                    border-radius: 12px;
+                    color: #DAA520;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .refresh-btn:hover {
+                    background: rgba(184, 134, 11, 0.2);
+                }
+                .refresh-btn:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                .save-btn {
+                    align-self: flex-start;
+                    background: linear-gradient(135deg, #4CAF50, #45a049);
+                }
+                .save-btn:hover {
+                    box-shadow: 0 8px 30px rgba(76, 175, 80, 0.3);
+                }
+
+                /* Empty & Loading States */
+                .loading, .empty-state {
+                    text-align: center;
+                    padding: 4rem 2rem;
+                    color: #888;
+                }
+                .empty-icon {
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                }
+
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .admin-header { padding: 1rem; }
+                    .header-content { flex-wrap: wrap; gap: 1rem; }
+                    .admin-tabs { padding: 1rem 1rem 0; }
+                    .tab-btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+                    .admin-main { padding: 1.5rem 1rem; }
+                    .card { padding: 1.5rem; }
+                    .type-buttons { flex-direction: column; }
+                    .form-row { flex-direction: column; }
+                    .signals-grid { grid-template-columns: 1fr; }
+                    .btn-grid { grid-template-columns: 1fr; }
                 }
             `}</style>
         </div>
