@@ -85,21 +85,28 @@ const BrandAIcon = () => (
                 <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
             </linearGradient>
             <filter id="gold-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+                <feGaussianBlur stdDeviation="1" result="coloredBlur" />
                 <feMerge>
                     <feMergeNode in="coloredBlur" />
                     <feMergeNode in="SourceGraphic" />
                 </feMerge>
             </filter>
         </defs>
-        {/* Outer decorative circle */}
-        <circle cx="20" cy="20" r="18" stroke="url(#gold-gradient-brand)" strokeWidth="1.5" fill="none" opacity="0.3" />
-        {/* Main 'A' Shape - Elegant */}
-        <path d="M20 8L10 32H14L16.5 26H23.5L26 32H30L20 8Z" stroke="url(#gold-gradient-brand)" strokeWidth="2" fill="none" filter="url(#gold-glow)" />
-        {/* Inner horizontal bar of A */}
-        <path d="M15 23H25" stroke="url(#gold-gradient-brand)" strokeWidth="1.5" />
-        {/* Small diamond accent at top */}
-        <path d="M20 6L21.5 8L20 10L18.5 8Z" stroke="url(#gold-gradient-brand)" strokeWidth="1" fill="none" />
+        {/* Elegant Stylized 'A' - Flowing curves */}
+        <path
+            d="M20 6 C14 6, 8 18, 8 28 Q8 34, 14 34 L16 34 Q12 24, 20 12 Q28 24, 24 34 L26 34 Q32 34, 32 28 C32 18, 26 6, 20 6"
+            stroke="url(#gold-gradient-brand)"
+            strokeWidth="2"
+            fill="none"
+            filter="url(#gold-glow)"
+        />
+        {/* Elegant crossbar with curves */}
+        <path
+            d="M12 24 Q20 20, 28 24"
+            stroke="url(#gold-gradient-brand)"
+            strokeWidth="1.5"
+            fill="none"
+        />
     </svg>
 );
 
