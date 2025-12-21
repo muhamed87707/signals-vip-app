@@ -72,9 +72,25 @@ const LockIcon = () => (
 );
 
 const BrandAIcon = () => (
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-        {/* Simple 'A' letter - outline only */}
-        <text x="18" y="28" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="28" fontWeight="bold" fill="none" stroke="#DAA520" strokeWidth="1.5">A</text>
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <defs>
+            <linearGradient id="gold-gradient-brand" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#FFD700" />
+                <stop offset="25%" stopColor="#FFE566" />
+                <stop offset="45%" stopColor="#FFFFFF" />
+                <stop offset="55%" stopColor="#FFFFFF" />
+                <stop offset="75%" stopColor="#FFE566" />
+                <stop offset="100%" stopColor="#FFD700" />
+                <animate attributeName="x1" values="-50%;150%;-50%" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
+            </linearGradient>
+        </defs>
+        {/* Simple outlined 'A' - Left side */}
+        <line x1="20" y1="6" x2="8" y2="34" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
+        {/* Right side */}
+        <line x1="20" y1="6" x2="32" y2="34" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
+        {/* Horizontal bar */}
+        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
     </svg>
 );
 
