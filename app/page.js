@@ -72,7 +72,7 @@ const LockIcon = () => (
 );
 
 const BrandAIcon = () => (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
         <defs>
             <linearGradient id="gold-gradient-brand" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#FFD700" />
@@ -85,10 +85,14 @@ const BrandAIcon = () => (
                 <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
             </linearGradient>
         </defs>
-        {/* Outer A shape - all edges visible */}
-        <path d="M20 4 L6 36 L12 36 L15 28 L25 28 L28 36 L34 36 L20 4 Z" stroke="url(#gold-gradient-brand)" strokeWidth="2" fill="none" />
-        {/* Inner triangle hole */}
-        <path d="M20 14 L14 26 L26 26 Z" stroke="url(#gold-gradient-brand)" strokeWidth="1.5" fill="none" />
+        {/* Modern stylized A - clean and professional */}
+        <path
+            d="M20 5 L8 35 M20 5 L32 35 M12 26 L28 26"
+            stroke="url(#gold-gradient-brand)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
     </svg>
 );
 
