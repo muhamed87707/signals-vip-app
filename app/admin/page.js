@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,13 +11,13 @@ const getTimeAgo = (dateStr, lang) => {
     const seconds = Math.floor((now - date) / 1000);
 
     if (lang === 'ar') {
-        if (seconds < 60) return '┘à┘å╪░ ┘ä╪¡╪╕╪º╪¬';
+        if (seconds < 60) return 'منذ لحظات';
         const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `┘à┘å╪░ ${minutes} ╪»┘é┘è┘é╪⌐`;
+        if (minutes < 60) return `منذ ${minutes} دقيقة`;
         const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `┘à┘å╪░ ${hours} ╪│╪º╪╣╪⌐`;
+        if (hours < 24) return `منذ ${hours} ساعة`;
         const days = Math.floor(hours / 24);
-        return `┘à┘å╪░ ${days} ┘è┘ê┘à`;
+        return `منذ ${days} يوم`;
     } else {
         if (seconds < 60) return 'Just now';
         const minutes = Math.floor(seconds / 60);
@@ -141,12 +141,12 @@ export default function AdminPage() {
             if (manual) {
                 const data = await res.json();
                 if (data.success) {
-                    alert(lang === 'ar' ? '╪¬┘à ╪¡┘ü╪╕ ╪º┘ä╪Ñ╪╣╪»╪º╪»╪º╪¬ ╪¿┘å╪¼╪º╪¡!' : 'Settings saved successfully!');
+                    alert(lang === 'ar' ? 'تم حفظ الإعدادات بنجاح!' : 'Settings saved successfully!');
                 }
             }
         } catch (err) {
             console.error('Failed to save settings:', err);
-            if (manual) alert(lang === 'ar' ? '┘ü╪┤┘ä ╪¡┘ü╪╕ ╪º┘ä╪Ñ╪╣╪»╪º╪»╪º╪¬' : 'Failed to save settings');
+            if (manual) alert(lang === 'ar' ? 'فشل حفظ الإعدادات' : 'Failed to save settings');
         }
         if (manual) setSavingSettings(false);
     };
@@ -287,7 +287,7 @@ export default function AdminPage() {
 
             const data = await res.json();
             if (data.success) {
-                setSuccessMessage(lang === 'ar' ? '╪¬┘à ╪¬╪¡╪»┘è╪½ ╪º┘ä┘à┘å╪┤┘ê╪▒ ╪¿┘å╪¼╪º╪¡!' : 'Signal updated successfully!');
+                setSuccessMessage(lang === 'ar' ? 'تم تحديث المنشور بنجاح!' : 'Signal updated successfully!');
                 handleCancelEdit();
                 fetchSignals();
             } else {
@@ -332,7 +332,7 @@ export default function AdminPage() {
     // ===== NEW: Generate AI Posts =====
     const generateAIPosts = async () => {
         if (!customPost.trim()) {
-            setError(lang === 'ar' ? '┘è╪▒╪¼┘ë ┘â╪¬╪º╪¿╪⌐ ╪º┘ä┘à┘å╪┤┘ê╪▒ ╪ú┘ê┘ä╪º┘ï' : 'Please write a post first');
+            setError(lang === 'ar' ? 'يرجى كتابة المنشور أولاً' : 'Please write a post first');
             return;
         }
         setGeneratingPosts(true);
@@ -641,7 +641,7 @@ export default function AdminPage() {
             <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
                 <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '3rem' }}>
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>≡ƒöÉ</div>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
                         <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>{t.adminTitle}</h1>
                     </div>
                     <form onSubmit={handleLogin}>
@@ -659,10 +659,10 @@ export default function AdminPage() {
             <div className="container">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>≡ƒÆÄ {t.signalsPanel}</h1>
+                        <h1 className="text-gradient" style={{ fontSize: '1.75rem', fontWeight: '700' }}>💎 {t.signalsDashboard}</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button onClick={toggleLang} className="lang-toggle">≡ƒîÉ {t.langSwitch}</button>
+                        <button onClick={toggleLang} className="lang-toggle">🌐 {t.langSwitch}</button>
                         <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', background: 'transparent', border: '1px solid #ef4444', borderRadius: '50px', color: '#ef4444', cursor: 'pointer' }}>{t.logout}</button>
                     </div>
                 </div>
@@ -683,10 +683,10 @@ export default function AdminPage() {
                             fontSize: '0.8rem',
                             boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
                         }}>
-                            Γ£Å∩╕Å {lang === 'ar' ? '┘ê╪╢╪╣ ╪º┘ä╪¬╪╣╪»┘è┘ä' : 'Edit Mode'}
+                            ✏️ {lang === 'ar' ? 'وضع التعديل' : 'Edit Mode'}
                         </div>
                     )}
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>≡ƒôñ</div>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>📤</div>
                     <h2 style={{ color: '#DAA520', marginBottom: '1.5rem', textAlign: 'center' }}>{t.postNewSignal}</h2>
 
                     {/* 1. IMAGE UPLOAD SECTION (Top) */}
@@ -694,15 +694,15 @@ export default function AdminPage() {
                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} id="image-upload" />
                         {!previewData ? (
                             <label htmlFor="image-upload" className="btn-primary" style={{ cursor: 'pointer', display: 'inline-block', padding: '1.5rem 3rem', width: '100%', border: '2px dashed #444' }}>
-                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>≡ƒô╕</div>
-                                {lang === 'ar' ? '╪º╪╢╪║╪╖ ┘ç┘å╪º ┘ä╪º╪«╪¬┘è╪º╪▒ ╪╡┘ê╪▒╪⌐' : 'Click to Upload Image'}
+                                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📸</div>
+                                {lang === 'ar' ? 'اضغط هنا لاختيار صورة' : 'Click to Upload Image'}
                             </label>
                         ) : (
                             <div style={{ position: 'relative', display: 'inline-block', border: '1px solid #DAA520', borderRadius: '12px', overflow: 'hidden' }}>
                                 <img src={previewData} alt="Preview" style={{ maxHeight: '200px', display: 'block', opacity: 0.6 }} />
                                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <button onClick={cancelPreview} style={{ background: 'rgba(0,0,0,0.8)', border: '1px solid #ef4444', color: '#ef4444', padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer' }}>
-                                        {lang === 'ar' ? '╪¬╪║┘è┘è╪▒ ╪º┘ä╪╡┘ê╪▒╪⌐' : 'Change Image'}
+                                        {lang === 'ar' ? 'تغيير الصورة' : 'Change Image'}
                                     </button>
                                 </div>
                             </div>
@@ -724,7 +724,7 @@ export default function AdminPage() {
                                 transition: 'all 0.2s'
                             }}
                         >
-                            ∩┐╜ VIP (Blurred)
+                            � VIP (Blurred)
                         </button>
                         <button
                             onClick={() => setSignalType('free')}
@@ -739,7 +739,7 @@ export default function AdminPage() {
                                 transition: 'all 0.2s'
                             }}
                         >
-                            ≡ƒÄü Free (Clear)
+                            🎁 Free (Clear)
                         </button>
                         <button
                             onClick={() => setSignalType('regular')}
@@ -754,25 +754,25 @@ export default function AdminPage() {
                                 transition: 'all 0.2s'
                             }}
                         >
-                            ≡ƒô¥ {lang === 'ar' ? '┘à┘å╪┤┘ê╪▒ ╪╣╪º╪»┘è' : 'Regular Post'}
+                            📝 {lang === 'ar' ? 'منشور عادي' : 'Regular Post'}
                         </button>
                     </div>
 
                     <div style={{ marginBottom: '2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                             <label style={{ color: '#DAA520', fontSize: '1rem' }}>
-                                Γ£ì∩╕Å {lang === 'ar' ? '┘å╪╡ ╪º┘ä┘à┘å╪┤┘ê╪▒' : 'Post Text'}
+                                ✍️ {lang === 'ar' ? 'نص المنشور' : 'Post Text'}
                             </label>
                             {isEditing && (
                                 <button onClick={handleCancelEdit} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 'bold' }}>
-                                    Γ£û {lang === 'ar' ? '╪Ñ┘ä╪║╪º╪í ╪º┘ä╪¬╪╣╪»┘è┘ä' : 'Cancel Edit'}
+                                    ✖ {lang === 'ar' ? 'إلغاء التعديل' : 'Cancel Edit'}
                                 </button>
                             )}
                         </div>
                         <textarea
                             value={customPost}
                             onChange={(e) => setCustomPost(e.target.value)}
-                            placeholder={lang === 'ar' ? '╪º┘â╪¬╪¿ ╪º┘ä┘à┘å╪┤┘ê╪▒ ┘ç┘å╪º...' : 'Write post here...'}
+                            placeholder={lang === 'ar' ? 'اكتب المنشور هنا...' : 'Write post here...'}
                             style={{
                                 width: '100%',
                                 minHeight: '120px',
@@ -790,7 +790,7 @@ export default function AdminPage() {
                     {/* AI Settings */}
                     <details style={{ background: '#0f0f12', borderRadius: '12px', padding: '1rem', margin: '0 0 2rem 0', border: '1px solid #2a2a35' }}>
                         <summary style={{ cursor: 'pointer', color: '#DAA520', fontWeight: 'bold' }}>
-                            ≡ƒñû {lang === 'ar' ? '╪Ñ╪╣╪»╪º╪»╪º╪¬ ╪º┘ä╪░┘â╪º╪í ╪º┘ä╪º╪╡╪╖┘å╪º╪╣┘è (Gemini)' : 'AI Settings (Gemini)'}
+                            🤖 {lang === 'ar' ? 'إعدادات الذكاء الاصطناعي (Gemini)' : 'AI Settings (Gemini)'}
                         </summary>
                         <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {/* Manual Save */}
@@ -809,18 +809,18 @@ export default function AdminPage() {
                                         fontSize: '0.85rem'
                                     }}
                                 >
-                                    ≡ƒÆ╛ {savingSettings ? (lang === 'ar' ? '╪¼╪º╪▒┘è ╪º┘ä╪¡┘ü╪╕...' : 'Saving...') : (lang === 'ar' ? '╪¡┘ü╪╕ ╪º┘ä╪Ñ╪╣╪»╪º╪»╪º╪¬' : 'Save Settings')}
+                                    💾 {savingSettings ? (lang === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
                                 </button>
                             </div>
                             {/* API Key */}
                             <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>≡ƒöæ Gemini API Key</label>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔑 Gemini API Key</label>
                                 <input type="password" value={geminiApiKey} onChange={(e) => setGeminiApiKey(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                             </div>
                             {/* Model & Count */}
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                 <div style={{ flex: 2, minWidth: '200px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>≡ƒºá Model</label>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🧠 Model</label>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                         <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} style={{ flex: 1, padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }}>
                                             <option value="gemini-2.0-flash">gemini-2.0-flash</option>
@@ -828,17 +828,17 @@ export default function AdminPage() {
                                             <option value="gemini-1.5-pro">gemini-1.5-pro</option>
                                             {availableModels.map(m => <option key={m.id} value={m.id}>{m.displayName}</option>)}
                                         </select>
-                                        <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '≡ƒöä'}</button>
+                                        <button onClick={fetchModels} disabled={modelsLoading} style={{ padding: '0.75rem 1rem', background: '#2a2a35', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer' }}>{modelsLoading ? '...' : '🔄'}</button>
                                     </div>
                                 </div>
                                 <div style={{ flex: 1, minWidth: '150px' }}>
-                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>≡ƒöó {lang === 'ar' ? '╪º┘ä╪╣╪»╪»' : 'Count'}</label>
+                                    <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>🔢 {lang === 'ar' ? 'العدد' : 'Count'}</label>
                                     <input type="number" min="1" max="100" value={postCount} onChange={(e) => setPostCount(Number(e.target.value))} style={{ width: '100%', padding: '0.8rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                                 </div>
                             </div>
                             {/* Prompt */}
                             <div>
-                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>≡ƒô¥ Prompt</label>
+                                <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>📝 Prompt</label>
                                 <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} style={{ width: '100%', minHeight: '100px', padding: '1rem', background: '#13131d', border: '1px solid #2a2a35', borderRadius: '8px', color: '#fff' }} />
                             </div>
                         </div>
@@ -846,7 +846,7 @@ export default function AdminPage() {
 
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
                         <button onClick={generateAIPosts} disabled={generatingPosts || !customPost.trim()} style={{ padding: '1rem 2rem', background: generatingPosts ? '#333' : 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '50px', color: '#fff', fontWeight: '700', cursor: generatingPosts ? 'wait' : 'pointer', opacity: !customPost.trim() ? 0.5 : 1 }}>
-                            {generatingPosts ? (lang === 'ar' ? '╪¼╪º╪▒┘è ╪º┘ä╪¬┘ê┘ä┘è╪»...' : 'Generating...') : (lang === 'ar' ? `≡ƒÜÇ ╪¬┘ê┘ä┘è╪» ${postCount} ┘å╪│╪«╪⌐` : `≡ƒÜÇ Generate ${postCount} Variations`)}
+                            {generatingPosts ? (lang === 'ar' ? 'جاري التوليد...' : 'Generating...') : (lang === 'ar' ? `🚀 توليد ${postCount} نسخة` : `🚀 Generate ${postCount} Variations`)}
                         </button>
                     </div>
 
@@ -868,7 +868,7 @@ export default function AdminPage() {
                         {/* Telegram Toggle */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setPostToTelegram(!postToTelegram)}>
                             <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${postToTelegram ? '#229ED9' : '#555'}`, background: postToTelegram ? '#229ED9' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>Γ£ô</span>}
+                                {postToTelegram && <span style={{ color: 'white', fontSize: '14px' }}>✓</span>}
                             </div>
                             <span style={{ color: '#f0f0f0' }}>{t.postToTelegram}</span>
                         </div>
@@ -876,14 +876,14 @@ export default function AdminPage() {
                         {postToTelegram && (
                             <div style={{ marginTop: '1rem' }}>
                                 <label style={{ color: '#9a9ab0', fontSize: '0.9rem', marginBottom: '0.8rem', display: 'block', textAlign: 'center' }}>
-                                    ≡ƒöÿ {lang === 'ar' ? '╪ú╪▓╪▒╪º╪▒ ╪º┘ä╪¬┘ü╪º╪╣┘ä (╪╣╪▒┘è╪╢╪⌐)' : 'Action Buttons (Wide)'}
+                                    🔘 {lang === 'ar' ? 'أزرار التفاعل (عريضة)' : 'Action Buttons (Wide)'}
                                 </label>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem' }}>
                                     {[
-                                        { id: 'share', label: lang === 'ar' ? '≡ƒôñ ┘à╪┤╪º╪▒┘â╪⌐ ╪º┘ä┘à┘å╪┤┘ê╪▒' : '≡ƒôñ Share Post' },
-                                        { id: 'subscribe', label: lang === 'ar' ? '≡ƒöÑ ╪º╪┤╪¬╪▒┘â ╪º┘ä╪ó┘å' : '≡ƒöÑ Subscribe Now' },
-                                        { id: 'view_signal', label: lang === 'ar' ? '≡ƒÆÄ ╪Ñ╪╕┘ç╪º╪▒ ╪º┘ä╪¬┘ê╪╡┘è╪⌐' : '≡ƒÆÄ Show Signal' },
-                                        { id: 'none', label: lang === 'ar' ? '≡ƒÜ½ ╪¿╪»┘ê┘å ╪▓╪▒' : '≡ƒÜ½ No Button' }
+                                        { id: 'share', label: lang === 'ar' ? '📤 مشاركة المنشور' : '📤 Share Post' },
+                                        { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
+                                        { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
+                                        { id: 'none', label: lang === 'ar' ? '🚫 بدون زر' : '🚫 No Button' }
                                     ].map((btn) => (
                                         <button
                                             key={btn.id}
@@ -912,7 +912,7 @@ export default function AdminPage() {
                     {/* 5. FINAL PREVIEW (Bottom) */}
                     {previewData && (
                         <div style={{ padding: '1.5rem', background: '#13131d', borderRadius: '16px', border: '1px solid #DAA520', textAlign: 'center', marginTop: '2rem' }}>
-                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>≡ƒæü∩╕Å {lang === 'ar' ? '╪º┘ä┘à╪╣╪º┘è┘å╪⌐ ╪º┘ä┘å┘ç╪º╪ª┘è╪⌐' : 'Final Preview'}</h3>
+                            <h3 style={{ color: '#DAA520', marginBottom: '1rem' }}>👁️ {lang === 'ar' ? 'المعاينة النهائية' : 'Final Preview'}</h3>
                             <div style={{ maxWidth: '100%', marginBottom: '1rem' }}>
                                 <img src={previewData} alt="Preview" style={{ maxWidth: '100%', borderRadius: '8px', border: '1px solid #444' }} />
                             </div>
@@ -937,14 +937,14 @@ export default function AdminPage() {
                                 }}
                             >
                                 {uploading
-                                    ? (lang === 'ar' ? (isEditing ? '╪¼╪º╪▒┘è ╪º┘ä╪¬╪╣╪»┘è┘ä...' : '╪¼╪º╪▒┘è ╪º┘ä┘å╪┤╪▒...') : (isEditing ? 'Updating...' : 'Publishing...'))
-                                    : (lang === 'ar' ? (isEditing ? '≡ƒöä ╪¬╪ú┘â┘è╪» ┘ê╪¬╪¡╪»┘è╪½ ╪º┘ä╪ó┘å' : '≡ƒÜÇ ╪¬╪ú┘â┘è╪» ┘ê┘å╪┤╪▒ ╪º┘ä╪ó┘å') : (isEditing ? '≡ƒöä Confirm & Update' : '≡ƒÜÇ Confirm & Publish'))}
+                                    ? (lang === 'ar' ? (isEditing ? 'جاري التعديل...' : 'جاري النشر...') : (isEditing ? 'Updating...' : 'Publishing...'))
+                                    : (lang === 'ar' ? (isEditing ? '🔄 تأكيد وتحديث الآن' : '🚀 تأكيد ونشر الآن') : (isEditing ? '🔄 Confirm & Update' : '🚀 Confirm & Publish'))}
                             </button>
                         </div>
                     )}
                 </div>
 
-                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>≡ƒôè {t.publishedSignals} ({signals.length})</h2>
+                <h2 style={{ color: '#DAA520', marginBottom: '1.5rem' }}>📊 {t.publishedSignals} ({signals.length})</h2>
 
                 {/* Full Width Grid Layout - Matches User Request */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
@@ -979,13 +979,13 @@ export default function AdminPage() {
                                         gap: '0.3rem'
                                     }}>
                                         {getTimeAgo(signal.createdAt, lang)}
-                                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Γ£ôΓ£ô</span>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>✓✓</span>
                                     </span>
                                 </div>
                             )}
                             <div style={{ padding: '0.75rem 1rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: '#0a0a0a' }}>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button onClick={() => handleEdit(signal)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '6px', color: '#DAA520', cursor: 'pointer', fontSize: '0.85rem' }}>{lang === 'ar' ? '╪¬╪╣╪»┘è┘ä' : 'Edit'}</button>
+                                    <button onClick={() => handleEdit(signal)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(218, 165, 32, 0.3)', borderRadius: '6px', color: '#DAA520', cursor: 'pointer', fontSize: '0.85rem' }}>{lang === 'ar' ? 'تعديل' : 'Edit'}</button>
                                     <button onClick={() => deleteSignal(signal._id)} style={{ padding: '0.4rem 0.8rem', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '6px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem' }}>{t.delete}</button>
                                 </div>
                             </div>
@@ -995,7 +995,7 @@ export default function AdminPage() {
 
                 {/* VIP Management Section - Moved to Bottom */}
                 <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(184, 134, 11, 0.2)' }}>
-                    <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>≡ƒææ {t.manageVip}</h2>
+                    <h2 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem' }}>👑 {t.manageVip}</h2>
 
                     {/* Add VIP Form */}
                     <div className="card" style={{ padding: '2rem', marginBottom: '2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
@@ -1082,7 +1082,7 @@ export default function AdminPage() {
                                         // If backend update didn't run yet, front-end check helps
                                         if (isExpired && user.isVip) return null; // Should ideally be handled by state refresh
 
-                                        let timeLeft = 'Lifetime ΓÖ╛∩╕Å';
+                                        let timeLeft = 'Lifetime ♾️';
                                         if (expiry) {
                                             const diff = expiry - now;
                                             const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
