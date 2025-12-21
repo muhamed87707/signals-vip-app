@@ -85,12 +85,10 @@ const BrandAIcon = () => (
                 <animate attributeName="x2" values="50%;250%;50%" dur="3s" repeatCount="indefinite" />
             </linearGradient>
         </defs>
-        {/* Simple outlined 'A' - Left side */}
-        <line x1="20" y1="6" x2="8" y2="34" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
-        {/* Right side */}
-        <line x1="20" y1="6" x2="32" y2="34" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
-        {/* Horizontal bar */}
-        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
+        {/* Outer A shape - all edges visible */}
+        <path d="M20 4 L6 36 L12 36 L15 28 L25 28 L28 36 L34 36 L20 4 Z" stroke="url(#gold-gradient-brand)" strokeWidth="2" fill="none" />
+        {/* Inner triangle hole */}
+        <path d="M20 14 L14 26 L26 26 Z" stroke="url(#gold-gradient-brand)" strokeWidth="1.5" fill="none" />
     </svg>
 );
 
