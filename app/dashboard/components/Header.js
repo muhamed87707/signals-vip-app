@@ -84,12 +84,25 @@ const MarketTicker = () => {
 
 // Time Display
 const TimeDisplay = () => {
-    const [time, setTime] = useState(new Date());
+    const [time, setTime] = useState(null);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
+        setTime(new Date());
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    // Show placeholder during SSR
+    if (!mounted || !time) {
+        return (
+            <div className="flex flex-col items-end">
+                <span className="text-white font-mono text-sm">--:--:--</span>
+                <span className="text-slate-500 text-[10px] uppercase">---</span>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col items-end">
