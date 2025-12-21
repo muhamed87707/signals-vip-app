@@ -1,5 +1,5 @@
 'use client';
-// Dashboard v2.0 - Updated Dec 21, 2024
+// Dashboard v2.1 - Production Build Dec 21, 2024
 import { useState, useEffect } from 'react';
 import AIAnalysisPanel from './components/AIAnalysisPanel';
 import MacroEngine from './components/MacroEngine';
