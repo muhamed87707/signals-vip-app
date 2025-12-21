@@ -86,9 +86,9 @@ const BrandAIcon = () => (
             </linearGradient>
         </defs>
         {/* Simple clean 'A' letter */}
-        <path d="M20 6L8 34" stroke="url(#gold-gradient-brand)" strokeWidth="2.5" />
-        <path d="M20 6L32 34" stroke="url(#gold-gradient-brand)" strokeWidth="2.5" />
-        <path d="M12 24H28" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
+        <path d="M20 6L8 34H14L17 27H23L26 34H32L20 6Z" stroke="url(#gold-gradient-brand)" strokeWidth="2" fill="none" />
+        {/* Horizontal bar */}
+        <path d="M14 22H26" stroke="url(#gold-gradient-brand)" strokeWidth="2" />
     </svg>
 );
 
