@@ -496,8 +496,30 @@ export async function PUT(request) {
             } catch (err) {
                 console.error('Twitter delete failed:', err);
             }
+        } else if (updateTwitter && wasOnTwitter) {
+            // Update Twitter: Delete old tweet and post new one (Twitter doesn't support editing)
+            try {
+                // Delete old tweet
+                await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter?tweetId=' + signal.twitterTweetId, {
+                    method: 'DELETE'
+                });
+                // Post new tweet with updated content
+                const twitterRes = await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: customPost ? customPost.replace(/\*/g, '') : '',
+                        imageUrl: finalImageUrl
+                    })
+                });
+                const twitterData = await twitterRes.json();
+                if (twitterData.success) {
+                    signal.twitterTweetId = twitterData.tweetId;
+                }
+            } catch (err) {
+                console.error('Twitter update failed:', err);
+            }
         }
-        // Note: Twitter doesn't support editing tweets, so we can't update existing tweets
 
         // Update DB fields
         signal.customPost = customPost;
