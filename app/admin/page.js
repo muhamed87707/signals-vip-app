@@ -1129,19 +1129,37 @@ export default function AdminPage() {
                                 <div className="signals-grid">
                                     {signals.map((signal) => (
                                         <div key={signal._id} className="signal-card">
-                                            <div className="signal-image">
-                                                <img src={signal.imageUrl} alt="Signal" />
-                                                <div className="signal-badges">
-                                                    {signal.isVip && <span className="badge vip">VIP</span>}
-                                                    {signal.type === 'REGULAR' && <span className="badge regular">Regular</span>}
-                                                </div>
-                                            </div>
-                                            {signal.customPost && (
-                                                <div className="signal-content">
-                                                    <p>{signal.customPost.replace(/\*/g, '')}</p>
-                                                    <span className="signal-time">{getTimeAgo(signal.createdAt, lang)}</span>
+                                            {signal.imageUrl && (
+                                                <div className="signal-image">
+                                                    <img src={signal.imageUrl} alt="Signal" />
+                                                    <div className="signal-badges">
+                                                        {signal.isVip && <span className="badge vip">VIP</span>}
+                                                        {signal.type === 'REGULAR' && <span className="badge regular">Regular</span>}
+                                                    </div>
                                                 </div>
                                             )}
+                                            {!signal.imageUrl && (
+                                                <div className="signal-badges-top">
+                                                    {signal.isVip && <span className="badge vip">VIP</span>}
+                                                    {signal.type === 'REGULAR' && <span className="badge regular">Regular</span>}
+                                                    {!signal.isVip && signal.type !== 'REGULAR' && <span className="badge free">Free</span>}
+                                                </div>
+                                            )}
+                                            <div className="signal-content">
+                                                {signal.customPost && (
+                                                    <p>{signal.customPost.replace(/\*/g, '')}</p>
+                                                )}
+                                                {!signal.customPost && !signal.imageUrl && (
+                                                    <p className="empty-post">{lang === 'ar' ? 'منشور فارغ' : 'Empty post'}</p>
+                                                )}
+                                                <div className="signal-meta">
+                                                    <span className="signal-time">{getTimeAgo(signal.createdAt, lang)}</span>
+                                                    <div className="signal-platforms">
+                                                        {signal.telegramMessageId && <span className="platform-tag telegram">📱 TG</span>}
+                                                        {signal.twitterTweetId && <span className="platform-tag twitter">𝕏</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className="signal-actions">
                                                 <button onClick={() => handleEdit(signal)} className="action-btn edit">
                                                     ✏️ {lang === 'ar' ? 'تعديل' : 'Edit'}
@@ -2108,6 +2126,13 @@ export default function AdminPage() {
                     gap: 0.5rem;
                 }
 
+                .signal-badges-top {
+                    padding: 1rem;
+                    display: flex;
+                    gap: 0.5rem;
+                    border-bottom: 1px solid rgba(184, 134, 11, 0.1);
+                }
+
                 .badge {
                     padding: 0.3rem 0.75rem;
                     border-radius: 20px;
@@ -2118,6 +2143,11 @@ export default function AdminPage() {
                 .badge.vip {
                     background: linear-gradient(135deg, #B8860B, #DAA520);
                     color: #000;
+                }
+
+                .badge.free {
+                    background: rgba(76, 175, 80, 0.2);
+                    color: #4caf50;
                 }
 
                 .badge.regular {
@@ -2138,9 +2168,43 @@ export default function AdminPage() {
                     margin: 0 0 0.5rem 0;
                 }
 
+                .signal-content .empty-post {
+                    color: #666;
+                    font-style: italic;
+                }
+
+                .signal-meta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-top: 0.5rem;
+                }
+
                 .signal-time {
                     color: #999;
                     font-size: 0.75rem;
+                }
+
+                .signal-platforms {
+                    display: flex;
+                    gap: 0.5rem;
+                }
+
+                .platform-tag {
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.5rem;
+                    border-radius: 4px;
+                    font-weight: 600;
+                }
+
+                .platform-tag.telegram {
+                    background: rgba(34, 158, 217, 0.2);
+                    color: #229ED9;
+                }
+
+                .platform-tag.twitter {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: #fff;
                 }
 
                 .signal-actions {
