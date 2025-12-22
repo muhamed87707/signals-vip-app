@@ -786,8 +786,8 @@ export default function SignalsPage() {
                                     )}
                                     <img
                                         src={
-                                            // VIP users see clear image, non-VIP see blurred (except first as preview)
-                                            (isVip || index === 0 || !signal.isVip) 
+                                            // VIP users see clear image, non-VIP see blurred
+                                            (isVip || !signal.isVip) 
                                                 ? signal.imageUrl 
                                                 : (signal.blurredImageUrl || signal.imageUrl)
                                         }
@@ -802,8 +802,8 @@ export default function SignalsPage() {
 
 
 
-                                    {/* Overlay for non-VIP viewing VIP posts - Skip first post as preview */}
-                                    {!isVip && signal.isVip && index !== 0 && (
+                                    {/* Overlay for non-VIP viewing VIP posts */}
+                                    {!isVip && signal.isVip && (
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,
@@ -862,7 +862,7 @@ export default function SignalsPage() {
                                     borderRadius: '12px',
                                     padding: '0.8rem 1rem'
                                 }}>
-                                    {(!signal.isVip || isVip || index === 0) ? (
+                                    {(!signal.isVip || isVip) ? (
                                         <>
                                             <p style={{
                                                 color: '#e0e0e0',
