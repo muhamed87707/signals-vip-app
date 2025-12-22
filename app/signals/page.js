@@ -766,13 +766,15 @@ export default function SignalsPage() {
                             >
                                 {/* Signal Image with Auto Height */}
                                 <div style={{ position: 'relative' }}>
-                                    {/* VIP Badge - for VIP posts */}
+                                    {/* VIP Badge - for VIP posts with shimmer effect */}
                                     {signal.isVip && (
                                         <div style={{
                                             position: 'absolute',
                                             top: '1rem',
                                             right: '1rem',
-                                            background: 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+                                            background: 'linear-gradient(90deg, #FFD700, #FFE566, #FFFFFF, #FFE566, #FFD700)',
+                                            backgroundSize: '200% auto',
+                                            animation: 'goldShine 3s linear infinite',
                                             color: '#1a1a1a',
                                             padding: '0.4rem 0.8rem',
                                             borderRadius: '20px',
@@ -895,14 +897,21 @@ export default function SignalsPage() {
                                     ) : (
                                         <>
                                             <p style={{
-                                                color: 'var(--gold-medium)',
+                                                background: 'linear-gradient(90deg, #FFD700, #FFE566, #FFFFFF, #FFE566, #FFD700)',
+                                                backgroundSize: '200% auto',
+                                                WebkitBackgroundClip: 'text',
+                                                WebkitTextFillColor: 'transparent',
+                                                backgroundClip: 'text',
+                                                animation: 'goldShine 3s linear infinite',
                                                 fontSize: '0.9rem',
+                                                fontWeight: '700',
                                                 margin: 0,
+                                                marginBottom: '1.5rem',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: '0.5rem'
                                             }}>
-                                                <span>🔒</span>
+                                                <span style={{ WebkitTextFillColor: 'initial' }}>🔒</span>
                                                 {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
                                             </p>
                                             {/* Timestamp */}
@@ -935,6 +944,10 @@ export default function SignalsPage() {
                 @keyframes shimmer {
                     0% { transform: skewX(-25deg) translateX(-150%); }
                     100% { transform: skewX(-25deg) translateX(150%); }
+                }
+                @keyframes goldShine {
+                    0% { background-position: 0% center; }
+                    100% { background-position: 200% center; }
                 }
 
                 /* Mobile Optimizations */
