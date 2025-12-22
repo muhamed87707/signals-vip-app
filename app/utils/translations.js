@@ -153,6 +153,9 @@ export const translations = {
                 // Conversion Optimization
                 offerEndsIn: 'Offer ends in',
                 limitedOffer: '🔥 Limited Time Offer',
+                hours: 'Hours',
+                minutes: 'Min',
+                seconds: 'Sec',
                 subscribersCount: 'Active Traders',
                 winRate: 'Win Rate',
                 totalPips: 'Total Pips',
@@ -436,6 +439,9 @@ Past performance of any trading system or methodology is not necessarily indicat
                 // Conversion Optimization
                 offerEndsIn: 'العرض ينتهي خلال',
                 limitedOffer: '🔥 عرض محدود',
+                hours: 'ساعة',
+                minutes: 'دقيقة',
+                seconds: 'ثانية',
                 subscribersCount: 'متداول نشط',
                 winRate: 'نسبة النجاح',
                 totalPips: 'إجمالي النقاط',

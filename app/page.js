@@ -137,11 +137,20 @@ const CountdownTimer = ({ t }) => {
         <div className="countdown-banner">
             <span className="countdown-label">{t.limitedOffer} — {t.offerEndsIn}:</span>
             <div className="countdown-timer" style={{ direction: 'ltr' }}>
-                <span className="countdown-segment">{pad(timeLeft.hours)}</span>
+                <div className="countdown-unit">
+                    <span className="countdown-segment">{pad(timeLeft.hours)}</span>
+                    <span className="countdown-unit-label">{t.hours || 'Hours'}</span>
+                </div>
                 <span className="countdown-separator">:</span>
-                <span className="countdown-segment">{pad(timeLeft.minutes)}</span>
+                <div className="countdown-unit">
+                    <span className="countdown-segment">{pad(timeLeft.minutes)}</span>
+                    <span className="countdown-unit-label">{t.minutes || 'Min'}</span>
+                </div>
                 <span className="countdown-separator">:</span>
-                <span className="countdown-segment">{pad(timeLeft.seconds)}</span>
+                <div className="countdown-unit">
+                    <span className="countdown-segment">{pad(timeLeft.seconds)}</span>
+                    <span className="countdown-unit-label">{t.seconds || 'Sec'}</span>
+                </div>
             </div>
         </div>
     );
