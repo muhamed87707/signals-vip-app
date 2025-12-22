@@ -449,6 +449,19 @@ export default function LandingPage() {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [faqOpenIndex, setFaqOpenIndex] = useState(null);
 
+    // Handle scroll to hash on page load
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.hash) {
+            const hash = window.location.hash;
+            setTimeout(() => {
+                const element = document.querySelector(hash);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        }
+    }, []);
+
     const toggleFaq = (index) => {
         setFaqOpenIndex(faqOpenIndex === index ? null : index);
     };
