@@ -136,7 +136,7 @@ const CountdownTimer = ({ t }) => {
     return (
         <div className="countdown-banner">
             <span className="countdown-label">{t.limitedOffer} — {t.offerEndsIn}:</span>
-            <div className="countdown-timer">
+            <div className="countdown-timer" style={{ direction: 'ltr' }}>
                 <span className="countdown-segment">{pad(timeLeft.hours)}</span>
                 <span className="countdown-separator">:</span>
                 <span className="countdown-segment">{pad(timeLeft.minutes)}</span>
