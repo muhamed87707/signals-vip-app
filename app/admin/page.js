@@ -260,11 +260,15 @@ export default function AdminPage() {
     const handleEdit = (signal) => {
         setCustomPost(signal.customPost || '');
         setTelegramButtonType(signal.telegramButtonType || 'view_signal');
-        setSignalType(signal.type === 'REGULAR' ? 'regular' : (signal.isVip ? 'vip' : 'free'));
+        setSignalType(signal.isVip ? 'vip' : 'regular');
         setPreviewData(signal.imageUrl);
         setSelectedFile(null);
         setIsEditing(true);
         setEditingId(signal._id);
+        // Set current platforms state based on where the signal is published
+        setPostToWebsite(signal.publishedToWebsite || false);
+        setPostToTelegram(!!signal.telegramMessageId);
+        setPostToTwitter(!!signal.twitterTweetId);
         setSuccessMessage('');
         setError('');
         setActiveTab('publish');
@@ -278,6 +282,10 @@ export default function AdminPage() {
         setPreviewData(null);
         setSelectedFile(null);
         setTelegramButtonType('view_signal');
+        setPostToWebsite(false);
+        setPostToTelegram(false);
+        setPostToTwitter(false);
+        setSignalType('');
         setError('');
     };
 
@@ -300,8 +308,12 @@ export default function AdminPage() {
                 id: editingId,
                 customPost: postToUse,
                 telegramButtonType: telegramButtonType,
-                type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
-                isVip: signalType === 'vip'
+                type: signalType === 'vip' ? 'VIP' : 'REGULAR',
+                isVip: signalType === 'vip',
+                // Platform updates
+                updateWebsite: postToWebsite,
+                updateTelegram: postToTelegram,
+                updateTwitter: postToTwitter
             };
 
             if (selectedFile) {
@@ -334,11 +346,14 @@ export default function AdminPage() {
 
             const data = await res.json();
             if (data.success) {
-                setSuccessMessage(lang === 'ar' ? 'تم تحديث المنشور بنجاح!' : 'Signal updated successfully!');
+                let msg = lang === 'ar' ? 'تم تحديث المنشور بنجاح!' : 'Post updated successfully!';
+                if (data.addedTo?.length) msg += ` | ${lang === 'ar' ? 'أُضيف إلى' : 'Added to'}: ${data.addedTo.join(', ')}`;
+                if (data.removedFrom?.length) msg += ` | ${lang === 'ar' ? 'أُزيل من' : 'Removed from'}: ${data.removedFrom.join(', ')}`;
+                setSuccessMessage(msg);
                 handleCancelEdit();
                 fetchSignals();
             } else {
-                setError(t.postError);
+                setError(data.error || t.postError);
             }
         } catch (err) {
             console.error('Update error:', err);

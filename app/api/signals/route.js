@@ -389,7 +389,18 @@ export async function PUT(request) {
     try {
         await dbConnect();
         const body = await request.json();
-        const { id, customPost, telegramButtonType, imageUrl, telegramImage, type, isVip } = body;
+        const { 
+            id, 
+            customPost, 
+            telegramButtonType, 
+            imageUrl, 
+            telegramImage, 
+            type, 
+            isVip,
+            updateWebsite,
+            updateTelegram,
+            updateTwitter
+        } = body;
 
         if (!id) return NextResponse.json({ success: false, error: 'Signal ID required' }, { status: 400 });
 
@@ -397,32 +408,98 @@ export async function PUT(request) {
         if (!signal) return NextResponse.json({ success: false, error: 'Signal not found' }, { status: 404 });
 
         let finalImageUrl = signal.imageUrl;
+        const addedTo = [];
+        const removedFrom = [];
 
-        // If a new image is provided
+        // Handle image upload if new image provided
         if (imageUrl && !imageUrl.startsWith('http')) {
-            // 1. Upload new Main Image
             const clearImageUrl = await uploadToImgBB(imageUrl);
             if (clearImageUrl) {
                 finalImageUrl = clearImageUrl;
-
-                // 2. Handle Telegram Update with new Media
-                if (signal.telegramMessageId) {
-                    let telegramUrl = clearImageUrl;
-                    if (type === 'SIGNAL' && isVip && telegramImage) {
-                        const blurredUrl = await uploadToImgBB(telegramImage);
-                        if (blurredUrl) telegramUrl = blurredUrl;
-                    }
-                    await editTelegramMedia(signal.telegramMessageId, telegramUrl, customPost, telegramButtonType);
-                }
             }
-        } else {
-            // Only update text/buttons
-            if (signal.telegramMessageId) {
+        }
+
+        // ===== WEBSITE PLATFORM =====
+        const wasOnWebsite = signal.publishedToWebsite;
+        if (updateWebsite && !wasOnWebsite) {
+            // Add to website
+            signal.publishedToWebsite = true;
+            addedTo.push('Website');
+        } else if (!updateWebsite && wasOnWebsite) {
+            // Remove from website
+            signal.publishedToWebsite = false;
+            removedFrom.push('Website');
+        }
+
+        // ===== TELEGRAM PLATFORM =====
+        const wasOnTelegram = !!signal.telegramMessageId;
+        if (updateTelegram && !wasOnTelegram) {
+            // Add to Telegram (new post)
+            let telegramUrl = finalImageUrl;
+            if (isVip && telegramImage) {
+                const blurredUrl = await uploadToImgBB(telegramImage);
+                if (blurredUrl) telegramUrl = blurredUrl;
+            }
+            const msgId = await sendToTelegram(telegramUrl, customPost, isVip, telegramButtonType, type);
+            if (msgId) {
+                signal.telegramMessageId = msgId.toString();
+                addedTo.push('Telegram');
+            }
+        } else if (!updateTelegram && wasOnTelegram) {
+            // Remove from Telegram
+            await deleteTelegramMessage(signal.telegramMessageId);
+            signal.telegramMessageId = null;
+            removedFrom.push('Telegram');
+        } else if (updateTelegram && wasOnTelegram) {
+            // Update existing Telegram post
+            if (imageUrl && !imageUrl.startsWith('http')) {
+                let telegramUrl = finalImageUrl;
+                if (isVip && telegramImage) {
+                    const blurredUrl = await uploadToImgBB(telegramImage);
+                    if (blurredUrl) telegramUrl = blurredUrl;
+                }
+                await editTelegramMedia(signal.telegramMessageId, telegramUrl, customPost, telegramButtonType);
+            } else {
                 await editTelegramMessage(signal.telegramMessageId, customPost, telegramButtonType);
             }
         }
 
-        // Update DB
+        // ===== TWITTER PLATFORM =====
+        const wasOnTwitter = !!signal.twitterTweetId;
+        if (updateTwitter && !wasOnTwitter) {
+            // Add to Twitter (new tweet)
+            try {
+                const twitterRes = await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: customPost ? customPost.replace(/\*/g, '') : '',
+                        imageUrl: finalImageUrl
+                    })
+                });
+                const twitterData = await twitterRes.json();
+                if (twitterData.success) {
+                    signal.twitterTweetId = twitterData.tweetId;
+                    addedTo.push('X');
+                }
+            } catch (err) {
+                console.error('Twitter post failed:', err);
+            }
+        } else if (!updateTwitter && wasOnTwitter) {
+            // Remove from Twitter
+            try {
+                await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter?tweetId=' + signal.twitterTweetId, {
+                    method: 'DELETE'
+                });
+                signal.twitterTweetId = null;
+                removedFrom.push('X');
+            } catch (err) {
+                console.error('Twitter delete failed:', err);
+            }
+        }
+        // Note: Twitter doesn't support editing tweets, so we can't update existing tweets
+
+        // Update DB fields
         signal.customPost = customPost;
         signal.telegramButtonType = telegramButtonType;
         signal.imageUrl = finalImageUrl;
@@ -431,7 +508,12 @@ export async function PUT(request) {
 
         await signal.save();
 
-        return NextResponse.json({ success: true, signal });
+        return NextResponse.json({ 
+            success: true, 
+            signal,
+            addedTo,
+            removedFrom
+        });
     } catch (error) {
         console.error("Update Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
