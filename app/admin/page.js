@@ -686,7 +686,7 @@ export default function AdminPage() {
                 <style jsx>{`
                     .admin-login-container {
                         min-height: 100vh;
-                        background: linear-gradient(135deg, #080808 0%, #0c0c0c 50%, #080808 100%);
+                        background: linear-gradient(135deg, #0f0f0f 0%, #141414 50%, #0f0f0f 100%);
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -702,18 +702,18 @@ export default function AdminPage() {
                         transform: translate(-50%, -50%);
                         width: 600px;
                         height: 600px;
-                        background: radial-gradient(circle, rgba(184, 134, 11, 0.1) 0%, transparent 70%);
+                        background: radial-gradient(circle, rgba(184, 134, 11, 0.15) 0%, transparent 70%);
                         pointer-events: none;
                     }
                     .admin-login-card {
-                        background: rgba(12, 12, 12, 0.95);
-                        border: 1px solid rgba(184, 134, 11, 0.2);
+                        background: rgba(18, 18, 18, 0.98);
+                        border: 1px solid rgba(184, 134, 11, 0.3);
                         border-radius: 24px;
                         padding: 3rem;
                         max-width: 420px;
                         width: 100%;
                         backdrop-filter: blur(20px);
-                        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(184, 134, 11, 0.1);
+                        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(184, 134, 11, 0.15);
                         position: relative;
                         z-index: 1;
                     }
@@ -737,7 +737,7 @@ export default function AdminPage() {
                         margin-bottom: 0.5rem;
                     }
                     .login-subtitle {
-                        color: #888;
+                        color: #b0b0b0;
                         font-size: 0.95rem;
                     }
                     .login-form {
@@ -751,8 +751,8 @@ export default function AdminPage() {
                     .admin-input {
                         width: 100%;
                         padding: 1rem 1.25rem;
-                        background: rgba(20, 20, 20, 0.8);
-                        border: 1px solid rgba(184, 134, 11, 0.2);
+                        background: rgba(25, 25, 25, 0.9);
+                        border: 1px solid rgba(184, 134, 11, 0.3);
                         border-radius: 12px;
                         color: #fff;
                         font-size: 1rem;
@@ -761,8 +761,8 @@ export default function AdminPage() {
                     }
                     .admin-input:focus {
                         outline: none;
-                        border-color: rgba(184, 134, 11, 0.5);
-                        box-shadow: 0 0 20px rgba(184, 134, 11, 0.15);
+                        border-color: rgba(184, 134, 11, 0.6);
+                        box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
                     }
                     .admin-btn-primary {
                         padding: 1rem 2rem;
@@ -1350,15 +1350,15 @@ export default function AdminPage() {
                 .admin-dashboard {
                     display: flex;
                     min-height: 100vh;
-                    background: #080808;
+                    background: #0f0f0f;
                     direction: ${isRTL ? 'rtl' : 'ltr'};
                 }
 
                 /* ===== SIDEBAR ===== */
                 .admin-sidebar {
                     width: 260px;
-                    background: linear-gradient(180deg, #0c0c0c 0%, #080808 100%);
-                    border-right: 1px solid rgba(184, 134, 11, 0.15);
+                    background: linear-gradient(180deg, #141414 0%, #0f0f0f 100%);
+                    border-right: 1px solid rgba(184, 134, 11, 0.25);
                     display: flex;
                     flex-direction: column;
                     position: fixed;
@@ -1408,7 +1408,7 @@ export default function AdminPage() {
                     background: transparent;
                     border: none;
                     border-radius: 12px;
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.95rem;
                     cursor: pointer;
                     transition: all 0.3s ease;
@@ -1417,14 +1417,14 @@ export default function AdminPage() {
                 }
 
                 .nav-item:hover {
-                    background: rgba(184, 134, 11, 0.1);
-                    color: #DAA520;
+                    background: rgba(184, 134, 11, 0.15);
+                    color: #FFD700;
                 }
 
                 .nav-item.active {
-                    background: linear-gradient(135deg, rgba(184, 134, 11, 0.2) 0%, rgba(184, 134, 11, 0.1) 100%);
+                    background: linear-gradient(135deg, rgba(184, 134, 11, 0.25) 0%, rgba(184, 134, 11, 0.15) 100%);
                     color: #FFD700;
-                    border: 1px solid rgba(184, 134, 11, 0.3);
+                    border: 1px solid rgba(184, 134, 11, 0.4);
                 }
 
                 .nav-item svg {
@@ -1457,17 +1457,17 @@ export default function AdminPage() {
                     justify-content: center;
                     gap: 0.5rem;
                     padding: 0.75rem;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.85rem;
                     cursor: pointer;
                     transition: all 0.3s ease;
                 }
 
                 .sidebar-btn:hover {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: rgba(255, 255, 255, 0.08);
                     color: #fff;
                 }
 
@@ -1490,8 +1490,8 @@ export default function AdminPage() {
 
                 .admin-header {
                     padding: 1.5rem 2rem;
-                    background: rgba(12, 12, 12, 0.95);
-                    border-bottom: 1px solid rgba(184, 134, 11, 0.1);
+                    background: rgba(18, 18, 18, 0.98);
+                    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -1563,15 +1563,15 @@ export default function AdminPage() {
                 }
 
                 .upload-card {
-                    background: rgba(12, 12, 12, 0.8);
-                    border: 2px dashed rgba(184, 134, 11, 0.3);
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 2px dashed rgba(184, 134, 11, 0.4);
                     border-radius: 20px;
                     overflow: hidden;
                     transition: all 0.3s ease;
                 }
 
                 .upload-card:hover {
-                    border-color: rgba(184, 134, 11, 0.5);
+                    border-color: rgba(184, 134, 11, 0.6);
                 }
 
                 .upload-zone {
@@ -1601,7 +1601,7 @@ export default function AdminPage() {
                 }
 
                 .upload-zone p {
-                    color: #666;
+                    color: #999;
                     font-size: 0.9rem;
                 }
 
@@ -1636,14 +1636,14 @@ export default function AdminPage() {
                 }
 
                 .type-selection {
-                    background: rgba(12, 12, 12, 0.8);
-                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
                     border-radius: 16px;
                     padding: 1.5rem;
                 }
 
                 .section-label {
-                    color: #DAA520;
+                    color: #FFD700;
                     font-size: 1rem;
                     font-weight: 600;
                     margin-bottom: 1rem;
@@ -1661,21 +1661,21 @@ export default function AdminPage() {
                     align-items: center;
                     gap: 0.5rem;
                     padding: 1.25rem 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 2px solid rgba(255, 255, 255, 0.15);
                     border-radius: 12px;
                     cursor: pointer;
                     transition: all 0.3s ease;
                 }
 
                 .type-btn:hover {
-                    border-color: rgba(184, 134, 11, 0.3);
-                    background: rgba(184, 134, 11, 0.05);
+                    border-color: rgba(184, 134, 11, 0.4);
+                    background: rgba(184, 134, 11, 0.08);
                 }
 
                 .type-btn.active {
-                    border-color: #DAA520;
-                    background: rgba(184, 134, 11, 0.15);
+                    border-color: #FFD700;
+                    background: rgba(184, 134, 11, 0.2);
                 }
 
                 .type-icon {
@@ -1689,13 +1689,13 @@ export default function AdminPage() {
                 }
 
                 .type-desc {
-                    color: #666;
+                    color: #999;
                     font-size: 0.8rem;
                 }
 
                 .post-text-section {
-                    background: rgba(12, 12, 12, 0.8);
-                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
                     border-radius: 16px;
                     padding: 1.5rem;
                 }
@@ -1720,8 +1720,8 @@ export default function AdminPage() {
                     width: 100%;
                     min-height: 120px;
                     padding: 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 12px;
                     color: #fff;
                     font-size: 1rem;
@@ -1731,7 +1731,7 @@ export default function AdminPage() {
 
                 .post-textarea:focus {
                     outline: none;
-                    border-color: rgba(184, 134, 11, 0.4);
+                    border-color: rgba(184, 134, 11, 0.5);
                 }
 
                 .ai-section {
@@ -1763,14 +1763,14 @@ export default function AdminPage() {
                 }
 
                 .generated-posts {
-                    background: rgba(12, 12, 12, 0.8);
-                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
                     border-radius: 16px;
                     padding: 1.5rem;
                 }
 
                 .generated-posts h4 {
-                    color: #DAA520;
+                    color: #FFD700;
                     margin-bottom: 1rem;
                 }
 
@@ -1783,24 +1783,24 @@ export default function AdminPage() {
 
                 .post-card {
                     padding: 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 2px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     cursor: pointer;
                     transition: all 0.3s ease;
                 }
 
                 .post-card:hover {
-                    border-color: rgba(184, 134, 11, 0.3);
+                    border-color: rgba(184, 134, 11, 0.4);
                 }
 
                 .post-card.selected {
-                    border-color: #DAA520;
-                    background: rgba(184, 134, 11, 0.1);
+                    border-color: #FFD700;
+                    background: rgba(184, 134, 11, 0.15);
                 }
 
                 .post-card p {
-                    color: #e0e0e0;
+                    color: #f0f0f0;
                     font-size: 0.9rem;
                     line-height: 1.5;
                     margin: 0;
@@ -1810,15 +1810,15 @@ export default function AdminPage() {
             {/* ===== TELEGRAM & PUBLISH STYLES ===== */}
             <style jsx>{`
                 .telegram-section {
-                    background: rgba(12, 12, 12, 0.8);
-                    border: 1px solid rgba(34, 158, 217, 0.2);
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 1px solid rgba(34, 158, 217, 0.3);
                     border-radius: 16px;
                     padding: 1.5rem;
                 }
 
                 .twitter-section {
-                    background: rgba(12, 12, 12, 0.8);
-                    border: 1px solid rgba(0, 0, 0, 0.3);
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 1px solid rgba(100, 100, 100, 0.4);
                     border-radius: 16px;
                     padding: 1.5rem;
                     margin-top: 1rem;
@@ -1884,7 +1884,7 @@ export default function AdminPage() {
                 }
 
                 .telegram-buttons h4 {
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.9rem;
                     margin-bottom: 1rem;
                 }
@@ -1897,17 +1897,17 @@ export default function AdminPage() {
 
                 .option-btn {
                     padding: 0.875rem 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.9rem;
                     cursor: pointer;
                     transition: all 0.3s ease;
                 }
 
                 .option-btn:hover {
-                    border-color: rgba(34, 158, 217, 0.3);
+                    border-color: rgba(34, 158, 217, 0.4);
                     color: #fff;
                 }
 
@@ -1989,7 +1989,7 @@ export default function AdminPage() {
                 }
 
                 .empty-state p {
-                    color: #666;
+                    color: #999;
                 }
 
                 .signals-grid {
@@ -1999,8 +1999,8 @@ export default function AdminPage() {
                 }
 
                 .signal-card {
-                    background: rgba(12, 12, 12, 0.9);
-                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    background: rgba(18, 18, 18, 0.95);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
                     border-radius: 16px;
                     overflow: hidden;
                     transition: all 0.3s ease;
@@ -2055,14 +2055,14 @@ export default function AdminPage() {
                 }
 
                 .signal-content p {
-                    color: #e0e0e0;
+                    color: #f0f0f0;
                     font-size: 0.9rem;
                     line-height: 1.6;
                     margin: 0 0 0.5rem 0;
                 }
 
                 .signal-time {
-                    color: #666;
+                    color: #999;
                     font-size: 0.75rem;
                 }
 
@@ -2085,12 +2085,12 @@ export default function AdminPage() {
                 }
 
                 .action-btn.edit {
-                    border: 1px solid rgba(184, 134, 11, 0.3);
-                    color: #DAA520;
+                    border: 1px solid rgba(184, 134, 11, 0.4);
+                    color: #FFD700;
                 }
 
                 .action-btn.edit:hover {
-                    background: rgba(184, 134, 11, 0.1);
+                    background: rgba(184, 134, 11, 0.15);
                 }
 
                 .action-btn.delete {
@@ -2112,14 +2112,14 @@ export default function AdminPage() {
                 }
 
                 .vip-form-card, .vip-table-card {
-                    background: rgba(12, 12, 12, 0.9);
-                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    background: rgba(18, 18, 18, 0.95);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
                     border-radius: 16px;
                     padding: 1.5rem;
                 }
 
                 .vip-form-card h3, .vip-table-card h3 {
-                    color: #DAA520;
+                    color: #FFD700;
                     font-size: 1.1rem;
                     margin-bottom: 1.25rem;
                 }
@@ -2142,7 +2142,7 @@ export default function AdminPage() {
 
                 .form-group label {
                     display: block;
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.85rem;
                     margin-bottom: 0.5rem;
                 }
@@ -2150,8 +2150,8 @@ export default function AdminPage() {
                 .form-input {
                     width: 100%;
                     padding: 0.875rem 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     color: #fff;
                     font-size: 0.95rem;
@@ -2160,7 +2160,7 @@ export default function AdminPage() {
 
                 .form-input:focus {
                     outline: none;
-                    border-color: rgba(184, 134, 11, 0.4);
+                    border-color: rgba(184, 134, 11, 0.5);
                 }
 
                 .form-input:disabled {
@@ -2181,20 +2181,20 @@ export default function AdminPage() {
                     color: #fff;
                     cursor: pointer;
                     padding: 0.875rem 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     transition: all 0.3s ease;
                 }
 
                 .checkbox-label:hover {
-                    border-color: rgba(184, 134, 11, 0.3);
+                    border-color: rgba(184, 134, 11, 0.4);
                 }
 
                 .checkbox-label input {
                     width: 18px;
                     height: 18px;
-                    accent-color: #DAA520;
+                    accent-color: #FFD700;
                 }
 
                 .submit-btn {
@@ -2251,10 +2251,10 @@ export default function AdminPage() {
                 .vip-table th {
                     padding: 1rem;
                     text-align: ${isRTL ? 'right' : 'left'};
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.85rem;
                     font-weight: 600;
-                    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
+                    border-bottom: 1px solid rgba(184, 134, 11, 0.3);
                     white-space: nowrap;
                 }
 
@@ -2265,7 +2265,7 @@ export default function AdminPage() {
 
                 .empty-table {
                     text-align: center;
-                    color: #666;
+                    color: #999;
                     padding: 3rem 1rem !important;
                 }
 
@@ -2289,7 +2289,7 @@ export default function AdminPage() {
                 }
 
                 .time-left {
-                    color: #DAA520;
+                    color: #FFD700;
                     font-weight: 500;
                 }
 
@@ -2317,8 +2317,8 @@ export default function AdminPage() {
                 }
 
                 .settings-card {
-                    background: rgba(12, 12, 12, 0.9);
-                    border: 1px solid rgba(184, 134, 11, 0.15);
+                    background: rgba(18, 18, 18, 0.95);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
                     border-radius: 16px;
                     padding: 1.5rem;
                 }
@@ -2329,11 +2329,11 @@ export default function AdminPage() {
                     align-items: center;
                     margin-bottom: 1.5rem;
                     padding-bottom: 1rem;
-                    border-bottom: 1px solid rgba(184, 134, 11, 0.1);
+                    border-bottom: 1px solid rgba(184, 134, 11, 0.2);
                 }
 
                 .settings-header h3 {
-                    color: #DAA520;
+                    color: #FFD700;
                     font-size: 1.1rem;
                 }
 
@@ -2372,7 +2372,7 @@ export default function AdminPage() {
                 }
 
                 .setting-group label {
-                    color: #888;
+                    color: #b0b0b0;
                     font-size: 0.9rem;
                 }
 
@@ -2387,8 +2387,8 @@ export default function AdminPage() {
                 .setting-input, .setting-select {
                     width: 100%;
                     padding: 0.875rem 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     color: #fff;
                     font-size: 0.95rem;
@@ -2397,7 +2397,7 @@ export default function AdminPage() {
 
                 .setting-input:focus, .setting-select:focus {
                     outline: none;
-                    border-color: rgba(184, 134, 11, 0.4);
+                    border-color: rgba(184, 134, 11, 0.5);
                 }
 
                 .model-select {
@@ -2411,8 +2411,8 @@ export default function AdminPage() {
 
                 .refresh-btn {
                     padding: 0.875rem 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     color: #fff;
                     cursor: pointer;
@@ -2420,16 +2420,16 @@ export default function AdminPage() {
                 }
 
                 .refresh-btn:hover:not(:disabled) {
-                    border-color: rgba(184, 134, 11, 0.4);
-                    background: rgba(184, 134, 11, 0.1);
+                    border-color: rgba(184, 134, 11, 0.5);
+                    background: rgba(184, 134, 11, 0.15);
                 }
 
                 .setting-textarea {
                     width: 100%;
                     min-height: 120px;
                     padding: 1rem;
-                    background: rgba(20, 20, 20, 0.8);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     color: #fff;
                     font-size: 0.95rem;
@@ -2439,7 +2439,7 @@ export default function AdminPage() {
 
                 .setting-textarea:focus {
                     outline: none;
-                    border-color: rgba(184, 134, 11, 0.4);
+                    border-color: rgba(184, 134, 11, 0.5);
                 }
             `}</style>
 
