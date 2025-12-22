@@ -31,8 +31,6 @@ async function uploadToImgBB(base64Image) {
 }
 
 async function sendToTelegram(imageUrl, customPost = null, isVip = true, buttonType = 'none', type = 'SIGNAL') {
-    if (!imageUrl) return null;
-
     try {
         // Default VIP caption
         let text = `🔥 *توصية VIP جديدة!* 💎
@@ -55,8 +53,6 @@ Click below to reveal the signal 👇`;
 📊 *New FREE Signal!* 🎁
 Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
         }
-
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
         // Construct Inline Keyboard based on Button Type
         let inlineKeyboard = [];
@@ -82,6 +78,30 @@ Enjoy this free trade from Abu Al-Dahab Institution! 💰`;
             ]];
         }
         // If buttonType is 'none', inlineKeyboard remains []
+
+        // If no image, send text message only
+        if (!imageUrl) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHANNEL_ID,
+                    text: text,
+                    parse_mode: 'Markdown',
+                    reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined
+                })
+            });
+
+            const data = await response.json();
+            if (data.ok && data.result) {
+                return data.result.message_id;
+            }
+            return null;
+        }
+
+        // Send photo with caption
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -255,9 +275,11 @@ export async function POST(request) {
             telegramButtonType // Extract new field
         } = body;
 
-        // 1. Upload Main Image (Clear)
-        const clearImageUrl = await uploadToImgBB(imageUrl);
-        if (!clearImageUrl) throw new Error('Failed to upload main image');
+        // 1. Upload Main Image (Clear) - only if provided
+        let clearImageUrl = null;
+        if (imageUrl) {
+            clearImageUrl = await uploadToImgBB(imageUrl);
+        }
 
         let telegramMessageId = null;
         let twitterTweetId = null;
@@ -272,10 +294,16 @@ export async function POST(request) {
                 const blurredUrl = await uploadToImgBB(telegramImage);
                 if (blurredUrl) {
                     telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType, 'SIGNAL');
+                } else {
+                    // Fallback to text only if blur failed
+                    telegramMessageId = await sendToTelegram(null, customPost, true, telegramButtonType, 'SIGNAL');
                 }
-            } else {
-                // Free: Send clear image with free caption
+            } else if (clearImageUrl) {
+                // Free with image: Send clear image with free caption
                 telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, 'SIGNAL');
+            } else {
+                // Text only post
+                telegramMessageId = await sendToTelegram(null, customPost, isVip, telegramButtonType, type);
             }
         }
 
