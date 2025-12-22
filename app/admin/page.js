@@ -162,9 +162,8 @@ export default function AdminPage() {
 
         if (typeof window !== 'undefined') {
             const savedPost = localStorage.getItem('admin-custom-post');
-            const savedType = localStorage.getItem('admin-signal-type');
             if (savedPost) setCustomPost(savedPost);
-            if (savedType) setSignalType(savedType);
+            // Don't restore signal type - user must select it each time
         }
     }, []);
 
@@ -173,12 +172,6 @@ export default function AdminPage() {
             localStorage.setItem('admin-custom-post', customPost);
         }
     }, [customPost]);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('admin-signal-type', signalType);
-        }
-    }, [signalType]);
 
     const saveSettingsToDB = async (payload, manual = false) => {
         if (manual) setSavingSettings(true);
