@@ -104,7 +104,7 @@ export default function AdminPage() {
     const [users, setUsers] = useState([]);
 
     // Telegram Auto-Post State
-    const [postToTelegram, setPostToTelegram] = useState(true);
+    const [postToTelegram, setPostToTelegram] = useState(false);
     
     // Twitter/X Auto-Post State
     const [postToTwitter, setPostToTwitter] = useState(false);
@@ -114,7 +114,7 @@ export default function AdminPage() {
     const [twitterAccessSecret, setTwitterAccessSecret] = useState('');
 
     // Signal Type & AI Post Generation
-    const [signalType, setSignalType] = useState('vip');
+    const [signalType, setSignalType] = useState('');
     const [customPost, setCustomPost] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
     const [geminiApiKey, setGeminiApiKey] = useState('');
@@ -127,7 +127,7 @@ export default function AdminPage() {
     const [postCount, setPostCount] = useState(50);
     const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [savingSettings, setSavingSettings] = useState(false);
-    const [telegramButtonType, setTelegramButtonType] = useState('view_signal');
+    const [telegramButtonType, setTelegramButtonType] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
@@ -513,7 +513,69 @@ export default function AdminPage() {
     };
 
     const handlePublish = () => {
-        if (selectedFile) processFile(selectedFile);
+        if (selectedFile) {
+            processFile(selectedFile);
+        } else {
+            // Publish without image (text only)
+            publishTextOnly();
+        }
+    };
+
+    const publishTextOnly = async () => {
+        setUploading(true);
+        setSuccessMessage('');
+        setError('');
+
+        try {
+            let postToUse = selectedPostIndex >= 0 && generatedPosts[selectedPostIndex]
+                ? generatedPosts[selectedPostIndex]
+                : customPost;
+
+            if (postToUse && postToUse.trim()) {
+                const cleanPost = postToUse.trim();
+                if (!cleanPost.startsWith('*') && !cleanPost.endsWith('*')) {
+                    postToUse = `*${cleanPost}*`;
+                }
+            }
+
+            const res = await fetch('/api/signals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pair: 'GOLD',
+                    type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
+                    imageUrl: null,
+                    telegramImage: null,
+                    sendToTelegram: postToTelegram,
+                    sendToTwitter: postToTwitter,
+                    isVip: signalType === 'vip',
+                    customPost: postToUse || null,
+                    telegramButtonType: telegramButtonType
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                let msg = t.postSuccess;
+                if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
+                if (postToTwitter) msg += ' | X ✓';
+                setSuccessMessage(msg);
+                fetchSignals();
+                setGeneratedPosts([]);
+                setSelectedPostIndex(-1);
+                setCustomPost('');
+                setSignalType('');
+                setTelegramButtonType('');
+                setPostToTelegram(false);
+                setPostToTwitter(false);
+            } else {
+                setError(data.error || t.postError);
+            }
+        } catch (err) {
+            console.error('Publish error:', err);
+            setError(t.postError);
+        }
+        setUploading(false);
     };
 
     const cancelPreview = () => {
@@ -581,6 +643,10 @@ export default function AdminPage() {
                     setPreviewData(null);
                     setSelectedFile(null);
                     setCustomPost('');
+                    setSignalType('');
+                    setTelegramButtonType('');
+                    setPostToTelegram(false);
+                    setPostToTwitter(false);
                 } else {
                     setError(data.error || t.postError);
                 }
@@ -992,54 +1058,54 @@ export default function AdminPage() {
                             </div>
 
                             {/* Telegram Options */}
-                            <div className="telegram-section">
-                                <div className="telegram-toggle" onClick={() => setPostToTelegram(!postToTelegram)}>
-                                    <div className={`toggle-checkbox ${postToTelegram ? 'checked' : ''}`}>
-                                        {postToTelegram && <TelegramIcon />}
-                                    </div>
-                                    <span>{t.postToTelegram}</span>
-                                </div>
-
-                                {postToTelegram && (
-                                    <div className="telegram-buttons">
-                                        <h4>{lang === 'ar' ? 'زر التفاعل:' : 'Action Button:'}</h4>
-                                        <div className="button-options">
-                                            {[
-                                                { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
-                                                { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
-                                                { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
-                                                { id: 'none', label: lang === 'ar' ? '🚫 بدون' : '🚫 None' }
-                                            ].map((btn) => (
-                                                <button
-                                                    key={btn.id}
-                                                    className={`option-btn ${telegramButtonType === btn.id ? 'active' : ''}`}
-                                                    onClick={() => setTelegramButtonType(btn.id)}
-                                                >
-                                                    {btn.label}
-                                                </button>
-                                            ))}
+                            <div className="platforms-section">
+                                <h3 className="section-label">📢 {lang === 'ar' ? 'منصات النشر' : 'Publishing Platforms'}</h3>
+                                <div className="platforms-grid">
+                                    <div className={`platform-btn ${postToTelegram ? 'active' : ''}`} onClick={() => setPostToTelegram(!postToTelegram)}>
+                                        <div className="platform-icon telegram">
+                                            <TelegramIcon />
                                         </div>
+                                        <span>{lang === 'ar' ? 'النشر على تليجرام' : 'Post to Telegram'}</span>
                                     </div>
-                                )}
-                            </div>
-
-                            {/* Twitter/X Options */}
-                            <div className="twitter-section">
-                                <div className="twitter-toggle" onClick={() => setPostToTwitter(!postToTwitter)}>
-                                    <div className={`toggle-checkbox twitter ${postToTwitter ? 'checked' : ''}`}>
-                                        {postToTwitter && <span>𝕏</span>}
+                                    <div className={`platform-btn ${postToTwitter ? 'active' : ''}`} onClick={() => setPostToTwitter(!postToTwitter)}>
+                                        <div className="platform-icon twitter">
+                                            <span>𝕏</span>
+                                        </div>
+                                        <span>{lang === 'ar' ? 'النشر على X' : 'Post to X'}</span>
                                     </div>
-                                    <span>{lang === 'ar' ? 'نشر على X (تويتر)' : 'Post to X (Twitter)'}</span>
                                 </div>
                             </div>
 
-                            {/* Publish Button */}
-                            {previewData && (
+                            {/* Telegram Button Type - Only show if Telegram is selected */}
+                            {postToTelegram && (
+                                <div className="telegram-buttons-section">
+                                    <h3 className="section-label">🔘 {lang === 'ar' ? 'زر التفاعل' : 'Action Button'}</h3>
+                                    <div className="button-options">
+                                        {[
+                                            { id: 'view_signal', label: lang === 'ar' ? '💎 إظهار التوصية' : '💎 Show Signal' },
+                                            { id: 'subscribe', label: lang === 'ar' ? '🔥 اشترك الآن' : '🔥 Subscribe Now' },
+                                            { id: 'share', label: lang === 'ar' ? '📤 مشاركة' : '📤 Share' },
+                                            { id: 'none', label: lang === 'ar' ? '🚫 بدون' : '🚫 None' }
+                                        ].map((btn) => (
+                                            <button
+                                                key={btn.id}
+                                                className={`option-btn ${telegramButtonType === btn.id ? 'active' : ''}`}
+                                                onClick={() => setTelegramButtonType(btn.id)}
+                                            >
+                                                {btn.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Publish Button - Only show when all required fields are selected */}
+                            {signalType && (postToTelegram || postToTwitter) && (!postToTelegram || telegramButtonType) && (
                                 <div className="publish-action">
                                     <button
                                         onClick={isEditing ? handleUpdate : handlePublish}
                                         disabled={uploading}
-                                        className="publish-btn"
+                                        className="publish-btn gold-btn"
                                     >
                                         {uploading
                                             ? (lang === 'ar' ? '⏳ جاري النشر...' : '⏳ Publishing...')
@@ -1807,86 +1873,74 @@ export default function AdminPage() {
                 }
             `}</style>
 
-            {/* ===== TELEGRAM & PUBLISH STYLES ===== */}
+            {/* ===== PLATFORMS & PUBLISH STYLES ===== */}
             <style jsx>{`
-                .telegram-section {
+                .platforms-section {
+                    background: rgba(18, 18, 18, 0.9);
+                    border: 1px solid rgba(184, 134, 11, 0.25);
+                    border-radius: 16px;
+                    padding: 1.5rem;
+                }
+
+                .platforms-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1rem;
+                }
+
+                .platform-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 1rem 1.25rem;
+                    background: rgba(25, 25, 25, 0.9);
+                    border: 2px solid rgba(255, 255, 255, 0.15);
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .platform-btn:hover {
+                    border-color: rgba(184, 134, 11, 0.4);
+                    background: rgba(184, 134, 11, 0.08);
+                }
+
+                .platform-btn.active {
+                    border-color: #FFD700;
+                    background: rgba(184, 134, 11, 0.2);
+                }
+
+                .platform-btn span {
+                    color: #fff;
+                    font-weight: 500;
+                }
+
+                .platform-icon {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .platform-icon.telegram {
+                    background: linear-gradient(135deg, #229ED9, #1a7fb8);
+                    color: #fff;
+                }
+
+                .platform-icon.twitter {
+                    background: #000;
+                    color: #fff;
+                    font-weight: bold;
+                    font-size: 18px;
+                }
+
+                .telegram-buttons-section {
                     background: rgba(18, 18, 18, 0.9);
                     border: 1px solid rgba(34, 158, 217, 0.3);
                     border-radius: 16px;
                     padding: 1.5rem;
-                }
-
-                .twitter-section {
-                    background: rgba(18, 18, 18, 0.9);
-                    border: 1px solid rgba(100, 100, 100, 0.4);
-                    border-radius: 16px;
-                    padding: 1.5rem;
-                    margin-top: 1rem;
-                }
-
-                .twitter-toggle {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    cursor: pointer;
-                    padding: 0.5rem;
-                }
-
-                .toggle-checkbox.twitter {
-                    border-color: rgba(255, 255, 255, 0.3);
-                    font-weight: bold;
-                    font-size: 14px;
-                }
-
-                .toggle-checkbox.twitter.checked {
-                    background: #000;
-                    border-color: #fff;
-                    color: #fff;
-                }
-
-                .telegram-toggle {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    cursor: pointer;
-                    padding: 0.5rem;
-                }
-
-                .toggle-checkbox {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 8px;
-                    border: 2px solid rgba(34, 158, 217, 0.5);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.3s ease;
-                }
-
-                .toggle-checkbox.checked {
-                    background: #229ED9;
-                    border-color: #229ED9;
-                }
-
-                .toggle-checkbox svg {
-                    color: #fff;
-                }
-
-                .telegram-toggle span, .twitter-toggle span {
-                    color: #fff;
-                    font-size: 0.95rem;
-                }
-
-                .telegram-buttons {
-                    margin-top: 1.25rem;
-                    padding-top: 1.25rem;
-                    border-top: 1px solid rgba(255, 255, 255, 0.1);
-                }
-
-                .telegram-buttons h4 {
-                    color: #b0b0b0;
-                    font-size: 0.9rem;
-                    margin-bottom: 1rem;
                 }
 
                 .button-options {
@@ -1898,7 +1952,7 @@ export default function AdminPage() {
                 .option-btn {
                     padding: 0.875rem 1rem;
                     background: rgba(25, 25, 25, 0.9);
-                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    border: 2px solid rgba(255, 255, 255, 0.15);
                     border-radius: 10px;
                     color: #b0b0b0;
                     font-size: 0.9rem;
@@ -1921,30 +1975,60 @@ export default function AdminPage() {
                     margin-top: 1rem;
                 }
 
-                .publish-btn {
+                .publish-btn.gold-btn {
                     width: 100%;
                     padding: 1.25rem 2rem;
-                    background: linear-gradient(135deg, #B8860B 0%, #DAA520 50%, #B8860B 100%);
-                    background-size: 200% auto;
+                    background: linear-gradient(90deg, #FFD700, #FFE566, #FFFFFF, #FFE566, #FFD700);
+                    background-size: 200% 100%;
+                    animation: goldShine 3s linear infinite;
                     border: none;
-                    border-radius: 14px;
-                    color: #000;
+                    border-radius: 50px;
+                    color: #1a1a1a;
                     font-weight: 800;
                     font-size: 1.1rem;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    box-shadow: 0 4px 20px rgba(184, 134, 11, 0.4);
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow:
+                        inset 0 2px 0 rgba(255, 244, 184, 0.5),
+                        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+                        0 4px 20px rgba(184, 134, 11, 0.4);
+                    text-shadow: 0 1px 0 rgba(255, 244, 184, 0.4);
                 }
 
-                .publish-btn:hover:not(:disabled) {
-                    background-position: right center;
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 30px rgba(184, 134, 11, 0.5);
+                .publish-btn.gold-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+                    transition: left 0.6s ease;
                 }
 
-                .publish-btn:disabled {
+                .publish-btn.gold-btn:hover:not(:disabled)::before {
+                    left: 100%;
+                }
+
+                .publish-btn.gold-btn:hover:not(:disabled) {
+                    transform: translateY(-3px);
+                    box-shadow:
+                        inset 0 2px 0 rgba(255, 244, 184, 0.5),
+                        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+                        0 8px 30px rgba(184, 134, 11, 0.6);
+                }
+
+                .publish-btn.gold-btn:disabled {
                     opacity: 0.7;
                     cursor: wait;
+                    animation: none;
+                }
+
+                @keyframes goldShine {
+                    0% { background-position: 0% center; }
+                    100% { background-position: 200% center; }
                 }
             `}</style>
 
