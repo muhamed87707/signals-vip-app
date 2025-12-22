@@ -6,46 +6,41 @@ import { LoadingSkeleton } from './common';
 export default function CorrelationMatrix({ lang = 'en' }) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [period, setPeriod] = useState('1M');
 
     const t = {
         en: {
             title: 'Correlation Matrix',
             subtitle: 'Gold correlations with major assets',
-            period: 'Period',
-            positive: 'Positive',
-            negative: 'Negative',
+            positive: 'Positive Correlations',
+            negative: 'Negative Correlations',
             strongest: 'Strongest Correlations',
-            deviation: 'vs Historical',
-            currencies: 'Currencies',
-            bonds: 'Bonds',
-            indices: 'Indices',
-            commodities: 'Commodities',
-            crypto: 'Crypto'
+            dataPoints: 'data points',
+            noData: 'Unable to calculate correlations',
+            realData: 'Calculated from real 30-day price data',
+            asset: 'Asset',
+            correlation: 'Correlation'
         },
         ar: {
             title: 'مصفوفة الارتباط',
             subtitle: 'ارتباطات الذهب مع الأصول الرئيسية',
-            period: 'الفترة',
-            positive: 'إيجابي',
-            negative: 'سلبي',
+            positive: 'ارتباطات إيجابية',
+            negative: 'ارتباطات سلبية',
             strongest: 'أقوى الارتباطات',
-            deviation: 'مقارنة بالتاريخي',
-            currencies: 'العملات',
-            bonds: 'السندات',
-            indices: 'المؤشرات',
-            commodities: 'السلع',
-            crypto: 'العملات الرقمية'
+            dataPoints: 'نقطة بيانات',
+            noData: 'تعذر حساب الارتباطات',
+            realData: 'محسوبة من بيانات الأسعار الفعلية لـ 30 يوم',
+            asset: 'الأصل',
+            correlation: 'الارتباط'
         }
     }[lang] || {};
 
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/market/correlations?period=${period}`)
+        fetch('/api/market/correlations')
             .then(r => r.json())
             .then(setData)
             .finally(() => setLoading(false));
-    }, [period]);
+    }, []);
 
     const getCorrelationColor = (value) => {
         if (value >= 0.7) return '#4caf50';
@@ -61,11 +56,10 @@ export default function CorrelationMatrix({ lang = 'en' }) {
         return `rgba(244, 67, 54, ${intensity * 0.4})`;
     };
 
-    if (loading) return <div className="corr-card"><LoadingSkeleton height="400px" /></div>;
+    if (loading) return <div className="corr-card"><LoadingSkeleton height="350px" /></div>;
 
     const correlations = data?.correlations || {};
-    const categories = data?.categories || {};
-    const analysis = data?.aiAnalysis || {};
+    const hasData = data?.hasRealData && Object.keys(correlations).length > 0;
 
     return (
         <div className="corr-card">
@@ -75,27 +69,24 @@ export default function CorrelationMatrix({ lang = 'en' }) {
                     <h2>{t.title}</h2>
                     <p>{t.subtitle}</p>
                 </div>
-                <div className="period-selector">
-                    {data?.availablePeriods?.map(p => (
-                        <button
-                            key={p}
-                            className={`period-btn ${period === p ? 'active' : ''}`}
-                            onClick={() => setPeriod(p)}
-                        >
-                            {p}
-                        </button>
-                    ))}
-                </div>
             </div>
 
-            {/* Correlation Grid by Category */}
-            {Object.entries(categories).map(([category, assets]) => (
-                <div key={category} className="category-section">
-                    <h3>{t[category] || category}</h3>
+            {!hasData ? (
+                <div className="no-data-notice">
+                    <span className="notice-icon">⚠️</span>
+                    <p>{t.noData}</p>
+                </div>
+            ) : (
+                <>
+                    {/* Real Data Badge */}
+                    <div className="real-data-badge">
+                        ✓ {lang === 'ar' ? data.noteAr : data.note}
+                    </div>
+
+                    {/* Correlation Grid */}
                     <div className="corr-grid">
-                        {assets.map(asset => {
-                            const value = correlations[asset];
-                            const deviation = data?.deviations?.[asset];
+                        {Object.entries(correlations).map(([asset, corrData]) => {
+                            const value = corrData.value;
                             return (
                                 <div 
                                     key={asset} 
@@ -107,50 +98,43 @@ export default function CorrelationMatrix({ lang = 'en' }) {
                                         className="corr-value"
                                         style={{ color: getCorrelationColor(value) }}
                                     >
-                                        {value > 0 ? '+' : ''}{value?.toFixed(2)}
+                                        {value > 0 ? '+' : ''}{value.toFixed(3)}
                                     </span>
-                                    {deviation?.isSignificant && (
-                                        <span className={`deviation ${deviation.deviation > 0 ? 'up' : 'down'}`}>
-                                            {deviation.deviation > 0 ? '↑' : '↓'} {Math.abs(deviation.deviation).toFixed(2)}
-                                        </span>
-                                    )}
+                                    <span className="data-points">
+                                        {corrData.dataPoints} {t.dataPoints}
+                                    </span>
                                 </div>
                             );
                         })}
                     </div>
-                </div>
-            ))}
 
-            {/* Strongest Correlations */}
-            <div className="highlights-section">
-                <h3>{t.strongest}</h3>
-                <div className="highlights-grid">
-                    <div className="highlight-col positive">
-                        <span className="col-label">{t.positive}</span>
-                        {data?.highlights?.strongestPositive?.map(([asset, value]) => (
-                            <div key={asset} className="highlight-item">
-                                <span>{asset}</span>
-                                <span className="value positive">+{value.toFixed(2)}</span>
+                    {/* Strongest Correlations */}
+                    {data?.highlights && (
+                        <div className="highlights-section">
+                            <h3>{t.strongest}</h3>
+                            <div className="highlights-grid">
+                                <div className="highlight-col positive">
+                                    <span className="col-label">{t.positive}</span>
+                                    {data.highlights.strongestPositive?.map((item) => (
+                                        <div key={item.name} className="highlight-item">
+                                            <span>{item.name}</span>
+                                            <span className="value positive">+{item.value.toFixed(3)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="highlight-col negative">
+                                    <span className="col-label">{t.negative}</span>
+                                    {data.highlights.strongestNegative?.map((item) => (
+                                        <div key={item.name} className="highlight-item">
+                                            <span>{item.name}</span>
+                                            <span className="value negative">{item.value.toFixed(3)}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                    <div className="highlight-col negative">
-                        <span className="col-label">{t.negative}</span>
-                        {data?.highlights?.strongestNegative?.map(([asset, value]) => (
-                            <div key={asset} className="highlight-item">
-                                <span>{asset}</span>
-                                <span className="value negative">{value.toFixed(2)}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* AI Analysis */}
-            {analysis.summary && (
-                <div className="ai-analysis">
-                    <p>{lang === 'ar' ? analysis.summaryAr : analysis.summary}</p>
-                </div>
+                        </div>
+                    )}
+                </>
             )}
 
             <style jsx>{`
@@ -165,69 +149,66 @@ export default function CorrelationMatrix({ lang = 'en' }) {
                     align-items: center;
                     gap: 0.75rem;
                     margin-bottom: 1rem;
-                    flex-wrap: wrap;
                 }
                 .icon { font-size: 1.5rem; }
                 .card-header h2 { font-size: 1rem; color: var(--gold-medium); margin: 0; }
                 .card-header p { font-size: 0.75rem; color: var(--text-secondary); margin: 0; }
                 
-                .period-selector {
-                    margin-left: auto;
-                    display: flex;
-                    gap: 0.25rem;
+                .no-data-notice {
+                    padding: 2rem;
+                    background: rgba(255, 152, 0, 0.1);
+                    border: 1px solid rgba(255, 152, 0, 0.3);
+                    border-radius: 12px;
+                    text-align: center;
                 }
-                .period-btn {
-                    padding: 0.3rem 0.6rem;
-                    background: transparent;
-                    border: 1px solid rgba(184, 134, 11, 0.3);
-                    border-radius: 4px;
+                .notice-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+                .no-data-notice p {
+                    font-size: 0.9rem;
                     color: var(--text-secondary);
-                    font-size: 0.7rem;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .period-btn:hover, .period-btn.active {
-                    background: rgba(184, 134, 11, 0.2);
-                    border-color: var(--gold-primary);
-                    color: var(--gold-bright);
+                    margin: 0;
                 }
                 
-                .category-section { margin-bottom: 1rem; }
-                .category-section h3 {
-                    font-size: 0.8rem;
-                    color: var(--gold-medium);
-                    margin: 0 0 0.5rem;
+                .real-data-badge {
+                    padding: 0.5rem 0.75rem;
+                    background: rgba(76, 175, 80, 0.1);
+                    border: 1px solid rgba(76, 175, 80, 0.3);
+                    border-radius: 8px;
+                    color: #4caf50;
+                    font-size: 0.75rem;
+                    text-align: center;
+                    margin-bottom: 1rem;
                 }
                 
                 .corr-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
                     gap: 0.5rem;
+                    margin-bottom: 1rem;
                 }
                 .corr-item {
-                    padding: 0.5rem;
+                    padding: 0.75rem 0.5rem;
                     border-radius: 8px;
                     text-align: center;
                     border: 1px solid rgba(255, 255, 255, 0.05);
                 }
                 .asset-name {
                     display: block;
-                    font-size: 0.7rem;
+                    font-size: 0.75rem;
                     color: var(--text-secondary);
                     margin-bottom: 0.25rem;
                 }
                 .corr-value {
                     display: block;
-                    font-size: 1rem;
+                    font-size: 1.1rem;
                     font-weight: 700;
                 }
-                .deviation {
+                .data-points {
                     display: block;
-                    font-size: 0.65rem;
-                    margin-top: 0.15rem;
+                    font-size: 0.6rem;
+                    color: var(--text-secondary);
+                    margin-top: 0.25rem;
+                    opacity: 0.7;
                 }
-                .deviation.up { color: #4caf50; }
-                .deviation.down { color: #f44336; }
                 
                 .highlights-section { margin-top: 1rem; }
                 .highlights-section h3 {
@@ -241,7 +222,7 @@ export default function CorrelationMatrix({ lang = 'en' }) {
                     gap: 1rem;
                 }
                 .highlight-col {
-                    padding: 0.5rem;
+                    padding: 0.75rem;
                     border-radius: 8px;
                 }
                 .highlight-col.positive { background: rgba(76, 175, 80, 0.1); }
@@ -256,25 +237,11 @@ export default function CorrelationMatrix({ lang = 'en' }) {
                 .highlight-item {
                     display: flex;
                     justify-content: space-between;
-                    font-size: 0.75rem;
-                    padding: 0.25rem 0;
+                    font-size: 0.8rem;
+                    padding: 0.3rem 0;
                 }
                 .value.positive { color: #4caf50; font-weight: 600; }
                 .value.negative { color: #f44336; font-weight: 600; }
-                
-                .ai-analysis {
-                    margin-top: 1rem;
-                    padding: 0.75rem;
-                    background: rgba(184, 134, 11, 0.1);
-                    border-radius: 8px;
-                    border-left: 3px solid var(--gold-primary);
-                }
-                .ai-analysis p {
-                    font-size: 0.8rem;
-                    color: var(--text-secondary);
-                    margin: 0;
-                    line-height: 1.5;
-                }
             `}</style>
         </div>
     );

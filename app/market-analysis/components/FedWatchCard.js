@@ -15,19 +15,13 @@ export default function FedWatchCard({ lang = 'en' }) {
             nextMeeting: 'Next FOMC Meeting',
             daysUntil: 'days',
             probabilities: 'Rate Probabilities',
-            cut50: '-50 bps',
-            cut25: '-25 bps',
-            hold: 'Hold',
-            hike25: '+25 bps',
             officials: 'Fed Officials',
-            hawkish: 'Hawkish',
-            dovish: 'Dovish',
-            neutral: 'Neutral',
             dotPlot: 'Dot Plot Projections',
             goldImpact: 'Gold Impact',
-            bullish: 'Bullish',
-            bearish: 'Bearish',
-            stance: 'Overall Stance'
+            lastDecision: 'Last Decision',
+            checkManually: 'Check manually for real-time data',
+            dataUnavailable: 'Data requires manual verification',
+            upcomingMeetings: 'Upcoming FOMC Meetings'
         },
         ar: {
             title: 'متابعة الفيدرالي',
@@ -36,19 +30,13 @@ export default function FedWatchCard({ lang = 'en' }) {
             nextMeeting: 'اجتماع FOMC القادم',
             daysUntil: 'يوم',
             probabilities: 'احتمالات الفائدة',
-            cut50: '-50 نقطة',
-            cut25: '-25 نقطة',
-            hold: 'تثبيت',
-            hike25: '+25 نقطة',
             officials: 'مسؤولو الفيدرالي',
-            hawkish: 'متشدد',
-            dovish: 'متساهل',
-            neutral: 'محايد',
             dotPlot: 'توقعات Dot Plot',
             goldImpact: 'التأثير على الذهب',
-            bullish: 'صعودي',
-            bearish: 'هبوطي',
-            stance: 'الموقف العام'
+            lastDecision: 'آخر قرار',
+            checkManually: 'تحقق يدوياً للبيانات الفورية',
+            dataUnavailable: 'البيانات تتطلب التحقق اليدوي',
+            upcomingMeetings: 'اجتماعات FOMC القادمة'
         }
     }[lang] || {};
 
@@ -56,18 +44,16 @@ export default function FedWatchCard({ lang = 'en' }) {
         fetch('/api/market/fed-watch')
             .then(r => r.json())
             .then(setData)
+            .catch(console.error)
             .finally(() => setLoading(false));
     }, []);
 
     if (loading) return <div className="fed-card"><LoadingSkeleton height="400px" /></div>;
 
-    const probs = data?.probabilities || {};
-    const analysis = data?.analysis || {};
-
-    const getStanceColor = (stance) => {
-        const colors = { hawkish: '#f44336', dovish: '#4caf50', neutral: '#ff9800' };
-        return colors[stance] || '#ff9800';
-    };
+    const currentRate = data?.currentRate || {};
+    const nextMeeting = data?.nextMeeting || {};
+    const upcomingMeetings = data?.upcomingMeetings || [];
+    const manualCheckUrls = data?.manualCheckUrls || {};
 
     return (
         <div className="fed-card">
@@ -84,81 +70,72 @@ export default function FedWatchCard({ lang = 'en' }) {
                 <div className="rate-box">
                     <span className="label">{t.currentRate}</span>
                     <span className="rate-value">
-                        {data?.currentRate?.lower}% - {data?.currentRate?.upper}%
+                        {currentRate.lower || 0}% - {currentRate.upper || 0}%
                     </span>
+                    {currentRate.lastDecision && (
+                        <span className="last-decision">
+                            {t.lastDecision}: {currentRate.lastDecision}
+                        </span>
+                    )}
                 </div>
                 <div className="meeting-box">
                     <span className="label">{t.nextMeeting}</span>
-                    <span className="meeting-date">{data?.nextMeeting?.date}</span>
-                    <span className="days-until">{data?.nextMeeting?.daysUntil} {t.daysUntil}</span>
+                    <span className="meeting-date">{nextMeeting.date || '-'}</span>
+                    <span className="days-until">{nextMeeting.daysUntil || 0} {t.daysUntil}</span>
                 </div>
             </div>
 
-            {/* Rate Probabilities */}
-            <div className="probs-section">
-                <h3>{t.probabilities}</h3>
-                <div className="probs-grid">
-                    {[
-                        { key: 'cut50', label: t.cut50, color: '#4caf50' },
-                        { key: 'cut25', label: t.cut25, color: '#8bc34a' },
-                        { key: 'hold', label: t.hold, color: '#ff9800' },
-                        { key: 'hike25', label: t.hike25, color: '#f44336' }
-                    ].map(item => (
-                        <div key={item.key} className="prob-item">
-                            <span className="prob-label">{item.label}</span>
-                            <div className="prob-bar">
-                                <div 
-                                    className="prob-fill" 
-                                    style={{ width: `${probs[item.key] || 0}%`, backgroundColor: item.color }}
-                                />
-                            </div>
-                            <span className="prob-value">{probs[item.key]?.toFixed(1)}%</span>
+            {/* Probabilities - Manual Check Required */}
+            {data?.probabilities?.error && (
+                <div className="manual-check-section">
+                    <h3>{t.probabilities}</h3>
+                    <div className="manual-check-box">
+                        <span className="warning-icon">⚠️</span>
+                        <p>{t.dataUnavailable}</p>
+                        <a 
+                            href={manualCheckUrls.fedwatch} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="check-link"
+                        >
+                            CME FedWatch Tool →
+                        </a>
+                    </div>
+                </div>
+            )}
+
+            {/* Upcoming Meetings */}
+            <div className="meetings-section">
+                <h3>{t.upcomingMeetings}</h3>
+                <div className="meetings-list">
+                    {upcomingMeetings.slice(0, 4).map((meeting, idx) => (
+                        <div key={idx} className="meeting-item">
+                            <span className="meeting-date-small">{meeting.date}</span>
+                            <span className="meeting-days">{meeting.daysUntil} {t.daysUntil}</span>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Officials Statements */}
-            <div className="officials-section">
-                <h3>{t.officials}</h3>
-                <div className="officials-list">
-                    {data?.officials?.slice(0, 3).map((official, idx) => (
-                        <div key={idx} className="official-item">
-                            <div className="official-header">
-                                <span className="official-name">
-                                    {lang === 'ar' ? official.nameAr : official.name}
-                                </span>
-                                <span 
-                                    className="stance-badge"
-                                    style={{ backgroundColor: getStanceColor(official.stance) }}
-                                >
-                                    {t[official.stance]}
-                                </span>
-                            </div>
-                            <span className="official-title">
-                                {lang === 'ar' ? official.titleAr : official.title}
-                            </span>
-                            <p className="official-quote">
-                                "{lang === 'ar' ? official.quoteAr : official.quote}"
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Analysis Summary */}
-            <div className="analysis-row">
-                <div className="analysis-item">
-                    <span className="label">{t.stance}</span>
-                    <span className="badge" style={{ backgroundColor: getStanceColor(analysis.overallStance) }}>
-                        {t[analysis.overallStance]}
-                    </span>
-                </div>
-                <div className="analysis-item">
-                    <span className="label">{t.goldImpact}</span>
-                    <span className={`badge ${analysis.goldImpact}`}>
-                        {t[analysis.goldImpact]}
-                    </span>
+            {/* Manual Check Links */}
+            <div className="links-section">
+                <p className="check-note">{t.checkManually}:</p>
+                <div className="links-grid">
+                    {manualCheckUrls.fedwatch && (
+                        <a href={manualCheckUrls.fedwatch} target="_blank" rel="noopener noreferrer">
+                            CME FedWatch
+                        </a>
+                    )}
+                    {manualCheckUrls.fedReserve && (
+                        <a href={manualCheckUrls.fedReserve} target="_blank" rel="noopener noreferrer">
+                            Federal Reserve
+                        </a>
+                    )}
+                    {manualCheckUrls.fomc && (
+                        <a href={manualCheckUrls.fomc} target="_blank" rel="noopener noreferrer">
+                            FOMC Calendar
+                        </a>
+                    )}
                 </div>
             </div>
 
@@ -168,6 +145,7 @@ export default function FedWatchCard({ lang = 'en' }) {
                     border: 1px solid rgba(184, 134, 11, 0.2);
                     border-radius: 16px;
                     padding: 1.25rem;
+                    margin-bottom: 1.5rem;
                 }
                 .card-header {
                     display: flex;
@@ -193,85 +171,94 @@ export default function FedWatchCard({ lang = 'en' }) {
                 }
                 .rate-box { border: 1px solid rgba(184, 134, 11, 0.2); }
                 .label { display: block; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
-                .rate-value { font-size: 1.5rem; font-weight: 700; color: var(--gold-bright); }
+                .rate-value { font-size: 1.5rem; font-weight: 700; color: var(--gold-bright); display: block; }
+                .last-decision { font-size: 0.7rem; color: var(--text-secondary); display: block; margin-top: 0.25rem; }
                 .meeting-date { display: block; font-size: 1rem; font-weight: 600; }
                 .days-until { font-size: 0.8rem; color: var(--gold-medium); }
                 
-                .probs-section, .officials-section { margin-bottom: 1rem; }
-                .probs-section h3, .officials-section h3 {
+                .manual-check-section, .meetings-section { margin-bottom: 1rem; }
+                .manual-check-section h3, .meetings-section h3 {
                     font-size: 0.85rem;
                     color: var(--gold-medium);
                     margin: 0 0 0.75rem;
                 }
                 
-                .probs-grid { display: flex; flex-direction: column; gap: 0.5rem; }
-                .prob-item {
-                    display: grid;
-                    grid-template-columns: 70px 1fr 50px;
-                    gap: 0.5rem;
-                    align-items: center;
-                }
-                .prob-label { font-size: 0.75rem; color: var(--text-secondary); }
-                .prob-bar {
-                    height: 8px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 4px;
-                    overflow: hidden;
-                }
-                .prob-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
-                .prob-value { font-size: 0.8rem; font-weight: 600; text-align: right; }
-                
-                .officials-list { display: flex; flex-direction: column; gap: 0.5rem; }
-                .official-item {
-                    padding: 0.75rem;
-                    background: rgba(0, 0, 0, 0.1);
+                .manual-check-box {
+                    padding: 1rem;
+                    background: rgba(255, 152, 0, 0.1);
+                    border: 1px solid rgba(255, 152, 0, 0.3);
                     border-radius: 8px;
+                    text-align: center;
                 }
-                .official-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
+                .warning-icon { font-size: 1.5rem; }
+                .manual-check-box p { 
+                    font-size: 0.8rem; 
+                    color: var(--text-secondary); 
+                    margin: 0.5rem 0;
                 }
-                .official-name { font-size: 0.85rem; font-weight: 600; }
-                .stance-badge {
-                    padding: 0.15rem 0.4rem;
-                    border-radius: 4px;
-                    font-size: 0.65rem;
+                .check-link {
+                    display: inline-block;
+                    padding: 0.5rem 1rem;
+                    background: rgba(184, 134, 11, 0.2);
+                    border-radius: 6px;
+                    color: var(--gold-bright);
+                    text-decoration: none;
+                    font-size: 0.8rem;
                     font-weight: 600;
-                    color: white;
+                    transition: all 0.3s;
                 }
-                .official-title { font-size: 0.7rem; color: var(--text-secondary); }
-                .official-quote {
-                    font-size: 0.75rem;
-                    color: var(--text-secondary);
-                    font-style: italic;
-                    margin: 0.5rem 0 0;
-                    line-height: 1.4;
+                .check-link:hover {
+                    background: rgba(184, 134, 11, 0.4);
                 }
                 
-                .analysis-row { display: flex; gap: 0.75rem; }
-                .analysis-item {
-                    flex: 1;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
+                .meetings-list {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 0.5rem;
+                }
+                .meeting-item {
                     padding: 0.5rem;
                     background: rgba(0, 0, 0, 0.1);
                     border-radius: 6px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
                 }
-                .badge {
-                    padding: 0.2rem 0.5rem;
-                    border-radius: 4px;
-                    font-size: 0.7rem;
-                    font-weight: 600;
-                    color: white;
+                .meeting-date-small { font-size: 0.8rem; font-weight: 500; }
+                .meeting-days { font-size: 0.7rem; color: var(--text-secondary); }
+                
+                .links-section {
+                    padding-top: 1rem;
+                    border-top: 1px solid rgba(184, 134, 11, 0.1);
                 }
-                .badge.bullish { background: rgba(76, 175, 80, 0.8); }
-                .badge.bearish { background: rgba(244, 67, 54, 0.8); }
-                .badge.neutral { background: rgba(255, 152, 0, 0.8); }
+                .check-note {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    margin: 0 0 0.5rem;
+                }
+                .links-grid {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                }
+                .links-grid a {
+                    padding: 0.4rem 0.8rem;
+                    background: rgba(184, 134, 11, 0.1);
+                    border: 1px solid rgba(184, 134, 11, 0.2);
+                    border-radius: 6px;
+                    color: var(--gold-medium);
+                    text-decoration: none;
+                    font-size: 0.75rem;
+                    transition: all 0.3s;
+                }
+                .links-grid a:hover {
+                    background: rgba(184, 134, 11, 0.2);
+                    border-color: var(--gold-primary);
+                }
                 
                 @media (max-width: 768px) {
                     .rate-section { grid-template-columns: 1fr; }
+                    .meetings-list { grid-template-columns: 1fr; }
                 }
             `}</style>
         </div>
