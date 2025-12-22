@@ -312,6 +312,11 @@ export async function POST(request) {
                 // For VIP posts, use blurred image on Twitter too
                 const twitterImageUrl = (isVip && blurredImageUrl) ? blurredImageUrl : clearImageUrl;
                 
+                console.log('Attempting Twitter post with:', { 
+                    text: customPost ? customPost.substring(0, 50) : 'no text',
+                    hasImage: !!twitterImageUrl 
+                });
+                
                 const twitterRes = await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -321,8 +326,12 @@ export async function POST(request) {
                     })
                 });
                 const twitterData = await twitterRes.json();
+                console.log('Twitter API response:', twitterData);
+                
                 if (twitterData.success) {
                     twitterTweetId = twitterData.tweetId;
+                } else {
+                    console.error('Twitter post failed:', twitterData.error);
                 }
             } catch (twitterError) {
                 console.error('Twitter Post Failed:', twitterError);

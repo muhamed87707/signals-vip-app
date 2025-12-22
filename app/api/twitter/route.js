@@ -25,6 +25,12 @@ async function getTwitterClient() {
 export async function POST(request) {
     try {
         const { text, imageUrl, imageBase64 } = await request.json();
+        
+        console.log('Twitter POST request received:', { 
+            hasText: !!text, 
+            hasImageUrl: !!imageUrl,
+            hasImageBase64: !!imageBase64 
+        });
 
         if (!text && !imageUrl && !imageBase64) {
             return NextResponse.json({ 
@@ -34,6 +40,8 @@ export async function POST(request) {
         }
 
         const client = await getTwitterClient();
+        console.log('Twitter client created successfully');
+        
         const twitterClient = client.readWrite;
 
         let mediaId = null;
@@ -47,18 +55,21 @@ export async function POST(request) {
                 
                 // Upload media
                 mediaId = await twitterClient.v1.uploadMedia(buffer, { mimeType: 'image/jpeg' });
+                console.log('Image uploaded from base64, mediaId:', mediaId);
             } catch (uploadError) {
                 console.error('Image upload error:', uploadError);
                 // Continue without image if upload fails
             }
         } else if (imageUrl && !imageUrl.startsWith('data:')) {
             try {
+                console.log('Fetching image from URL:', imageUrl.substring(0, 50));
                 // Fetch image from URL and upload
                 const imageResponse = await fetch(imageUrl);
                 const arrayBuffer = await imageResponse.arrayBuffer();
                 const buffer = Buffer.from(arrayBuffer);
                 
                 mediaId = await twitterClient.v1.uploadMedia(buffer, { mimeType: 'image/jpeg' });
+                console.log('Image uploaded from URL, mediaId:', mediaId);
             } catch (uploadError) {
                 console.error('Image URL upload error:', uploadError);
             }
@@ -70,7 +81,9 @@ export async function POST(request) {
             tweetOptions.media = { media_ids: [mediaId] };
         }
 
+        console.log('Creating tweet with options:', { hasMedia: !!mediaId, textLength: text?.length });
         const tweet = await twitterClient.v2.tweet(text || '', tweetOptions);
+        console.log('Tweet created successfully:', tweet.data.id);
 
         return NextResponse.json({
             success: true,
@@ -80,6 +93,7 @@ export async function POST(request) {
 
     } catch (error) {
         console.error('Twitter POST Error:', error);
+        console.error('Error details:', error.data || error.message);
         return NextResponse.json({ 
             success: false, 
             error: error.message || 'Failed to post tweet'
