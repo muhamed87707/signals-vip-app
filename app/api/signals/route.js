@@ -278,8 +278,15 @@ export async function POST(request) {
 
         // 1. Upload Main Image (Clear) - only if provided
         let clearImageUrl = null;
+        let blurredImageUrl = null;
+        
         if (imageUrl) {
             clearImageUrl = await uploadToImgBB(imageUrl);
+        }
+        
+        // Upload blurred image for VIP posts
+        if (isVip && telegramImage) {
+            blurredImageUrl = await uploadToImgBB(telegramImage);
         }
 
         let telegramMessageId = null;
@@ -287,14 +294,9 @@ export async function POST(request) {
 
         // 2. Handle Telegram posting
         if (shouldSend) {
-            if (isVip && telegramImage) {
-                // VIP: Upload blurred image and send
-                const blurredUrl = await uploadToImgBB(telegramImage);
-                if (blurredUrl) {
-                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType, type);
-                } else {
-                    telegramMessageId = await sendToTelegram(null, customPost, true, telegramButtonType, type);
-                }
+            if (isVip && blurredImageUrl) {
+                // VIP: Send blurred image
+                telegramMessageId = await sendToTelegram(blurredImageUrl, customPost, true, telegramButtonType, type);
             } else if (clearImageUrl) {
                 // Regular with image: Send clear image
                 telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, type);
@@ -307,12 +309,15 @@ export async function POST(request) {
         // 3. Handle Twitter posting
         if (shouldSendTwitter) {
             try {
+                // For VIP posts, use blurred image on Twitter too
+                const twitterImageUrl = (isVip && blurredImageUrl) ? blurredImageUrl : clearImageUrl;
+                
                 const twitterRes = await fetch(new URL('/api/twitter', request.url).origin + '/api/twitter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: customPost ? customPost.replace(/\*/g, '') : '',
-                        imageUrl: clearImageUrl
+                        imageUrl: twitterImageUrl
                     })
                 });
                 const twitterData = await twitterRes.json();
@@ -324,11 +329,12 @@ export async function POST(request) {
             }
         }
 
-        // 4. Save to DB with all fields
+        // 4. Save to DB with all fields (save both clear and blurred images)
         const signal = await Signal.create({
             pair,
             type,
             imageUrl: clearImageUrl,
+            blurredImageUrl: blurredImageUrl,
             isVip,
             customPost,
             publishedToWebsite: shouldSendToWebsite || false,
@@ -408,6 +414,7 @@ export async function PUT(request) {
         if (!signal) return NextResponse.json({ success: false, error: 'Signal not found' }, { status: 404 });
 
         let finalImageUrl = signal.imageUrl;
+        let finalBlurredUrl = signal.blurredImageUrl;
         const addedTo = [];
         const removedFrom = [];
 
@@ -416,6 +423,13 @@ export async function PUT(request) {
             const clearImageUrl = await uploadToImgBB(imageUrl);
             if (clearImageUrl) {
                 finalImageUrl = clearImageUrl;
+            }
+            // Upload blurred version for VIP
+            if (isVip && telegramImage) {
+                const blurredUrl = await uploadToImgBB(telegramImage);
+                if (blurredUrl) {
+                    finalBlurredUrl = blurredUrl;
+                }
             }
         }
 
@@ -435,11 +449,7 @@ export async function PUT(request) {
         const wasOnTelegram = !!signal.telegramMessageId;
         if (updateTelegram && !wasOnTelegram) {
             // Add to Telegram (new post)
-            let telegramUrl = finalImageUrl;
-            if (isVip && telegramImage) {
-                const blurredUrl = await uploadToImgBB(telegramImage);
-                if (blurredUrl) telegramUrl = blurredUrl;
-            }
+            const telegramUrl = (isVip && finalBlurredUrl) ? finalBlurredUrl : finalImageUrl;
             const msgId = await sendToTelegram(telegramUrl, customPost, isVip, telegramButtonType, type);
             if (msgId) {
                 signal.telegramMessageId = msgId.toString();
@@ -453,11 +463,7 @@ export async function PUT(request) {
         } else if (updateTelegram && wasOnTelegram) {
             // Update existing Telegram post
             if (imageUrl && !imageUrl.startsWith('http')) {
-                let telegramUrl = finalImageUrl;
-                if (isVip && telegramImage) {
-                    const blurredUrl = await uploadToImgBB(telegramImage);
-                    if (blurredUrl) telegramUrl = blurredUrl;
-                }
+                const telegramUrl = (isVip && finalBlurredUrl) ? finalBlurredUrl : finalImageUrl;
                 await editTelegramMedia(signal.telegramMessageId, telegramUrl, customPost, telegramButtonType);
             } else {
                 await editTelegramMessage(signal.telegramMessageId, customPost, telegramButtonType);
@@ -466,6 +472,10 @@ export async function PUT(request) {
 
         // ===== TWITTER PLATFORM =====
         const wasOnTwitter = !!signal.twitterTweetId;
+        
+        // Use blurred image for VIP posts on Twitter
+        const twitterImageUrl = (isVip && finalBlurredUrl) ? finalBlurredUrl : finalImageUrl;
+        
         if (updateTwitter && !wasOnTwitter) {
             // Add to Twitter (new tweet)
             try {
@@ -474,7 +484,7 @@ export async function PUT(request) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: customPost ? customPost.replace(/\*/g, '') : '',
-                        imageUrl: finalImageUrl
+                        imageUrl: twitterImageUrl
                     })
                 });
                 const twitterData = await twitterRes.json();
@@ -509,7 +519,7 @@ export async function PUT(request) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: customPost ? customPost.replace(/\*/g, '') : '',
-                        imageUrl: finalImageUrl
+                        imageUrl: twitterImageUrl
                     })
                 });
                 const twitterData = await twitterRes.json();
@@ -525,6 +535,7 @@ export async function PUT(request) {
         signal.customPost = customPost;
         signal.telegramButtonType = telegramButtonType;
         signal.imageUrl = finalImageUrl;
+        signal.blurredImageUrl = finalBlurredUrl;
         signal.type = type || signal.type;
         signal.isVip = isVip !== undefined ? isVip : signal.isVip;
 

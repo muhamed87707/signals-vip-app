@@ -785,14 +785,17 @@ export default function SignalsPage() {
                                         </div>
                                     )}
                                     <img
-                                        src={signal.imageUrl}
+                                        src={
+                                            // VIP users see clear image, non-VIP see blurred (except first as preview)
+                                            (isVip || index === 0 || !signal.isVip) 
+                                                ? signal.imageUrl 
+                                                : (signal.blurredImageUrl || signal.imageUrl)
+                                        }
                                         alt="Trading Signal"
                                         style={{
                                             width: '100%',
                                             height: 'auto',
                                             display: 'block',
-                                            // VIP posts are blurred for non-VIP users (except first one as preview)
-                                            filter: (!signal.isVip || isVip || index === 0) ? 'none' : 'blur(4px)',
                                             transition: 'filter 0.3s ease'
                                         }}
                                     />
