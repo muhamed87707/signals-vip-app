@@ -1,178 +1,163 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextResponse } from 'next/server';
 
-const genAI = new GoogleGenerativeAI('AIzaSyCQSH-Uu1hecLKvOz-dNp6gTiEMz3DYf-4');
+/**
+ * Correlations - Calculate REAL correlations from actual price data
+ * NO SIMULATED CORRELATION VALUES
+ */
 
-// Correlation data with gold (simulated - would come from real calculations)
-const correlationData = {
-    '1W': {
-        DXY: -0.82,
-        'US10Y': -0.65,
-        'US2Y': -0.58,
-        'EUR/USD': 0.78,
-        'GBP/USD': 0.72,
-        'USD/JPY': -0.45,
-        'USD/CHF': -0.68,
-        'S&P500': -0.25,
-        'NASDAQ': -0.30,
-        'VIX': 0.55,
-        'Silver': 0.92,
-        'Platinum': 0.75,
-        'Copper': 0.48,
-        'Oil': 0.35,
-        'Bitcoin': 0.28
-    },
-    '1M': {
-        DXY: -0.78,
-        'US10Y': -0.72,
-        'US2Y': -0.68,
-        'EUR/USD': 0.75,
-        'GBP/USD': 0.68,
-        'USD/JPY': -0.52,
-        'USD/CHF': -0.72,
-        'S&P500': -0.18,
-        'NASDAQ': -0.22,
-        'VIX': 0.48,
-        'Silver': 0.88,
-        'Platinum': 0.72,
-        'Copper': 0.55,
-        'Oil': 0.42,
-        'Bitcoin': 0.35
-    },
-    '3M': {
-        DXY: -0.75,
-        'US10Y': -0.68,
-        'US2Y': -0.62,
-        'EUR/USD': 0.72,
-        'GBP/USD': 0.65,
-        'USD/JPY': -0.48,
-        'USD/CHF': -0.70,
-        'S&P500': -0.12,
-        'NASDAQ': -0.15,
-        'VIX': 0.42,
-        'Silver': 0.85,
-        'Platinum': 0.68,
-        'Copper': 0.52,
-        'Oil': 0.38,
-        'Bitcoin': 0.42
-    },
-    '1Y': {
-        DXY: -0.72,
-        'US10Y': -0.58,
-        'US2Y': -0.52,
-        'EUR/USD': 0.68,
-        'GBP/USD': 0.62,
-        'USD/JPY': -0.42,
-        'USD/CHF': -0.65,
-        'S&P500': 0.15,
-        'NASDAQ': 0.12,
-        'VIX': 0.35,
-        'Silver': 0.82,
-        'Platinum': 0.65,
-        'Copper': 0.58,
-        'Oil': 0.32,
-        'Bitcoin': 0.48
+// Cache
+let cachedCorrelations = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 3600000; // 1 hour
+
+/**
+ * Fetch historical prices and calculate real correlations
+ */
+async function calculateRealCorrelations() {
+    const assets = [
+        { symbol: 'GC=F', name: 'Gold' },
+        { symbol: 'DX-Y.NYB', name: 'DXY' },
+        { symbol: '^TNX', name: 'US10Y' },
+        { symbol: 'EURUSD=X', name: 'EUR/USD' },
+        { symbol: '^GSPC', name: 'S&P500' },
+        { symbol: 'SI=F', name: 'Silver' },
+        { symbol: 'CL=F', name: 'Oil' },
+        { symbol: '^VIX', name: 'VIX' }
+    ];
+
+    const priceData = {};
+    let hasAnyData = false;
+
+    // Fetch 30 days of data for each asset
+    for (const asset of assets) {
+        try {
+            const response = await fetch(
+                `https://query1.finance.yahoo.com/v8/finance/chart/${asset.symbol}?interval=1d&range=1mo`,
+                { next: { revalidate: 3600 } }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                const result = data.chart?.result?.[0];
+
+                if (result) {
+                    const closes = result.indicators.quote[0].close.filter(c => c !== null);
+                    if (closes.length > 5) {
+                        priceData[asset.name] = closes;
+                        hasAnyData = true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error(`Failed to fetch ${asset.symbol}:`, e.message);
+        }
     }
-};
 
-// Historical averages for comparison
-const historicalAverages = {
-    DXY: -0.70,
-    'US10Y': -0.55,
-    'US2Y': -0.50,
-    'EUR/USD': 0.68,
-    'GBP/USD': 0.60,
-    'USD/JPY': -0.40,
-    'USD/CHF': -0.62,
-    'S&P500': 0.05,
-    'NASDAQ': 0.02,
-    'VIX': 0.38,
-    'Silver': 0.85,
-    'Platinum': 0.70,
-    'Copper': 0.50,
-    'Oil': 0.30,
-    'Bitcoin': 0.35
-};
+    if (!hasAnyData || !priceData['Gold']) {
+        return {
+            error: true,
+            message: 'Unable to calculate correlations - insufficient price data',
+            correlations: {},
+            hasRealData: false,
+            source: 'Yahoo Finance - INSUFFICIENT DATA',
+            lastUpdated: new Date().toISOString()
+        };
+    }
 
-const assetCategories = {
-    currencies: ['DXY', 'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF'],
-    bonds: ['US10Y', 'US2Y'],
-    indices: ['S&P500', 'NASDAQ', 'VIX'],
-    commodities: ['Silver', 'Platinum', 'Copper', 'Oil'],
-    crypto: ['Bitcoin']
-};
+    // Calculate correlations with Gold
+    const correlations = {};
+    const goldPrices = priceData['Gold'];
+
+    for (const [assetName, prices] of Object.entries(priceData)) {
+        if (assetName === 'Gold') continue;
+
+        // Align data lengths
+        const minLength = Math.min(goldPrices.length, prices.length);
+        const goldSlice = goldPrices.slice(-minLength);
+        const assetSlice = prices.slice(-minLength);
+
+        if (minLength >= 5) {
+            const correlation = calculatePearsonCorrelation(goldSlice, assetSlice);
+            correlations[assetName] = {
+                value: parseFloat(correlation.toFixed(3)),
+                dataPoints: minLength,
+                hasRealData: true
+            };
+        }
+    }
+
+    // Sort by absolute correlation value
+    const sorted = Object.entries(correlations)
+        .sort((a, b) => Math.abs(b[1].value) - Math.abs(a[1].value));
+
+    const strongestPositive = sorted.filter(([_, v]) => v.value > 0).slice(0, 3);
+    const strongestNegative = sorted.filter(([_, v]) => v.value < 0).slice(0, 3);
+
+    return {
+        error: false,
+        period: '1M',
+        correlations,
+        highlights: {
+            strongestPositive: strongestPositive.map(([name, data]) => ({ name, ...data })),
+            strongestNegative: strongestNegative.map(([name, data]) => ({ name, ...data }))
+        },
+        hasRealData: true,
+        note: 'Correlations calculated from actual 30-day price data',
+        noteAr: 'الارتباطات محسوبة من بيانات الأسعار الفعلية لـ 30 يوم',
+        source: 'Yahoo Finance (Calculated)',
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+/**
+ * Calculate Pearson correlation coefficient
+ */
+function calculatePearsonCorrelation(x, y) {
+    const n = x.length;
+    if (n !== y.length || n < 2) return 0;
+
+    const sumX = x.reduce((a, b) => a + b, 0);
+    const sumY = y.reduce((a, b) => a + b, 0);
+    const sumXY = x.reduce((total, xi, i) => total + xi * y[i], 0);
+    const sumX2 = x.reduce((total, xi) => total + xi * xi, 0);
+    const sumY2 = y.reduce((total, yi) => total + yi * yi, 0);
+
+    const numerator = n * sumXY - sumX * sumY;
+    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+    if (denominator === 0) return 0;
+    return numerator / denominator;
+}
 
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
-        const period = searchParams.get('period') || '1M';
-        
-        const currentCorrelations = correlationData[period] || correlationData['1M'];
-        
-        // Calculate deviations from historical averages
-        const deviations = {};
-        Object.keys(currentCorrelations).forEach(asset => {
-            const current = currentCorrelations[asset];
-            const historical = historicalAverages[asset];
-            deviations[asset] = {
-                current,
-                historical,
-                deviation: +(current - historical).toFixed(2),
-                isSignificant: Math.abs(current - historical) > 0.15
-            };
-        });
-        
-        // Find strongest correlations
-        const sorted = Object.entries(currentCorrelations)
-            .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
-        
-        const strongestPositive = sorted.filter(([_, v]) => v > 0).slice(0, 3);
-        const strongestNegative = sorted.filter(([_, v]) => v < 0).slice(0, 3);
-        
-        // Get AI analysis
-        let aiAnalysis = null;
-        try {
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-            const prompt = `Analyze these gold correlations and identify notable patterns:
+        const forceRefresh = searchParams.get('refresh') === 'true';
 
-Current ${period} correlations: ${JSON.stringify(currentCorrelations)}
-Historical averages: ${JSON.stringify(historicalAverages)}
+        const now = Date.now();
 
-Return JSON only:
-{
-    "summary": "2-3 sentence analysis of current correlation patterns",
-    "summaryAr": "Arabic translation",
-    "notableChanges": ["change1", "change2"],
-    "notableChangesAr": ["تغيير1", "تغيير2"],
-    "tradingImplication": "bullish/bearish/neutral",
-    "keyInsight": "One key insight",
-    "keyInsightAr": "Arabic translation"
-}`;
-            
-            const result = await model.generateContent(prompt);
-            const text = result.response.text();
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                aiAnalysis = JSON.parse(jsonMatch[0]);
-            }
-        } catch (aiError) {
-            console.error('AI analysis error:', aiError);
+        if (!forceRefresh && cachedCorrelations && (now - lastFetchTime) < CACHE_DURATION) {
+            return NextResponse.json({ ...cachedCorrelations, cached: true });
         }
-        
-        return Response.json({
-            period,
-            correlations: currentCorrelations,
-            deviations,
-            categories: assetCategories,
-            highlights: {
-                strongestPositive,
-                strongestNegative
-            },
-            availablePeriods: Object.keys(correlationData),
-            aiAnalysis,
-            lastUpdate: new Date().toISOString()
-        });
+
+        const correlations = await calculateRealCorrelations();
+
+        // Only cache if we have real data
+        if (correlations.hasRealData) {
+            cachedCorrelations = correlations;
+            lastFetchTime = now;
+        }
+
+        return NextResponse.json(correlations);
     } catch (error) {
         console.error('Correlations error:', error);
-        return Response.json({ error: 'Failed to fetch correlations' }, { status: 500 });
+        return NextResponse.json({
+            error: true,
+            message: 'Failed to calculate correlations: ' + error.message,
+            correlations: {},
+            hasRealData: false,
+            source: 'ERROR',
+            lastUpdated: new Date().toISOString()
+        }, { status: 500 });
     }
 }

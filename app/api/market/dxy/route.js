@@ -6,13 +6,14 @@ let lastFetchTime = 0;
 const CACHE_DURATION = 300000; // 5 minutes
 
 /**
- * Fetch DXY (Dollar Index) data
+ * Fetch REAL DXY (Dollar Index) data from Yahoo Finance
+ * NO FALLBACK - Returns 0 if data unavailable
  */
 async function fetchDXYData() {
-    // Try Yahoo Finance
     try {
         const response = await fetch(
-            'https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=1mo'
+            'https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=3mo',
+            { next: { revalidate: 300 } }
         );
         
         if (response.ok) {
@@ -21,70 +22,74 @@ async function fetchDXYData() {
             
             if (result) {
                 const quote = result.indicators.quote[0];
-                const closes = quote.close.filter(c => c !== null);
-                const current = closes[closes.length - 1];
-                const previous = closes[closes.length - 2];
-                const weekAgo = closes[closes.length - 6] || previous;
+                const timestamps = result.timestamp;
+                const closes = quote.close;
+                const highs = quote.high;
+                const lows = quote.low;
                 
-                return {
-                    value: parseFloat(current.toFixed(3)),
-                    change: parseFloat((current - previous).toFixed(3)),
-                    changePercent: parseFloat(((current - previous) / previous * 100).toFixed(2)),
-                    weekChange: parseFloat((current - weekAgo).toFixed(3)),
-                    weekChangePercent: parseFloat(((current - weekAgo) / weekAgo * 100).toFixed(2)),
-                    high52w: Math.max(...closes) + 2,
-                    low52w: Math.min(...closes) - 2,
-                    historicalData: closes.slice(-20).map((c, i) => ({
-                        date: new Date(Date.now() - (20 - i) * 86400000).toISOString().split('T')[0],
-                        value: c
-                    }))
-                };
+                // Get valid data points
+                const validData = [];
+                for (let i = 0; i < closes.length; i++) {
+                    if (closes[i] !== null) {
+                        validData.push({
+                            timestamp: timestamps[i],
+                            close: closes[i],
+                            high: highs[i],
+                            low: lows[i]
+                        });
+                    }
+                }
+                
+                if (validData.length > 0) {
+                    const current = validData[validData.length - 1];
+                    const previous = validData[validData.length - 2] || current;
+                    const weekAgo = validData[validData.length - 6] || previous;
+                    
+                    // Calculate 52-week high/low from available data
+                    const allCloses = validData.map(d => d.close);
+                    const high52w = Math.max(...allCloses);
+                    const low52w = Math.min(...allCloses);
+                    
+                    // Historical data for chart
+                    const historicalData = validData.slice(-30).map(d => ({
+                        date: new Date(d.timestamp * 1000).toISOString().split('T')[0],
+                        value: parseFloat(d.close.toFixed(3))
+                    }));
+
+                    return {
+                        hasRealData: true,
+                        value: parseFloat(current.close.toFixed(3)),
+                        change: parseFloat((current.close - previous.close).toFixed(3)),
+                        changePercent: parseFloat(((current.close - previous.close) / previous.close * 100).toFixed(2)),
+                        weekChange: parseFloat((current.close - weekAgo.close).toFixed(3)),
+                        weekChangePercent: parseFloat(((current.close - weekAgo.close) / weekAgo.close * 100).toFixed(2)),
+                        high52w: parseFloat(high52w.toFixed(3)),
+                        low52w: parseFloat(low52w.toFixed(3)),
+                        historicalData,
+                        dataDate: new Date(current.timestamp * 1000).toISOString()
+                    };
+                }
             }
         }
     } catch (e) {
-        console.log('Yahoo Finance unavailable for DXY');
+        console.error('Yahoo Finance DXY error:', e.message);
     }
 
-    return generateRealisticDXY();
-}
-
-function generateRealisticDXY() {
-    // Realistic DXY data (December 2024 range: 103-108)
-    const baseValue = 106.5;
-    const variance = (Math.random() - 0.5) * 2;
-    const value = baseValue + variance;
-    const change = (Math.random() - 0.5) * 0.8;
-    
-    // Generate historical data
-    const historicalData = [];
-    let histValue = value - 2;
-    for (let i = 20; i >= 0; i--) {
-        histValue += (Math.random() - 0.48) * 0.5;
-        histValue = Math.max(103, Math.min(108, histValue));
-        historicalData.push({
-            date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-            value: parseFloat(histValue.toFixed(3))
-        });
-    }
-
+    // NO FALLBACK - Return zeros
     return {
-        value: parseFloat(value.toFixed(3)),
-        change: parseFloat(change.toFixed(3)),
-        changePercent: parseFloat(((change / value) * 100).toFixed(2)),
-        weekChange: parseFloat(((Math.random() - 0.5) * 1.5).toFixed(3)),
-        weekChangePercent: parseFloat(((Math.random() - 0.5) * 1.5).toFixed(2)),
-        high52w: 108.5,
-        low52w: 100.2,
-        historicalData
+        hasRealData: false,
+        error: true,
+        message: 'Unable to fetch real DXY data',
+        value: 0,
+        change: 0,
+        changePercent: 0,
+        weekChange: 0,
+        weekChangePercent: 0,
+        high52w: 0,
+        low52w: 0,
+        historicalData: [],
+        dataDate: null
     };
-}
-
-/**
- * Calculate gold correlation with DXY
- */
-function calculateGoldCorrelation() {
-    // DXY and Gold typically have strong negative correlation (-0.7 to -0.9)
-    return parseFloat((-0.75 + (Math.random() - 0.5) * 0.2).toFixed(2));
 }
 
 export async function GET(request) {
@@ -99,39 +104,60 @@ export async function GET(request) {
         }
 
         const dxyData = await fetchDXYData();
-        const goldCorrelation = calculateGoldCorrelation();
 
-        // Technical levels
-        const technicalLevels = {
-            support: [105.0, 104.0, 103.0],
-            resistance: [107.0, 108.0, 109.0],
-            pivot: 106.0
-        };
+        // Technical levels - only calculate if we have real data
+        const technicalLevels = dxyData.hasRealData ? {
+            support: [
+                parseFloat((dxyData.value - 1).toFixed(1)),
+                parseFloat((dxyData.value - 2).toFixed(1)),
+                parseFloat((dxyData.value - 3).toFixed(1))
+            ],
+            resistance: [
+                parseFloat((dxyData.value + 1).toFixed(1)),
+                parseFloat((dxyData.value + 2).toFixed(1)),
+                parseFloat((dxyData.value + 3).toFixed(1))
+            ],
+            pivot: parseFloat(dxyData.value.toFixed(1))
+        } : null;
 
-        // Analysis
-        const analysis = {
+        // Analysis - only if we have real data
+        const analysis = dxyData.hasRealData ? {
             trend: dxyData.change > 0.2 ? 'bullish' : dxyData.change < -0.2 ? 'bearish' : 'neutral',
-            goldImpact: dxyData.change > 0 ? 'bearish' : dxyData.change < 0 ? 'bullish' : 'neutral',
-            strength: dxyData.value > 107 ? 'strong' : dxyData.value < 104 ? 'weak' : 'moderate'
-        };
+            goldImpact: dxyData.change > 0 ? 'bearish_for_gold' : dxyData.change < 0 ? 'bullish_for_gold' : 'neutral',
+            strength: dxyData.value > 107 ? 'strong' : dxyData.value < 100 ? 'weak' : 'moderate'
+        } : null;
+
+        // Gold correlation note (this is a known relationship, not simulated)
+        const goldCorrelationNote = 'DXY and Gold typically have negative correlation (-0.7 to -0.9)';
 
         const result = {
             ...dxyData,
-            goldCorrelation,
             technicalLevels,
             analysis,
+            goldCorrelationNote,
+            source: 'Yahoo Finance',
             lastUpdated: new Date().toISOString()
         };
 
-        cachedDXY = result;
-        lastFetchTime = now;
+        // Only cache if we have real data
+        if (dxyData.hasRealData) {
+            cachedDXY = result;
+            lastFetchTime = now;
+        }
 
         return NextResponse.json(result);
     } catch (error) {
         console.error('DXY API error:', error);
-        if (cachedDXY) {
-            return NextResponse.json({ ...cachedDXY, cached: true, stale: true });
-        }
-        return NextResponse.json({ error: 'Failed to fetch DXY' }, { status: 500 });
+        
+        return NextResponse.json({
+            error: true,
+            message: 'Failed to fetch DXY: ' + error.message,
+            hasRealData: false,
+            value: 0,
+            change: 0,
+            changePercent: 0,
+            source: 'Yahoo Finance - ERROR',
+            lastUpdated: new Date().toISOString()
+        }, { status: 500 });
     }
 }

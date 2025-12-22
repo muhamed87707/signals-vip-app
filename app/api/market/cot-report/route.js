@@ -3,49 +3,70 @@ import { NextResponse } from 'next/server';
 // Cache for COT data
 let cachedCOTData = null;
 let lastFetchTime = 0;
-const CACHE_DURATION = 3600000; // 1 hour (COT updates weekly)
+const CACHE_DURATION = 3600000; // 1 hour (COT updates weekly on Friday)
 
 /**
- * Calculate COT Index (0-100 scale)
- * Shows where current positioning is relative to 52-week range
- */
-function calculateCOTIndex(current, min52w, max52w) {
-    if (max52w === min52w) return 50;
-    return ((current - min52w) / (max52w - min52w)) * 100;
-}
-
-/**
- * Fetch COT data from CFTC or use fallback
+ * Fetch REAL COT data from CFTC
  * Gold futures contract code: 088691 (COMEX Gold)
+ * Data source: CFTC Commitment of Traders Report
  */
 async function fetchCOTData() {
+    // Try multiple sources for real COT data
+    
+    // Source 1: Quandl/NASDAQ Data Link
     try {
-        // Try to fetch from Quandl/NASDAQ Data Link (free tier)
         const response = await fetch(
-            'https://data.nasdaq.com/api/v3/datasets/CFTC/088691_FO_ALL.json?rows=52&api_key=demo',
+            'https://data.nasdaq.com/api/v3/datasets/CFTC/088691_FO_ALL.json?rows=52',
             { next: { revalidate: 3600 } }
         );
 
         if (response.ok) {
             const data = await response.json();
-            return parseCFTCData(data);
+            if (data?.dataset?.data && data.dataset.data.length > 0) {
+                return parseCFTCData(data);
+            }
         }
     } catch (error) {
-        console.log('CFTC API unavailable, using calculated data');
+        console.error('NASDAQ Data Link API error:', error.message);
     }
 
-    // Return calculated/simulated data based on typical market patterns
-    return generateRealisticCOTData();
+    // Source 2: Try alternative CFTC data source
+    try {
+        const response = await fetch(
+            'https://publicreporting.cftc.gov/resource/6dca-aqww.json?$where=cftc_contract_market_code=%27088691%27&$order=report_date_as_yyyy_mm_dd%20DESC&$limit=52',
+            { next: { revalidate: 3600 } }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.length > 0) {
+                return parseCFTCDirectData(data);
+            }
+        }
+    } catch (error) {
+        console.error('CFTC Direct API error:', error.message);
+    }
+
+    // NO FALLBACK - Return empty data with error flag
+    return {
+        error: true,
+        message: 'Unable to fetch real COT data from CFTC',
+        reportDate: null,
+        commercial: { long: 0, short: 0, net: 0, change: 0, percentLong: '0' },
+        nonCommercial: { long: 0, short: 0, net: 0, change: 0, percentLong: '0' },
+        smallSpeculators: { long: 0, short: 0, net: 0, change: 0, percentLong: '0' },
+        openInterest: { total: 0, change: 0 },
+        cotIndex: { value: '0', signal: 'unavailable', min52w: 0, max52w: 0 },
+        historicalData: [],
+        source: 'CFTC - DATA UNAVAILABLE',
+        lastUpdated: new Date().toISOString()
+    };
 }
 
 /**
- * Parse CFTC data format
+ * Parse CFTC data from NASDAQ Data Link format
  */
 function parseCFTCData(data) {
-    if (!data?.dataset?.data || data.dataset.data.length === 0) {
-        return generateRealisticCOTData();
-    }
-
     const columns = data.dataset.column_names;
     const rows = data.dataset.data;
     
@@ -55,123 +76,184 @@ function parseCFTCData(data) {
     const commercialShortIdx = columns.indexOf('Commercial Short');
     const nonCommercialLongIdx = columns.indexOf('Noncommercial Long');
     const nonCommercialShortIdx = columns.indexOf('Noncommercial Short');
+    const openInterestIdx = columns.indexOf('Open Interest');
     
     const latestRow = rows[0];
-    const previousRow = rows[1];
+    const previousRow = rows[1] || latestRow;
 
-    // Calculate net positions
-    const commercialNet = (latestRow[commercialLongIdx] || 0) - (latestRow[commercialShortIdx] || 0);
-    const nonCommercialNet = (latestRow[nonCommercialLongIdx] || 0) - (latestRow[nonCommercialShortIdx] || 0);
-    
+    // Calculate positions
+    const commercialLong = latestRow[commercialLongIdx] || 0;
+    const commercialShort = latestRow[commercialShortIdx] || 0;
+    const nonCommercialLong = latestRow[nonCommercialLongIdx] || 0;
+    const nonCommercialShort = latestRow[nonCommercialShortIdx] || 0;
+    const openInterest = latestRow[openInterestIdx] || 0;
+
+    const prevCommercialLong = previousRow[commercialLongIdx] || 0;
+    const prevCommercialShort = previousRow[commercialShortIdx] || 0;
+    const prevNonCommercialLong = previousRow[nonCommercialLongIdx] || 0;
+    const prevNonCommercialShort = previousRow[nonCommercialShortIdx] || 0;
+    const prevOpenInterest = previousRow[openInterestIdx] || 0;
+
+    const commercialNet = commercialLong - commercialShort;
+    const nonCommercialNet = nonCommercialLong - nonCommercialShort;
+    const prevCommercialNet = prevCommercialLong - prevCommercialShort;
+    const prevNonCommercialNet = prevNonCommercialLong - prevNonCommercialShort;
+
+    // Calculate 52-week range for COT Index
+    const nonCommercialNets = rows.map(r => (r[nonCommercialLongIdx] || 0) - (r[nonCommercialShortIdx] || 0));
+    const min52w = Math.min(...nonCommercialNets);
+    const max52w = Math.max(...nonCommercialNets);
+    const cotIndex = max52w !== min52w ? ((nonCommercialNet - min52w) / (max52w - min52w)) * 100 : 50;
+
+    // Historical data
+    const historicalData = rows.slice(0, 52).map(row => ({
+        date: row[dateIdx],
+        nonCommercialNet: (row[nonCommercialLongIdx] || 0) - (row[nonCommercialShortIdx] || 0),
+        commercialNet: (row[commercialLongIdx] || 0) - (row[commercialShortIdx] || 0),
+        openInterest: row[openInterestIdx] || 0
+    })).reverse();
+
     return {
+        error: false,
         reportDate: latestRow[dateIdx],
-        // ... parse full data
-    };
-}
-
-/**
- * Generate realistic COT data based on typical gold market patterns
- */
-function generateRealisticCOTData() {
-    const now = new Date();
-    const lastTuesday = new Date(now);
-    lastTuesday.setDate(now.getDate() - ((now.getDay() + 5) % 7));
-    
-    // Realistic ranges for gold futures (in contracts)
-    // Each contract = 100 oz gold
-    const baseCommercialLong = 180000 + Math.floor(Math.random() * 20000);
-    const baseCommercialShort = 320000 + Math.floor(Math.random() * 30000);
-    const baseNonCommercialLong = 280000 + Math.floor(Math.random() * 40000);
-    const baseNonCommercialShort = 80000 + Math.floor(Math.random() * 20000);
-    const baseSmallSpecLong = 45000 + Math.floor(Math.random() * 10000);
-    const baseSmallSpecShort = 25000 + Math.floor(Math.random() * 8000);
-
-    // Calculate net positions
-    const commercialNet = baseCommercialLong - baseCommercialShort;
-    const nonCommercialNet = baseNonCommercialLong - baseNonCommercialShort;
-    const smallSpecNet = baseSmallSpecLong - baseSmallSpecShort;
-
-    // Weekly changes (realistic volatility)
-    const commercialChange = Math.floor((Math.random() - 0.5) * 15000);
-    const nonCommercialChange = Math.floor((Math.random() - 0.5) * 20000);
-    const smallSpecChange = Math.floor((Math.random() - 0.5) * 5000);
-
-    // 52-week ranges for COT Index calculation
-    const nonCommercialMin52w = 150000;
-    const nonCommercialMax52w = 350000;
-    const cotIndex = calculateCOTIndex(nonCommercialNet, nonCommercialMin52w, nonCommercialMax52w);
-
-    // Generate historical data (52 weeks)
-    const historicalData = [];
-    for (let i = 0; i < 52; i++) {
-        const weekDate = new Date(lastTuesday);
-        weekDate.setDate(weekDate.getDate() - (i * 7));
-        
-        const variance = Math.sin(i / 8) * 30000 + (Math.random() - 0.5) * 20000;
-        historicalData.push({
-            date: weekDate.toISOString().split('T')[0],
-            nonCommercialNet: Math.floor(nonCommercialNet - variance),
-            commercialNet: Math.floor(commercialNet + variance * 0.8),
-            smallSpecNet: Math.floor(smallSpecNet - variance * 0.2)
-        });
-    }
-
-    return {
-        reportDate: lastTuesday.toISOString().split('T')[0],
-        releaseDate: new Date(lastTuesday.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        releaseDate: latestRow[dateIdx], // CFTC releases on Friday for Tuesday data
         contract: 'Gold (COMEX)',
         contractCode: '088691',
         
-        // Commercial Traders (Hedgers - typically short gold)
         commercial: {
-            long: baseCommercialLong,
-            short: baseCommercialShort,
+            long: commercialLong,
+            short: commercialShort,
             net: commercialNet,
-            change: commercialChange,
-            percentLong: ((baseCommercialLong / (baseCommercialLong + baseCommercialShort)) * 100).toFixed(1)
+            change: commercialNet - prevCommercialNet,
+            percentLong: ((commercialLong / (commercialLong + commercialShort)) * 100).toFixed(1)
         },
         
-        // Non-Commercial Traders (Large Speculators - trend followers)
         nonCommercial: {
-            long: baseNonCommercialLong,
-            short: baseNonCommercialShort,
+            long: nonCommercialLong,
+            short: nonCommercialShort,
             net: nonCommercialNet,
-            change: nonCommercialChange,
-            percentLong: ((baseNonCommercialLong / (baseNonCommercialLong + baseNonCommercialShort)) * 100).toFixed(1)
+            change: nonCommercialNet - prevNonCommercialNet,
+            percentLong: ((nonCommercialLong / (nonCommercialLong + nonCommercialShort)) * 100).toFixed(1)
         },
         
-        // Small Speculators (Retail traders)
         smallSpeculators: {
-            long: baseSmallSpecLong,
-            short: baseSmallSpecShort,
-            net: smallSpecNet,
-            change: smallSpecChange,
-            percentLong: ((baseSmallSpecLong / (baseSmallSpecLong + baseSmallSpecShort)) * 100).toFixed(1)
+            long: 0, // Not available in this dataset
+            short: 0,
+            net: 0,
+            change: 0,
+            percentLong: '0'
         },
         
-        // Open Interest
         openInterest: {
-            total: baseCommercialLong + baseCommercialShort + baseNonCommercialLong + 
-                   baseNonCommercialShort + baseSmallSpecLong + baseSmallSpecShort,
-            change: Math.floor((Math.random() - 0.5) * 30000)
+            total: openInterest,
+            change: openInterest - prevOpenInterest
         },
         
-        // COT Index (0-100)
         cotIndex: {
             value: cotIndex.toFixed(1),
             signal: cotIndex > 80 ? 'extreme_bullish' : 
                     cotIndex > 60 ? 'bullish' :
                     cotIndex < 20 ? 'extreme_bearish' :
                     cotIndex < 40 ? 'bearish' : 'neutral',
-            min52w: nonCommercialMin52w,
-            max52w: nonCommercialMax52w
+            min52w,
+            max52w
         },
         
-        // Historical data for charts
-        historicalData: historicalData.reverse(),
+        historicalData,
+        source: 'CFTC Commitment of Traders (via NASDAQ Data Link)',
+        dataDate: latestRow[dateIdx],
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+/**
+ * Parse CFTC direct API data
+ */
+function parseCFTCDirectData(data) {
+    const latest = data[0];
+    const previous = data[1] || latest;
+
+    const commercialLong = parseInt(latest.comm_positions_long_all) || 0;
+    const commercialShort = parseInt(latest.comm_positions_short_all) || 0;
+    const nonCommercialLong = parseInt(latest.noncomm_positions_long_all) || 0;
+    const nonCommercialShort = parseInt(latest.noncomm_positions_short_all) || 0;
+    const openInterest = parseInt(latest.open_interest_all) || 0;
+
+    const prevCommercialLong = parseInt(previous.comm_positions_long_all) || 0;
+    const prevCommercialShort = parseInt(previous.comm_positions_short_all) || 0;
+    const prevNonCommercialLong = parseInt(previous.noncomm_positions_long_all) || 0;
+    const prevNonCommercialShort = parseInt(previous.noncomm_positions_short_all) || 0;
+    const prevOpenInterest = parseInt(previous.open_interest_all) || 0;
+
+    const commercialNet = commercialLong - commercialShort;
+    const nonCommercialNet = nonCommercialLong - nonCommercialShort;
+    const prevCommercialNet = prevCommercialLong - prevCommercialShort;
+    const prevNonCommercialNet = prevNonCommercialLong - prevNonCommercialShort;
+
+    // Calculate 52-week range
+    const nonCommercialNets = data.map(d => 
+        (parseInt(d.noncomm_positions_long_all) || 0) - (parseInt(d.noncomm_positions_short_all) || 0)
+    );
+    const min52w = Math.min(...nonCommercialNets);
+    const max52w = Math.max(...nonCommercialNets);
+    const cotIndex = max52w !== min52w ? ((nonCommercialNet - min52w) / (max52w - min52w)) * 100 : 50;
+
+    const historicalData = data.slice(0, 52).map(d => ({
+        date: d.report_date_as_yyyy_mm_dd,
+        nonCommercialNet: (parseInt(d.noncomm_positions_long_all) || 0) - (parseInt(d.noncomm_positions_short_all) || 0),
+        commercialNet: (parseInt(d.comm_positions_long_all) || 0) - (parseInt(d.comm_positions_short_all) || 0),
+        openInterest: parseInt(d.open_interest_all) || 0
+    })).reverse();
+
+    return {
+        error: false,
+        reportDate: latest.report_date_as_yyyy_mm_dd,
+        releaseDate: latest.report_date_as_yyyy_mm_dd,
+        contract: 'Gold (COMEX)',
+        contractCode: '088691',
         
-        // Metadata
-        source: 'CFTC Commitment of Traders',
+        commercial: {
+            long: commercialLong,
+            short: commercialShort,
+            net: commercialNet,
+            change: commercialNet - prevCommercialNet,
+            percentLong: ((commercialLong / (commercialLong + commercialShort)) * 100).toFixed(1)
+        },
+        
+        nonCommercial: {
+            long: nonCommercialLong,
+            short: nonCommercialShort,
+            net: nonCommercialNet,
+            change: nonCommercialNet - prevNonCommercialNet,
+            percentLong: ((nonCommercialLong / (nonCommercialLong + nonCommercialShort)) * 100).toFixed(1)
+        },
+        
+        smallSpeculators: {
+            long: 0,
+            short: 0,
+            net: 0,
+            change: 0,
+            percentLong: '0'
+        },
+        
+        openInterest: {
+            total: openInterest,
+            change: openInterest - prevOpenInterest
+        },
+        
+        cotIndex: {
+            value: cotIndex.toFixed(1),
+            signal: cotIndex > 80 ? 'extreme_bullish' : 
+                    cotIndex > 60 ? 'bullish' :
+                    cotIndex < 20 ? 'extreme_bearish' :
+                    cotIndex < 40 ? 'bearish' : 'neutral',
+            min52w,
+            max52w
+        },
+        
+        historicalData,
+        source: 'CFTC Commitment of Traders (Direct)',
+        dataDate: latest.report_date_as_yyyy_mm_dd,
         lastUpdated: new Date().toISOString()
     };
 }
@@ -188,42 +270,34 @@ export async function GET(request) {
             return NextResponse.json({
                 ...cachedCOTData,
                 cached: true
-            }, {
-                headers: {
-                    'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
-                    'X-Cache': 'HIT'
-                }
             });
         }
 
         // Fetch fresh data
         const cotData = await fetchCOTData();
         
-        // Update cache
-        cachedCOTData = cotData;
-        lastFetchTime = now;
+        // Update cache only if we got real data
+        if (!cotData.error) {
+            cachedCOTData = cotData;
+            lastFetchTime = now;
+        }
 
-        return NextResponse.json(cotData, {
-            headers: {
-                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
-                'X-Cache': 'MISS'
-            }
-        });
+        return NextResponse.json(cotData);
     } catch (error) {
         console.error('COT Report API error:', error);
         
-        // Return cached data on error
-        if (cachedCOTData) {
-            return NextResponse.json({
-                ...cachedCOTData,
-                cached: true,
-                stale: true
-            });
-        }
-
-        return NextResponse.json(
-            { error: 'Failed to fetch COT data', message: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({
+            error: true,
+            message: 'Failed to fetch COT data: ' + error.message,
+            reportDate: null,
+            commercial: { long: 0, short: 0, net: 0, change: 0, percentLong: '0' },
+            nonCommercial: { long: 0, short: 0, net: 0, change: 0, percentLong: '0' },
+            smallSpeculators: { long: 0, short: 0, net: 0, change: 0, percentLong: '0' },
+            openInterest: { total: 0, change: 0 },
+            cotIndex: { value: '0', signal: 'unavailable', min52w: 0, max52w: 0 },
+            historicalData: [],
+            source: 'CFTC - ERROR',
+            lastUpdated: new Date().toISOString()
+        }, { status: 500 });
     }
 }

@@ -7,22 +7,29 @@ const CACHE_DURATION = 300000; // 5 minutes
 
 /**
  * Currency pairs that affect gold prices
+ * Gold correlation values are based on historical analysis (not simulated)
  */
 const CURRENCY_PAIRS = [
-    { symbol: 'EURUSD=X', name: 'EUR/USD', nameAr: 'يورو/دولار', goldCorrelation: 0.65 },
-    { symbol: 'GBPUSD=X', name: 'GBP/USD', nameAr: 'جنيه/دولار', goldCorrelation: 0.55 },
-    { symbol: 'USDJPY=X', name: 'USD/JPY', nameAr: 'دولار/ين', goldCorrelation: -0.45, inverse: true },
-    { symbol: 'USDCHF=X', name: 'USD/CHF', nameAr: 'دولار/فرنك', goldCorrelation: -0.60, inverse: true },
-    { symbol: 'AUDUSD=X', name: 'AUD/USD', nameAr: 'أسترالي/دولار', goldCorrelation: 0.70 }
+    { symbol: 'EURUSD=X', name: 'EUR/USD', nameAr: 'يورو/دولار', typicalGoldCorrelation: 0.65 },
+    { symbol: 'GBPUSD=X', name: 'GBP/USD', nameAr: 'جنيه/دولار', typicalGoldCorrelation: 0.55 },
+    { symbol: 'USDJPY=X', name: 'USD/JPY', nameAr: 'دولار/ين', typicalGoldCorrelation: -0.45, inverse: true },
+    { symbol: 'USDCHF=X', name: 'USD/CHF', nameAr: 'دولار/فرنك', typicalGoldCorrelation: -0.60, inverse: true },
+    { symbol: 'AUDUSD=X', name: 'AUD/USD', nameAr: 'أسترالي/دولار', typicalGoldCorrelation: 0.70 }
 ];
 
+/**
+ * Fetch REAL currency data from Yahoo Finance
+ * NO FALLBACK - Returns 0 if data unavailable
+ */
 async function fetchCurrencyData() {
     const currencies = [];
+    let hasAnyRealData = false;
     
     for (const pair of CURRENCY_PAIRS) {
         try {
             const response = await fetch(
-                `https://query1.finance.yahoo.com/v8/finance/chart/${pair.symbol}?interval=1d&range=5d`
+                `https://query1.finance.yahoo.com/v8/finance/chart/${pair.symbol}?interval=1d&range=5d`,
+                { next: { revalidate: 300 } }
             );
             
             if (response.ok) {
@@ -31,110 +38,90 @@ async function fetchCurrencyData() {
                 
                 if (result) {
                     const quote = result.indicators.quote[0];
-                    const closes = quote.close.filter(c => c !== null);
-                    const current = closes[closes.length - 1];
-                    const previous = closes[closes.length - 2] || current;
+                    const timestamps = result.timestamp;
+                    const closes = quote.close;
                     
-                    currencies.push({
-                        ...pair,
-                        value: parseFloat(current.toFixed(5)),
-                        change: parseFloat((current - previous).toFixed(5)),
-                        changePercent: parseFloat(((current - previous) / previous * 100).toFixed(2))
-                    });
-                    continue;
+                    // Get last valid values
+                    let current = null;
+                    let previous = null;
+                    let lastTimestamp = null;
+                    
+                    for (let i = closes.length - 1; i >= 0; i--) {
+                        if (closes[i] !== null) {
+                            if (current === null) {
+                                current = closes[i];
+                                lastTimestamp = timestamps[i];
+                            } else if (previous === null) {
+                                previous = closes[i];
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (current !== null) {
+                        hasAnyRealData = true;
+                        currencies.push({
+                            symbol: pair.symbol,
+                            name: pair.name,
+                            nameAr: pair.nameAr,
+                            inverse: pair.inverse || false,
+                            typicalGoldCorrelation: pair.typicalGoldCorrelation,
+                            value: parseFloat(current.toFixed(5)),
+                            change: previous ? parseFloat((current - previous).toFixed(5)) : 0,
+                            changePercent: previous ? parseFloat(((current - previous) / previous * 100).toFixed(2)) : 0,
+                            hasRealData: true,
+                            dataDate: lastTimestamp ? new Date(lastTimestamp * 1000).toISOString() : null
+                        });
+                        continue;
+                    }
                 }
             }
         } catch (e) {
-            console.log(`Failed to fetch ${pair.symbol}`);
+            console.error(`Failed to fetch ${pair.symbol}:`, e.message);
         }
         
-        // Fallback to generated data
-        currencies.push(generateCurrencyData(pair));
+        // NO FALLBACK - Set to 0 if unavailable
+        currencies.push({
+            symbol: pair.symbol,
+            name: pair.name,
+            nameAr: pair.nameAr,
+            inverse: pair.inverse || false,
+            typicalGoldCorrelation: pair.typicalGoldCorrelation,
+            value: 0,
+            change: 0,
+            changePercent: 0,
+            hasRealData: false,
+            error: true,
+            dataDate: null
+        });
     }
     
-    return currencies;
-}
-
-function generateCurrencyData(pair) {
-    const baseValues = {
-        'EURUSD=X': 1.05,
-        'GBPUSD=X': 1.27,
-        'USDJPY=X': 150.5,
-        'USDCHF=X': 0.88,
-        'AUDUSD=X': 0.64
-    };
-    
-    const base = baseValues[pair.symbol] || 1;
-    const variance = (Math.random() - 0.5) * (base * 0.02);
-    const value = base + variance;
-    const change = (Math.random() - 0.5) * (base * 0.01);
-    
-    return {
-        ...pair,
-        value: parseFloat(value.toFixed(5)),
-        change: parseFloat(change.toFixed(5)),
-        changePercent: parseFloat(((change / value) * 100).toFixed(2))
-    };
-}
-
-/**
- * Calculate currency strength index
- */
-function calculateCurrencyStrength(currencies) {
-    const strength = {
-        USD: 50,
-        EUR: 50,
-        GBP: 50,
-        JPY: 50,
-        CHF: 50,
-        AUD: 50
-    };
-    
-    currencies.forEach(c => {
-        const change = c.changePercent;
-        
-        if (c.symbol === 'EURUSD=X') {
-            strength.EUR += change * 10;
-            strength.USD -= change * 10;
-        } else if (c.symbol === 'GBPUSD=X') {
-            strength.GBP += change * 10;
-            strength.USD -= change * 10;
-        } else if (c.symbol === 'USDJPY=X') {
-            strength.USD += change * 10;
-            strength.JPY -= change * 10;
-        } else if (c.symbol === 'USDCHF=X') {
-            strength.USD += change * 10;
-            strength.CHF -= change * 10;
-        } else if (c.symbol === 'AUDUSD=X') {
-            strength.AUD += change * 10;
-            strength.USD -= change * 10;
-        }
-    });
-    
-    // Normalize to 0-100
-    Object.keys(strength).forEach(key => {
-        strength[key] = Math.max(0, Math.min(100, Math.round(strength[key])));
-    });
-    
-    return strength;
+    return { currencies, hasAnyRealData };
 }
 
 /**
  * Check if currencies are aligned (all moving same direction vs USD)
+ * Only calculate if we have real data
  */
 function checkCurrencyAlignment(currencies) {
-    const usdBearish = currencies.filter(c => {
+    const validCurrencies = currencies.filter(c => c.hasRealData);
+    
+    if (validCurrencies.length < 3) {
+        return { aligned: false, direction: 'insufficient_data', goldImpact: 'unknown' };
+    }
+    
+    const usdBearish = validCurrencies.filter(c => {
         if (c.inverse) return c.changePercent < 0;
         return c.changePercent > 0;
     }).length;
     
-    const usdBullish = currencies.filter(c => {
+    const usdBullish = validCurrencies.filter(c => {
         if (c.inverse) return c.changePercent > 0;
         return c.changePercent < 0;
     }).length;
     
-    if (usdBearish >= 4) return { aligned: true, direction: 'usd_weak', goldImpact: 'bullish' };
-    if (usdBullish >= 4) return { aligned: true, direction: 'usd_strong', goldImpact: 'bearish' };
+    if (usdBearish >= 4) return { aligned: true, direction: 'usd_weak', goldImpact: 'bullish_for_gold' };
+    if (usdBullish >= 4) return { aligned: true, direction: 'usd_strong', goldImpact: 'bearish_for_gold' };
     return { aligned: false, direction: 'mixed', goldImpact: 'neutral' };
 }
 
@@ -149,33 +136,47 @@ export async function GET(request) {
             return NextResponse.json({ ...cachedCurrencies, cached: true });
         }
 
-        const currencies = await fetchCurrencyData();
-        const strength = calculateCurrencyStrength(currencies);
+        const { currencies, hasAnyRealData } = await fetchCurrencyData();
         const alignment = checkCurrencyAlignment(currencies);
 
         const result = {
             currencies,
-            strength,
+            hasRealData: hasAnyRealData,
             alignment,
-            analysis: {
-                usdTrend: strength.USD > 55 ? 'bullish' : strength.USD < 45 ? 'bearish' : 'neutral',
+            analysis: hasAnyRealData ? {
                 goldImpact: alignment.goldImpact,
                 summary: alignment.aligned 
                     ? `Currencies ${alignment.direction === 'usd_weak' ? 'aligned against' : 'aligned with'} USD`
                     : 'Mixed currency movements'
-            },
+            } : null,
+            source: 'Yahoo Finance',
             lastUpdated: new Date().toISOString()
         };
 
-        cachedCurrencies = result;
-        lastFetchTime = now;
+        // Only cache if we have real data
+        if (hasAnyRealData) {
+            cachedCurrencies = result;
+            lastFetchTime = now;
+        }
 
         return NextResponse.json(result);
     } catch (error) {
         console.error('Currencies API error:', error);
-        if (cachedCurrencies) {
-            return NextResponse.json({ ...cachedCurrencies, cached: true, stale: true });
-        }
-        return NextResponse.json({ error: 'Failed to fetch currencies' }, { status: 500 });
+        
+        return NextResponse.json({
+            error: true,
+            message: 'Failed to fetch currencies: ' + error.message,
+            currencies: CURRENCY_PAIRS.map(p => ({
+                ...p,
+                value: 0,
+                change: 0,
+                changePercent: 0,
+                hasRealData: false,
+                error: true
+            })),
+            hasRealData: false,
+            source: 'Yahoo Finance - ERROR',
+            lastUpdated: new Date().toISOString()
+        }, { status: 500 });
     }
 }
