@@ -893,18 +893,19 @@ export default function SignalsPage() {
                                             </div>
                                         </>
                                     ) : (
-                                        <div style={{
-                                            textAlign: 'center',
-                                            padding: '1rem',
-                                            background: 'rgba(184, 134, 11, 0.05)',
-                                            borderRadius: '12px',
-                                            border: '1px dashed rgba(184, 134, 11, 0.2)',
-                                            paddingBottom: '2.5rem'
-                                        }}>
-                                            <span className="text-gradient" style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
-                                                🔒 {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
-                                            </span>
-                                            {/* Inlined Timestamp for Locked State */}
+                                        <>
+                                            <p style={{
+                                                color: 'var(--gold-medium)',
+                                                fontSize: '0.9rem',
+                                                margin: 0,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem'
+                                            }}>
+                                                <span>🔒</span>
+                                                {lang === 'ar' ? 'قم بترقية حسابك لمشاهدة التفاصيل' : 'Upgrade to VIP to view details'}
+                                            </p>
+                                            {/* Timestamp */}
                                             <div style={{
                                                 position: 'absolute',
                                                 bottom: '0.5rem',
@@ -914,7 +915,7 @@ export default function SignalsPage() {
                                             }}>
                                                 {getTimeAgo(signal.createdAt, lang)}
                                             </div>
-                                        </div>
+                                        </>
                                     )}
                                 </div>
                             </div>
