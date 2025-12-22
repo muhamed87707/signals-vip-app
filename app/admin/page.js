@@ -103,10 +103,9 @@ export default function AdminPage() {
     const [vipMessage, setVipMessage] = useState({ type: '', text: '' });
     const [users, setUsers] = useState([]);
 
-    // Telegram Auto-Post State
+    // Publishing Platforms State
+    const [postToWebsite, setPostToWebsite] = useState(false);
     const [postToTelegram, setPostToTelegram] = useState(false);
-    
-    // Twitter/X Auto-Post State
     const [postToTwitter, setPostToTwitter] = useState(false);
     const [twitterApiKey, setTwitterApiKey] = useState('');
     const [twitterApiSecret, setTwitterApiSecret] = useState('');
@@ -536,9 +535,10 @@ export default function AdminPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pair: 'GOLD',
-                    type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
+                    type: signalType === 'vip' ? 'VIP' : 'REGULAR',
                     imageUrl: null,
                     telegramImage: null,
+                    sendToWebsite: postToWebsite,
                     sendToTelegram: postToTelegram,
                     sendToTwitter: postToTwitter,
                     isVip: signalType === 'vip',
@@ -550,6 +550,7 @@ export default function AdminPage() {
             const data = await res.json();
             if (data.success) {
                 let msg = t.postSuccess;
+                if (postToWebsite) msg += ' | 🌐';
                 if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
                 if (postToTwitter) msg += ' | X ✓';
                 setSuccessMessage(msg);
@@ -559,6 +560,7 @@ export default function AdminPage() {
                 setCustomPost('');
                 setSignalType('');
                 setTelegramButtonType('');
+                setPostToWebsite(false);
                 setPostToTelegram(false);
                 setPostToTwitter(false);
             } else {
@@ -613,9 +615,10 @@ export default function AdminPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         pair: 'GOLD',
-                        type: signalType === 'regular' ? 'REGULAR' : 'SIGNAL',
+                        type: signalType === 'vip' ? 'VIP' : 'REGULAR',
                         imageUrl: base64Image,
                         telegramImage: telegramImage,
+                        sendToWebsite: postToWebsite,
                         sendToTelegram: postToTelegram,
                         sendToTwitter: postToTwitter,
                         isVip: signalType === 'vip',
@@ -627,6 +630,7 @@ export default function AdminPage() {
                 const data = await res.json();
                 if (data.success) {
                     let msg = t.postSuccess;
+                    if (postToWebsite) msg += ' | 🌐';
                     if (postToTelegram) msg += ` ${t.telegramSuccess || ''}`;
                     if (postToTwitter) msg += ' | X ✓';
                     setSuccessMessage(msg);
@@ -638,6 +642,7 @@ export default function AdminPage() {
                     setCustomPost('');
                     setSignalType('');
                     setTelegramButtonType('');
+                    setPostToWebsite(false);
                     setPostToTelegram(false);
                     setPostToTwitter(false);
                 } else {
@@ -974,22 +979,14 @@ export default function AdminPage() {
                             {/* Signal Type Selection */}
                             <div className="type-selection">
                                 <h3 className="section-label">{lang === 'ar' ? 'نوع المنشور' : 'Post Type'}</h3>
-                                <div className="type-buttons">
+                                <div className="type-buttons two-cols">
                                     <button 
                                         className={`type-btn ${signalType === 'vip' ? 'active' : ''}`}
                                         onClick={() => setSignalType('vip')}
                                     >
                                         <span className="type-icon">💎</span>
                                         <span className="type-label">VIP</span>
-                                        <span className="type-desc">{lang === 'ar' ? 'مطموسة' : 'Blurred'}</span>
-                                    </button>
-                                    <button 
-                                        className={`type-btn ${signalType === 'free' ? 'active' : ''}`}
-                                        onClick={() => setSignalType('free')}
-                                    >
-                                        <span className="type-icon">🎁</span>
-                                        <span className="type-label">{lang === 'ar' ? 'مجانية' : 'Free'}</span>
-                                        <span className="type-desc">{lang === 'ar' ? 'واضحة' : 'Clear'}</span>
+                                        <span className="type-desc">{lang === 'ar' ? 'مموه لغير المشتركين' : 'Blurred for non-VIP'}</span>
                                     </button>
                                     <button 
                                         className={`type-btn ${signalType === 'regular' ? 'active' : ''}`}
@@ -997,7 +994,7 @@ export default function AdminPage() {
                                     >
                                         <span className="type-icon">📝</span>
                                         <span className="type-label">{lang === 'ar' ? 'عادي' : 'Regular'}</span>
-                                        <span className="type-desc">{lang === 'ar' ? 'منشور' : 'Post'}</span>
+                                        <span className="type-desc">{lang === 'ar' ? 'واضح للجميع' : 'Clear for all'}</span>
                                     </button>
                                 </div>
                             </div>
@@ -1050,21 +1047,27 @@ export default function AdminPage() {
                                 )}
                             </div>
 
-                            {/* Telegram Options */}
+                            {/* Publishing Platforms */}
                             <div className="platforms-section">
-                                <h3 className="section-label">📢 {lang === 'ar' ? 'منصات النشر' : 'Publishing Platforms'}</h3>
-                                <div className="platforms-grid">
+                                <h3 className="section-label">📢 {lang === 'ar' ? 'أماكن النشر' : 'Publishing Platforms'}</h3>
+                                <div className="platforms-grid three-cols">
+                                    <div className={`platform-btn ${postToWebsite ? 'active' : ''}`} onClick={() => setPostToWebsite(!postToWebsite)}>
+                                        <div className="platform-icon website">
+                                            <span>🌐</span>
+                                        </div>
+                                        <span>{lang === 'ar' ? 'الموقع' : 'Website'}</span>
+                                    </div>
                                     <div className={`platform-btn ${postToTelegram ? 'active' : ''}`} onClick={() => setPostToTelegram(!postToTelegram)}>
                                         <div className="platform-icon telegram">
                                             <TelegramIcon />
                                         </div>
-                                        <span>{lang === 'ar' ? 'النشر على تليجرام' : 'Post to Telegram'}</span>
+                                        <span>{lang === 'ar' ? 'تليجرام' : 'Telegram'}</span>
                                     </div>
                                     <div className={`platform-btn ${postToTwitter ? 'active' : ''}`} onClick={() => setPostToTwitter(!postToTwitter)}>
                                         <div className="platform-icon twitter">
                                             <span>𝕏</span>
                                         </div>
-                                        <span>{lang === 'ar' ? 'النشر على X' : 'Post to X'}</span>
+                                        <span>X</span>
                                     </div>
                                 </div>
                             </div>
@@ -1093,7 +1096,7 @@ export default function AdminPage() {
                             )}
 
                             {/* Publish Button - Only show when all required fields are selected */}
-                            {signalType && (postToTelegram || postToTwitter) && (!postToTelegram || telegramButtonType) && (
+                            {signalType && (postToWebsite || postToTelegram || postToTwitter) && (!postToTelegram || telegramButtonType) && (
                                 <div className="publish-action">
                                     <button
                                         onClick={isEditing ? handleUpdate : handlePublish}
@@ -1134,15 +1137,14 @@ export default function AdminPage() {
                                                     <img src={signal.imageUrl} alt="Signal" />
                                                     <div className="signal-badges">
                                                         {signal.isVip && <span className="badge vip">VIP</span>}
-                                                        {signal.type === 'REGULAR' && <span className="badge regular">Regular</span>}
+                                                        {!signal.isVip && <span className="badge regular">{lang === 'ar' ? 'عادي' : 'Regular'}</span>}
                                                     </div>
                                                 </div>
                                             )}
                                             {!signal.imageUrl && (
                                                 <div className="signal-badges-top">
                                                     {signal.isVip && <span className="badge vip">VIP</span>}
-                                                    {signal.type === 'REGULAR' && <span className="badge regular">Regular</span>}
-                                                    {!signal.isVip && signal.type !== 'REGULAR' && <span className="badge free">Free</span>}
+                                                    {!signal.isVip && <span className="badge regular">{lang === 'ar' ? 'عادي' : 'Regular'}</span>}
                                                 </div>
                                             )}
                                             <div className="signal-content">
@@ -1155,6 +1157,7 @@ export default function AdminPage() {
                                                 <div className="signal-meta">
                                                     <span className="signal-time">{getTimeAgo(signal.createdAt, lang)}</span>
                                                     <div className="signal-platforms">
+                                                        {signal.publishedToWebsite && <span className="platform-tag website">🌐</span>}
                                                         {signal.telegramMessageId && <span className="platform-tag telegram">📱 TG</span>}
                                                         {signal.twitterTweetId && <span className="platform-tag twitter">𝕏</span>}
                                                     </div>
@@ -1732,6 +1735,10 @@ export default function AdminPage() {
                     gap: 1rem;
                 }
 
+                .type-buttons.two-cols {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
                 .type-btn {
                     display: flex;
                     flex-direction: column;
@@ -1899,6 +1906,10 @@ export default function AdminPage() {
                     gap: 1rem;
                 }
 
+                .platforms-grid.three-cols {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+
                 .platform-btn {
                     display: flex;
                     align-items: center;
@@ -1933,6 +1944,12 @@ export default function AdminPage() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                }
+
+                .platform-icon.website {
+                    background: linear-gradient(135deg, #B8860B, #DAA520);
+                    color: #000;
+                    font-size: 18px;
                 }
 
                 .platform-icon.telegram {
@@ -2195,6 +2212,11 @@ export default function AdminPage() {
                     padding: 0.2rem 0.5rem;
                     border-radius: 4px;
                     font-weight: 600;
+                }
+
+                .platform-tag.website {
+                    background: rgba(184, 134, 11, 0.2);
+                    color: #DAA520;
                 }
 
                 .platform-tag.telegram {

@@ -2,13 +2,14 @@ import mongoose from 'mongoose';
 
 const SignalSchema = new mongoose.Schema({
   pair: { type: String, required: true },
-  type: { type: String, required: true },
+  type: { type: String, required: true }, // VIP or REGULAR
   imageUrl: { type: String, required: false },
-  isVip: { type: Boolean, default: true },
+  isVip: { type: Boolean, default: false },
   customPost: { type: String },
+  publishedToWebsite: { type: Boolean, default: false },
   telegramMessageId: { type: String },
   telegramButtonType: { type: String, default: 'view_signal' },
-  twitterTweetId: { type: String }, // New: Twitter tweet ID
+  twitterTweetId: { type: String },
   socialMediaPosts: {
     telegram: { type: String },
     twitter: { type: String },

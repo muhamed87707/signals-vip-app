@@ -218,8 +218,8 @@ export async function GET(request) {
         const telegramId = searchParams.get('telegramId');
         const isAdmin = searchParams.get('admin') === 'true';
 
-        // Admin sees all, public sees only non-REGULAR posts
-        const query = isAdmin ? {} : { type: { $ne: 'REGULAR' } };
+        // Admin sees all, public sees only posts published to website
+        const query = isAdmin ? {} : { publishedToWebsite: true };
         const signals = await Signal.find(query).sort({ createdAt: -1 }).limit(10);
         let isVip = false;
         let subscriptionEndDate = null;
@@ -268,11 +268,12 @@ export async function POST(request) {
             type,
             imageUrl,
             telegramImage,
+            sendToWebsite: shouldSendToWebsite,
             sendToTelegram: shouldSend,
             sendToTwitter: shouldSendTwitter,
-            isVip = true,
+            isVip = false,
             customPost = null,
-            telegramButtonType // Extract new field
+            telegramButtonType
         } = body;
 
         // 1. Upload Main Image (Clear) - only if provided
@@ -284,23 +285,19 @@ export async function POST(request) {
         let telegramMessageId = null;
         let twitterTweetId = null;
 
-        // 2. Handle Telegram posting based on VIP status
+        // 2. Handle Telegram posting
         if (shouldSend) {
-            if (type === 'REGULAR') {
-                // Regular Post: Send as is without blurring
-                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, 'REGULAR');
-            } else if (isVip && telegramImage) {
-                // VIP: Upload blurred image and send with VIP caption
+            if (isVip && telegramImage) {
+                // VIP: Upload blurred image and send
                 const blurredUrl = await uploadToImgBB(telegramImage);
                 if (blurredUrl) {
-                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType, 'SIGNAL');
+                    telegramMessageId = await sendToTelegram(blurredUrl, customPost, true, telegramButtonType, type);
                 } else {
-                    // Fallback to text only if blur failed
-                    telegramMessageId = await sendToTelegram(null, customPost, true, telegramButtonType, 'SIGNAL');
+                    telegramMessageId = await sendToTelegram(null, customPost, true, telegramButtonType, type);
                 }
             } else if (clearImageUrl) {
-                // Free with image: Send clear image with free caption
-                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, 'SIGNAL');
+                // Regular with image: Send clear image
+                telegramMessageId = await sendToTelegram(clearImageUrl, customPost, false, telegramButtonType, type);
             } else {
                 // Text only post
                 telegramMessageId = await sendToTelegram(null, customPost, isVip, telegramButtonType, type);
@@ -334,6 +331,7 @@ export async function POST(request) {
             imageUrl: clearImageUrl,
             isVip,
             customPost,
+            publishedToWebsite: shouldSendToWebsite || false,
             telegramButtonType,
             telegramMessageId: telegramMessageId?.toString(),
             twitterTweetId: twitterTweetId?.toString(),
