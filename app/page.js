@@ -511,6 +511,17 @@ export default function LandingPage() {
                     </a>
 
                     <div style={{ display: 'flex', gap: '1.5rem', margin: '0 auto' }}>
+                        <Link href="/signals" className="btn-text-shine" style={{
+                            textDecoration: 'none',
+                            color: 'var(--gold-primary)',
+                            fontWeight: '600',
+                            fontSize: '1rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem'
+                        }}>
+                            ⚡ <span style={{ borderBottom: '1px solid rgba(184, 134, 11, 0.3)' }}>{isRTL ? 'التوصيات الذكية' : 'AI Signals'}</span>
+                        </Link>
                         <Link href="/blog" className="btn-text-shine" style={{
                             textDecoration: 'none',
                             color: 'var(--gold-primary)',
