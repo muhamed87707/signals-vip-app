@@ -1,0 +1,365 @@
+# Implementation Plan: Smart Market Analysis Dashboard
+
+## Overview
+
+خطة تنفيذ شاملة لمركز تحليل السوق الذكي. سيتم بناء اللوحة بشكل تدريجي، بدءاً من البنية الأساسية ثم إضافة المكونات واحداً تلو الآخر مع تكامل AI في كل مرحلة.
+
+## Tasks
+
+- [x] 1. إعداد البنية الأساسية (Project Structure Setup)
+  - [x] 1.1 إنشاء صفحة market-analysis الرئيسية
+    - إنشاء `app/market-analysis/page.js` مع layout أساسي
+    - إضافة دعم اللغتين (RTL/LTR) باستخدام LanguageContext الموجود
+    - _Requirements: 1.5, 1.7_
+  - [x] 1.2 إنشاء المكونات المشتركة (Common Components)
+    - إنشاء `DataCard.js` - wrapper للبطاقات مع تصميم موحد
+    - إنشاء `LoadingSkeleton.js` - حالات التحميل
+    - إنشاء `ChangeIndicator.js` - مؤشرات التغيير (أسهم، ألوان)
+    - إنشاء `RefreshButton.js` - زر التحديث اليدوي
+    - _Requirements: 15.3, 16.4_
+  - [x] 1.3 إعداد نظام التخزين المؤقت (Caching System)
+    - إنشاء `hooks/useMarketData.js` مع SWR للتخزين المؤقت
+    - تحديد TTL مناسب لكل نوع بيانات
+    - _Requirements: 16.1, 16.2, 16.3_
+
+- [x] 2. Hero Section وسعر الذهب الحي
+  - [x] 2.1 إنشاء API endpoint لسعر الذهب
+    - إنشاء `app/api/market/gold-price/route.js`
+    - جلب السعر من Yahoo Finance أو مصدر موثوق
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.2 إنشاء مكون HeroSection
+    - عرض السعر الحالي مع التغيير اليومي
+    - مؤشر الاتجاه (bullish/bearish/neutral)
+    - تحديث تلقائي كل 5 ثواني
+    - _Requirements: 1.1, 1.2_
+  - [ ] 2.3 كتابة property test للـ Hero Section
+    - **Property 1: Language Direction Consistency**
+    - **Validates: Requirements 1.5**
+
+- [x] 3. تكامل Gemini AI الأساسي
+  - [x] 3.1 إنشاء API endpoint للتحليل الذكي
+    - إنشاء `app/api/market/ai-analysis/route.js`
+    - تكامل مع Gemini 2.0 Flash API
+    - إنشاء prompts متخصصة لتحليل الذهب
+    - _Requirements: 14.1, 14.7_
+  - [x] 3.2 إنشاء مكون AISummaryCard
+    - عرض ملخص AI اليومي
+    - عرض الاتجاه مع مستوى الثقة
+    - عرض أهم 3 عوامل مؤثرة
+    - _Requirements: 1.3, 14.2, 14.3_
+  - [ ] 3.3 كتابة property test لمخرجات AI
+    - **Property 22: AI Analysis Output Structure**
+    - **Validates: Requirements 14.2, 14.3, 14.5**
+
+- [x] 4. Checkpoint - التحقق من البنية الأساسية
+  - ✅ جميع الملفات خالية من الأخطاء
+  - ✅ المكونات الأساسية تعمل بشكل صحيح
+
+- [x] 5. تحليل تقرير COT
+  - [x] 5.1 إنشاء API endpoint لبيانات COT
+    - إنشاء `app/api/market/cot-report/route.js`
+    - جلب بيانات COT من CFTC
+    - حساب COT Index
+    - _Requirements: 2.1, 2.5_
+  - [x] 5.2 إنشاء مكون COTReportCard
+    - عرض مواقف المتداولين الثلاثة
+    - عرض التغييرات الأسبوعية مع مؤشرات
+    - عرض COT Index مع تنبيهات المستويات القصوى
+    - رسم بياني تاريخي (52 أسبوع)
+    - _Requirements: 2.1, 2.2, 2.3, 2.6, 2.7_
+  - [x] 5.3 إضافة تحليل AI لـ COT
+    - تحليل ذكي لمواقف المتداولين
+    - _Requirements: 2.4_
+  - [ ] 5.4 كتابة property tests لـ COT
+    - **Property 2: COT Data Display Completeness**
+    - **Property 3: COT Index Calculation Correctness**
+    - **Validates: Requirements 2.1, 2.2, 2.5, 2.6, 2.7**
+
+- [x] 6. تحليل الأخبار الذكي
+  - [x] 6.1 إنشاء API endpoint للأخبار
+    - إنشاء `app/api/market/news/route.js`
+    - جلب أخبار الذهب من مصادر متعددة
+    - _Requirements: 3.1_
+  - [x] 6.2 إنشاء مكون NewsAnalysisCard
+    - عرض الأخبار مع تصنيف التأثير والمعنويات
+    - تمييز الأخبار العاجلة
+    - فلترة حسب الفئة
+    - _Requirements: 3.1, 3.6_
+  - [x] 6.3 إضافة تحليل AI للأخبار
+    - تصنيف كل خبر (impact, sentiment, category)
+    - توليد ملخص موحد للأخبار
+    - _Requirements: 3.2, 3.3, 3.4, 3.5_
+  - [ ] 6.4 كتابة property tests للأخبار
+    - **Property 4: News Classification Completeness**
+    - **Property 5: News Summary Generation**
+    - **Validates: Requirements 3.2, 3.3, 3.4, 3.5**
+
+- [x] 7. توقعات البنوك العالمية
+  - [x] 7.1 إنشاء API endpoint لتوقعات البنوك
+    - إنشاء `app/api/market/bank-forecasts/route.js`
+    - بيانات 15+ بنك عالمي (يمكن أن تكون ثابتة مع تحديث دوري)
+    - حساب المتوسط والنطاق
+    - _Requirements: 4.1, 4.3, 4.4_
+  - [x] 7.2 إنشاء مكون BankForecastsCard
+    - جدول البنوك مع الشعارات والأهداف
+    - ترتيب حسب السعر المستهدف
+    - تمييز التغييرات في التوقعات
+    - عرض الإحصائيات (متوسط، أعلى، أدنى)
+    - _Requirements: 4.2, 4.5, 4.6_
+  - [x] 7.3 إضافة تحليل AI للتوقعات
+    - تحليل الإجماع وتفسيره
+    - _Requirements: 4.7_
+  - [ ] 7.4 كتابة property tests للتوقعات
+    - **Property 6: Bank Forecasts Data Integrity**
+    - **Property 7: Bank Forecast Change Detection**
+    - **Validates: Requirements 4.3, 4.4, 4.5, 4.6**
+
+- [x] 8. Checkpoint - التحقق من المكونات الأساسية
+  - ✅ جميع APIs تعمل بشكل صحيح
+  - ✅ جميع المكونات خالية من الأخطاء
+
+- [x] 9. تحليل عوائد السندات
+  - [x] 9.1 إنشاء API endpoint لعوائد السندات
+    - إنشاء `app/api/market/treasury-yields/route.js`
+    - جلب عوائد 2Y, 5Y, 10Y, 30Y
+    - حساب العائد الحقيقي
+    - اكتشاف انعكاس المنحنى
+    - _Requirements: 6.1, 6.4, 6.5_
+  - [x] 9.2 إنشاء مكون TreasuryYieldsCard
+    - عرض العوائد الأربعة مع التغييرات
+    - رسم منحنى العائد
+    - تنبيه انعكاس المنحنى
+    - عرض الارتباط مع الذهب
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.7_
+  - [x] 9.3 إضافة تحليل AI للسندات
+    - تحليل تأثير العوائد على الذهب
+    - _Requirements: 6.6_
+  - [ ] 9.4 كتابة property tests للسندات
+    - **Property 9: Treasury Yields Display Completeness**
+    - **Property 10: Yield Curve Inversion Detection**
+    - **Property 11: Real Yield Calculation**
+    - **Validates: Requirements 6.1, 6.2, 6.4, 6.5**
+
+- [x] 10. تحليل مؤشر الدولار (DXY)
+  - [x] 10.1 إنشاء API endpoint لـ DXY
+    - إنشاء `app/api/market/dxy/route.js`
+    - جلب قيمة DXY مع التغييرات
+    - حساب الارتباط مع الذهب
+    - _Requirements: 7.1, 7.4_
+  - [x] 10.2 إنشاء مكون DXYAnalysisCard
+    - عرض DXY مع التغييرات
+    - رسم بياني مع overlay للذهب
+    - عرض الارتباط
+    - تنبيهات المستويات الفنية
+    - _Requirements: 7.1, 7.2, 7.3, 7.6_
+  - [x] 10.3 إضافة تحليل AI لـ DXY
+    - تحليل تأثير الدولار على الذهب
+    - _Requirements: 7.5_
+  - [ ] 10.4 كتابة property test للارتباط
+    - **Property 12: Correlation Coefficient Validity**
+    - **Validates: Requirements 6.7, 7.4, 8.4, 9.6**
+
+- [x] 11. تحليل العملات
+  - [x] 11.1 إنشاء API endpoint للعملات
+    - إنشاء `app/api/market/currencies/route.js`
+    - جلب أزواج العملات الخمسة
+    - حساب قوة العملات
+    - _Requirements: 8.1, 8.3_
+  - [x] 11.2 إنشاء مكون CurrencyAnalysisCard
+    - عرض الأزواج الخمسة مع التغييرات
+    - مقياس قوة العملات
+    - عرض الارتباطات مع الذهب
+    - تنبيه محاذاة العملات
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.6_
+  - [x] 11.3 إضافة تحليل AI للعملات
+    - تحليل التأثير المجمع على الذهب
+    - _Requirements: 8.5_
+  - [ ] 11.4 كتابة property tests للعملات
+    - **Property 13: Currency Analysis Completeness**
+    - **Property 14: Currency Alignment Detection**
+    - **Validates: Requirements 8.1, 8.2, 8.6**
+
+- [x] 12. تحليل المؤشرات والأسهم
+  - [x] 12.1 إنشاء API endpoint للمؤشرات
+    - إنشاء `app/api/market/indices/route.js`
+    - جلب S&P 500, Dow, NASDAQ, VIX
+    - جلب أسهم التعدين (GDX, GDXJ)
+    - حساب نسبة الذهب/S&P
+    - _Requirements: 9.1, 9.3, 9.4_
+  - [x] 12.2 إنشاء مكون IndicesCard
+    - عرض المؤشرات الأربعة
+    - تنبيه ارتفاع VIX
+    - عرض أسهم التعدين
+    - عرض نسبة الذهب/S&P
+    - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.6_
+  - [x] 12.3 إضافة تحليل AI للمؤشرات
+    - تحليل معنويات المخاطرة
+    - _Requirements: 9.5_
+  - [ ] 12.4 كتابة property tests للمؤشرات
+    - **Property 15: Indices Display Completeness**
+    - **Property 16: VIX Spike Alert**
+    - **Validates: Requirements 9.1, 9.2, 9.4**
+
+- [x] 13. Checkpoint - التحقق من مكونات التحليل
+  - ✅ جميع مكونات التحليل تعمل
+  - ✅ APIs الارتباطات والمؤشرات جاهزة
+
+- [x] 14. التقويم الاقتصادي الذكي
+  - [x] 14.1 إنشاء API endpoint للتقويم
+    - إنشاء `app/api/market/economic-calendar/route.js`
+    - جلب الأحداث الاقتصادية القادمة
+    - تحديد الأحداث المؤثرة على الذهب
+    - _Requirements: 10.1, 10.2_
+  - [x] 14.2 إنشاء مكون EconomicCalendarCard
+    - عرض الأحداث مع التاريخ والأهمية
+    - تمييز الأحداث المؤثرة على الذهب
+    - عرض القيم (سابق، متوقع، فعلي)
+    - فلترة حسب الأهمية
+    - عداد تنازلي للحدث القادم
+    - _Requirements: 10.1, 10.2, 10.3, 10.6, 10.7_
+  - [x] 14.3 إضافة تحليل AI للأحداث
+    - تحليل مسبق للتأثير المحتمل
+    - تحليل فوري بعد صدور النتيجة
+    - _Requirements: 10.4, 10.5_
+  - [ ] 14.4 كتابة property tests للتقويم
+    - **Property 17: Economic Calendar Event Completeness**
+    - **Property 18: Event Countdown Accuracy**
+    - **Validates: Requirements 10.1, 10.3, 10.7**
+
+- [x] 15. متابعة الفيدرالي الأمريكي
+  - [x] 15.1 إنشاء API endpoint للفيدرالي
+    - إنشاء `app/api/market/fed-watch/route.js`
+    - جلب سعر الفائدة الحالي
+    - جلب احتمالات القرارات القادمة
+    - جلب تصريحات المسؤولين
+    - _Requirements: 11.1, 11.2, 11.3_
+  - [x] 15.2 إنشاء مكون FedWatchCard
+    - عرض سعر الفائدة وتاريخ الاجتماع القادم
+    - عرض احتمالات القرارات
+    - عرض تصريحات المسؤولين مع تصنيف hawk/dove
+    - عرض dot plot
+    - _Requirements: 11.1, 11.2, 11.3, 11.4_
+  - [x] 15.3 إضافة تحليل AI للفيدرالي
+    - تحليل تأثير سياسة الفيدرالي على الذهب
+    - _Requirements: 11.5_
+  - [ ] 15.4 كتابة property test للاحتمالات
+    - **Property 19: Fed Rate Probability Sum**
+    - **Validates: Requirements 11.2**
+
+- [x] 16. آراء الخبراء
+  - [x] 16.1 إنشاء API endpoint للخبراء
+    - إنشاء `app/api/market/expert-opinions/route.js`
+    - جلب/تخزين آراء الخبراء
+    - _Requirements: 5.1_
+  - [x] 16.2 إنشاء مكون ExpertOpinionsCard
+    - عرض آراء الخبراء مع التفاصيل
+    - شارات الاتجاه (bullish/bearish/neutral)
+    - مقياس الإجماع
+    - عرض الأهداف السعرية
+    - _Requirements: 5.2, 5.3, 5.4, 5.5_
+  - [x] 16.3 إضافة تحليل AI للآراء
+    - تجميع الآراء وتحديد المواضيع المشتركة
+    - _Requirements: 5.6_
+  - [ ] 16.4 كتابة property test للإجماع
+    - **Property 8: Expert Opinion Sentiment Aggregation**
+    - **Validates: Requirements 5.4**
+
+- [x] 17. مصفوفة الارتباط
+  - [x] 17.1 إنشاء API endpoint للارتباطات
+    - إنشاء `app/api/market/correlations/route.js`
+    - حساب ارتباطات 15+ أصل مع الذهب
+    - حساب لفترات زمنية متعددة
+    - _Requirements: 12.1, 12.3_
+  - [x] 17.2 إنشاء مكون CorrelationMatrix
+    - عرض heatmap ملون للارتباطات
+    - تبديل بين الفترات الزمنية
+    - تمييز الانحرافات عن المعدل التاريخي
+    - _Requirements: 12.1, 12.2, 12.3, 12.4_
+  - [x] 17.3 إضافة تحليل AI للارتباطات
+    - تحليل التغييرات في الارتباطات
+    - _Requirements: 12.5_
+  - [ ] 17.4 كتابة property tests للارتباطات
+    - **Property 20: Correlation Matrix Size**
+    - **Property 21: Correlation Heatmap Color Mapping**
+    - **Validates: Requirements 12.1, 12.2, 12.3**
+
+- [x] 18. Checkpoint - التحقق من المكونات المتقدمة
+  - ✅ مصفوفة الارتباط تعمل
+  - ✅ التحليل الأساسي جاهز
+  - ✅ مستويات الدعم والمقاومة تعمل
+
+- [x] 19. التحليل الأساسي الشامل
+  - [x] 19.1 إنشاء API endpoint للتحليل الأساسي
+    - إنشاء `app/api/market/fundamentals/route.js`
+    - جلب بيانات العرض والطلب
+    - جلب حيازات ETF
+    - جلب احتياطيات البنوك المركزية
+    - _Requirements: 13.1, 13.3, 13.4_
+  - [x] 19.2 إنشاء مكون FundamentalCard
+    - عرض بيانات العرض والطلب
+    - عرض الطلب حسب المنطقة
+    - عرض حيازات ETF مع التغييرات
+    - عرض نشاط البنوك المركزية
+    - عرض الأنماط الموسمية
+    - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.6_
+  - [x] 19.3 إضافة تحليل AI للأساسيات
+    - تقرير تحليل أساسي شامل
+    - _Requirements: 13.5_
+
+- [x] 20. مستويات الدعم والمقاومة AI
+  - [x] 20.1 تحسين تحليل AI للمستويات
+    - توليد مستويات دعم ومقاومة ذكية
+    - تحليل السيناريوهات (صعودي، محايد، هبوطي)
+    - _Requirements: 14.4, 14.5_
+  - [x] 20.2 إنشاء مكون SupportResistanceCard
+    - عرض المستويات بشكل بصري
+    - عرض السيناريوهات مع الاحتمالات
+    - _Requirements: 14.4, 14.5_
+  - [ ] 20.3 كتابة property test للمستويات
+    - **Property 23: Support/Resistance Level Ordering**
+    - **Validates: Requirements 14.4**
+
+- [x] 21. نظام التنبيهات
+  - [x] 21.1 إنشاء نظام التنبيهات
+    - تنبيهات تغير ظروف السوق
+    - تنبيهات الأحداث المهمة
+    - _Requirements: 14.6_
+
+- [x] 22. التحسينات النهائية
+  - [x] 22.1 تحسين الأداء
+    - تطبيق lazy loading للمكونات الثقيلة
+    - تحسين التخزين المؤقت
+    - _Requirements: 15.1, 15.2_
+  - [x] 22.2 تحسين تجربة المستخدم
+    - إضافة animations سلسة
+    - تحسين التصميم المتجاوب
+    - _Requirements: 15.4, 1.6_
+  - [x] 22.3 إضافة Accessibility
+    - دعم keyboard navigation
+    - التوافق مع WCAG 2.1 AA
+    - _Requirements: 15.6, 15.7_
+  - [ ] 22.4 كتابة property tests للتخزين المؤقت
+    - **Property 24: Cache TTL Behavior**
+    - **Property 25: API Failure Fallback**
+    - **Property 26: Timestamp Display**
+    - **Validates: Requirements 16.1, 16.2, 16.3, 16.6**
+
+- [x] 23. إضافة الترجمات
+  - [x] 23.1 تحديث ملف الترجمات
+    - إضافة جميع النصوص العربية والإنجليزية
+    - _Requirements: 1.5_
+
+- [x] 24. Checkpoint النهائي
+  - Ensure all tests pass, ask the user if questions arise.
+  - مراجعة شاملة للوحة القيادة
+  - التأكد من عمل جميع المكونات معاً
+
+## Notes
+
+- All tasks are required for comprehensive implementation
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- يُفضل البدء بالمكونات الأساسية (Hero, AI Summary, COT) ثم إضافة الباقي تدريجياً
+- يمكن استخدام بيانات ثابتة (mock data) في البداية ثم ربطها بـ APIs حقيقية
