@@ -605,227 +605,3 @@ export const arabicFAQ = [
         { q: 'ما هي نسبة نجاح التوصيات؟', a: 'نحافظ على نسبة نجاح تتراوح بين 85% و 90%، حيث نركز على جودة الصفقات وليس عددها لضمان الربح.' },
         { q: 'هل يمكنني إلغاء الاشتراك؟', a: 'نعم، يمكنك إلغاء التجديد التلقائي في أي وقت من خلال التواصل مع الدعم الفني.' }
 ];
-
-// IES (Institutional Edge System) Translations
-export const iesTranslations = {
-  en: {
-    // Dashboard
-    systemTitle: 'Institutional Edge System',
-    activeSignals: 'Active Signals',
-    closedSignals: 'Closed Signals',
-    noActiveSignals: 'No active signals. System is scanning for high-quality setups...',
-    refresh: 'Refresh',
-    
-    // Tabs
-    signals: 'Signals',
-    analysis: 'Analysis',
-    performance: 'Performance',
-    
-    // Signal Card
-    entry: 'Entry',
-    stopLoss: 'Stop Loss',
-    takeProfit: 'Take Profit',
-    reasoning: 'Signal Reasoning',
-    viewDetails: 'View Details',
-    
-    // Quality Labels
-    institutional: 'A+ Institutional 💎',
-    excellent: 'Excellent ⭐⭐⭐⭐⭐',
-    strong: 'Strong ⭐⭐⭐⭐',
-    good: 'Good ⭐⭐⭐',
-    
-    // Status
-    active: 'Active',
-    expired: 'Expired',
-    
-    // Kill Zone
-    killZone: 'Kill Zone',
-    outsideKillZone: 'Outside Kill Zone',
-    nextSession: 'Next',
-    optimalTime: 'Optimal trading time',
-    waitNextSession: 'Wait for next session',
-    killZonePenalty: 'Trading outside Kill Zone reduces confluence score by 15 points',
-    
-    // Sessions
-    london: 'London',
-    newyork: 'New York',
-    londonClose: 'London Close',
-    asian: 'Asian',
-    offHours: 'Off Hours',
-    
-    // Confluence
-    confluenceScore: 'Confluence Score',
-    componentBreakdown: 'Component Breakdown',
-    smcAnalysis: 'SMC Analysis',
-    marketStructure: 'Market Structure',
-    wyckoff: 'Wyckoff',
-    vsa: 'VSA',
-    orderFlow: 'Order Flow',
-    technical: 'Technical',
-    intermarket: 'Intermarket',
-    fundamental: 'Fundamental',
-    sentiment: 'Sentiment',
-    aiAnalysis: 'AI Analysis',
-    
-    // Validation
-    validationLayers: 'Validation Layers',
-    allConditionsMet: 'All conditions met',
-    conditionsNotMet: 'Conditions not met',
-    criticalLayer: 'Critical',
-    htfTrend: 'HTF Trend Alignment',
-    smcConfluence: 'SMC Confluence',
-    wyckoffPhase: 'Wyckoff Phase',
-    vsaConfirmation: 'VSA Confirmation',
-    orderFlowDirection: 'Order Flow Direction',
-    technicalConfluence: 'Technical Confluence',
-    intermarketAlignment: 'Intermarket Alignment',
-    killZoneTiming: 'Kill Zone Timing',
-    aiConfidence: 'AI Confidence > 70%',
-    
-    // Performance
-    winRate: 'Win Rate',
-    profitFactor: 'Profit Factor',
-    totalPips: 'Total Pips',
-    maxDrawdown: 'Max Drawdown',
-    expectancy: 'Expectancy',
-    sharpeRatio: 'Sharpe Ratio',
-    consecutive: 'Consecutive',
-    performanceByQuality: 'Performance by Quality',
-    equityCurve: 'Equity Curve',
-    
-    // Periods
-    today: 'Today',
-    week: 'Week',
-    month: 'Month',
-    quarter: 'Quarter',
-    year: 'Year',
-    allTime: 'All Time',
-    
-    // Analysis
-    analyze: 'Analyze',
-    analyzing: 'Analyzing...',
-    selectInstrument: 'Select instrument and click Analyze',
-    signalConditionsMet: 'Signal conditions met!',
-    generateSignal: 'Generate Signal',
-    generating: 'Generating...',
-    
-    // Alerts
-    newSignal: 'New Signal!',
-    tp1Hit: 'TP1 Hit!',
-    slHit: 'SL Hit!',
-    slMovedToBE: 'SL moved to BE',
-    
-    // Risk Warning
-    riskWarning: 'Trading involves risk. These signals are for educational purposes only.',
-  },
-  ar: {
-    // Dashboard
-    systemTitle: 'نظام التوصيات المؤسسي',
-    activeSignals: 'التوصيات النشطة',
-    closedSignals: 'التوصيات المغلقة',
-    noActiveSignals: 'لا توجد توصيات نشطة. النظام يبحث عن فرص عالية الجودة...',
-    refresh: 'تحديث',
-    
-    // Tabs
-    signals: 'التوصيات',
-    analysis: 'التحليل',
-    performance: 'الأداء',
-    
-    // Signal Card
-    entry: 'الدخول',
-    stopLoss: 'وقف الخسارة',
-    takeProfit: 'جني الأرباح',
-    reasoning: 'أسباب التوصية',
-    viewDetails: 'عرض التفاصيل',
-    
-    // Quality Labels
-    institutional: 'مؤسسي A+ 💎',
-    excellent: 'ممتاز ⭐⭐⭐⭐⭐',
-    strong: 'قوي ⭐⭐⭐⭐',
-    good: 'جيد ⭐⭐⭐',
-    
-    // Status
-    active: 'نشط',
-    expired: 'منتهي',
-    
-    // Kill Zone
-    killZone: 'Kill Zone',
-    outsideKillZone: 'خارج Kill Zone',
-    nextSession: 'القادم',
-    optimalTime: 'أفضل وقت للتداول',
-    waitNextSession: 'انتظر الجلسة القادمة',
-    killZonePenalty: 'التداول خارج Kill Zone يخصم 15 نقطة من درجة التقاء المؤشرات',
-    
-    // Sessions
-    london: 'لندن',
-    newyork: 'نيويورك',
-    londonClose: 'إغلاق لندن',
-    asian: 'آسيا',
-    offHours: 'خارج الأوقات',
-    
-    // Confluence
-    confluenceScore: 'درجة التقاء المؤشرات',
-    componentBreakdown: 'تفصيل المكونات',
-    smcAnalysis: 'تحليل SMC',
-    marketStructure: 'هيكل السوق',
-    wyckoff: 'ويكوف',
-    vsa: 'VSA',
-    orderFlow: 'تدفق الأوامر',
-    technical: 'فني',
-    intermarket: 'بين الأسواق',
-    fundamental: 'أساسي',
-    sentiment: 'المشاعر',
-    aiAnalysis: 'تحليل AI',
-    
-    // Validation
-    validationLayers: 'طبقات التحقق',
-    allConditionsMet: 'جميع الشروط مستوفاة',
-    conditionsNotMet: 'الشروط غير مستوفاة',
-    criticalLayer: 'حرج',
-    htfTrend: 'توافق الاتجاه العام',
-    smcConfluence: 'تقاطع SMC',
-    wyckoffPhase: 'مرحلة ويكوف',
-    vsaConfirmation: 'تأكيد VSA',
-    orderFlowDirection: 'اتجاه تدفق الأوامر',
-    technicalConfluence: 'التقاء فني',
-    intermarketAlignment: 'توافق الأسواق',
-    killZoneTiming: 'توقيت Kill Zone',
-    aiConfidence: 'ثقة AI > 70%',
-    
-    // Performance
-    winRate: 'نسبة النجاح',
-    profitFactor: 'معامل الربح',
-    totalPips: 'إجمالي النقاط',
-    maxDrawdown: 'أقصى تراجع',
-    expectancy: 'التوقع',
-    sharpeRatio: 'نسبة شارب',
-    consecutive: 'متتالية',
-    performanceByQuality: 'الأداء حسب الجودة',
-    equityCurve: 'منحنى رأس المال',
-    
-    // Periods
-    today: 'اليوم',
-    week: 'أسبوع',
-    month: 'شهر',
-    quarter: 'ربع سنة',
-    year: 'سنة',
-    allTime: 'الكل',
-    
-    // Analysis
-    analyze: 'تحليل',
-    analyzing: 'جاري التحليل...',
-    selectInstrument: 'اختر أداة واضغط تحليل',
-    signalConditionsMet: 'شروط التوصية مستوفاة!',
-    generateSignal: 'إنشاء توصية',
-    generating: 'جاري الإنشاء...',
-    
-    // Alerts
-    newSignal: 'توصية جديدة!',
-    tp1Hit: 'TP1 تم!',
-    slHit: 'SL تم!',
-    slMovedToBE: 'تم نقل SL إلى BE',
-    
-    // Risk Warning
-    riskWarning: 'التداول ينطوي على مخاطر. هذه التوصيات للأغراض التعليمية فقط.',
-  },
-};

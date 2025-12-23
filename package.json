@@ -21,7 +21,6 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "twitter-api-v2": "^1.28.0",
-    "uuid": "^13.0.0",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
@@ -32,7 +31,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.0.8",
-    "fast-check": "^4.5.2",
+    "fast-check": "^4.5.1",
     "happy-dom": "^20.0.11",
     "jsdom": "^27.3.0",
     "png-to-ico": "^3.0.1",
