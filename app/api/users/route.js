@@ -1,6 +1,7 @@
 import dbConnect from '../../../lib/mongodb';
 import User from '../../../models/User';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/authMiddleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,12 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+    // Check admin authentication
+    const authCheck = requireAuth(request);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
     try {
         await dbConnect();
         const body = await request.json();

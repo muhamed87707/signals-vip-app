@@ -2,6 +2,7 @@ import dbConnect from '@/lib/mongodb';
 import Signal from '@/models/Signal';
 import User from '@/models/User';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/authMiddleware';
 
 export const dynamic = 'force-dynamic';
 
@@ -260,6 +261,12 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+    // Check admin authentication
+    const authCheck = requireAuth(request);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
     try {
         await dbConnect();
         const body = await request.json();
@@ -365,6 +372,12 @@ export async function POST(request) {
 
 
 export async function DELETE(request) {
+    // Check admin authentication
+    const authCheck = requireAuth(request);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
     try {
         await dbConnect();
         const { searchParams } = new URL(request.url);
@@ -401,6 +414,12 @@ export async function DELETE(request) {
 }
 
 export async function PUT(request) {
+    // Check admin authentication
+    const authCheck = requireAuth(request);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
     try {
         await dbConnect();
         const body = await request.json();

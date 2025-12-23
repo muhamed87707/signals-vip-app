@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../lib/mongodb';
 import Settings from '../../../models/Settings';
+import { requireAuth } from '@/lib/authMiddleware';
 
 export async function GET() {
     try {
@@ -46,6 +47,12 @@ export async function GET() {
 }
 
 export async function POST(request) {
+    // Check admin authentication
+    const authCheck = requireAuth(request);
+    if (!authCheck.authorized) {
+        return authCheck.response;
+    }
+
     try {
         await dbConnect();
         

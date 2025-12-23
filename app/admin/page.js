@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-const ADMIN_PASSWORD = '123';
+// Password removed - now handled by backend API
 
 // ===== Icons Components =====
 const DashboardIcon = () => (
@@ -86,8 +86,10 @@ const getTimeAgo = (dateStr, lang) => {
 export default function AdminPage() {
     const { t, lang, toggleLang, isRTL, mounted } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authChecking, setAuthChecking] = useState(true);
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loginLoading, setLoginLoading] = useState(false);
     const [signals, setSignals] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -207,30 +209,69 @@ export default function AdminPage() {
     };
 
     useEffect(() => {
-        const auth = sessionStorage.getItem('admin-auth');
-        if (auth === 'true') {
-            setIsAuthenticated(true);
-            fetchSignals();
-            fetchUsers();
-        }
+        // Check authentication status via API on page load
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.authenticated) {
+                    setIsAuthenticated(true);
+                    fetchSignals();
+                    fetchUsers();
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+            } finally {
+                setAuthChecking(false);
+            }
+        };
+        checkAuth();
     }, []);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        if (password === ADMIN_PASSWORD) {
-            setIsAuthenticated(true);
-            sessionStorage.setItem('admin-auth', 'true');
-            setError('');
-            fetchSignals();
-            fetchUsers();
-        } else {
+        setLoginLoading(true);
+        setError('');
+        
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ password })
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+                setIsAuthenticated(true);
+                setPassword('');
+                fetchSignals();
+                fetchUsers();
+            } else {
+                setError(data.error || t.loginError);
+            }
+        } catch (err) {
+            console.error('Login error:', err);
             setError(t.loginError);
+        } finally {
+            setLoginLoading(false);
         }
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (err) {
+            console.error('Logout error:', err);
+        }
         setIsAuthenticated(false);
-        sessionStorage.removeItem('admin-auth');
     };
 
     const fetchSignals = async () => {
@@ -737,6 +778,17 @@ export default function AdminPage() {
 
     if (!mounted) return null;
 
+    // Show loading while checking authentication
+    if (authChecking) {
+        return (
+            <div className="admin-login-container" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f0f 0%, #141414 50%, #0f0f0f 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center', color: '#B8860B' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔐</div>
+                    <p>{lang === 'ar' ? 'جاري التحقق...' : 'Verifying...'}</p>
+                </div>
+            </div>
+        );
+    }
 
     // ===== LOGIN SCREEN =====
     if (!isAuthenticated) {
@@ -756,10 +808,13 @@ export default function AdminPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder={t.passwordPlaceholder}
                                 className="admin-input"
+                                disabled={loginLoading}
                             />
                         </div>
                         {error && <p className="error-message">{error}</p>}
-                        <button type="submit" className="admin-btn-primary">{t.login}</button>
+                        <button type="submit" className="admin-btn-primary" disabled={loginLoading}>
+                            {loginLoading ? (lang === 'ar' ? 'جاري التحقق...' : 'Verifying...') : t.login}
+                        </button>
                     </form>
                 </div>
                 <style jsx>{`
